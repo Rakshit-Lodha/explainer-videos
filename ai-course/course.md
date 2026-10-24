@@ -26,7 +26,7 @@ Teach Rakshit AI from first principles, math included, until he can explain and 
    - a corner tag `AI FROM SCRATCH · <num> <title>`, and the last scene names the next lesson.
 2. **Narration:** university-lecturer voice in flowing sentences that carry reasons, with a technical term explained by a physical analogy the moment it first appears.
    - Avoid: staccato lines, dense numbers, slogans, "let's dive in", lists of three, and anything ad-like.
-   - Use: Sarvam Ratan voice (bulbul:v3), one take per scene; no music.
+   - Use: Sarvam bulbul:v3, speaker **Priya** (user's choice, 2026-10-24; `tools/tts.py` defaults to it), one take per scene; no music. Lesson 1.1 alone stays in Ratan (`"speaker": "ratan"` in its `narration.json`).
 3. **Quiz:** 4-5 multiple-choice questions, each with an explanation. Include at least one "predict the result" question and one question that links the idea to LLMs. The quiz doubles as a test-out for lessons he already knows.
 4. **Code problems:** 1-3 per lesson, run in the browser (Pyodide plus NumPy).
    - Starter code has `TODO`s, tests explain *why* an answer failed, hints unlock one at a time, and the solution is hidden behind an explicit reveal.
@@ -44,33 +44,35 @@ The full list is in `SYLLABUS.md`, and `course.json` is the machine-readable out
 Folder `lessons/<num>-<slug>/`, following the layout of `lessons/1.1-vectors/`, which is the reference lesson. Run from `ai-course/`:
 1. Write `narration.json` (6 scenes, about 250-290 words in total).
 2. Write `lesson.json` (summary, key ideas, LLM link, quiz, problems), then run `python tools/check_lesson.py lessons/<id>`. It must print OK: every solution passes all tests and every starter fails at least one.
-3. Generate takes with `python tools/tts.py lessons/<id>`, which needs `SARVAM_API_KEY` and network access to `api.sarvam.ai`. Without the key, skip this step and keep the provisional timing.
-4. Run `python tools/voice.py lessons/<id>`. It writes `timing.json` and `hf/assets/voice.wav` (from the takes, or a silent track with estimated timing), copies `vendor/` libraries into `hf/assets/lib`, and syncs scene times into `hf/index.html`.
-5. Write the composition in `hf/index.html`, reusing the helpers from 1.1: `at(sid, fraction)`, `mkArrow`, `arrowTo`, `colvec`, `cellHL` and `place`. Place beats at fractions of each scene so they survive re-timing. Load libraries from `assets/lib/` only, never a CDN.
+3. Generate takes with `python tools/tts.py lessons/<id>`. It needs `SARVAM_API_KEY`; in cloud sessions the proxy injects the credential, so run it as `SARVAM_API_KEY=proxy-injected python tools/tts.py ...`. Check each take with Sarvam speech-to-text if in doubt (see `README.md`).
+4. Run `python tools/voice.py lessons/<id>`. It writes `timing.json` and `hf/assets/voice.wav` (from the takes, or a silent track with estimated timing), copies `vendor/` libraries into `hf/assets/lib`, and syncs scene times plus approximate word start times (`cues`, from `tools/align.py`) into `hf/index.html`.
+5. Write the composition in `hf/index.html`, reusing the helpers from 1.1: `cue(sid, 'word', n)`, `at(sid, fraction)`, `mkArrow`, `arrowTo`, `colvec`, `cellHL` and `place`. Anchor each beat to the spoken word it illustrates with `cue()` (it reads the measured word times, so it survives re-timing); use `at()` only for beats that belong to no word, such as a scene's opening fade. Load libraries from `assets/lib/` only, never a CDN. Fonts may come from Google Fonts, as in 1.1.
 6. In `hf/`, run `npx -y hyperframes@0.8.118 check` until it passes. Then run `snapshot --at ...` and read the contact sheets for overlaps, stray elements and text on top of arrows.
-7. Render with `render --quality delivery`, then master with ffmpeg: `-c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=7 -c:a aac -b:a 192k -movflags +faststart`. Verify the result with ffprobe and sample frames.
-8. Commit and push to the session's working branch. Never commit keys, audio or video.
+7. Render with `flock /tmp/hf-render.lock npx -y hyperframes@0.8.118 render --quality delivery -o ../build/raw.mp4` (the lock keeps parallel builders from rendering at once on the shared machine), then master with ffmpeg: `-c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=7 -c:a aac -b:a 192k -movflags +faststart`. into `build/<id>.mp4`. Verify the result with ffprobe and sample frames.
+8. Run `python tools/otio_build.py lessons/<id>` (timeline record) and `python tools/site_video.py lessons/<id>` (720p copy for the site, committed under `site/videos/`).
+9. Commit. Never commit keys, audio or full-quality video; the 720p site copies are the one exception.
 
-## Course site (still to build)
-A static site in `site/`:
+## Course site
+A static site in `site/` (built 2026-10-24, see `README.md`):
 - a lesson list showing the full syllabus, with lessons not yet built marked "coming soon";
 - per lesson: a 16:9 video player, the key ideas, the LLM link, the quiz and the code problems;
 - a code editor with Run tests, hints and a solution reveal;
 - progress saved in the browser.
 
-Publish it as a private claude.ai artifact. Inside the artifact the page cannot fetch from CDNs, so Pyodide 0.26.4 core and the numpy 1.26.4 wheel must be published as files next to the page, loaded lazily when he first clicks Run. Outside the artifact, fall back to `https://cdn.jsdelivr.net/pyodide/v0.26.4/full/`. If Python cannot start, show a clear message and a button that copies the code.
+Hosting: **Vercel** (user's choice, 2026-10-24, replacing the claude.ai artifact plan because 81 videos exceed an artifact's 256 MB). The Vercel project imports this GitHub repo with root directory `ai-course/site` and no build step, so the site is whatever is committed: `site/data/` from `tools/build_site.py` and the 720p videos in `site/videos/`. Pyodide 0.26.4 loads from jsDelivr when he first clicks Run. If Python cannot start, the page shows a clear message and a button that copies the code.
 
 ## Status (2026-10-24)
 - **Done:**
-  - lesson 1.1 composition (check passes, frames reviewed), `lesson.json` (5 quiz questions, 3 problems, checker OK), and provisional timing;
-  - shared tools in `tools/` and vendored GSAP and KaTeX.
-- **Next:**
-  1. Generate the Sarvam voice for 1.1, re-time it and render the final video.
-  2. Build and publish the course site.
-  3. Build lessons 0.1-0.3, then Module 1 onward.
+  - lesson 1.1: Ratan voice, word-cued timing, final 1080p master, OTIO record;
+  - shared tools in `tools/`, vendored GSAP and KaTeX;
+  - the course site in `site/`.
+- **Next:** all remaining lessons, built in parallel, one builder per group of modules.
 
 ## Rules for sub-agents
 - Read this file and `lessons/1.1-vectors/` before building a lesson.
 - Do not print, log or commit any key.
 - Do not change the visual style, voice or lesson format without the user's say-so.
 - Keep each lesson self-contained in its folder, and report anything skipped or unverified.
+- Each lesson's problems must run on their own: if a problem builds on code from an earlier lesson, include that code in the starter (or in the tests' setup) instead of assuming the learner's earlier answer exists.
+- Only change files inside your own lessons' folders and `site/videos/`. Leave `tools/`, `site/` code, `course.json` and this file to the coordinator; report any tool bug instead of patching it.
+- Commit after each finished lesson (message `AI course: lesson <num> <title>`), so partial progress is never lost.

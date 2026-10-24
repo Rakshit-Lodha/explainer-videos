@@ -75,7 +75,7 @@ function getWorker() {
   if (!worker) {
     worker = new Worker('py-worker.js');
     worker.onmessage = ({ data }) => { if (pending) pending(data); };
-    worker.onerror = e => { e.preventDefault(); worker = null; if (pending) pending({ type: 'error', text: 'Could not load the Python runtime (Pyodide). Check your connection and try again.' }); };
+    worker.onerror = e => { e.preventDefault(); worker = null; if (pending) pending({ type: 'error', text: 'Could not load the Python runtime (Pyodide). Check your connection and try again, or copy your code and run it locally.' }); };
   }
   return worker;
 }
@@ -132,7 +132,13 @@ L.problems.forEach(p => {
     runBtn.disabled = true; results.textContent = ''; status.textContent = 'Starting…';
     const res = await runTests(getCode(), p.tests, t => status.textContent = t);
     runBtn.disabled = false;
-    if (res.type === 'error') { status.textContent = res.text; return; }
+    if (res.type === 'error') {
+      status.textContent = res.text + ' ';
+      if (/Could not load/.test(res.text)) status.append(h('button', { class: 'btn', type: 'button', onclick: async e => {
+        try { await navigator.clipboard.writeText(getCode()); e.target.textContent = 'Copied'; } catch { e.target.textContent = 'Copy failed: select the code by hand'; }
+      } }, 'Copy my code'));
+      return;
+    }
     const passed = res.results.filter(r => r.ok).length;
     status.textContent = passed === res.results.length ? `All ${passed} tests pass.` : `${passed} of ${res.results.length} tests pass.`;
     for (const r of res.results) {
