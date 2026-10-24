@@ -2,6 +2,9 @@
 
 This folder produces short narrated explainer videos (9:16, 1080x1920, 60-90 s, hard ceiling 4 minutes) in a dark-navy, amber-and-teal motion-graphics style. The first finished example is `upi/` (`How_UPI_Works.mp4`); follow its layout for new topics.
 
+## AI from Scratch course
+Work in `ai-course/` follows `ai-course/course.md` (objective, learner profile, lesson format, pipeline and status). Read it first; it overrides the 9:16 defaults above for that course.
+
 ## Skills to load, in order
 Load each skill with the Skill tool at the step that needs it, not all up front.
 
