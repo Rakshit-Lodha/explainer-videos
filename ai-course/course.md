@@ -18,7 +18,7 @@ Teach Rakshit AI from first principles, math included, until he can explain and 
 - **Start date:** 2026-10-25.
 
 ## Lesson format (every lesson)
-1. **Video:** 60-90 s, 16:9 at 1920x1080. Style inspired by 3Blue1Brown without copying its branding or mascot:
+1. **Video:** as long as the idea needs, up to about 5 minutes (user, 2026-10-24: not constrained to 1 minute); simple ideas stay short, hard ones get more scenes. 16:9 at 1920x1080. Style inspired by 3Blue1Brown without copying its branding or mascot:
    - near-black background `#0e1116` with a blue number-plane grid;
    - vectors in blue `#58c4dd` and yellow `#f5cf4a`, x/î in green `#83c167`, y/ĵ in red `#fc6255`, sums in pink `#e77fb3`;
    - math typeset with KaTeX; Newsreader for text, JetBrains Mono for numbers;
@@ -42,7 +42,7 @@ The full list is in `SYLLABUS.md`, and `course.json` is the machine-readable out
 
 ## Build pipeline (per lesson)
 Folder `lessons/<num>-<slug>/`, following the layout of `lessons/1.1-vectors/`, which is the reference lesson. Run from `ai-course/`:
-1. Write `narration.json` (6 scenes, about 250-290 words in total).
+1. Write `narration.json`: 6 or more scenes, as many words as the idea needs. About 170 words is a minute; keep the total under 5 minutes, and shorten the text rather than speeding up audio.
 2. Write `lesson.json` (summary, key ideas, LLM link, quiz, problems), then run `python tools/check_lesson.py lessons/<id>`. It must print OK: every solution passes all tests and every starter fails at least one.
 3. Generate takes with `python tools/tts.py lessons/<id>`. It needs `SARVAM_API_KEY`; in cloud sessions the proxy injects the credential, so run it as `SARVAM_API_KEY=proxy-injected python tools/tts.py ...`. Check each take with Sarvam speech-to-text if in doubt (see `README.md`).
 4. Run `python tools/voice.py lessons/<id>`. It writes `timing.json` and `hf/assets/voice.wav` (from the takes, or a silent track with estimated timing), copies `vendor/` libraries into `hf/assets/lib`, and syncs scene times plus approximate word start times (`cues`, from `tools/align.py`) into `hf/index.html`.
