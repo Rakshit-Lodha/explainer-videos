@@ -1,0 +1,168 @@
+{
+  "id": "3.1-random-variables",
+  "module": 3,
+  "title": "Random variables and distributions",
+  "summary": "A random variable attaches a number to each outcome of an uncertain process; its distribution says how one unit of probability is shared among the values. Samples are what we actually see, and their histogram settles onto the distribution as the count grows.",
+  "video": "videos/3.1-random-variables.mp4",
+  "llm_link": "At every step a language model outputs a probability distribution over its whole vocabulary, and generating text means sampling one token from it. That is why the same prompt can give different continuations.",
+  "key_ideas": [
+    "A random variable X is a function: outcome in, number out (a die roll maps a face to 1-6).",
+    "A discrete distribution gives p(x) for every value, with every p(x) >= 0 and the sum of p(x) equal to 1.",
+    "Samples are draws from the distribution. The fraction of samples equal to x approaches p(x) as the number of samples grows (law of large numbers).",
+    "Continuous quantities have a density p(x): probability is the area under the curve between a and b, and the total area is 1. The height at one point is not a probability."
+  ],
+  "quiz": [
+    {
+      "q": "Which of these lists can be a probability distribution over four values?",
+      "options": [
+        "[0.5, 0.5, 0.5, 0.5]",
+        "[0.1, 0.2, 0.3, 0.4]",
+        "[0.6, 0.6, −0.2, 0.0]",
+        "[1, 2, 3, 4]"
+      ],
+      "answer": 1,
+      "explain": "Every entry must be at least 0 and the entries must add up to exactly 1. Only [0.1, 0.2, 0.3, 0.4] does both; [0.6, 0.6, −0.2, 0] sums to 1 but has a negative entry."
+    },
+    {
+      "q": "A loaded die has p(6) = 0.5 and p = 0.1 for each other face. Predict the result: roughly how many sixes in 1,000 rolls?",
+      "options": [
+        "About 100",
+        "About 167",
+        "About 500",
+        "Exactly 500"
+      ],
+      "answer": 2,
+      "explain": "The fraction of sixes settles near p(6) = 0.5, so about 500. It will rarely be exactly 500: samples wobble around the true value."
+    },
+    {
+      "q": "Why is a random variable better described as a function than as a variable?",
+      "options": [
+        "Because its value never changes",
+        "Because it maps each outcome of the uncertain process to a number",
+        "Because it is always between 0 and 1",
+        "Because it is the same thing as its distribution"
+      ],
+      "answer": 1,
+      "explain": "X takes an outcome (a face of the die, a person, a moment) and returns a number. Its distribution is a separate object: how probability is spread over those numbers."
+    },
+    {
+      "q": "For a continuous height distribution, what does the area under the density between 165 cm and 176 cm give you?",
+      "options": [
+        "The probability that a height falls between 165 and 176 cm",
+        "The most likely height",
+        "The density at 170 cm",
+        "Nothing: only heights at a single point matter"
+      ],
+      "answer": 0,
+      "explain": "With a density, probability is area. The probability of any one exact height is zero; intervals carry the probability."
+    },
+    {
+      "q": "A language model gives the next token p(mat) = 0.46, p(floor) = 0.22 and spreads the rest over other tokens. You generate twice from the same prompt. What should you expect?",
+      "options": [
+        "Always \"mat\", because it has the largest probability",
+        "Possibly different tokens, because generation samples from the distribution",
+        "An error, because probabilities must be 0 or 1",
+        "\"mat\" and \"floor\" in turn"
+      ],
+      "answer": 1,
+      "explain": "Sampling draws \"mat\" about 46% of the time, not every time. Always taking the top token is a different strategy (greedy decoding)."
+    }
+  ],
+  "problems": [
+    {
+      "id": "valid",
+      "title": "Is it a distribution?",
+      "prompt": "<p>Write <code>is_distribution(p)</code> that returns <code>True</code> if the list <code>p</code> is a valid discrete probability distribution and <code>False</code> otherwise.</p><p>Valid means: every entry is at least 0, and the entries add up to 1. Floating-point sums are rarely exact (<code>0.1 + 0.2</code> is <code>0.30000000000000004</code>), so accept a sum within <code>1e-9</code> of 1.</p><pre>is_distribution([0.5, 0.5])        # True\nis_distribution([0.6, 0.6, -0.2])  # False (negative entry)\nis_distribution([0.3, 0.3])        # False (sums to 0.6)</pre>",
+      "starter": "def is_distribution(p):\n    # TODO 1: if any entry is negative, return False\n\n    # TODO 2: return whether sum(p) is within 1e-9 of 1 (use abs)\n    pass\n",
+      "tests": [
+        {
+          "name": "accepts a fair coin",
+          "code": "assert is_distribution([0.5, 0.5]) is True, 'a fair coin [0.5, 0.5] is a valid distribution: no negatives and it sums to 1'"
+        },
+        {
+          "name": "tolerates floating-point sums",
+          "code": "assert is_distribution([0.1, 0.2, 0.7]) is True, '0.1 + 0.2 + 0.7 is not exactly 1.0 in floating point; compare abs(sum(p) - 1) < 1e-9 instead of sum(p) == 1'"
+        },
+        {
+          "name": "rejects negative entries",
+          "code": "assert is_distribution([0.6, 0.6, -0.2]) is False, '[0.6, 0.6, -0.2] sums to 1 but a probability can never be negative; check every entry'"
+        },
+        {
+          "name": "rejects a wrong total",
+          "code": "assert is_distribution([0.3, 0.3]) is False, 'the entries must add up to 1; [0.3, 0.3] only adds up to 0.6'"
+        },
+        {
+          "name": "loaded die is fine",
+          "code": "assert is_distribution([0.1]*5 + [0.5]) is True, 'the loaded die [0.1]*5 + [0.5] sums to 1 with no negatives, so it is valid'"
+        }
+      ],
+      "hints": [
+        "any(x < 0 for x in p) tells you whether some entry is negative.",
+        "return abs(sum(p) - 1) < 1e-9"
+      ],
+      "solution": "def is_distribution(p):\n    if any(x < 0 for x in p):\n        return False\n    return abs(sum(p) - 1) < 1e-9\n"
+    },
+    {
+      "id": "sample",
+      "title": "Sample from a distribution",
+      "prompt": "<p>Computers give us uniform random numbers <code>u</code> between 0 and 1. To turn one into a draw from a distribution <code>p</code>, lay the probabilities end to end along [0, 1] and see which piece <code>u</code> lands in: the first value owns [0, p[0]), the second owns [p[0], p[0]+p[1]), and so on.</p><p>Write <code>sample(p, u)</code> that returns the <b>index</b> of the piece containing <code>u</code>.</p><pre>p = [0.2, 0.5, 0.3]\nsample(p, 0.10)   # 0   (0.10 &lt; 0.2)\nsample(p, 0.65)   # 1   (0.2 &lt;= 0.65 &lt; 0.7)\nsample(p, 0.95)   # 2</pre><p>Then use it with <code>random.random()</code> many times and count: the fractions should approach <code>p</code>.</p>",
+      "starter": "def sample(p, u):\n    # TODO: walk through p keeping a running total.\n    #       As soon as u < running total, return the current index.\n    total = 0\n\n    return len(p) - 1  # fallback for u extremely close to 1\n",
+      "tests": [
+        {
+          "name": "first piece",
+          "code": "out = sample([0.2, 0.5, 0.3], 0.10)\nassert out == 0, f'u = 0.10 lies in [0, 0.2), which belongs to index 0; got {out}'"
+        },
+        {
+          "name": "middle piece",
+          "code": "out = sample([0.2, 0.5, 0.3], 0.65)\nassert out == 1, f'u = 0.65 lies in [0.2, 0.7), which belongs to index 1; got {out}. Are you comparing u with the running total rather than with p[i] alone?'"
+        },
+        {
+          "name": "last piece",
+          "code": "out = sample([0.2, 0.5, 0.3], 0.95)\nassert out == 2, f'u = 0.95 lies in [0.7, 1.0), index 2; got {out}'"
+        },
+        {
+          "name": "boundary goes to the next piece",
+          "code": "out = sample([0.5, 0.5], 0.5)\nassert out == 1, f'pieces are half-open: [0, 0.5) is index 0 and [0.5, 1) is index 1, so u = 0.5 gives 1; got {out}. Use u < total, not u <= total'"
+        },
+        {
+          "name": "frequencies approach p",
+          "code": "import random\nrandom.seed(0)\np = [0.1]*5 + [0.5]\nN = 20000\nc = [0]*6\nfor _ in range(N):\n    c[sample(p, random.random())] += 1\nf = [x / N for x in c]\nassert abs(f[5] - 0.5) < 0.02, f'with 20000 draws the fraction of index 5 should be close to 0.5, got {f[5]:.3f}; check that each value owns a piece as wide as its probability'"
+        }
+      ],
+      "hints": [
+        "for i, pi in enumerate(p): total += pi, then check u < total.",
+        "The pieces are cumulative sums: 0.2, then 0.2 + 0.5 = 0.7, then 1.0."
+      ],
+      "solution": "def sample(p, u):\n    total = 0\n    for i, pi in enumerate(p):\n        total += pi\n        if u < total:\n            return i\n    return len(p) - 1\n"
+    },
+    {
+      "id": "hist",
+      "title": "Histogram of samples (NumPy)",
+      "prompt": "<p>Given an array of die rolls (values 1 to 6), return the <b>fraction</b> of rolls that landed on each face, as a NumPy array of length 6 (index 0 is face 1).</p><pre>rolls = np.array([6, 6, 1, 3])\nfrequencies(rolls)   # array([0.25, 0.  , 0.25, 0.  , 0.  , 0.5 ])</pre><p><code>np.bincount</code> counts how often each non-negative integer occurs; shift the faces so that face 1 becomes 0. Finish by checking the law of large numbers: with many rolls of the loaded die the fractions approach <code>[0.1]*5 + [0.5]</code>.</p>",
+      "starter": "import numpy as np\n\ndef frequencies(rolls):\n    # TODO 1: counts = np.bincount(rolls - 1, minlength=6)\n    # TODO 2: divide by the number of rolls\n    pass\n",
+      "tests": [
+        {
+          "name": "small example",
+          "code": "import numpy as np\nout = frequencies(np.array([6, 6, 1, 3]))\nassert out is not None, 'your function returned None; did you forget to return?'\nassert np.allclose(out, [0.25, 0, 0.25, 0, 0, 0.5]), f'expected [0.25, 0, 0.25, 0, 0, 0.5], got {out}. Face 1 should be index 0'"
+        },
+        {
+          "name": "always length 6",
+          "code": "import numpy as np\nout = frequencies(np.array([1, 1]))\nassert out.shape == (6,), f'expected shape (6,) even when high faces never appear, got {out.shape}; pass minlength=6 to np.bincount'"
+        },
+        {
+          "name": "fractions sum to 1",
+          "code": "import numpy as np\nout = frequencies(np.array([2, 3, 3, 5, 6]))\nassert abs(out.sum() - 1) < 1e-9, f'fractions of all rolls must add up to 1, got {out.sum()}; divide counts by len(rolls)'"
+        },
+        {
+          "name": "law of large numbers",
+          "code": "import numpy as np\nrng = np.random.default_rng(1)\nrolls = rng.choice(np.arange(1, 7), size=50000, p=[0.1]*5 + [0.5])\nout = frequencies(rolls)\nassert np.allclose(out, [0.1]*5 + [0.5], atol=0.01), f'with 50000 rolls the fractions should be within 0.01 of the true probabilities, got {np.round(out, 3)}'"
+        }
+      ],
+      "hints": [
+        "rolls - 1 shifts faces 1..6 to indices 0..5 for every element at once (broadcasting a scalar).",
+        "return np.bincount(rolls - 1, minlength=6) / len(rolls)"
+      ],
+      "solution": "import numpy as np\n\ndef frequencies(rolls):\n    counts = np.bincount(rolls - 1, minlength=6)\n    return counts / len(rolls)\n"
+    }
+  ]
+}
