@@ -39,25 +39,27 @@ svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visi
 </style>
 </head>
 <body>
-<div id="root" data-composition-id="main" data-start="0" data-duration="82.17" data-width="1920" data-height="1080">
-  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="82.17" data-volume="1"></audio>
+<div id="root" data-composition-id="main" data-start="0" data-duration="77.57" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="77.57" data-volume="1"></audio>
   <div class="tag">AI from scratch &nbsp;·&nbsp; 1.1 Vectors</div>
   <div class="layer" id="STAGE"></div>
-  <div class="clip scene" id="S1" data-start="0.0" data-duration="17.681"></div>
-  <div class="clip scene" id="S2" data-start="17.681" data-duration="16.521"></div>
-  <div class="clip scene" id="S3" data-start="34.202" data-duration="12.652"></div>
-  <div class="clip scene" id="S4" data-start="46.854" data-duration="12.416"></div>
-  <div class="clip scene" id="S5" data-start="59.27" data-duration="12.668"></div>
-  <div class="clip scene" id="S6" data-start="71.938" data-duration="10.232"></div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="16.236"></div>
+  <div class="clip scene" id="S2" data-start="16.236" data-duration="15.639"></div>
+  <div class="clip scene" id="S3" data-start="31.875" data-duration="11.031"></div>
+  <div class="clip scene" id="S4" data-start="42.906" data-duration="12.568"></div>
+  <div class="clip scene" id="S5" data-start="55.474" data-duration="12.913"></div>
+  <div class="clip scene" id="S6" data-start="68.387" data-duration="9.183"></div>
 </div>
 
 <script>
-/* Timing is written by tools/voice.py from timing.json; beats are placed at fractions of each scene. */
-const TIMING=/*TIMING*/{"starts": {"s1": 0.0, "s2": 17.681, "s3": 34.202, "s4": 46.854, "s5": 59.27, "s6": 71.938}, "total": 82.17}/*END*/;
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":16.236,"s3":31.875,"s4":42.906,"s5":55.474,"s6":68.387},"total":77.57,"cues":{"s1":[["when",0.0],["you",0.207],["type",0.372],["a",0.579],["sentence",0.662],["into",1.034],["a",1.241],["language",1.324],["model",1.696],["it",2.227],["does",2.354],["not",2.564],["read",2.733],["the",2.944],["words",3.112],["the",3.365],["way",3.534],["you",3.702],["do",3.871],["it",4.437],["replaces",4.582],["each",5.017],["one",5.259],["with",5.453],["a",5.695],["long",5.791],["list",6.033],["of",6.275],["numbers",6.42],["and",7.242],["everything",7.455],["clever",8.043],["that",8.416],["follows",8.683],["is",9.111],["arithmetic",9.271],["on",9.858],["those",10.018],["lists",10.339],["so",10.91],["what",11.037],["is",11.251],["a",11.379],["list",11.464],["of",11.677],["numbers",11.805],["really",12.501],["and",13.217],["why",13.417],["do",13.617],["mathematicians",13.767],["call",14.517],["it",14.767],["a",14.917],["vector",15.017]],"s2":[["picture",0.0],["a",0.394],["flat",0.492],["grid",0.738],["with",0.984],["an",1.23],["origin",1.378],["at",1.722],["its",1.87],["centre",2.067],["a",2.888],["vector",2.973],["is",3.271],["an",3.398],["arrow",3.526],["from",3.781],["the",3.993],["origin",4.163],["to",4.461],["some",4.588],["point",4.801],["and",5.544],["its",5.734],["list",5.924],["records",6.162],["the",6.542],["journey",6.733],["how",7.459],["far",7.627],["to",7.796],["walk",7.922],["right",8.132],["then",8.782],["how",9.009],["far",9.19],["to",9.371],["walk",9.506],["up",9.733],["the",10.551],["arrow",10.706],["is",10.939],["the",11.055],["picture",11.211],["the",12.149],["list",12.314],["is",12.519],["the",12.643],["bookkeeping",12.808],["and",13.629],["both",13.786],["describe",13.982],["the",14.336],["same",14.493],["thing",14.689]],"s3":[["adding",0.0],["two",0.289],["vectors",0.455],["means",0.786],["taking",1.034],["one",1.323],["journey",1.489],["and",1.82],["then",1.985],["the",2.192],["other",2.357],["so",2.94],["the",3.06],["second",3.219],["arrow",3.498],["starts",3.738],["where",4.017],["the",4.256],["first",4.416],["one",4.655],["ends",4.815],["in",5.366],["the",5.467],["list",5.603],["that",6.123],["is",6.309],["just",6.42],["adding",6.606],["the",6.866],["matching",7.014],["entries",7.348],["which",8.072],["is",8.314],["why",8.435],["the",8.596],["picture",8.757],["and",9.079],["the",9.24],["arithmetic",9.402],["always",9.845],["agree",10.127]],"s4":[["multiplying",0.0],["a",0.638],["vector",0.745],["by",1.117],["an",1.276],["ordinary",1.436],["number",1.914],["stretches",2.287],["it",2.819],["squishes",3.307],["it",3.751],["or",4.366],["if",4.945],["the",5.077],["number",5.252],["is",5.56],["negative",5.691],["flips",6.502],["it",6.595],["to",6.641],["point",6.687],["the",6.779],["other",6.841],["way",6.933],["because",7.244],["the",7.764],["number's",8.024],["whole",8.608],["job",8.998],["is",9.257],["to",9.452],["scale",9.647],["the",10.037],["arrow",10.296],["we",11.051],["call",11.18],["it",11.394],["a",11.522],["scalar",11.608]],"s5":[["nothing",0.0],["stops",0.389],["the",0.681],["list",0.875],["from",1.118],["growing",1.361],["we",2.136],["cannot",2.274],["draw",2.595],["an",2.825],["arrow",2.963],["with",3.238],["hundreds",3.467],["of",3.88],["entries",4.018],["yet",4.747],["the",4.953],["same",5.16],["two",5.418],["rules",5.624],["still",5.933],["apply",6.243],["and",6.857],["that",7.064],["is",7.322],["what",7.477],["a",7.735],["word",7.839],["becomes",8.097],["inside",8.51],["a",8.871],["model",8.975],["where",9.835],["related",10.119],["meanings",10.499],["point",10.926],["in",11.21],["similar",11.352],["directions",11.732]],"s6":[["so",0.0],["a",0.15],["vector",0.25],["is",0.599],["an",0.749],["arrow",0.899],["and",1.198],["a",1.398],["list",1.498],["at",1.748],["once",1.897],["and",2.477],["adding",2.714],["and",3.127],["scaling",3.364],["them",3.837],["is",4.132],["the",4.309],["raw",4.546],["material",4.782],["of",5.314],["every",5.492],["neural",5.846],["network",6.26],["in",6.733],["this",6.91],["course",7.206]]}}/*END*/;
 const IDS=['s1','s2','s3','s4','s5','s6'];
 const START={},SPAN={};
 IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
 const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
 const tl=gsap.timeline({paused:true});
 const NS='http://www.w3.org/2000/svg';
 const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
@@ -140,15 +142,15 @@ tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
     cols.push(colvec(S,spread[i],640,vals,{fs:30,w:150,color:i===1?C.blue:C.dim}));
   });
   const chars=S.querySelectorAll('.ch');
-  tl.to(chars,{autoAlpha:1,duration:.05,stagger:.07,ease:'none'},at(sid,.03));
-  W.forEach((o,i)=>tl.to(o.d,{x:spread[i],y:250,duration:1.1,ease:'power3.inOut'},at(sid,.27)+i*.06));
-  cols.forEach((c,i)=>{tl.fromTo(c.box,{autoAlpha:0,scaleY:0,transformOrigin:'50% 0%'},{autoAlpha:1,scaleY:1,duration:.9,ease:'power2.out',immediateRender:false},at(sid,.33)+i*.12)});
+  tl.to(chars,{autoAlpha:1,duration:.05,stagger:.07,ease:'none'},cue(sid,'type'));
+  W.forEach((o,i)=>tl.to(o.d,{x:spread[i],y:250,duration:1.1,ease:'power3.inOut'},cue(sid,'replaces')+i*.06));
+  cols.forEach((c,i)=>{tl.fromTo(c.box,{autoAlpha:0,scaleY:0,transformOrigin:'50% 0%'},{autoAlpha:1,scaleY:1,duration:.9,ease:'power2.out',immediateRender:false},cue(sid,'long')+i*.12)});
   const others=cols.filter((c,i)=>i!==1).map(c=>c.box).concat(W.filter((o,i)=>i!==1).map(o=>o.d));
-  tl.to(others,{opacity:.22,duration:.8},at(sid,.68));
+  tl.to(others,{opacity:.22,duration:.8},cue(sid,'so'));
   const glow=el(S,'hl','',{left:'515px',top:'200px',width:'170px',height:'760px',borderColor:C.blue,boxShadow:`0 0 40px ${C.blue}55`});
-  fadeIn(glow,at(sid,.7),.6);
+  fadeIn(glow,cue(sid,'list',2),.6);
   const q=el(S,'cap','what is a <em>vector</em>?',{top:'960px',fontStyle:'italic',fontSize:'60px',left:'0'});
-  show(q,at(sid,.8),.8);
+  show(q,cue(sid,'mathematicians'),.8);
   sceneInOut(sid);
 })();
 
@@ -156,29 +158,29 @@ tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
 (function(){const S=$('S2');const sid='s2';
   const svg=layerSvg(S);
   const olab=el(S,'lbl','origin',{color:C.dim,fontSize:'34px',fontStyle:'italic'});place(olab,SP(0,0)[0]-70,SP(0,0)[1]+42);
-  fadeIn(olab,at(sid,.1),.5);fadeOut(olab,at(sid,.4),.4);
+  fadeIn(olab,cue(sid,'origin'),.5);fadeOut(olab,cue(sid,'journey'),.4);
   setArrow(vA,{x0:0,y0:0,x1:0,y1:0});
-  grow(vA,at(sid,.22),1.4,3,1);
+  grow(vA,cue(sid,'arrow'),1.4,3,1);
   // the journey: right, then up
   const legX=svgEl('line',{x1:SP(0,0)[0],y1:SP(0,0)[1],x2:SP(3,0)[0],y2:SP(3,0)[1],stroke:C.green,'stroke-width':6,'stroke-dasharray':'14 12','stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
   const legY=svgEl('line',{x1:SP(3,0)[0],y1:SP(3,0)[1],x2:SP(3,1)[0],y2:SP(3,1)[1],stroke:C.red,'stroke-width':6,'stroke-dasharray':'14 12','stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
   const lenX=300,lenY=100;
   legX.setAttribute('stroke-dashoffset',0);
   tl.set(legX,{attr:{'stroke-dasharray':`0 ${lenX}`}},0);tl.set(legY,{attr:{'stroke-dasharray':`0 ${lenY}`}},0);
-  tl.to(legX,{autoAlpha:1,duration:.2},at(sid,.46));tl.to(legX,{attr:{'stroke-dasharray':`${lenX} 0`},duration:1.1,ease:'power1.inOut'},at(sid,.46));
-  tl.to(legY,{autoAlpha:1,duration:.2},at(sid,.6));tl.to(legY,{attr:{'stroke-dasharray':`${lenY} 0`},duration:.7,ease:'power1.inOut'},at(sid,.6));
+  tl.to(legX,{autoAlpha:1,duration:.2},cue(sid,'how'));tl.to(legX,{attr:{'stroke-dasharray':`${lenX} 0`},duration:1.1,ease:'power1.inOut'},cue(sid,'how'));
+  tl.to(legY,{autoAlpha:1,duration:.2},cue(sid,'how',2));tl.to(legY,{attr:{'stroke-dasharray':`${lenY} 0`},duration:.7,ease:'power1.inOut'},cue(sid,'how',2));
   const rx=el(S,'lbl','right',{color:C.green,fontSize:'36px',fontStyle:'italic'});place(rx,SP(1.5,0)[0],SP(1.5,0)[1]+40);
   const uy=el(S,'lbl','up',{color:C.red,fontSize:'36px',fontStyle:'italic'});place(uy,SP(3,.5)[0]+50,SP(3,.5)[1]);
-  fadeIn(rx,at(sid,.5),.4);fadeIn(uy,at(sid,.63),.4);
-  show(vCol.box,at(sid,.44),.7);
+  fadeIn(rx,cue(sid,'right'),.4);fadeIn(uy,cue(sid,'up'),.4);
+  show(vCol.box,cue(sid,'list'),.7);
   const h0=cellHL(S,vCol,0,C.green),h1=cellHL(S,vCol,1,C.red);
-  fadeIn(h0,at(sid,.48),.4);fadeOut(h0,at(sid,.76),.4);
-  fadeIn(h1,at(sid,.62),.4);fadeOut(h1,at(sid,.76),.4);
+  fadeIn(h0,cue(sid,'how'),.4);fadeOut(h0,cue(sid,'arrow',2),.4);
+  fadeIn(h1,cue(sid,'how',2),.4);fadeOut(h1,cue(sid,'arrow',2),.4);
   // picture and bookkeeping
   const pic=el(S,'lbl','the picture',{color:C.ink,fontSize:'40px',fontStyle:'italic'});place(pic,SP(1.5,-1.6)[0],SP(1.5,-1.6)[1]);
   const book=el(S,'lbl','the bookkeeping',{color:C.ink,fontSize:'40px',fontStyle:'italic'});place(book,1600,620);
   const same=el(S,'lbl','same thing',{color:C.yellow,fontSize:'44px'});place(same,1600,830);
-  show(pic,at(sid,.78),.5);show(book,at(sid,.82),.5);show(same,at(sid,.88),.5);
+  show(pic,cue(sid,'picture',2),.5);show(book,cue(sid,'bookkeeping'),.5);show(same,cue(sid,'same'),.5);
   sceneInOut(sid);
 })();
 
@@ -189,23 +191,23 @@ tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
   setArrow(wA,{x0:0,y0:0,x1:0,y1:0});
   tl.to(vA.label,{autoAlpha:0,duration:.3},at(sid,.02));tl.to(vA.label,{autoAlpha:1,duration:.3},at('s4',0));
   grow(wA,at(sid,.02),1.0,1,2);
-  arrowTo(wA,at(sid,.16),1.6,{x0:3,y0:1,x1:4,y1:3});
+  arrowTo(wA,cue(sid,'so'),1.6,{x0:3,y0:1,x1:4,y1:3});
   const sA=mkArrow(svg,SP,C.pink,8,tex('\\vec{v}+\\vec{w}',54),120,30,S);
   setArrow(sA,{x0:0,y0:0,x1:0,y1:0});
-  grow(sA,at(sid,.36),1.3,4,3);
+  grow(sA,cue(sid,'ends'),1.3,4,3);
   // bookkeeping: matching entries add
-  moveVCol(at(sid,.44),.9,1420);
+  moveVCol(cue(sid,'ends'),.9,1420);
   const plus=sym(S,'+',1515,440,64),eq=sym(S,'=',1715,440,64);
   const wCol=colvec(S,1615,440,['1','2'],{fs:72,w:120,color:C.yellow});
   const sCol=colvec(S,1815,440,['4','3'],{fs:72,w:120,color:C.pink});
   sCol.cells.forEach(c=>c.classList.add('hid'));
-  show([plus,wCol.box,eq],at(sid,.5),.6,{stagger:.15});
-  fadeIn(sCol.box,at(sid,.58),.4);
-  const rows=[[.64,0],[.78,1]];
+  show([plus,wCol.box,eq],cue(sid,'list'),.6,{stagger:.15});
+  fadeIn(sCol.box,cue(sid,'adding'),.4);
+  const rows=[[cue(sid,'matching'),0],[cue(sid,'which'),1]];
   rows.forEach(([f,i])=>{const hs=[cellHL(S,{...vCol,cx:1420},i,C.ink),cellHL(S,wCol,i,C.ink)];
-    fadeIn(hs,at(sid,f),.3);fadeOut(hs,at(sid,f)+1.2,.3);show(sCol.cells[i],at(sid,f)+.4,.4,{y:-10})});
+    fadeIn(hs,f,.3);fadeOut(hs,f+1.2,.3);show(sCol.cells[i],f+.4,.4,{y:-10})});
   const agree=el(S,'cap','picture and arithmetic agree',{top:'830px',left:'1180px',width:'740px',fontSize:'40px',fontStyle:'italic',color:C.dim});
-  show(agree,at(sid,.88),.5);
+  show(agree,cue(sid,'arithmetic'),.5);
   sceneInOut(sid);
 })();
 
@@ -223,11 +225,11 @@ tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
   const cval=cLab.querySelector('#cval');
   const p={c:1};
   const apply=()=>{const c=p.c;geom(vA,0,0,3*c,c);cval.textContent=fmt(c);rCol.cells[0].textContent=fmt(3*c);rCol.cells[1].textContent=fmt(c)};
-  const step=(f,d,c)=>tl.to(p,{c,duration:d,ease:'power2.inOut',immediateRender:false,onUpdate:apply},at(sid,f));
-  step(.07,1.6,2);step(.3,1.4,.5);step(.52,1.8,-1);step(.82,1.1,1);
-  const lbls=[['stretch',.12],['squish',.34],['flip',.58]].map(([t,f])=>{const d=el(S,'lbl',t,{color:C.ink,fontSize:'44px',fontStyle:'italic'});place(d,1580,640);show(d,at(sid,f),.4);fadeOut(d,at(sid,f)+1.6,.3);return d});
+  const step=(t,d,c)=>tl.to(p,{c,duration:d,ease:'power2.inOut',immediateRender:false,onUpdate:apply},t);
+  step(cue(sid,'stretches'),1,2);step(cue(sid,'squishes'),1,.5);step(cue(sid,'negative'),1.2,-1);step(cue(sid,'job'),1.1,1);
+  const lbls=[['stretch',cue(sid,'stretches'),.85],['squish',cue(sid,'squishes'),1.6],['flip',cue(sid,'flips'),1.6]].map(([t,f,hold])=>{const d=el(S,'lbl',t,{color:C.ink,fontSize:'44px',fontStyle:'italic'});place(d,1580,640);show(d,f,.3);fadeOut(d,f+hold,.3);return d});
   const scalar=el(S,'cap','<span style="color:#f5cf4a">c</span> is a <span style="color:#f5cf4a">scal</span>ar: it <span style="color:#f5cf4a">scal</span>es',{top:'770px',left:'1180px',width:'740px',fontSize:'50px',fontStyle:'italic'});
-  show(scalar,at(sid,.8),.6);
+  show(scalar,cue(sid,'scale'),.6);
   sceneInOut(sid);
 })();
 
@@ -243,36 +245,36 @@ tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
   fadeIn(g3,at(sid,.03),.6);showArrow(a3,at(sid,.08),.2);arrowTo(a3,at(sid,.08),1.1,{x1:tip[0],y1:tip[1]},'power2.out');
   const c3=colvec(S,1560,520,['3','1','2'],{fs:68,w:140,color:C.blue});c3.cells.forEach(c=>c.setAttribute('data-layout-allow-overlap',''));
   show(c3.box,at(sid,.06),.6);
-  const h=cellHL(S,c3,2,C.teal);fadeIn(h,at(sid,.12),.3);fadeOut(h,at(sid,.26),.3);
-  fadeOut([g3,a3.g,c3.box],at(sid,.3),.5);
+  const h=cellHL(S,c3,2,C.teal);fadeIn(h,cue(sid,'growing'),.3);fadeOut(h,cue(sid,'growing')+1.4,.3);
+  fadeOut([g3,a3.g,c3.box],cue(sid,'arrow')-.2,.5);
   // a long list that scrolls past
   const box=el(S,'abs hid','',{left:'1460px',top:'140px',width:'200px',height:'780px',overflow:'hidden',color:C.blue});
   el(box,'br l','',{position:'absolute',left:'0',top:'0',width:'18px',height:'780px',border:'4px solid currentColor',borderRight:'none',borderRadius:'6px 0 0 6px'});
   el(box,'br r','',{position:'absolute',right:'0',top:'0',width:'18px',height:'780px',border:'4px solid currentColor',borderLeft:'none',borderRadius:'0 6px 6px 0'});
   const inner=el(box,'abs','',{left:'0',top:'14px',width:'200px'});
   const rnd=seedRand(5);for(let i=0;i<48;i++)el(inner,'cell mono',fmt(rnd()*2-1,2),{position:'relative',textAlign:'center',fontSize:'40px',lineHeight:'58px',color:C.ink});
-  fadeIn(box,at(sid,.32),.5);
-  tl.fromTo(inner,{y:0},{y:-1900,duration:SPAN[sid]*.3,ease:'power1.in',immediateRender:false},at(sid,.34));
+  fadeIn(box,cue(sid,'hundreds')-.1,.5);
+  tl.fromTo(inner,{y:0},{y:-1900,duration:SPAN[sid]*.3,ease:'power1.in',immediateRender:false},cue(sid,'hundreds')+.1);
   const many=el(S,'cap','hundreds of entries, same two rules',{top:'470px',left:'200px',width:'1100px',fontSize:'52px',fontStyle:'italic'});
-  show(many,at(sid,.36),.6);fadeOut(many,at(sid,.56),.4);
-  fadeOut(box,at(sid,.6),.5);
+  show(many,cue(sid,'hundreds'),.6);fadeOut(many,cue(sid,'that'),.4);
+  fadeOut(box,cue(sid,'that'),.5);
   // words as arrows
   const WO=[760,600];const wsvg=layerSvg(S);
   const dot=svgEl('circle',{cx:WO[0],cy:WO[1],r:8,fill:C.ink,style:'opacity:0;visibility:hidden'},wsvg);
-  fadeIn(dot,at(sid,.6),.3);
+  fadeIn(dot,cue(sid,'what'),.3);
   const groups=[
-    {f:.62,col:C.blue,items:[['cat',22,340],['kitten',38,250],['dog',56,330],['puppy',72,250]]},
-    {f:.74,col:C.yellow,items:[['car',150,320],['truck',172,350],['bus',194,280]]},
-    {f:.84,col:C.green,items:[['apple',262,300],['banana',298,320]]}];
+    {f:cue(sid,'word'),col:C.blue,items:[['cat',22,340],['kitten',38,250],['dog',56,330],['puppy',72,250]]},
+    {f:cue(sid,'inside'),col:C.yellow,items:[['car',150,320],['truck',172,350],['bus',194,280]]},
+    {f:cue(sid,'meanings'),col:C.green,items:[['apple',262,300],['banana',298,320]]}];
   groups.forEach(gp=>gp.items.forEach(([w,deg,len],k)=>{
     const r=deg*Math.PI/180,x=WO[0]+len*Math.cos(r),y=WO[1]-len*Math.sin(r);
     const a=mkArrow(wsvg,(px,py)=>[px,py],gp.col,5,`<span style="font-size:42px;font-style:italic">${w}</span>`,Math.cos(r)*70,-Math.sin(r)*48,S);
     setArrow(a,{x0:WO[0],y0:WO[1],x1:WO[0],y1:WO[1]});
-    showArrow(a,at(sid,gp.f)+k*.12,.2);arrowTo(a,at(sid,gp.f)+k*.12,.8,{x1:x,y1:y},'power2.out')}));
+    showArrow(a,gp.f+k*.12,.2);arrowTo(a,gp.f+k*.12,.8,{x1:x,y1:y},'power2.out')}));
   const note=el(S,'abs','related meanings point in similar directions',{left:'1180px',top:'560px',width:'640px',fontSize:'44px',fontStyle:'italic',lineHeight:'1.3',opacity:0,visibility:'hidden'});
-  show(note,at(sid,.7),.6);
+  show(note,cue(sid,'related'),.6);
   const flat=el(S,'abs','a flat sketch of much longer lists',{left:'1180px',top:'720px',width:'640px',fontSize:'32px',fontStyle:'italic',color:C.dim,opacity:0,visibility:'hidden'});
-  show(flat,at(sid,.86),.5);
+  show(flat,cue(sid,'directions'),.5);
   sceneInOut(sid);
 })();
 
@@ -281,17 +283,17 @@ tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
   const P6=plane(470,620,90);const svg=layerSvg(S);
   const g=drawGrid(svg,P6,-1,4,-1,3);g.setAttribute('style','opacity:0;visibility:hidden');
   fadeIn(g,at(sid,.02),.6);
-  const a=mkArrow(svg,P6,C.blue,8);setArrow(a,{x0:0,y0:0,x1:0,y1:0});grow(a,at(sid,.06),1,3,1);
-  const eq=sym(S,'=',1000,560,90);show(eq,at(sid,.16),.5);
-  const col=colvec(S,1240,560,['3','1'],{fs:80,w:160,color:C.blue});show(col.box,at(sid,.2),.6);
+  const a=mkArrow(svg,P6,C.blue,8);setArrow(a,{x0:0,y0:0,x1:0,y1:0});grow(a,cue(sid,'arrow'),1,3,1);
+  const eq=sym(S,'=',1000,560,90);show(eq,cue(sid,'list')-.3,.5);
+  const col=colvec(S,1240,560,['3','1'],{fs:80,w:160,color:C.blue});show(col.box,cue(sid,'list'),.6);
   const l1=el(S,'lbl','an arrow',{color:C.dim,fontSize:'40px',fontStyle:'italic'});place(l1,P6(1.5,0)[0],P6(0,-1.6)[1]);
   const l2=el(S,'lbl','a list',{color:C.dim,fontSize:'40px',fontStyle:'italic'});place(l2,1240,760);
-  show([l1,l2],at(sid,.26),.5,{stagger:.1});
+  show([l1,l2],cue(sid,'once'),.5,{stagger:.1});
   const add=el(S,'chip','<span class="mono" style="color:#e77fb3">+</span>&nbsp; add',{left:'1500px',top:'420px',borderColor:C.pink});
   const scl=el(S,'chip','<span class="mono" style="color:#f5cf4a">×</span>&nbsp; scale',{left:'1500px',top:'560px',borderColor:C.yellow});
-  show([add,scl],at(sid,.5),.6,{stagger:.2});
+  show(add,cue(sid,'adding'),.6);show(scl,cue(sid,'scaling'),.6);
   const next=el(S,'cap','next &nbsp;·&nbsp; 1.2 &nbsp;linear combinations, span and basis',{top:'920px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
-  show(next,at(sid,.78),.7);
+  show(next,cue(sid,'neural'),.7);
   tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
 })();
 

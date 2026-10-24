@@ -2,7 +2,7 @@
 
 python tools/voice.py <lesson_dir>
 With audio/<id>.wav for every scene: measures takes, concatenates them with a 0.45 s gap and
-1.5 s tail, writes hf/assets/voice.wav and timing.json. Without takes: estimates durations from
+1.5 s tail, writes hf/assets/voice.wav and timing.json. Also writes approximate word start times ('cues', see align.py). Without takes: estimates durations from
 word count at Ratan's measured rate and marks timing.json provisional, so the animatic can be
 built before the voice exists.
 """
@@ -19,8 +19,19 @@ starts, t = {}, 0.0
 for s in N:
     starts[s['id']] = round(t, 3); t += dur[s['id']] + GAP
 total = round(t - GAP + TAIL, 2)
-timing = {'starts': starts, 'dur': dur, 'total': total, 'provisional': not have}
+# approximate word start times within each scene, so beats can sit on spoken words
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from align import align
+if have:
+    cues = {s['id']: align(s['text'], wav(s['id']), dur[s['id']]) for s in N}
+else:
+    cues = {}
+    for s in N:
+        ws = s['text'].split(); w = [len(x) + 1 for x in ws]
+        cues[s['id']] = [[re.sub(r"[^\w'-]", '', x).lower(), round(dur[s['id']] * sum(w[:i]) / sum(w), 3)] for i, x in enumerate(ws)]
+timing = {'starts': starts, 'dur': dur, 'total': total, 'provisional': not have, 'cues': cues}
 json.dump(timing, open(os.path.join(lesson, 'timing.json'), 'w'), indent=1)
+os.makedirs(os.path.join(lesson, 'hf', 'assets'), exist_ok=True)
 if have:
     ins, chains = [], []
     for k, s in enumerate(N):
@@ -46,6 +57,6 @@ for k, i in enumerate(ids):
     h = re.sub(rf'(id="{i.upper()}" data-start=")[\d.]+(" data-duration=")[\d.]+', rf'\g<1>{starts[i]}\g<2>{round(end - starts[i], 3)}', h)
 h = re.sub(r'(data-composition-id="main" data-start="0" data-duration=")[\d.]+', rf'\g<1>{total}', h)
 h = re.sub(r'(<audio id="voice"[^>]*data-duration=")[\d.]+', rf'\g<1>{total}', h)
-h = re.sub(r'/\*TIMING\*/.*?/\*END\*/', '/*TIMING*/' + json.dumps({'starts': starts, 'total': total}) + '/*END*/', h, flags=re.S)
+h = re.sub(r'/\*TIMING\*/.*?/\*END\*/', '/*TIMING*/' + json.dumps({'starts': starts, 'total': total, 'cues': cues}, separators=(',', ':')) + '/*END*/', h, flags=re.S)
 open(p, 'w').write(h)
-print(('measured' if have else 'PROVISIONAL (no takes yet)'), json.dumps(timing))
+print(('measured' if have else 'PROVISIONAL (no takes yet)'), json.dumps({k: timing[k] for k in ('starts', 'dur', 'total')}))

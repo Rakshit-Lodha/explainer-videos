@@ -1,0 +1,171 @@
+{
+ "id": "1.1-vectors",
+ "module": 1,
+ "title": "Vectors: arrows and lists of numbers",
+ "summary": "A vector is an arrow and a list of numbers at the same time. Adding vectors is taking one journey after another; multiplying by a scalar stretches, squishes or flips the arrow.",
+ "video": "videos/1.1-vectors.mp4",
+ "llm_link": "Inside a language model every token becomes a vector (its embedding). Everything the model does afterwards is built from the two operations in this lesson: adding vectors and scaling them.",
+ "key_ideas": [
+  "A 2D vector [x, y] is an arrow from the origin: walk x to the right, then y up.",
+  "Adding vectors: place the second arrow's tail at the first arrow's tip. In the list, add matching entries.",
+  "Scaling by c multiplies every entry by c. c > 1 stretches, 0 < c < 1 squishes, c < 0 flips.",
+  "Lists can have any number of entries; the same two rules still apply."
+ ],
+ "quiz": [
+  {
+   "q": "Where does the arrow for the vector [−2, 3] end, starting from the origin?",
+   "options": [
+    "2 right, 3 up",
+    "2 left, 3 up",
+    "3 left, 2 up",
+    "2 left, 3 down"
+   ],
+   "answer": 1,
+   "explain": "The first entry is the horizontal step (negative means left), the second is the vertical step (positive means up)."
+  },
+  {
+   "q": "v = [3, 1] and w = [1, 2]. If you put w's tail at v's tip, where does w's tip land?",
+   "options": [
+    "[4, 3]",
+    "[2, −1]",
+    "[3, 2]",
+    "[4, 2]"
+   ],
+   "answer": 0,
+   "explain": "Walking along v then along w is the same as adding matching entries: [3 + 1, 1 + 2] = [4, 3]."
+  },
+  {
+   "q": "What does multiplying a vector by −1 do to its arrow?",
+   "options": [
+    "Rotates it by 90°",
+    "Leaves it unchanged",
+    "Keeps its length and points it the opposite way",
+    "Shrinks it to zero"
+   ],
+   "answer": 2,
+   "explain": "Every entry changes sign, so each step is taken in the opposite direction. The length stays the same."
+  },
+  {
+   "q": "Predict the result: 0.5 · [4, −6]",
+   "options": [
+    "[4.5, −5.5]",
+    "[2, −3]",
+    "[8, −12]",
+    "[2, 3]"
+   ],
+   "answer": 1,
+   "explain": "A scalar multiplies every entry: 0.5 × 4 = 2 and 0.5 × −6 = −3. The arrow keeps its direction and halves its length."
+  },
+  {
+   "q": "In a trained language model, the embeddings of \"cat\" and \"kitten\" are most likely to be…",
+   "options": [
+    "Exactly equal lists",
+    "Arrows pointing in similar directions",
+    "Arrows pointing in opposite directions",
+    "Lists of different lengths"
+   ],
+   "answer": 1,
+   "explain": "Every token's embedding has the same length. Related meanings end up pointing in similar directions, which later lessons measure with the dot product."
+  }
+ ],
+ "problems": [
+  {
+   "id": "add",
+   "title": "Add two vectors",
+   "prompt": "<p>Write <code>add_vectors(a, b)</code> that takes two lists of numbers of the same length and returns a new list with the matching entries added.</p><p>If the lengths differ, adding makes no sense, so raise a <code>ValueError</code>.</p><pre>add_vectors([3, 1], [1, 2])        # [4, 3]\nadd_vectors([1, 2, 3], [4, 5, 6])  # [5, 7, 9]</pre>",
+   "starter": "def add_vectors(a, b):\n    # TODO 1: if the lengths differ, raise ValueError(\"vectors must have the same length\")\n\n    # TODO 2: build a new list where entry i is a[i] + b[i]\n    result = []\n\n    return result\n",
+   "tests": [
+    {
+     "name": "adds 2D vectors",
+     "code": "out = add_vectors([3, 1], [1, 2])\nassert out == [4, 3], f'expected [4, 3], got {out}'"
+    },
+    {
+     "name": "works for any length",
+     "code": "out = add_vectors([1, 2, 3], [4, 5, 6])\nassert out == [5, 7, 9], f'expected [5, 7, 9], got {out}'"
+    },
+    {
+     "name": "handles negatives",
+     "code": "out = add_vectors([-2, 3], [2, -3])\nassert out == [0, 0], f'expected [0, 0], got {out}'"
+    },
+    {
+     "name": "does not change the inputs",
+     "code": "a=[1,1]; b=[2,2]; add_vectors(a, b)\nassert a == [1, 1] and b == [2, 2], 'your function modified an input list; build a new list instead'"
+    },
+    {
+     "name": "rejects different lengths",
+     "code": "try:\n    add_vectors([1, 2], [1, 2, 3])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected a ValueError when the lengths differ')"
+    }
+   ],
+   "hints": [
+    "Compare len(a) and len(b) first. The syntax is: raise ValueError(\"message\") (ValueError is a class you call, not a string).",
+    "Loop over the positions: for i in range(len(a)): result.append(a[i] + b[i])",
+    "Once that works, try the one-line version: [x + y for x, y in zip(a, b)]. zip pairs the entries up position by position."
+   ],
+   "solution": "def add_vectors(a, b):\n    if len(a) != len(b):\n        raise ValueError(\"vectors must have the same length\")\n    return [x + y for x, y in zip(a, b)]\n"
+  },
+  {
+   "id": "scale",
+   "title": "Scale a vector",
+   "prompt": "<p>Write <code>scale_vector(c, v)</code> that returns a new list with every entry of <code>v</code> multiplied by the scalar <code>c</code>.</p><pre>scale_vector(2, [3, 1])     # [6, 2]\nscale_vector(-1, [3, 1])    # [-3, -1]</pre><p>Then check the picture from the video: scaling by a negative number should flip the arrow, and scaling by 0 should give the zero vector.</p>",
+   "starter": "def scale_vector(c, v):\n    # TODO: return a new list where every entry is multiplied by c\n    pass\n",
+   "tests": [
+    {
+     "name": "stretches",
+     "code": "out = scale_vector(2, [3, 1])\nassert out == [6, 2], f'expected [6, 2], got {out}'"
+    },
+    {
+     "name": "flips with a negative scalar",
+     "code": "out = scale_vector(-1, [3, 1])\nassert out == [-3, -1], f'expected [-3, -1], got {out}'"
+    },
+    {
+     "name": "squishes with a fraction",
+     "code": "out = scale_vector(0.5, [4, -6])\nassert out == [2, -3], f'expected [2, -3], got {out}'"
+    },
+    {
+     "name": "zero gives the zero vector",
+     "code": "out = scale_vector(0, [7, 8, 9])\nassert out == [0, 0, 0], f'expected [0, 0, 0], got {out}'"
+    },
+    {
+     "name": "returns a list, not None",
+     "code": "out = scale_vector(3, [1])\nassert isinstance(out, list), f'expected a list, got {type(out).__name__}. Did you forget to return?'"
+    }
+   ],
+   "hints": [
+    "This is the same shape as add_vectors, but with one list and one number.",
+    "[c * x for x in v]"
+   ],
+   "solution": "def scale_vector(c, v):\n    return [c * x for x in v]\n"
+  },
+  {
+   "id": "sentence",
+   "title": "A sentence as one vector (NumPy)",
+   "prompt": "<p>Each word below has a tiny 3-entry embedding. A very simple way to turn a whole sentence into a single vector is to <b>average</b> its word vectors: add them all up, then scale the sum by 1 / (number of words).</p><p>Write <code>sentence_vector(words, table)</code> using NumPy. <code>table</code> maps each word to a NumPy array. Return a NumPy array.</p><pre>table = {\"cat\": np.array([1.0, 0.0, 2.0]), \"sat\": np.array([0.0, 1.0, 0.0])}\nsentence_vector([\"cat\", \"sat\"], table)   # array([0.5, 0.5, 1. ])</pre><p>With NumPy, <code>+</code> on two arrays adds matching entries and <code>c * arr</code> scales every entry: the two rules from the video, built in.</p>",
+   "starter": "import numpy as np\n\ndef sentence_vector(words, table):\n    # TODO 1: start from a zero vector with the right length\n    #         (hint: np.zeros(3), or np.zeros_like(one of the vectors))\n\n    # TODO 2: add each word's vector to it\n\n    # TODO 3: scale the sum by 1 / len(words)\n    pass\n",
+   "tests": [
+    {
+     "name": "averages two words",
+     "code": "import numpy as np\nt={'cat':np.array([1.0,0.0,2.0]),'sat':np.array([0.0,1.0,0.0])}\nout=sentence_vector(['cat','sat'],t)\nassert out is not None, 'your function returned None'\nassert np.allclose(out,[0.5,0.5,1.0]), f'expected [0.5, 0.5, 1.0], got {out}'"
+    },
+    {
+     "name": "one word gives that word's vector",
+     "code": "import numpy as np\nt={'cat':np.array([1.0,-2.0,3.0])}\nassert np.allclose(sentence_vector(['cat'],t),[1,-2,3])"
+    },
+    {
+     "name": "repeated words count twice",
+     "code": "import numpy as np\nt={'the':np.array([0.0,0.0,3.0]),'mat':np.array([3.0,0.0,0.0])}\nout=sentence_vector(['the','the','mat'],t)\nassert np.allclose(out,[1,0,2]), f'expected [1, 0, 2], got {out}'"
+    },
+    {
+     "name": "returns a NumPy array of the right shape",
+     "code": "import numpy as np\nt={'a':np.array([1.0,2.0,3.0]),'b':np.array([3.0,2.0,1.0])}\nout=sentence_vector(['a','b'],t)\nassert isinstance(out,np.ndarray), f'expected a NumPy array, got {type(out).__name__}'\nassert out.shape==(3,), f'expected shape (3,), got {out.shape}'"
+    }
+   ],
+   "hints": [
+    "total = np.zeros(3), then for w in words: total = total + table[w]",
+    "Scaling is just multiplication: return total * (1 / len(words))",
+    "NumPy can do it in one go: np.mean([table[w] for w in words], axis=0). You'll meet axis properly when we get to matrices."
+   ],
+   "solution": "import numpy as np\n\ndef sentence_vector(words, table):\n    total = np.zeros_like(table[words[0]])\n    for w in words:\n        total = total + table[w]\n    return total * (1 / len(words))\n"
+  }
+ ],
+ "poster": "videos/1.1-vectors.jpg"
+}

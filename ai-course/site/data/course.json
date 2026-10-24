@@ -1,0 +1,414 @@
+{
+ "title": "AI from Scratch",
+ "modules": [
+  {
+   "n": 0,
+   "title": "Orientation",
+   "lessons": [
+    {
+     "num": "0.1",
+     "title": "What it means for a machine to \"learn\": fitting a function to data"
+    },
+    {
+     "num": "0.2",
+     "title": "The map of this course: math, then models, then transformers"
+    },
+    {
+     "num": "0.3",
+     "title": "Reading math notation: Σ, subscripts and vectors"
+    }
+   ]
+  },
+  {
+   "n": 1,
+   "title": "Linear algebra",
+   "lessons": [
+    {
+     "num": "1.1",
+     "title": "Vectors: arrows and lists of numbers",
+     "id": "1.1-vectors"
+    },
+    {
+     "num": "1.2",
+     "title": "Linear combinations, span and basis"
+    },
+    {
+     "num": "1.3",
+     "title": "Matrices as transformations of space"
+    },
+    {
+     "num": "1.4",
+     "title": "Matrix multiplication as composition"
+    },
+    {
+     "num": "1.5",
+     "title": "Determinant: how much area gets stretched"
+    },
+    {
+     "num": "1.6",
+     "title": "Dot product and projection (similarity)"
+    },
+    {
+     "num": "1.7",
+     "title": "Eigenvectors: directions that only stretch"
+    },
+    {
+     "num": "1.8",
+     "title": "SVD and PCA intuition (rotate, stretch, rotate)"
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "title": "Calculus",
+   "lessons": [
+    {
+     "num": "2.1",
+     "title": "Derivative: slope of a zoomed-in curve"
+    },
+    {
+     "num": "2.2",
+     "title": "Chain rule: rates multiply"
+    },
+    {
+     "num": "2.3",
+     "title": "Partial derivatives"
+    },
+    {
+     "num": "2.4",
+     "title": "The gradient points uphill"
+    },
+    {
+     "num": "2.5",
+     "title": "Jacobians: derivatives of vector functions"
+    },
+    {
+     "num": "2.6",
+     "title": "Linear approximation and Taylor series"
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "title": "Probability and information",
+   "lessons": [
+    {
+     "num": "3.1",
+     "title": "Random variables and distributions"
+    },
+    {
+     "num": "3.2",
+     "title": "Expectation and variance"
+    },
+    {
+     "num": "3.3",
+     "title": "Bayes' rule: updating beliefs"
+    },
+    {
+     "num": "3.4",
+     "title": "The Gaussian and why it's everywhere"
+    },
+    {
+     "num": "3.5",
+     "title": "Maximum likelihood"
+    },
+    {
+     "num": "3.6",
+     "title": "Entropy: measuring surprise"
+    },
+    {
+     "num": "3.7",
+     "title": "Cross-entropy and KL divergence (the loss behind LLMs)"
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "title": "Optimization",
+   "lessons": [
+    {
+     "num": "4.1",
+     "title": "A loss function is a landscape"
+    },
+    {
+     "num": "4.2",
+     "title": "Gradient descent: roll downhill"
+    },
+    {
+     "num": "4.3",
+     "title": "Learning rate: too small, too big, just right"
+    },
+    {
+     "num": "4.4",
+     "title": "Stochastic and mini-batch gradient descent"
+    },
+    {
+     "num": "4.5",
+     "title": "Momentum and Adam"
+    },
+    {
+     "num": "4.6",
+     "title": "Convex vs non-convex landscapes"
+    }
+   ]
+  },
+  {
+   "n": 5,
+   "title": "Classical machine learning",
+   "lessons": [
+    {
+     "num": "5.1",
+     "title": "Linear regression as projection"
+    },
+    {
+     "num": "5.2",
+     "title": "Logistic regression and the sigmoid"
+    },
+    {
+     "num": "5.3",
+     "title": "Overfitting and the bias-variance trade-off"
+    },
+    {
+     "num": "5.4",
+     "title": "Regularization (L1, L2)"
+    },
+    {
+     "num": "5.5",
+     "title": "Train, validation and test splits"
+    },
+    {
+     "num": "5.6",
+     "title": "k-nearest neighbours"
+    },
+    {
+     "num": "5.7",
+     "title": "Decision trees"
+    },
+    {
+     "num": "5.8",
+     "title": "k-means clustering"
+    },
+    {
+     "num": "5.9",
+     "title": "PCA in practice"
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "title": "Neural networks",
+   "lessons": [
+    {
+     "num": "6.1",
+     "title": "The neuron: weighted sum plus a bend"
+    },
+    {
+     "num": "6.2",
+     "title": "Layers: stacking transformations"
+    },
+    {
+     "num": "6.3",
+     "title": "Activation functions (ReLU, GELU, why not linear)"
+    },
+    {
+     "num": "6.4",
+     "title": "Why depth helps"
+    },
+    {
+     "num": "6.5",
+     "title": "Forward pass as a computational graph"
+    },
+    {
+     "num": "6.6",
+     "title": "Backpropagation: the chain rule run backwards"
+    },
+    {
+     "num": "6.7",
+     "title": "Initialization and vanishing gradients"
+    },
+    {
+     "num": "6.8",
+     "title": "Normalization (batch norm, layer norm)"
+    },
+    {
+     "num": "6.9",
+     "title": "Dropout and generalization"
+    }
+   ]
+  },
+  {
+   "n": 7,
+   "title": "Training in practice",
+   "lessons": [
+    {
+     "num": "7.1",
+     "title": "Tensors and batches"
+    },
+    {
+     "num": "7.2",
+     "title": "The training loop"
+    },
+    {
+     "num": "7.3",
+     "title": "Reading loss curves"
+    },
+    {
+     "num": "7.4",
+     "title": "Debugging a model that won't learn"
+    }
+   ]
+  },
+  {
+   "n": 8,
+   "title": "Convolutional networks",
+   "lessons": [
+    {
+     "num": "8.1",
+     "title": "Convolution: a sliding pattern detector"
+    },
+    {
+     "num": "8.2",
+     "title": "Pooling and feature hierarchies"
+    },
+    {
+     "num": "8.3",
+     "title": "CNN architecture end to end"
+    },
+    {
+     "num": "8.4",
+     "title": "Residual connections"
+    }
+   ]
+  },
+  {
+   "n": 9,
+   "title": "Sequences and transformers",
+   "lessons": [
+    {
+     "num": "9.1",
+     "title": "Tokens: turning text into numbers"
+    },
+    {
+     "num": "9.2",
+     "title": "Embeddings: meaning as direction"
+    },
+    {
+     "num": "9.3",
+     "title": "RNNs and why they struggled"
+    },
+    {
+     "num": "9.4",
+     "title": "Attention: which words should look at which"
+    },
+    {
+     "num": "9.5",
+     "title": "Queries, keys and values"
+    },
+    {
+     "num": "9.6",
+     "title": "Softmax and scaled dot-product attention"
+    },
+    {
+     "num": "9.7",
+     "title": "Multi-head attention"
+    },
+    {
+     "num": "9.8",
+     "title": "Positional encoding"
+    },
+    {
+     "num": "9.9",
+     "title": "The transformer block"
+    },
+    {
+     "num": "9.10",
+     "title": "Predicting the next token and sampling (temperature, top-k)"
+    }
+   ]
+  },
+  {
+   "n": 10,
+   "title": "Large language models",
+   "lessons": [
+    {
+     "num": "10.1",
+     "title": "Pretraining and scaling laws"
+    },
+    {
+     "num": "10.2",
+     "title": "Fine-tuning and instruction tuning"
+    },
+    {
+     "num": "10.3",
+     "title": "Learning from human preferences (RLHF, DPO)"
+    },
+    {
+     "num": "10.4",
+     "title": "Context windows and the KV cache"
+    },
+    {
+     "num": "10.5",
+     "title": "Retrieval-augmented generation"
+    },
+    {
+     "num": "10.6",
+     "title": "Tool use and agents"
+    },
+    {
+     "num": "10.7",
+     "title": "Evaluating models"
+    }
+   ]
+  },
+  {
+   "n": 11,
+   "title": "Generative models",
+   "lessons": [
+    {
+     "num": "11.1",
+     "title": "Autoencoders and VAEs"
+    },
+    {
+     "num": "11.2",
+     "title": "Diffusion: learning to remove noise"
+    },
+    {
+     "num": "11.3",
+     "title": "GANs in brief"
+    }
+   ]
+  },
+  {
+   "n": 12,
+   "title": "Reinforcement learning",
+   "lessons": [
+    {
+     "num": "12.1",
+     "title": "Agents, rewards and Markov decision processes"
+    },
+    {
+     "num": "12.2",
+     "title": "Q-learning"
+    },
+    {
+     "num": "12.3",
+     "title": "Policy gradients"
+    }
+   ]
+  },
+  {
+   "n": 13,
+   "title": "Capstones",
+   "lessons": [
+    {
+     "num": "C1",
+     "title": "Digit recognizer: a NumPy MLP on MNIST"
+    },
+    {
+     "num": "C2",
+     "title": "Tiny GPT: a character-level transformer"
+    }
+   ]
+  }
+ ]
+}
