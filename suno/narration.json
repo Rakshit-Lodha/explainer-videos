@@ -1,0 +1,50 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.8,
+  "text": "A person types a single sentence describing the song they imagine, and a minute later a complete piece arrives, with a singer, instruments and a chorus that was never written by anyone. No musician was in the room, so what is the machine actually doing, and how can it produce something that sounds composed?",
+  "voice": "cedar",
+  "instructions": "Voice: a warm, articulate university lecturer speaking to curious adults, unhurried and clear, never salesy. Natural flowing sentences with small pauses at commas; no staccato. Tone: quiet wonder and gentle curiosity. Start softly, as if painting a picture. Let the pitch lift on 'what is the machine actually doing' and end on a genuine, open question. Pace: brisk and natural, around 170 words per minute, with only short pauses; never drag."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.7,
+  "text": "The first idea is to treat sound as language. A raw recording is far too detailed to predict directly, so an audio codec compresses it into a long sequence of small discrete units called tokens, much as a sentence is made of words. Once music is a sequence of tokens, it becomes something a language model knows how to handle.",
+  "voice": "cedar",
+  "instructions": "Voice: a warm, articulate university lecturer speaking to curious adults, unhurried and clear, never salesy. Natural flowing sentences with small pauses at commas; no staccato. Tone: clear, thoughtful and explanatory, with a small spark of insight on 'treat sound as language'. Emphasise 'tokens' and 'words' lightly. Pace: brisk and natural, around 170 words per minute, with only short pauses; never drag."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.75,
+  "text": "The model is trained on a vast collection of recordings, each paired with a description, and its task is always the same: given the tokens so far, predict the next one. By doing this billions of times it absorbs how rhythm holds together, how a chord tends to follow another, and how a voice shapes a word, without being handed any rules of music theory.",
+  "voice": "cedar",
+  "instructions": "Voice: a warm, articulate university lecturer speaking to curious adults, unhurried and clear, never salesy. Natural flowing sentences with small pauses at commas; no staccato. Tone: steady and patient, building admiration as the scale grows; lean slightly on 'billions of times' and 'without being handed any rules'. Pace: brisk and natural, around 170 words per minute, with only short pauses; never drag."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.8,
+  "text": "Your prompt is the steering. The description of style is converted into numbers that guide every prediction, while lyrics, which can be written by a separate language model, tell the singer which syllables to place and when. The song is then generated one token after another, each choice shaped by everything that came before it and by what you asked for.",
+  "voice": "cedar",
+  "instructions": "Voice: a warm, articulate university lecturer speaking to curious adults, unhurried and clear, never salesy. Natural flowing sentences with small pauses at commas; no staccato. Tone: engaged and a little brisker, like guiding someone through a mechanism. Emphasise 'steering' and 'one token after another'. Pace: brisk and natural, around 170 words per minute, with only short pauses; never drag."
+ },
+ {
+  "id": "s5",
+  "pace": 0.95,
+  "temperature": 0.8,
+  "text": "Tokens are only a code, so a decoder converts them back into an audible waveform, rebuilding the detail that the compression had set aside. This is why the result can feel so polished, and also why the same prompt gives a different song each time, because every prediction is a weighted draw among many plausible continuations.",
+  "voice": "cedar",
+  "instructions": "Voice: a warm, articulate university lecturer speaking to curious adults, unhurried and clear, never salesy. Natural flowing sentences with small pauses at commas; no staccato. Tone: satisfied and rising, like a reveal coming together; warmer on 'polished' and playful on 'a different song each time'. Pace: brisk and natural, around 170 words per minute, with only short pauses; never drag."
+ },
+ {
+  "id": "s6",
+  "pace": 0.9,
+  "temperature": 0.85,
+  "text": "A sentence, a model that has learned how music tends to unfold, and a decoder that turns that learning back into sound.",
+  "voice": "cedar",
+  "instructions": "Voice: a warm, articulate university lecturer speaking to curious adults, unhurried and clear, never salesy. Natural flowing sentences with small pauses at commas; no staccato. Tone: calm, reflective and resolved, a gentle closing thought with a long, soft fall on the last phrase. Pace: brisk and natural, around 170 words per minute, with only short pauses; never drag."
+ }
+]

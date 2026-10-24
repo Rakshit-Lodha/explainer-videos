@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f3ebdd;--ink:#16120f}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--cream)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--cream)}
+#bust{position:absolute;left:0;top:-60px;width:1920px;height:1280px;opacity:0;transform-origin:50% 55%}
+#title{position:absolute;left:0;top:96px;width:1920px;text-align:center;font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;
+  font-size:112px;line-height:1;letter-spacing:.07em;color:var(--ink);opacity:0}
+#sub{position:absolute;left:0;top:232px;width:1920px;text-align:center;font-family:'Jost','Helvetica Neue',sans-serif;font-weight:300;
+  font-size:42px;line-height:1;letter-spacing:.26em;color:var(--ink);opacity:0}
+#burst{position:absolute;left:560px;top:160px;width:800px;height:800px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,#fff 0%,#fff 40%,rgba(255,255,255,.85) 55%,rgba(255,255,255,0) 74%)}
+#wash{position:absolute;left:0;top:0;width:1920px;height:1080px;background:#fff;opacity:0}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="1.5" data-width="1920" data-height="1080">
+  <div class="clip" data-start="0" data-duration="1.5" data-track-index="1"><img id="bust" src="assets/bust.png" alt="" /></div>
+  <div class="clip" data-start="0" data-duration="1.5" data-track-index="2">
+    <div id="title">FESTINA LENTE</div>
+    <div id="sub">MAKE HASTE SLOWLY.</div>
+  </div>
+  <div class="clip" data-start="0" data-duration="1.5" data-track-index="3"><div id="burst" data-layout-allow-overlap data-layout-allow-occlusion></div></div>
+  <div class="clip" data-start="0" data-duration="1.5" data-track-index="4"><div id="wash" data-layout-allow-overlap data-layout-allow-occlusion></div></div>
+  <audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="1.5" data-volume="1"></audio>
+</div>
+<script>
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({paused:true});
+/* bust settles in */
+tl.fromTo('#bust',{autoAlpha:0,scale:1.04},{autoAlpha:1,scale:1,duration:.4,ease:'power2.out'},0);
+/* quote: title, then the line beneath, fully readable by .45 s and held until the burst */
+tl.fromTo('#title',{autoAlpha:0,y:10},{autoAlpha:1,y:0,duration:.25,ease:'power2.out'},.05);
+tl.fromTo('#sub',{autoAlpha:0,y:8},{autoAlpha:1,y:0,duration:.22,ease:'power2.out'},.2);
+/* push gently through the light */
+tl.to('#bust',{scale:1.06,duration:.5,ease:'power2.in'},1.0);
+/* light burst from the bust, then wash to pure white */
+tl.fromTo('#burst',{scale:.12,autoAlpha:0},{scale:3.6,autoAlpha:1,duration:.38,ease:'power3.in',immediateRender:false},1.0);
+tl.fromTo('#wash',{autoAlpha:0},{autoAlpha:1,duration:.16,ease:'power1.in',immediateRender:false},1.2);
+window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

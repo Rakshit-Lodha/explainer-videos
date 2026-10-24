@@ -1,0 +1,40 @@
+# Secrets
+.env
+.env.*
+
+# Local environments and tooling
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.claude/settings.local.json
+
+# Rendered media and generated assets (large, reproducible from scripts)
+*.mp4
+*.mov
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.aac
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.bin
+*.otio
+
+# Working directories: renders, snapshots, clips, raw takes
+**/build/
+**/snaps*/
+**/clips/
+**/listen/
+**/audio*/
+**/eleven*/
+**/music/
+**/sfx/
+**/keyframes*/
+**/characters/
+**/scenes/
+*.log

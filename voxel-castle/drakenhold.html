@@ -1,0 +1,586 @@
+<title>Drakenhold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: full-bleed WebGL diorama; a name card pinned top-left, a control dock pinned bottom-centre.
+   Single deliberate look: the scene supplies its own sky, so the chrome stays a dark glass in every theme. */
+:root{
+  --ink:#0b0e17;
+  --panel:rgba(14,17,28,.76);
+  --line:rgba(255,236,210,.14);
+  --text:#f3ead8;
+  --muted:#b9ae9a;
+  --ember:#ff8a3d;
+  --ember-ink:#1a0d05;
+  --f-display:"Pixelify Sans","Courier New",monospace;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--ink);color:var(--text);font-family:var(--f-body);overflow:hidden}
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.card{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));left:16px;max-width:min(300px,calc(100% - 32px));
+  padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:6px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.card h1{font-family:var(--f-display);font-weight:700;font-size:30px;letter-spacing:.03em;margin:0;line-height:1;text-wrap:balance}
+.card p{margin:8px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
+.meta{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ember);margin-top:10px;font-variant-numeric:tabular-nums}
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  width:max-content;max-width:calc(100% - 32px);display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.dock button{font:500 13px/1 var(--f-body);color:var(--text);background:transparent;border:1px solid var(--line);border-radius:5px;padding:9px 12px;cursor:pointer}
+.seg button{border:0;border-radius:0}
+.seg button + button{border-left:1px solid var(--line)}
+.dock button:hover{background:rgba(255,255,255,.07)}
+.dock button[aria-pressed="true"]{background:var(--ember);color:var(--ember-ink);border-color:var(--ember)}
+.dock button:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.dock button:disabled{opacity:.45;cursor:default}
+.hint{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:16px;margin:0;padding:8px 10px;
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:5px}
+#err[hidden]{display:none}
+#err{position:fixed;inset:0;display:grid;place-items:center;padding:0 16px;text-align:center;color:var(--muted)}
+@media (max-width:640px){
+  .hint{display:none}
+  .card h1{font-size:24px}
+  .card p{font-size:12px}
+}
+</style>
+
+<div id="stage" aria-label="3D voxel scene: a castle on a hill ringed by a moat, a village below, and a dragon circling the towers"></div>
+
+<header class="card">
+  <h1>Drakenhold</h1>
+  <p>A keep on the hill, a moat at its feet, a village down the road, and a red drake that never lands.</p>
+  <div class="meta" id="meta">Raising the walls…</div>
+</header>
+
+<p class="hint">Drag to orbit · scroll or pinch to zoom</p>
+
+<nav class="dock" aria-label="Scene controls">
+  <div class="seg" role="group" aria-label="Time of day">
+    <button id="t-day" aria-pressed="false">Day</button>
+    <button id="t-dusk" aria-pressed="true">Dusk</button>
+    <button id="t-night" aria-pressed="false">Night</button>
+  </div>
+  <button id="follow" aria-pressed="false">Ride the dragon</button>
+  <button id="fire">Breathe fire</button>
+  <button id="pause" aria-pressed="false">Pause</button>
+</nav>
+
+<div id="err" hidden>This scene needs WebGL, which this browser didn't provide.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+"use strict";
+if(!window.THREE){ document.getElementById('err').hidden=false; return; }
+
+/* ---------- seeded randomness and noise ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const rnd=mulberry32(20261021);
+const ri=(a,b)=>a+Math.floor(rnd()*(b-a+1));
+function hash3(x,y,z){let h=(Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(z|0,2147483647))|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296;}
+function vnoise(x,z){const xi=Math.floor(x),zi=Math.floor(z),xf=x-xi,zf=z-zi;const u=xf*xf*(3-2*xf),v=zf*zf*(3-2*zf);
+  const a=hash3(xi,0,zi),b=hash3(xi+1,0,zi),c=hash3(xi,0,zi+1),d=hash3(xi+1,0,zi+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+function fbm(x,z){return(vnoise(x,z)*0.57+vnoise(x*2.1+17,z*2.1+5)*0.29+vnoise(x*4.3+3,z*4.3+29)*0.14);}
+
+/* ---------- voxel store ---------- */
+const N=88, C=44, CX=44, CZ=36, PX=70, PZ=60;
+const key=(x,y,z)=>x|(y<<7)|(z<<14);
+const col=new Map(), glow=new Set(), water=new Map();
+function set(x,y,z,c,g){const k=key(x,y,z);col.set(k,c);if(g)glow.add(k);else glow.delete(k);water.delete(k);}
+function del(x,y,z){const k=key(x,y,z);col.delete(k);glow.delete(k);}
+function setWater(x,y,z){const k=key(x,y,z);if(!col.has(k))water.set(k,1);}
+const pick=(arr,x,y,z)=>arr[Math.floor(hash3(x,y,z)*arr.length)];
+
+const GRASS=[0x5d9b3b,0x68a843,0x63a03f,0x579236];
+const DIRT=[0x7b5a3b,0x6d4f33];
+const STONE=[0x7f8189,0x73757c,0x8a8c93];
+const WALL=[0xbdb9ae,0xaeaa9f,0xc6c2b7,0xa4a095];
+const KEEP=[0xa9a499,0x9e998d,0xb3aea3];
+const ROOF_T=[0x3d5a8c,0x34507f];
+const COBBLE=[0x9a958a,0x8d887c,0xa29d91];
+const PATH=[0xa58a5c,0x9a7f52];
+const WOOD=0x6a4a2c, DOOR=0x4a2f1d, WINDOW=0xffb347, TORCH=0xff7a2a;
+
+/* ---------- terrain ---------- */
+const hmap=new Int16Array(N*N).fill(-1);
+const H=(x,z)=>(x<0||z<0||x>=N||z>=N)?-1:hmap[x+z*N];
+const inMoat=(x,z)=>{const c=Math.max(Math.abs(x-CX),Math.abs(z-CZ));return c>=9&&c<=11;};
+function terrainH(x,z){
+  const dx=x-CX,dz=z-CZ;
+  const q=Math.hypot(Math.max(Math.abs(dx)-11,0),Math.max(Math.abs(dz)-11,0));
+  const b=4+fbm(x*0.07,z*0.07)*3.5;
+  let h;
+  if(q<=2.5) h=18;
+  else{const t=Math.min((q-2.5)/16,1),s=t*t*(3-2*t);h=18*(1-s)+b*s+(fbm(x*0.15+5,z*0.15+9)-0.5)*10*s*(1-s);}
+  const pd=Math.hypot(x-PX,z-PZ);
+  if(pd<5.5) h=Math.min(h,2+Math.round(pd/3));
+  return Math.round(h);
+}
+for(let z=0;z<N;z++)for(let x=0;x<N;x++){
+  const d=Math.hypot(x-C+0.5,z-C+0.5), R=39.5+4*fbm(x*0.08+10,z*0.08+3);
+  if(d>=R) continue;
+  hmap[x+z*N]=inMoat(x,z)?15:terrainH(x,z);
+}
+for(let z=0;z<N;z++)for(let x=0;x<N;x++){
+  const h=H(x,z); if(h<0) continue;
+  let steep=0; for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){const n=H(x+a,z+b); if(n>=0) steep=Math.max(steep,h-n);}
+  const pd=Math.hypot(x-PX,z-PZ);
+  for(let y=0;y<=h;y++){
+    let c;
+    if(y===h){
+      if(inMoat(x,z)) c=0x4b4639;
+      else if(pd<5.5) c=0x8b7d5a;
+      else if(pd<8) c=0xd8c48e;
+      else if(steep>=3) c=pick(DIRT,x,y,z);
+      else c=pick(GRASS,x,y,z);
+    } else if(y>=h-3) c=pick(DIRT,x,y,z);
+    else c=y===0?0x55575e:pick(STONE,x,y,z);
+    set(x,y,z,c);
+  }
+  if(inMoat(x,z)){setWater(x,16,z);setWater(x,17,z);}
+  if(pd<5.5) for(let y=h+1;y<=4;y++) setWater(x,y,z);
+}
+
+/* ---------- occupancy for placing things ---------- */
+const occ=new Uint8Array(N*N);
+const markOcc=(x,z)=>{if(x>=0&&z>=0&&x<N&&z<N)occ[x+z*N]=1;};
+const isOcc=(x,z)=>x<0||z<0||x>=N||z>=N||occ[x+z*N]===1||H(x,z)<0;
+for(let z=0;z<N;z++)for(let x=0;x<N;x++){
+  if(Math.max(Math.abs(x-CX),Math.abs(z-CZ))<=14) markOcc(x,z);
+  if(Math.hypot(x-PX,z-PZ)<8.5) markOcc(x,z);
+}
+const topRecolor=(x,z,c)=>{const h=H(x,z);if(h>=0)set(x,h,z,c);};
+
+/* ---------- castle ---------- */
+const S=(dx,y,dz,c,g)=>set(CX+dx,y,CZ+dz,c,g);
+const SD=(dx,y,dz)=>del(CX+dx,y,CZ+dz);
+for(let dz=-8;dz<=8;dz++)for(let dx=-8;dx<=8;dx++) topRecolor(CX+dx,CZ+dz,pick(COBBLE,dx,18,dz));
+// curtain wall with crenellations and a south gate
+for(let dz=-7;dz<=7;dz++)for(let dx=-7;dx<=7;dx++){
+  if(Math.max(Math.abs(dx),Math.abs(dz))!==7) continue;
+  for(let y=19;y<=24;y++){
+    if(dz===7&&Math.abs(dx)<=1&&y<=21) continue;
+    S(dx,y,dz,(y<=20&&hash3(dx,y,dz)<0.3)?0x7f8f6a:pick(WALL,dx,y,dz));
+  }
+  const along=Math.abs(dx)===7?dz:dx;
+  if(((along+7)&1)===0) S(dx,25,dz,pick(WALL,dx,25,dz));
+}
+// corner towers with slate cone roofs
+function roundTower(cx,cz,r2,y0,y1,roofR,roofY,win){
+  const rr=Math.ceil(Math.sqrt(r2));
+  for(let oz=-rr;oz<=rr;oz++)for(let ox=-rr;ox<=rr;ox++){
+    if(ox*ox+oz*oz>r2) continue;
+    for(let y=y0;y<=y1;y++) S(cx+ox,y,cz+oz,pick(WALL,cx+ox,y,cz+oz));
+  }
+  const wr=Math.floor(Math.sqrt(r2));
+  for(const wy of win) for(const [ox,oz] of [[wr,0],[-wr,0],[0,wr],[0,-wr]]) S(cx+ox,wy,cz+oz,WINDOW,true);
+  let top=roofY;
+  for(let L=0;;L++){
+    const r=roofR-L*0.5; if(r<0.15) break;
+    const ri2=Math.ceil(r);
+    for(let oz=-ri2;oz<=ri2;oz++)for(let ox=-ri2;ox<=ri2;ox++) if(ox*ox+oz*oz<=r*r||(ox===0&&oz===0)) S(cx+ox,roofY+L,cz+oz,pick(ROOF_T,ox,roofY+L,oz));
+    top=roofY+L;
+  }
+  return top;
+}
+for(const [tx,tz] of [[-7,-7],[7,-7],[-7,7],[7,7]]) roundTower(tx,tz,5,19,31,3.2,32,[25,29]);
+// gatehouse torches
+S(-2,21,8,TORCH,true); S(2,21,8,TORCH,true);
+// the keep
+for(let dz=-5;dz<=0;dz++)for(let dx=-4;dx<=4;dx++){
+  for(let y=19;y<=32;y++) S(dx,y,dz,pick(KEEP,dx,y,dz));
+  if(dx===-4||dx===4||dz===-5||dz===0){const along=(dx===-4||dx===4)?dz:dx;if(((along+10)&1)===0)S(dx,33,dz,pick(KEEP,dx,33,dz));}
+}
+for(const wy of [23,27,30]){S(-2,wy,0,WINDOW,true);S(2,wy,0,WINDOW,true);S(-4,wy,-2,WINDOW,true);S(4,wy,-3,WINDOW,true);S(0,wy,-5,WINDOW,true);}
+S(0,19,0,DOOR);S(0,20,0,DOOR);
+// keep tower with a banner
+const tip=roundTower(2,-3,2.5,33,41,2.4,42,[37]);
+for(let y=tip+1;y<=tip+5;y++) S(2,y,-3,0x3a2f28);
+for(let x=3;x<=5;x++) for(let y=tip+3;y<=tip+5;y++) S(x,y,-3,y===tip+4&&x===4?0xb3262c:0xe0a43a);
+// barrels and a hay cart in the courtyard
+for(const [bx,bz] of [[-5,4],[-5,3],[5,4]]) S(bx,19,bz,WOOD);
+S(5,19,2,0xd9b65a); S(5,20,2,0xd9b65a);
+// drawbridge over the moat
+for(let dz=9;dz<=11;dz++)for(let dx=-1;dx<=1;dx++) S(dx,18,dz,(dz&1)?0x7a5634:0x6a4a2c);
+
+/* ---------- road and village square ---------- */
+const PLX=44, PLZ=69;
+const roadX=z=>z<48?CX:CX+Math.round(Math.sin((z-48)*0.22)*2.5);
+for(let z=CZ+12;z<=PLZ;z++){const px=roadX(z);for(let x=px-1;x<=px+1;x++){if(Math.hypot(x-PLX,z-PLZ)<4.5)continue;topRecolor(x,z,pick(PATH,x,0,z));}
+  for(let x=px-2;x<=px+2;x++) markOcc(x,z);}
+for(let z=PLZ-6;z<=PLZ+6;z++)for(let x=PLX-6;x<=PLX+6;x++){const d=Math.hypot(x-PLX,z-PLZ);if(d<6.5)markOcc(x,z);if(d<4.5)topRecolor(x,z,pick(COBBLE,x,1,z));}
+{ const g=H(PLX,PLZ);
+  for(let oz=-1;oz<=1;oz++)for(let ox=-1;ox<=1;ox++){ if(ox||oz) set(PLX+ox,g+1,PLZ+oz,pick(STONE,ox,g+1,oz)); }
+  water.set(key(PLX,g+1,PLZ),1);
+  for(const [ox,oz] of [[-1,-1],[1,1]]) for(let y=g+2;y<=g+3;y++) set(PLX+ox,y,PLZ+oz,WOOD);
+  for(let oz=-1;oz<=1;oz++)for(let ox=-1;ox<=1;ox++) set(PLX+ox,g+4,PLZ+oz,0xa8432f);
+}
+
+/* ---------- houses ---------- */
+const chimneys=[];
+const ROOFS=[0xa8432f,0x8c3a2b,0x5a5f73,0x9a6b3a,0xb0533a];
+let houses=0;
+for(let tries=0;tries<2000&&houses<16;tries++){
+  const w=ri(4,6), d=ri(4,5), x0=ri(18,68), z0=ri(50,80), x1=x0+w-1, z1=z0+d-1;
+  let ok=true,lo=99,hi=-1;
+  for(let z=z0-1;z<=z1+1&&ok;z++)for(let x=x0-1;x<=x1+1;x++){
+    if(isOcc(x,z)){ok=false;break;}
+    if(x>=x0&&x<=x1&&z>=z0&&z<=z1){const h=H(x,z);lo=Math.min(lo,h);hi=Math.max(hi,h);}
+  }
+  if(!ok||hi-lo>3||Math.hypot((x0+x1)/2-C,(z0+z1)/2-C)>34) continue;
+  const g=hi;
+  for(let z=z0-2;z<=z1+2;z++)for(let x=x0-2;x<=x1+2;x++) markOcc(x,z);
+  for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++) for(let y=H(x,z)+1;y<=g;y++) set(x,y,z,pick(STONE,x,y,z));
+  for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++){
+    if(x!==x0&&x!==x1&&z!==z0&&z!==z1) continue;
+    for(let y=g+1;y<=g+3;y++){
+      const corner=(x===x0||x===x1)&&(z===z0||z===z1);
+      set(x,y,z,corner||y===g+3?0x5b3a22:((x+z+y)&1?0xe8dcc0:0xdccfb1));
+    }
+  }
+  const zm=Math.floor((z0+z1)/2), doorX=((x0+x1)/2<roadX(zm))?x1:x0;
+  set(doorX,g+1,zm,DOOR); set(doorX,g+2,zm,DOOR);
+  for(const wz of [z0,z1]) for(let x=x0+1;x<=x1-1;x+=2) set(x,g+2,wz,WINDOW,true);
+  const rc=ROOFS[houses%ROOFS.length];
+  let top=g+4;
+  for(let k=0;;k++){
+    const zl=z0-1+k, zh=z1+1-k; if(zl>zh) break;
+    const y=g+4+k; top=y;
+    for(let x=x0-1;x<=x1+1;x++){ set(x,y,zl,rc); set(x,y,zh,rc); }
+    for(let z=zl+1;z<=zh-1;z++){ set(x0,y,z,0xe8dcc0); set(x1,y,z,0xe8dcc0); }
+  }
+  if(houses%2===0){
+    const cx=x1-1, cz=z0+1;
+    for(let y=g+4;y<=top+1;y++) set(cx,y,cz,pick(STONE,cx,y,cz));
+    chimneys.push(new THREE.Vector3(cx-C,top+1.8,cz-C));
+  }
+  houses++;
+}
+
+/* ---------- fields ---------- */
+for(const [fx,fz] of [[22,62],[24,73],[58,78],[60,68],[30,80]]){
+  const w=7,d=6; let ok=true;
+  for(let z=fz-1;z<=fz+d&&ok;z++)for(let x=fx-1;x<=fx+w;x++) if(isOcc(x,z)){ok=false;break;}
+  if(!ok) continue;
+  for(let z=fz;z<fz+d;z++)for(let x=fx;x<fx+w;x++){
+    const h=H(x,z); set(x,h,z,0x5e4128);
+    if((z-fz)%2===0) set(x,h+1,z,(hash3(x,1,z)<0.5)?0xd8b84a:0xc9a73e);
+    markOcc(x,z);
+  }
+}
+
+/* ---------- trees ---------- */
+let trees=0;
+for(let tries=0;tries<1400&&trees<85;tries++){
+  const x=ri(3,N-4), z=ri(3,N-4), h=H(x,z);
+  if(h<5) continue;
+  let ok=true;
+  for(let oz=-2;oz<=2&&ok;oz++)for(let ox=-2;ox<=2;ox++){ if(isOcc(x+ox,z+oz)||Math.abs(H(x+ox,z+oz)-h)>2){ok=false;break;} }
+  if(!ok) continue;
+  for(let oz=-1;oz<=1;oz++)for(let ox=-1;ox<=1;ox++) markOcc(x+ox,z+oz);
+  if(rnd()<0.35){
+    const th=ri(5,6);
+    for(let y=h+1;y<=h+th;y++) set(x,y,z,0x5a3d24);
+    for(let L=0;L<5;L++){const r=2.6-L*0.55,y=h+3+L;const rr=Math.ceil(r);
+      for(let oz=-rr;oz<=rr;oz++)for(let ox=-rr;ox<=rr;ox++) if(ox*ox+oz*oz<=r*r&&!(ox===0&&oz===0&&y<=h+th)) set(x+ox,y,z+oz,(L&1)?0x2f5e3a:0x29523a);}
+    set(x,h+8,z,0x2f5e3a);
+  } else {
+    const th=ri(3,4), r=2.2+rnd()*0.5, cy=h+th+1;
+    for(let y=h+1;y<=h+th;y++) set(x,y,z,0x6b4a2b);
+    for(let oy=-2;oy<=2;oy++)for(let oz=-3;oz<=3;oz++)for(let ox=-3;ox<=3;ox++){
+      const dd=ox*ox+oy*oy*1.3+oz*oz; if(dd>r*r) continue;
+      if(dd>r*r*0.6&&hash3(x+ox,cy+oy,z+oz)<0.35) continue;
+      set(x+ox,cy+oy,z+oz,pick([0x3f7a2e,0x4b8a34,0x356b28],x+ox,cy+oy,z+oz));
+    }
+  }
+  trees++;
+}
+
+/* ---------- renderer and scene ---------- */
+const stage=document.getElementById('stage');
+let renderer;
+try{ renderer=new THREE.WebGLRenderer({antialias:true}); }catch(e){ document.getElementById('err').hidden=false; return; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0xc4dfee,110,320);
+const camera=new THREE.PerspectiveCamera(42,1,0.5,1500);
+camera.position.set(62,58,84);
+
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.target.set(0,14,4);
+controls.enableDamping=true; controls.dampingFactor=0.08;
+controls.minDistance=22; controls.maxDistance=200; controls.maxPolarAngle=1.48;
+const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+controls.autoRotate=!reduceMotion; controls.autoRotateSpeed=0.45;
+
+const hemi=new THREE.HemisphereLight(0xcfe8ff,0x5d6b3a,0.55); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff0d6,0.75);
+sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-60,right:60,top:60,bottom:-60,near:1,far:320});
+sun.shadow.bias=-0.0006; sun.shadow.normalBias=0.03;
+scene.add(sun); scene.add(sun.target);
+
+// sky dome
+const skyU={top:{value:new THREE.Color()},bot:{value:new THREE.Color()}};
+const sky=new THREE.Mesh(new THREE.SphereGeometry(700,32,16),new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,fog:false,
+  vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'uniform vec3 top;uniform vec3 bot;varying vec3 vP;void main(){float h=clamp(vP.y*1.6+0.12,0.0,1.0);gl_FragColor=vec4(mix(bot,top,pow(h,0.75)),1.0);}'}));
+scene.add(sky);
+// stars
+{ const n=700,p=new Float32Array(n*3);
+  for(let i=0;i<n;i++){const u=rnd()*Math.PI*2,v=0.08+rnd()*0.92,r=650,s=Math.sqrt(1-v*v);p[i*3]=Math.cos(u)*s*r;p[i*3+1]=v*r;p[i*3+2]=Math.sin(u)*s*r;}
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  var starMat=new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false,transparent:true,opacity:0,fog:false,depthWrite:false});
+  scene.add(new THREE.Points(g,starMat));
+}
+
+/* ---------- voxel meshes (only exposed faces' voxels) ---------- */
+const box=new THREE.BoxGeometry(1,1,1);
+const M4=new THREE.Matrix4(), tc=new THREE.Color();
+const solidAt=(x,y,z)=>y<0||(x>=0&&z>=0&&col.has(key(x,y,z)));
+const blocked=(x,y,z)=>y<0||(x>=0&&z>=0&&(col.has(key(x,y,z))||water.has(key(x,y,z))));
+const N6=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+const lists={solid:[],glow:[],water:[]};
+for(const [k,c] of col){
+  const x=k&127,y=(k>>7)&127,z=k>>14;
+  let exp=false; for(const n of N6) if(!solidAt(x+n[0],y+n[1],z+n[2])){exp=true;break;}
+  if(exp) (glow.has(k)?lists.glow:lists.solid).push([x,y,z,c]);
+}
+for(const k of water.keys()){
+  const x=k&127,y=(k>>7)&127,z=k>>14;
+  let exp=false; for(const n of N6) if(!blocked(x+n[0],y+n[1],z+n[2])){exp=true;break;}
+  if(exp) lists.water.push([x,y,z,0xffffff]);
+}
+function instanced(cells,mat,jitter,yScale){
+  const m=new THREE.InstancedMesh(box,mat,cells.length);
+  cells.forEach((v,i)=>{
+    M4.makeScale(1,yScale||1,1).setPosition(v[0]-C,v[1]-(yScale?(1-yScale)/2:0),v[2]-C); m.setMatrixAt(i,M4);
+    tc.setHex(v[3]); if(jitter) tc.multiplyScalar(0.93+hash3(v[0],v[1]*7,v[2])*0.13); m.setColorAt(i,tc);
+  });
+  m.frustumCulled=false; return m;
+}
+const terrainMesh=instanced(lists.solid,new THREE.MeshLambertMaterial(),true);
+terrainMesh.castShadow=true; terrainMesh.receiveShadow=true; scene.add(terrainMesh);
+const glowMat=new THREE.MeshBasicMaterial({color:0xffffff});
+const glowMesh=instanced(lists.glow,glowMat,false); scene.add(glowMesh);
+const waterMat=new THREE.MeshLambertMaterial({color:0x3d7fc6,transparent:true,opacity:0.8});
+const waterMesh=instanced(lists.water,waterMat,false,0.85); waterMesh.receiveShadow=true; scene.add(waterMesh);
+const total=lists.solid.length+lists.glow.length+lists.water.length;
+document.getElementById('meta').textContent=`${total.toLocaleString('en-US')} visible voxels · ${houses} houses · 1 dragon`;
+
+/* ---------- clouds ---------- */
+const cloudMat=new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:0.9});
+const clouds=[];
+for(let i=0;i<8;i++){
+  const cells=[],rx=4+rnd()*5,rz=3+rnd()*3;
+  for(let z=-7;z<=7;z++)for(let x=-10;x<=10;x++){
+    const e=(x*x)/(rx*rx)+(z*z)/(rz*rz)+ (vnoise(x*0.4+i*9,z*0.4)-0.5)*0.8;
+    if(e<1){cells.push([x+C,0,z+C,0xffffff]); if(e<0.45) cells.push([x+C,1,z+C,0xffffff]);}
+  }
+  const m=instanced(cells,cloudMat,false); m.castShadow=true;
+  m.position.set(-90+i*24+rnd()*10,54+rnd()*10,-60+rnd()*120);
+  m.userData.speed=1+rnd()*1.2; clouds.push(m); scene.add(m);
+}
+
+/* ---------- the dragon ---------- */
+const RED=0xb3262c,RED2=0x99202a,DARK=0x3d1013,BELLY=0xe2a645,BONE=0xeadfc4,MEM=0xc8453c,MEM2=0xa83631;
+const dragonMat=new THREE.MeshLambertMaterial();
+const eyeMat=new THREE.MeshBasicMaterial({color:0xffe066});
+function part(cells,mat){const m=new THREE.InstancedMesh(box,mat||dragonMat,cells.length);
+  cells.forEach((c,i)=>{M4.makeTranslation(c[0],c[1],c[2]);m.setMatrixAt(i,M4);tc.setHex(c[3]);m.setColorAt(i,tc);});
+  m.castShadow=true;m.frustumCulled=false;return m;}
+const dragon=new THREE.Group(); dragon.scale.setScalar(0.5); scene.add(dragon);
+{ const c=[];
+  for(let z=-4;z<=4;z++)for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++) c.push([x,y,z,y===-1?BELLY:((x+z)&1?RED:RED2)]);
+  for(let z=-2;z<=2;z++){c.push([2,0,z,RED2]);c.push([-2,0,z,RED2]);}
+  for(let z=-4;z<=4;z+=2) c.push([0,2,z,DARK]);
+  for(const [z,y0,y1] of [[5,0,1],[6,1,2],[7,2,3]]) for(let x=-1;x<=1;x++)for(let y=y0;y<=y1;y++) c.push([x,y,z,y===y0?BELLY:RED]);
+  for(const s of [-1,1]){c.push([s,-2,2,RED2]);c.push([s,-3,3,BONE]);c.push([s,-2,-2,RED2]);c.push([s,-3,-3,BONE]);}
+  dragon.add(part(c));
+}
+const head=new THREE.Group(); head.position.set(0,3,8); dragon.add(head);
+{ const c=[];
+  for(let z=0;z<=3;z++)for(let x=-1;x<=1;x++)for(let y=0;y<=1;y++) c.push([x,y,z,RED]);
+  for(let z=4;z<=5;z++)for(let x=-1;x<=1;x++) c.push([x,0,z,RED2]);
+  for(let x=-1;x<=1;x++) c.push([x,1,4,RED]);
+  for(let z=1;z<=5;z++)for(let x=-1;x<=1;x++) c.push([x,-1,z,BELLY]);
+  for(const s of [-1,1]){c.push([s,2,0,BONE]);c.push([s,2,-1,BONE]);c.push([s,3,-2,BONE]);}
+  c.push([0,2,0,DARK]);c.push([0,2,1,DARK]);
+  head.add(part(c));
+  head.add(part([[1.2,1,2,0xffffff],[-1.2,1,2,0xffffff]],eyeMat));
+}
+const tail=[];
+{ let parent=dragon, z0=-5;
+  for(let i=0;i<8;i++){
+    const g=new THREE.Group(); g.position.set(0,0,i===0?z0:-2); parent.add(g); tail.push(g);
+    const c=[];
+    if(i<2){for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++){if(Math.abs(x)+Math.abs(y)===2)continue;for(let z=-1;z<=0;z++)c.push([x,y,z,y===-1?BELLY:((x+z+i)&1?RED:RED2)]);}if(i===0)c.push([0,2,-0.5,DARK]);}
+    else if(i<5){for(const x of [-0.5,0.5])for(const y of [-0.5,0.5])for(let z=-1;z<=0;z++)c.push([x,y,z,y<0?BELLY:((i+z)&1?RED:RED2)]);if(!(i&1))c.push([0,1,-0.5,DARK]);}
+    else {for(let z=-1;z<=0;z++)c.push([0,0,z,(i+z)&1?RED:RED2]);}
+    if(i===7){c.push([-1,0,-2,DARK],[1,0,-2,DARK],[0,0,-2,DARK],[0,0,-3,DARK]);}
+    g.add(part(c)); parent=g;
+  }
+}
+function wing(side){
+  const g=new THREE.Group(); g.position.set(1.5*side,1.5,1.5); dragon.add(g);
+  const depth=[0,5,6,7,7,7,6,6,5,4,2], c=[];
+  for(let x=1;x<=10;x++){
+    c.push([x*side,0,0,DARK]);
+    for(let z=-1;z>=-depth[x];z--){const bone=(x===4&&z>=-6)||(x===8&&z>=-4);c.push([x*side,0,z,bone?DARK:((x+z)&1?MEM:MEM2)]);}
+  }
+  const m=part(c); m.scale.y=0.45; g.add(m); return g;
+}
+const wingL=wing(1), wingR=wing(-1);
+
+/* ---------- particles: dragon fire and chimney smoke ---------- */
+const PMAX=600;
+const pMesh=new THREE.InstancedMesh(box,new THREE.MeshBasicMaterial(),PMAX); pMesh.frustumCulled=false;
+const parts=[];
+for(let i=0;i<PMAX;i++){parts.push({alive:false,p:new THREE.Vector3(),v:new THREE.Vector3(),life:0,max:1,fire:true});M4.makeScale(0,0,0);pMesh.setMatrixAt(i,M4);pMesh.setColorAt(i,tc.setHex(0));}
+scene.add(pMesh);
+let pNext=0;
+function spawn(p,v,max,fire){const o=parts[pNext];pNext=(pNext+1)%PMAX;o.alive=true;o.p.copy(p);o.v.copy(v);o.life=0;o.max=max;o.fire=fire;}
+const FIRE=[new THREE.Color(0xfff3b0),new THREE.Color(0xffb02e),new THREE.Color(0xe2431d),new THREE.Color(0x3a2a2a)];
+function fireColor(k,out){const f=Math.min(k*3,2.999),i=Math.floor(f);return out.copy(FIRE[i]).lerp(FIRE[i+1],f-i);}
+const qI=new THREE.Quaternion(), vS=new THREE.Vector3();
+function updateParticles(dt){
+  for(let i=0;i<PMAX;i++){
+    const o=parts[i]; if(!o.alive) continue;
+    o.life+=dt; const k=o.life/o.max;
+    if(k>=1){o.alive=false;M4.makeScale(0,0,0);pMesh.setMatrixAt(i,M4);continue;}
+    o.p.addScaledVector(o.v,dt);
+    let s;
+    if(o.fire){
+      o.v.multiplyScalar(Math.pow(0.35,dt)); o.v.y+=1.5*dt;
+      const gx=Math.round(o.p.x+C),gz=Math.round(o.p.z+C),gh=H(gx,gz);
+      if(gh>=0&&o.p.y<gh+1){o.p.y=gh+1;o.v.y=Math.abs(o.v.y)*0.3;}
+      s=(0.5+2.2*k)*(1-k*k); fireColor(k,tc);
+    } else {
+      o.v.x+=0.25*dt; s=(0.5+1.4*k)*(1-k*0.6);
+      tc.setScalar(0.82-0.3*k).lerp(smokeTint,0.35);
+    }
+    vS.set(s,s,s); M4.compose(o.p,qI,vS); pMesh.setMatrixAt(i,M4); pMesh.setColorAt(i,tc);
+  }
+  pMesh.instanceMatrix.needsUpdate=true; pMesh.instanceColor.needsUpdate=true;
+}
+const smokeTint=new THREE.Color();
+
+/* ---------- time of day ---------- */
+const P={
+  day:{top:0x5aa3e0,bot:0xcfe6f2,fog:0xc4dfee,sun:0xfff0d6,sunI:0.78,sunP:[60,95,45],hs:0xcfe8ff,hg:0x5d6b3a,hI:0.56,glow:0.18,stars:0,water:0x3d7fc6,cloud:0xffffff,smoke:0xdddddd},
+  dusk:{top:0x2c335f,bot:0xf09a63,fog:0xc08a78,sun:0xffa060,sunI:0.95,sunP:[-95,30,35],hs:0xa79bcf,hg:0x5a4836,hI:0.62,glow:0.8,stars:0.3,water:0x4d5f9a,cloud:0xffbe9a,smoke:0xb8a0a0},
+  night:{top:0x050816,bot:0x1a2446,fog:0x151d37,sun:0xa5b8ff,sunI:0.42,sunP:[-45,95,-65],hs:0x3a4a7a,hg:0x101420,hI:0.34,glow:1,stars:1,water:0x1b2c5a,cloud:0x39435f,smoke:0x52596e}
+};
+function snap(){return{top:skyU.top.value.clone(),bot:skyU.bot.value.clone(),fog:scene.fog.color.clone(),sun:sun.color.clone(),sunI:sun.intensity,sunP:sun.position.clone(),
+  hs:hemi.color.clone(),hg:hemi.groundColor.clone(),hI:hemi.intensity,glow:glowLevel,stars:starMat.opacity,water:waterMat.color.clone(),cloud:cloudMat.color.clone(),smoke:smokeTint.clone()};}
+let glowLevel=0, tod=null;
+const cA=new THREE.Color(), cB=new THREE.Color();
+function applyMix(a,b,k){
+  const L=(x,y)=>x+(y-x)*k, LC=(ca,hb,out)=>out.copy(ca).lerp(cB.setHex(hb),k);
+  LC(a.top,b.top,skyU.top.value); LC(a.bot,b.bot,skyU.bot.value); LC(a.fog,b.fog,scene.fog.color);
+  LC(a.sun,b.sun,sun.color); sun.intensity=L(a.sunI,b.sunI);
+  sun.position.set(L(a.sunP.x,b.sunP[0]),L(a.sunP.y,b.sunP[1]),L(a.sunP.z,b.sunP[2]));
+  LC(a.hs,b.hs,hemi.color); LC(a.hg,b.hg,hemi.groundColor); hemi.intensity=L(a.hI,b.hI);
+  glowLevel=L(a.glow,b.glow); glowMat.color.setScalar(0.22+0.78*glowLevel);
+  starMat.opacity=L(a.stars,b.stars);
+  LC(a.water,b.water,waterMat.color); LC(a.cloud,b.cloud,cloudMat.color); LC(a.smoke,b.smoke,smokeTint);
+}
+let todFrom=null, todTo=null, todT=1;
+function setTime(name,instant){
+  todFrom=snap(); todTo=P[name]; todT=(instant||reduceMotion)?1:0;
+  if(todT>=1) applyMix(todFrom,todTo,1);
+  for(const n of ['day','dusk','night']) document.getElementById('t-'+n).setAttribute('aria-pressed',String(n===name));
+  tod=name;
+}
+setTime('dusk',true);
+
+/* ---------- interaction ---------- */
+let paused=false, follow=false, lastTouch=-99, breath=0, nextBreath=6;
+const btnFollow=document.getElementById('follow'), btnPause=document.getElementById('pause'), btnFire=document.getElementById('fire');
+for(const n of ['day','dusk','night']) document.getElementById('t-'+n).addEventListener('click',()=>setTime(n));
+btnFire.addEventListener('click',()=>{ if(!paused) breath=1.8; });
+btnPause.addEventListener('click',()=>{paused=!paused;btnPause.setAttribute('aria-pressed',String(paused));btnPause.textContent=paused?'Resume':'Pause';btnFire.disabled=paused;});
+btnFollow.addEventListener('click',()=>{
+  follow=!follow; btnFollow.setAttribute('aria-pressed',String(follow));
+  controls.enabled=!follow;
+  if(!follow){controls.target.set(0,14,4);controls.update();}
+});
+controls.addEventListener('start',()=>{lastTouch=clockT;controls.autoRotate=false;});
+
+/* ---------- resize ---------- */
+function resize(){
+  const w=stage.clientWidth||window.innerWidth,h=stage.clientHeight||window.innerHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w/h<0.8?58:42; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+
+/* ---------- loop ---------- */
+const clock=new THREE.Clock();
+let simT=0, clockT=0, smokeAcc=0;
+const v1=new THREE.Vector3(), v2=new THREE.Vector3(), v3=new THREE.Vector3(), lookAtCur=new THREE.Vector3(0,14,4), camGoal=new THREE.Vector3();
+const CC=new THREE.Vector3(0,0,CZ-C);
+function dragonAt(t,out){
+  const a=t*0.26, r=23+3*Math.sin(t*0.37);
+  return out.set(CC.x+Math.cos(a)*r, 41+3.5*Math.sin(t*0.53), CC.z+Math.sin(a)*r);
+}
+function frame(){
+  const dt=Math.min(clock.getDelta(),0.05); clockT+=dt;
+  if(todT<1){todT=Math.min(1,todT+dt/1.6);const k=todT*todT*(3-2*todT);applyMix(todFrom,todTo,k);}
+  if(!paused){
+    simT+=dt;
+    // flight path, heading and bank toward the castle
+    dragonAt(simT,dragon.position); dragonAt(simT+0.15,v1);
+    dragon.lookAt(v1);
+    v2.set(1,0,0).applyQuaternion(dragon.quaternion);
+    v3.copy(CC).sub(dragon.position).setY(0).normalize();
+    dragon.rotateZ(-Math.sign(v2.dot(v3))*0.38);
+    dragon.position.y+=Math.sin(simT*4-0.6)*0.35;
+    const flap=0.12+Math.sin(simT*4)*0.6;
+    wingL.rotation.z=flap; wingR.rotation.z=-flap;
+    tail.forEach((g,i)=>{g.rotation.y=Math.sin(simT*2.2-i*0.6)*0.16;g.rotation.x=Math.sin(simT*4-i*0.7)*0.05;});
+    if(breath<=0&&simT>nextBreath){breath=1.8;}
+    if(breath>0){ breath-=dt; if(breath<=0) nextBreath=simT+11; }
+    head.rotation.x+=((breath>0?0.5:Math.sin(simT*1.3)*0.08)-head.rotation.x)*Math.min(1,dt*5);
+    dragon.updateMatrixWorld(true);
+    if(breath>0){
+      const n=Math.ceil(110*dt);
+      head.localToWorld(v1.set(0,-0.2,6));
+      v2.set(0,-0.15,1).transformDirection(head.matrixWorld);
+      for(let i=0;i<n;i++){
+        v3.copy(v2).multiplyScalar(13+rnd()*5).add(camGoal.set((rnd()-0.5)*3,(rnd()-0.5)*3,(rnd()-0.5)*3));
+        spawn(v1,v3,0.9+rnd()*0.6,true);
+      }
+    }
+    smokeAcc+=dt;
+    if(smokeAcc>0.45){smokeAcc=0;for(const c of chimneys) spawn(c,v3.set((rnd()-0.5)*0.3,1.3+rnd()*0.4,(rnd()-0.5)*0.3),3.6,false);}
+    updateParticles(dt);
+    for(const c of clouds){c.position.x+=c.userData.speed*dt; if(c.position.x>110) c.position.x=-110;}
+  }
+  if(follow){
+    dragon.localToWorld(camGoal.set(0,14,-34));
+    camera.position.lerp(camGoal,1-Math.exp(-dt*2.5));
+    dragon.localToWorld(v1.set(0,0,24));
+    lookAtCur.lerp(v1,1-Math.exp(-dt*4));
+    camera.lookAt(lookAtCur);
+  } else {
+    if(!controls.autoRotate&&!reduceMotion&&!paused&&clockT-lastTouch>8) controls.autoRotate=true;
+    if(paused) controls.autoRotate=false;
+    controls.update();
+    lookAtCur.copy(controls.target);
+  }
+  renderer.render(scene,camera);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>

@@ -1,0 +1,21 @@
+[warmly] At a roadside stall, a phone scans a small printed square, and within seconds the shopkeeper's phone announces that the money has arrived. [pause] [curious] Nothing physical has moved, so what has, and how do two banks that have never met agree on it so quickly?
+
+[long pause]
+
+[calmly, explanatory] The first idea is to replace the awkward details of a bank account with a simple address, a name followed by the bank's handle. [pause] This address is only an alias; a shared directory, run by the central payments body, N-P-C-I, remembers which account stands behind it, so the payer never needs to know where the money will land.
+
+[long pause]
+
+[building, with quiet momentum] When you confirm a payment, your app never touches the money. [pause] It composes a message, who is paying, whom, and how much, and sends it to the central switch, which forwards a debit instruction to your bank and a credit instruction to theirs. [pause] Each bank checks its own books, and only when both agree does a confirmation travel back, [emphasis] which is why a payment either completes entirely, or not at all.
+
+[long pause]
+
+[hushed, reassuring] [curious] But how does your bank know it is truly you? [pause] [softly] Your PIN is encrypted on the phone itself, inside a secure component, before it travels. The app that carries it cannot read it, the switch cannot read it, [slowly] and only your own bank holds the key that opens it.
+
+[long pause]
+
+[reflective, with a quiet reveal] What changes in those seconds is two ledger entries. [pause] The banks settle among themselves later, in batches, where thousands of payments in opposite directions largely cancel into a single net transfer. [pause] [thoughtful] The speed you perceive is the speed of agreement, while the movement of actual funds is deferred.
+
+[long pause]
+
+[warmly, satisfied, slowing down] A small square, a brief exchange of messages, and a shared record that every party trusts.

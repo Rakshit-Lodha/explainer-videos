@@ -1,0 +1,35 @@
+{
+ "voice_id_env": "ELEVENT_LABS_VOICE_ID",
+ "api_key_env": "ELEVEN_LABS_API_KEY",
+ "model": "eleven_v4",
+ "stability": 0.5,
+ "similarity_boost": 0.75,
+ "mode": "whole",
+ "scene_gap": "\n\n...\n\n",
+ "scenes": [
+  {
+   "id": "s1",
+   "text": "[warmly, with quiet wonder] A person types a single sentence describing the song they imagine, and a minute later a complete piece arrives, with a singer, instruments and a chorus that was never written by anyone. [pause] [curious] No musician was in the room, so what is the machine actually doing, and how can it produce something that sounds composed?"
+  },
+  {
+   "id": "s2",
+   "text": "[calmly, explanatory] The first idea is to treat sound as language. A raw recording is far too detailed to predict directly, so an audio codec compresses it into a long sequence of small discrete units called tokens, much as a sentence is made of words. [pause] Once music is a sequence of tokens, it becomes something a language model knows how to handle."
+  },
+  {
+   "id": "s3",
+   "text": "[steady, patient, building admiration] The model is trained on a vast collection of recordings, each paired with a description, and its task is always the same: given the tokens so far, predict the next one. [pause] By doing this BILLIONS of times it absorbs how rhythm holds together, how a chord tends to follow another, and how a voice shapes a word, without being handed any rules of music theory."
+  },
+  {
+   "id": "s4",
+   "text": "[engaged, with quiet momentum] Your prompt is the steering. The description of style is converted into numbers that guide every prediction, while lyrics, which can be written by a separate language model, tell the singer which syllables to place and when. [pause] The song is then generated one token after another, each choice shaped by everything that came before it and by what you asked for."
+  },
+  {
+   "id": "s5",
+   "text": "[reflective, with a quiet reveal] Tokens are only a code, so a decoder converts them back into an audible waveform, rebuilding the detail that the compression had set aside. [pause] This is why the result can feel so polished, and also why the same prompt gives a DIFFERENT song each time, because every prediction is a weighted draw among many plausible continuations."
+  },
+  {
+   "id": "s6",
+   "text": "[warmly, satisfied, slowing down] A sentence, a model that has learned how music tends to unfold, and a decoder that turns that learning back into sound."
+  }
+ ]
+}

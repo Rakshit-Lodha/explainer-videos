@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1020;--navy2:#101a36;--amber:#f5b942;--amber2:#ffe08a;--teal:#4fd1c5;--ink:#dfe8f5;--dim:#7d8ba6}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--navy)}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 90% 60% at 50% 38%,#14224a 0%,#0c1530 55%,#080d1c 100%)}
+.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;opacity:0}
+.abs{position:absolute}
+.cap{position:absolute;left:40px;width:1000px;text-align:center;top:170px;font-size:62px;line-height:1.15;font-weight:400;letter-spacing:-.01em;opacity:0;color:var(--ink)}
+.cap em{font-style:italic;color:var(--amber)}
+.cap.t{color:var(--teal)}
+.sub{position:absolute;left:60px;width:960px;text-align:center;font-size:36px;color:var(--dim);font-style:italic;opacity:0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.tok{position:absolute;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:20px;border:2.5px solid var(--amber);background:rgba(245,185,66,.12);
+  box-shadow:0 0 30px rgba(245,185,66,.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:34px;color:var(--amber2);opacity:0}
+.tok.t{border-color:var(--teal);background:rgba(79,209,197,.12);box-shadow:0 0 30px rgba(79,209,197,.35);color:#c9fff9}
+.card{position:absolute;border-radius:28px;border:2px solid rgba(79,209,197,.55);background:linear-gradient(160deg,rgba(24,40,84,.85),rgba(12,22,48,.9));box-shadow:0 0 50px rgba(79,209,197,.12);opacity:0}
+.pill{position:absolute;padding:14px 34px;border-radius:60px;border:2px solid var(--teal);background:rgba(79,209,197,.08);opacity:0;white-space:nowrap}
+.lbl{position:absolute;font-size:36px;color:var(--teal);opacity:0;white-space:nowrap;text-align:center}
+.bar{position:absolute;border-radius:6px;opacity:0}
+.dot{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#ffe9a8,#f5b942 60%,#c98a1a);box-shadow:0 0 24px rgba(245,185,66,.55);opacity:0}
+.packet{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:radial-gradient(circle,#fff6d6,#f5b942 55%,rgba(245,185,66,0) 72%);box-shadow:0 0 40px 10px rgba(245,185,66,.65);opacity:0}
+svg.lines{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:visible}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="113.27" data-width="1080" data-height="1920">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="113.27" data-volume="1"></audio>
+  <audio id="music" src="assets/music.wav" data-start="0" data-duration="113.27" data-volume="1"></audio>
+
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="20.025"></div>
+  <div class="clip scene" id="S2" data-start="20.025" data-duration="20.85"></div>
+  <div class="clip scene" id="S3" data-start="40.875" data-duration="22.045"></div>
+  <div class="clip scene" id="S4" data-start="62.92" data-duration="20.72"></div>
+  <div class="clip scene" id="S5" data-start="83.64" data-duration="20.085"></div>
+  <div class="clip scene" id="S6" data-start="103.725" data-duration="9.545"></div>
+</div>
+
+<script>
+const T0={S1:0.0,S2:20.025,S3:40.875,S4:62.92,S5:83.64,S6:103.725};
+const VS={S1:0.08,S2:20.31,S3:40.95,S4:62.96,S5:83.68,S6:103.77};
+const DUR={S1:20.025,S2:20.85,S3:22.045,S4:20.72,S5:20.085,S6:9.545};
+const PW={"S1": [[0.0, -0.07], [9.739, 12.0], [16.161, 19.66]], "S2": [[0.0, -0.14], [2.55, 3.29], [13.034, 14.98], [18.361, 20.49]], "S3": [[0.0, -0.11], [8.698, 10.59], [18.276, 21.93]], "S4": [[0.0, -0.06], [1.385, 2.04], [11.029, 12.68], [17.508, 20.64]], "S5": [[0.0, -0.06], [7.274, 8.77], [17.059, 20.0]], "S6": [[0.0, -0.07], [6.801, 8.0]]};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const sc=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function lines(parent){const s=document.createElementNS(NS,'svg');s.setAttribute('class','lines');s.setAttribute('viewBox','0 0 1080 1920');parent.appendChild(s);return s}
+function line(svg,x1,y1,x2,y2,col,w,dash){const l=document.createElementNS(NS,'line');l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);l.setAttribute('stroke',col||'#4fd1c5');l.setAttribute('stroke-width',w||3);if(dash)l.setAttribute('stroke-dasharray',dash);l.setAttribute('opacity',0);svg.appendChild(l);return l}
+function cap(p,html,cls,top){const c=el(p,'cap '+(cls||''),html);if(top)c.style.top=top+'px';return c}
+function pw(sid,rel){const a=PW[sid];let i=0;while(i<a.length-2&&rel>a[i+1][0])i++;const [x0,y0]=a[i],[x1,y1]=a[i+1];return y0+(rel-x0)*(y1-y0)/(x1-x0)}
+const at=(sid,rel)=>VS[sid]+pw(sid,rel);
+function show(targets,sid,rel,d,vars){tl.fromTo(targets,{autoAlpha:0,y:vars&&vars.y!==undefined?vars.y:18},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:vars&&vars.stagger||0},at(sid,rel))}
+function hide(targets,sid,rel,d){tl.to(targets,{autoAlpha:0,duration:d||.5,ease:'power1.in'},at(sid,rel))}
+function sceneInOut(sid){tl.to('#'+sid,{opacity:1,duration:.6,ease:'none'},T0[sid]);tl.to('#'+sid,{opacity:0,duration:.6,ease:'none'},T0[sid]+DUR[sid]-.6)}
+const POS=new WeakMap();
+function move(target,sid,rel,d,x,y,ease){let p=POS.get(target);if(!p){p={x:parseFloat(target.style.left),y:parseFloat(target.style.top)};POS.set(target,p)}
+  tl.to(target,{x:'+='+(x-p.x),y:'+='+(y-p.y),duration:d,ease:ease||'power1.inOut'},at(sid,rel));p.x=x;p.y=y}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+/* waveform of n vertical bars centred on cy; bar._h is its scaleY target (bars are full-height divs, scaled) */
+function wave(parent,x,cy,w,n,hMax,col,seed,shape){const r=seedRand(seed);const bw=w/n;const out=[];
+  for(let i=0;i<n;i++){const env=shape?shape(i/(n-1)):Math.sin(Math.PI*(i/(n-1)));const h=Math.max(.08,env*(.35+.65*r()));
+    const b=el(parent,'bar','',{left:(x+i*bw+bw*.15)+'px',top:(cy-hMax/2)+'px',width:(bw*.7)+'px',height:hMax+'px',background:col,boxShadow:'0 0 14px '+col});b._h=h;out.push(b)}
+  return out}
+
+/* ============ SCENE 1 : a sentence becomes a song ============ */
+(function(){const S=sc('S1');
+ const img=el(S,'abs','',{left:'0',bottom:'0',width:'1080px',height:'1620px',opacity:0});
+ img.innerHTML='<img src="assets/s1_prompt.png" style="width:1080px;height:1620px;display:block"/>';
+ const fadeTop=el(S,'abs','',{left:'0',top:'260px',width:'1080px',height:'260px',background:'linear-gradient(180deg,#0a1226 0%,rgba(10,18,38,0) 100%)'});
+ const title=cap(S,'How <em>Suno</em> turns a sentence<br>into a song','',210);title.style.fontSize='72px';
+ const dim=el(S,'abs','',{left:'0',top:'0',width:'1080px',height:'1920px',background:'#0a1020',opacity:0});
+ tl.to(img,{opacity:1,duration:1.2},at('S1',0));
+ tl.fromTo(img,{scale:1.0,transformOrigin:'50% 70%'},{scale:1.06,duration:DUR.S1,ease:'none'},at('S1',0));
+ show(title,'S1',.5,1.1);hide(title,'S1',7.2,.7);
+ // typed prompt over the glowing bar (bar centre is about y=1233)
+ const txt='a gentle monsoon-evening folk song';
+ const typed=el(S,'abs','',{left:'236px',top:'1208px',fontSize:'30px',whiteSpace:'nowrap',color:'#ffe08a',opacity:1});typed.className+=' mono';
+ const chars=[...txt].map(c=>{const s=document.createElement('span');s.textContent=c;s.style.opacity=0;typed.appendChild(s);return s});
+ tl.to(chars,{opacity:1,duration:.01,stagger:.095},at('S1',2.2));
+ // waveform rises from the bar after typing
+ const bars=wave(S,260,1130,560,36,200,'#f5b942',11);
+ bars.forEach((b,i)=>b.setAttribute('data-layout-allow-overlap',''));
+ bars.forEach((b,i)=>{tl.fromTo(b,{autoAlpha:0,scaleY:.02},{autoAlpha:.9,scaleY:b._h,duration:.7,ease:'power2.out'},at('S1',6+i*.03))});
+ // breathing motion after rising
+ bars.forEach((b,i)=>tl.to(b,{scaleY:Math.max(.08,b._h*(i%2?.6:1.25)),duration:.9,yoyo:true,repeat:3,ease:'sine.inOut'},at('S1',7.4+i*.02)));
+ // the question
+ tl.to(dim,{opacity:.88,duration:1},at('S1',9.9));
+ hide([typed,...bars],'S1',9.7,.8);
+ const q=el(S,'abs','?',{left:'390px',top:'760px',width:'300px',textAlign:'center',fontSize:'300px',color:'#f5b942',opacity:0,fontStyle:'italic'});
+ const sub=el(S,'sub','no musician was in the room',{top:'1060px',fontSize:'46px'});
+ show(q,'S1',10.5,.8);show(sub,'S1',11.1,.8);
+ tl.fromTo(q,{scale:1},{scale:1.1,duration:.8,yoyo:true,repeat:3,ease:'sine.inOut'},at('S1',11.6));
+ sceneInOut('S1');
+})();
+
+/* ============ SCENE 2 : sound as a sequence of tokens ============ */
+(function(){const S=sc('S2');
+ const c1=cap(S,'treat sound as <em>language</em>');
+ const c2=cap(S,'compressed into <em>tokens</em>','t');
+ show(c1,'S2',.3,.8);
+ const bars=wave(S,90,640,900,60,260,'#f5b942',23);
+ bars.forEach(b=>b.setAttribute('data-layout-allow-overlap',''));
+ bars.forEach((b,i)=>tl.fromTo(b,{autoAlpha:0,scaleY:.02},{autoAlpha:.9,scaleY:b._h,duration:.6,ease:'power2.out'},at('S2',1+i*.025)));
+ const sub1=el(S,'sub','a recording is far too detailed to predict directly',{top:'850px',fontSize:'36px'});show(sub1,'S2',3.2,.8);
+ // slice lines
+ const ln=lines(S);const cuts=[];for(let k=1;k<8;k++){cuts.push(line(ln,90+k*112.5,480,90+k*112.5,800,'#4fd1c5',3,'6 8'))}
+ tl.to(cuts,{attr:{opacity:.8},duration:.4,stagger:.1},at('S2',6.6));
+ hide(c1,'S2',7.4,.5);show(c2,'S2',8,.7);hide(sub1,'S2',7.4,.5);
+ // tokens fall into a row
+ const glyphs=['A7','K2','M9','C4','F1','R6','D3','Z8'];const toks=glyphs.map((g,i)=>{const t=el(S,'tok'+(i%3===1?' t':''),g,{left:(145+i*113)+'px',top:'1090px'});return t});
+ const codec=el(S,'lbl','audio codec',{left:'0',width:'1080px',top:'920px',fontSize:'38px'});
+ const arrow=line(ln,540,960,540,1020,'#4fd1c5',4);
+ show(codec,'S2',8.4,.6);tl.to(arrow,{attr:{opacity:.8},duration:.4},at('S2',8.6));
+ toks.forEach((t,i)=>{tl.fromTo(t,{autoAlpha:0,y:-170,scale:.6},{autoAlpha:1,y:0,scale:1,duration:.6,ease:'back.out(1.5)'},at('S2',9.2+i*.18))});
+ tl.to(bars,{autoAlpha:.15,duration:.8},at('S2',9));
+ tl.to(cuts,{attr:{opacity:0},duration:.4},at('S2',9));
+ // analogy: words
+ const words=['the','song','begins','softly'].map((w,i)=>el(S,'abs',w,{left:(80+i*240)+'px',top:'1340px',width:'220px',textAlign:'center',fontSize:'54px',fontStyle:'italic',color:'#ffe08a',opacity:0}));
+ const lw=el(S,'sub','much as a sentence is made of words',{top:'1450px',fontSize:'38px'});
+ show(words,'S2',12.4,.6,{stagger:.2});show(lw,'S2',13.6,.7);
+ const c3=cap(S,'now a <em>language model</em> can handle it','t');
+ hide(c2,'S2',14.4,.5);show(c3,'S2',15,.7);
+ tl.to(toks,{boxShadow:'0 0 50px rgba(245,185,66,.8)',duration:.5,stagger:.08,yoyo:true,repeat:1},at('S2',15.4));
+ sceneInOut('S2');
+})();
+
+/* ============ SCENE 3 : learning to predict the next token ============ */
+(function(){const S=sc('S3');
+ const c1=cap(S,'trained on a vast library of <em>recordings</em>');
+ const c2=cap(S,'always one task: <em>predict the next token</em>','t');
+ show(c1,'S3',.3,.8);
+ // library of waveform strips on left & right feeding network
+ const ln=lines(S);
+ const strips=[];for(let i=0;i<4;i++){const w=wave(S,320,420+i*65,440,24,36,i%2?'#4fd1c5':'#f5b942',31+i);w.forEach(b=>b.setAttribute('data-layout-allow-overlap',''));strips.push(w)}
+ strips.forEach((w,i)=>w.forEach((b,j)=>tl.fromTo(b,{autoAlpha:0,scaleY:.02},{autoAlpha:.85,scaleY:b._h,duration:.5,ease:'power2.out'},at('S3',1+i*.35+j*.03))));
+ const dl=el(S,'lbl','each paired with a description',{left:'0',width:'1080px',top:'690px',fontSize:'32px',textAlign:'center',color:'#7d8ba6'});show(dl,'S3',3,.7);
+ // network
+ const xs=[400,540,680];const ys=[[800,880,960],[760,840,920,1000],[800,880,960]];
+ const nodes=[];const lnsN=[];
+ xs.forEach((x,li)=>ys[li].forEach(y=>{const d=el(S,'dot','',{left:x+'px',top:y+'px'});nodes.push({d,li,x,y})}));
+ nodes.forEach(a=>nodes.forEach(b=>{if(b.li===a.li+1)lnsN.push(line(ln,a.x,a.y,b.x,b.y,'#4fd1c5',2))}));
+ tl.to(lnsN,{attr:{opacity:.35},duration:.6,stagger:.01},at('S3',2.4));
+ show(nodes.map(n=>n.d),'S3',2.2,.5,{stagger:.04});
+ // fire pulses through the network
+ tl.to(nodes.map(n=>n.d),{scale:1.5,duration:.35,stagger:{each:.05,yoyo:true,repeat:1},ease:'sine.inOut'},at('S3',4.6));
+ // token row with masked last token
+ const row=[['A7',0],['K2',1],['M9',0],['C4',1],['F1',0]].map((g,i)=>el(S,'tok'+(g[1]?' t':''),g[0],{left:(240+i*120)+'px',top:'1250px'}));
+ const mask=el(S,'tok','?',{left:'840px',top:'1250px',borderStyle:'dashed',color:'#ffe08a'});
+ const next=el(S,'tok t','R6',{left:'840px',top:'1250px'});next.setAttribute('data-layout-allow-overlap','');mask.setAttribute('data-layout-allow-overlap','');
+ show(row,'S3',6.2,.5,{stagger:.1});show(mask,'S3',7,.5);
+ hide(c1,'S3',7.2,.5);show(c2,'S3',7.8,.7);
+ const ar=line(ln,640,1040,840,1180,'#f5b942',4,'8 10');tl.to(ar,{attr:{opacity:.8},duration:.4},at('S3',8.6));
+ tl.fromTo(ar,{attr:{'stroke-dashoffset':0}},{attr:{'stroke-dashoffset':-90},duration:2,ease:'none'},at('S3',8.6));
+ tl.to(nodes.map(n=>n.d),{scale:1.5,duration:.35,stagger:{each:.05,yoyo:true,repeat:1},ease:'sine.inOut'},at('S3',9.2));
+ hide(mask,'S3',10.2,.3);tl.fromTo(next,{autoAlpha:0,scale:.5},{autoAlpha:1,scale:1,duration:.5,ease:'back.out(2)'},at('S3',10.2));
+ const rep=el(S,'sub','repeated billions of times',{top:'1360px',fontSize:'44px',color:'#ffe08a'});show(rep,'S3',11.2,.7);
+ // what it absorbs
+ const chipRow=el(S,'abs','',{left:'0',top:'1480px',width:'1080px',display:'flex',justifyContent:'center',gap:'20px'});
+ const chips=['rhythm','chords','a voice shaping a word'].map(c=>el(chipRow,'pill','<span style="font-size:34px;color:#ffe08a">'+c+'</span>',{position:'relative'}));
+ show(chips,'S3',13.2,.6,{stagger:.9});
+ const nr=el(S,'sub','no rules of music theory handed over',{top:'1680px',fontSize:'40px'});show(nr,'S3',16.2,.7);
+ sceneInOut('S3');
+})();
+
+/* ============ SCENE 4 : your prompt steers the generation ============ */
+(function(){const S=sc('S4');
+ const c1=cap(S,'your prompt is the <em>steering</em>');
+ const c2=cap(S,'one token after another','t');
+ show(c1,'S4',.3,.8);
+ const ln=lines(S);
+ const style=el(S,'card','<div style="padding:22px 28px;font-size:30px;color:#4fd1c5">style</div><div class="mono" style="padding:0 28px;font-size:34px;color:#ffe08a">gentle folk,<br>monsoon evening</div>',{left:'80px',top:'420px',width:'420px',height:'250px'});
+ const lyr=el(S,'card','<div style="padding:22px 28px;font-size:30px;color:#4fd1c5">lyrics</div><div class="mono" style="padding:0 28px;font-size:34px;color:#ffe08a">rain on the roof,<br>sing it slow</div>',{left:'580px',top:'420px',width:'420px',height:'250px'});
+ show([style,lyr],'S4',1.2,.8,{stagger:.3});
+ const lm=el(S,'lbl','written by a separate language model',{left:'580px',width:'420px',top:'350px',fontSize:'28px',color:'#7d8ba6',whiteSpace:'normal'});show(lm,'S4',4.2,.7);
+ // steering arrows into token row
+ const l1=line(ln,290,680,290,1010,'#4fd1c5',4,'8 10'),l2=line(ln,790,680,790,1010,'#f5b942',4,'8 10');
+ const st=el(S,'lbl','guides every prediction',{left:'320px',width:'420px',top:'800px',fontSize:'32px',textAlign:'left'});
+ const sy=el(S,'lbl','which syllable, and when',{left:'350px',width:'420px',top:'890px',fontSize:'32px',textAlign:'right',color:'#ffe08a'});
+ tl.to([l1,l2],{attr:{opacity:.85},duration:.5,stagger:.4},at('S4',5.6));
+ tl.fromTo([l1,l2],{attr:{'stroke-dashoffset':0}},{attr:{'stroke-dashoffset':-90},duration:2.5,ease:'none'},at('S4',5.6));
+ show(st,'S4',6,.6);show(sy,'S4',7.3,.6);
+ // token row growing
+ const g=['A7','K2','M9','C4','F1','R6','D3','Z8'];
+ const toks=g.map((t,i)=>el(S,'tok'+(i%3===1?' t':''),t,{left:(145+i*113)+'px',top:'1090px'}));
+ const wave1=el(S,'lbl','generating',{left:'0',width:'1080px',top:'1170px',fontSize:'34px',color:'#7d8ba6'});
+ hide(c1,'S4',8.8,.5);show(c2,'S4',9.4,.7);show(wave1,'S4',9.4,.5);
+ const pk=el(S,'packet','',{left:'145px',top:'1010px'});
+ tl.to(pk,{autoAlpha:1,duration:.2},at('S4',9.6));
+ toks.forEach((t,i)=>{tl.fromTo(t,{autoAlpha:0,scale:.5},{autoAlpha:1,scale:1,duration:.4,ease:'back.out(2)'},at('S4',9.8+i*.75))});
+ tl.to(pk,{x:'+='+(7*113),duration:7*.75,ease:'none'},at('S4',9.8));
+ tl.to(pk,{autoAlpha:0,duration:.2},at('S4',15.9));
+ const sub=el(S,'sub','each choice shaped by everything before it',{top:'1330px',fontSize:'42px',color:'#ffe08a'});
+ show(sub,'S4',12.4,.8);
+ const sub2=el(S,'sub','and by what you asked for',{top:'1410px',fontSize:'42px'});show(sub2,'S4',14.2,.8);
+ sceneInOut('S4');
+})();
+
+/* ============ SCENE 5 : tokens back to sound ============ */
+(function(){const S=sc('S5');
+ const c1=cap(S,'a <em>decoder</em> turns the code back into sound');
+ const c2=cap(S,'every prediction is a <em>weighted draw</em>','t');
+ show(c1,'S5',.3,.8);
+ const ln=lines(S);
+ const g=['A7','K2','M9','C4','F1','R6','D3','Z8'];
+ const toks=g.map((t,i)=>el(S,'tok'+(i%3===1?' t':''),t,{left:(145+i*113)+'px',top:'560px'}));
+ show(toks,'S5',1,.5,{stagger:.08});
+ // decoder funnel
+ const fn=document.createElementNS(NS,'svg');fn.setAttribute('viewBox','0 0 600 300');Object.assign(fn.style,{position:'absolute',left:'240px',top:'680px',width:'600px',height:'300px',overflow:'visible',opacity:0});S.appendChild(fn);
+ const poly=document.createElementNS(NS,'polygon');poly.setAttribute('points','0,0 600,0 380,300 220,300');poly.setAttribute('fill','rgba(79,209,197,.10)');poly.setAttribute('stroke','#4fd1c5');poly.setAttribute('stroke-width','4');fn.appendChild(poly);
+ const fl=el(S,'lbl','decoder',{left:'0',width:'1080px',top:'760px',fontSize:'44px'});
+ show(fn,'S5',3,.8);show(fl,'S5',3.4,.6);
+ tl.to(toks,{y:150,scale:.5,duration:.9,stagger:.08,ease:'power2.in'},at('S5',4.4));
+ tl.to(toks,{autoAlpha:0,duration:.3,stagger:.08},at('S5',5));
+ const sub=el(S,'sub','rebuilding the detail that compression set aside',{top:'1010px',fontSize:'38px'});show(sub,'S5',6,.8);
+ // waveform appears
+ const bars=wave(S,90,1300,900,60,320,'#f5b942',47);
+ bars.forEach(b=>b.setAttribute('data-layout-allow-overlap',''));
+ bars.forEach((b,i)=>tl.fromTo(b,{autoAlpha:0,scaleY:.02},{autoAlpha:.95,scaleY:b._h,duration:.6,ease:'power2.out'},at('S5',6.6+i*.03)));
+ const pl=el(S,'sub','a polished result',{top:'1520px',fontSize:'44px',color:'#ffe08a'});show(pl,'S5',8.6,.7);
+ // same prompt, different song
+ hide([sub,pl],'S5',10.2,.5);hide(c1,'S5',10.2,.5);show(c2,'S5',10.8,.7);
+ const r2=seedRand(99);
+ tl.to(bars,{scaleY:i=>Math.max(.08,Math.sin(Math.PI*(i/59))*(.3+.7*r2())),duration:1.2,stagger:.015,ease:'sine.inOut'},at('S5',11.4));
+ const d1=el(S,'lbl','same prompt, a different song each time',{left:'0',width:'1080px',top:'1520px',fontSize:'42px',color:'#ffe08a'});show(d1,'S5',12.2,.7);
+ const r3=seedRand(7);
+ tl.to(bars,{scaleY:i=>Math.max(.08,Math.sin(Math.PI*(i/59))*(.3+.7*r3())),duration:1.2,stagger:.015,ease:'sine.inOut'},at('S5',14.2));
+ sceneInOut('S5');
+})();
+
+/* ============ SCENE 6 : payoff ============ */
+(function(){const S=sc('S6');
+ const pr=el(S,'pill','<span class="mono" style="font-size:34px;color:#ffe08a">a gentle monsoon-evening folk song</span>',{left:'540px',top:'520px',borderColor:'#f5b942',background:'rgba(245,185,66,.1)',boxShadow:'0 0 60px rgba(245,185,66,.35)'});
+ tl.set(pr,{xPercent:-50},0);
+ tl.fromTo(pr,{autoAlpha:0,y:20},{autoAlpha:1,y:0,duration:.8},at('S6',.4));
+ const ln=lines(S);const a=line(ln,540,600,540,800,'#4fd1c5',4,'8 10');
+ tl.to(a,{attr:{opacity:.9},duration:.5},at('S6',1.4));
+ tl.fromTo(a,{attr:{'stroke-dashoffset':0}},{attr:{'stroke-dashoffset':-90},duration:2,ease:'none'},at('S6',1.4));
+ const bars=wave(S,140,1000,800,48,300,'#f5b942',5);
+ bars.forEach(b=>b.setAttribute('data-layout-allow-overlap',''));
+ bars.forEach((b,i)=>tl.fromTo(b,{autoAlpha:0,scaleY:.02},{autoAlpha:.95,scaleY:b._h,duration:.7,ease:'power2.out'},at('S6',2+i*.03)));
+ bars.forEach((b,i)=>tl.to(b,{scaleY:Math.max(.08,b._h*(i%2?.7:1.2)),duration:.8,yoyo:true,repeat:2,ease:'sine.inOut'},at('S6',3.6+i*.01)));
+ const sub=el(S,'sub','a model that has learned how music tends to unfold',{top:'1300px',fontSize:'42px',color:'#ffe08a'});
+ show(sub,'S6',3.2,.9);
+ tl.to('#S6',{opacity:1,duration:.6},T0.S6);tl.to('#S6',{opacity:0,duration:1.1},T0.S6+DUR.S6-1.2);
+})();
+
+window.__timelines=window.__timelines||{};window.__timelines['main']=tl;tl.seek(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"voice_id_env": "ELEVENT_LABS_VOICE_ID", "api_key_env": "ELEVEN_LABS_API_KEY", "model": "eleven_v4", "stability": 0.5, "similarity_boost": 0.75, "mode": "whole", "scene_gap": "\n\n", "scenes": [{"id": "s1", "text": "[rapid, crisp] Festina lente!"}]}

@@ -1,0 +1,43 @@
+{
+ "voice_id_env": "ELEVENT_LABS_VOICE_ID",
+ "api_key_env": "ELEVEN_LABS_API_KEY",
+ "model": "eleven_v4",
+ "stability": 0.5,
+ "similarity_boost": 0.75,
+ "mode": "whole",
+ "scene_gap": "\\n\\n...\\n\\n",
+ "scenes": [
+  {
+   "id": "s1",
+   "text": "[curious, warmly] Most advice about doing great work comes down to working hard and hoping for the best, but Paul Graham's essay argues that great work, in every field, follows a recognisable shape. It has four steps, and the engine behind all of them is something that sounds almost too simple, which is curiosity."
+  },
+  {
+   "id": "s2",
+   "text": "[calmly, explanatory] The first step is to choose a field, and the test is to find work where you have some aptitude, a deep interest, and room for greatness. Since nobody knows these things about themselves in advance, the way to find out is by working, trying projects and noticing which ones you are curious about to a degree that would bore everyone else. Graham calls that excited curiosity both the engine and the rudder, because it drives you and steers you at once, and he suggests staying upwind: at each stage you do whatever is most interesting and keeps your options open, much as a sailor holds a course through constant small corrections."
+  },
+  {
+   "id": "s3",
+   "text": "[reflective, slowly] The second step is to learn enough to reach the frontier of your field. Graham pictures knowledge as a fractal: from far away its edge looks smooth, but once you get close, the edge turns out to be full of gaps and unexplored corners."
+  },
+  {
+   "id": "s4",
+   "text": "[engaged, with quiet momentum] The third step is to notice those gaps, which is harder than it sounds, because our minds prefer a tidy picture of the world and quietly filter out whatever does not fit. Great discoveries tend to come from people who are strict enough to notice where a theory collides with reality, and bold enough to chase an idea that others find unappealing. The fourth step is to explore the gaps that are worth exploring, especially the strange ones, and Graham adds that a really good question is itself a partial discovery."
+  },
+  {
+   "id": "s5",
+   "text": "[calmly, practical] When you begin, begin small. Great things are almost always made in successive versions, and the first version can look like a toy, which is a good sign, because it has everything a new idea needs except scale. Planning feels more responsible, but it only works for goals you can describe in advance, and a discovery is exactly the thing you cannot."
+  },
+  {
+   "id": "s6",
+   "text": "[warmly, encouraging] Graham also urges you to take as much risk as you can afford, particularly when you are young, since failure is cheapest to recover from then, and time is the advantage people most often waste on caution. He adds that you should aim to be the best, because if you do not try to be the best, you will not even be good."
+  },
+  {
+   "id": "s7",
+   "text": "[softly, reassuring] Staying on course is mostly a matter of morale, which he says to protect like a living organism, because good work raises morale and high morale makes better work, and the cycle can also run in reverse. So he advises you to expect setbacks, to work with colleagues you want to become like, to keep a small audience that cares, and to look after your body, since you think with it."
+  },
+  {
+   "id": "s8",
+   "text": "[reflective, with a quiet reveal] In the end, he reduces it to ability, interest, effort and luck, and observes that once you want to do great work, effort can be assumed, so the problem boils down to ability and interest. What stops most people is a combination of modesty and fear, not talent, so the essay ends with a question to be answered consciously: do you want to do great work, or not? The discoveries are out there, waiting to be made, and he asks why they should not be made by you."
+  }
+ ]
+}

@@ -1,0 +1,38 @@
+{
+  "voice": "Charon",
+  "language": "en-IN",
+  "model": "gemini-3.8-flash-tts",
+  "global_prompt": "You are a calm, warm university lecturer narrating an explainer video for curious adults. Speak in a natural, unhurried, conversational tone with real expressiveness: vary your pitch and pacing with the meaning of each sentence, let commas breathe, and lift gently on questions. Never sound like a news reader or an advertisement.",
+  "scenes": [
+    {
+      "id": "s1",
+      "style": "Warm and quietly curious, like starting a story at a table. Slightly slower. On the final question, let your voice rise with real wonder.",
+      "text": "At a roadside stall, a phone scans a small printed square, and within seconds the shopkeeper's phone announces that the money has arrived. Nothing physical has moved, so what has, and how do two banks that have never met agree on it so quickly?"
+    },
+    {
+      "id": "s2",
+      "style": "Calm, clear and explanatory, with a steady teaching rhythm. Pause briefly after 'handle' and after 'alias'. Say the letters N, P, C, I distinctly.",
+      "text": "The first idea is to replace the awkward details of a bank account with a simple address, a name followed by the bank's handle. This address is only an alias; a shared directory, run by the central payments body, NPCI, remembers which account stands behind it, so the payer never needs to know where the money will land."
+    },
+    {
+      "id": "s3",
+      "style": "Gathering momentum with each clause, as if following a message on its journey. Slightly brisker through the list of what the message contains, then slow down and add weight to the last sentence.",
+      "text": "When you confirm a payment, your app never touches the money. It composes a message, who is paying, whom, and how much, and sends it to the central switch, which forwards a debit instruction to your bank and a credit instruction to theirs. Each bank checks its own books, and only when both agree does a confirmation travel back, which is why a payment either completes entirely, or not at all."
+    },
+    {
+      "id": "s4",
+      "style": "Hushed and reassuring, almost confiding. Ask the opening question with genuine curiosity, then lower your voice and slow down for the secret. Give extra weight to 'only your own bank'.",
+      "text": "But how does your bank know it is truly you? Your PIN is encrypted on the phone itself, inside a secure component, before it travels. The app that carries it cannot read it, the switch cannot read it, and only your own bank holds the key that opens it."
+    },
+    {
+      "id": "s5",
+      "style": "Reflective, with the feeling of a quiet reveal. Measured pace. Let the last sentence land thoughtfully, as the central insight of the whole video.",
+      "text": "What changes in those seconds is two ledger entries. The banks settle among themselves later, in batches, where thousands of payments in opposite directions largely cancel into a single net transfer. The speed you perceive is the speed of agreement, while the movement of actual funds is deferred."
+    },
+    {
+      "id": "s6",
+      "style": "Warm, satisfied and gently slowing down, like a closing line with a small smile. Let the final word settle.",
+      "text": "A small square, a brief exchange of messages, and a shared record that every party trusts."
+    }
+  ]
+}

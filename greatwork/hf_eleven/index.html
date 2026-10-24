@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1020;--amber:#f5b942;--amber2:#ffe08a;--teal:#4fd1c5;--ink:#dfe8f5;--dim:#7d8ba6;--red:#ff6b6b}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--navy)}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 90% 60% at 50% 38%,#14224a 0%,#0c1530 55%,#080d1c 100%)}
+.scene{position:absolute;left:0;top:0;width:1080px;height:1920px;opacity:0}
+.abs{position:absolute}
+.cap{position:absolute;left:40px;width:1000px;text-align:center;top:150px;font-size:70px;line-height:1.12;letter-spacing:-.01em;opacity:0;color:var(--ink);text-shadow:0 4px 30px rgba(8,13,28,.9)}
+.cap em{font-style:italic;color:var(--amber)}
+.cap.t{color:var(--teal)}
+.sub{position:absolute;left:60px;width:960px;text-align:center;font-size:38px;color:var(--dim);font-style:italic;opacity:0}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.pill{position:absolute;padding:14px 34px;border-radius:60px;border:2px solid var(--teal);background:rgba(10,16,32,.78);color:var(--ink);font-size:36px;opacity:0;white-space:nowrap}
+.chip{position:absolute;padding:8px 20px;border-radius:14px;background:rgba(10,16,32,.9);border:1.5px solid rgba(245,185,66,.7);color:var(--amber2);font-size:30px;opacity:0;white-space:nowrap}
+.orb{position:absolute;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;color:#0a1020;
+  background:radial-gradient(circle at 38% 32%,#ffe9a8,#f5b942 58%,#c98a1a);box-shadow:0 0 70px rgba(245,185,66,.5),0 0 0 14px rgba(245,185,66,.10);opacity:0}
+.orb.tl{background:radial-gradient(circle at 38% 32%,#b9f5ee,#4fd1c5 58%,#2a8f87);box-shadow:0 0 70px rgba(79,209,197,.5),0 0 0 14px rgba(79,209,197,.10)}
+svg.full{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:visible}
+.lab{position:absolute;font-size:40px;color:var(--teal);opacity:0;white-space:nowrap;text-align:center;width:300px;margin-left:-150px}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="206.2" data-width="1080" data-height="1920">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="206.2" data-volume="1"></audio>
+  <audio id="music" src="assets/music.wav" data-start="0" data-duration="206.2" data-volume="1"></audio>
+
+  <div class="clip scene" id="S1" data-start="0" data-duration="20.92"></div>
+  <div class="clip scene" id="S2" data-start="20.92" data-duration="39.85"></div>
+  <div class="clip scene" id="S3" data-start="60.77" data-duration="15.11"></div>
+  <div class="clip scene" id="S4" data-start="75.88" data-duration="30.89"></div>
+  <div class="clip scene" id="S5" data-start="106.77" data-duration="22.0"></div>
+  <div class="clip scene" id="S6" data-start="128.77" data-duration="19.41"></div>
+  <div class="clip scene" id="S7" data-start="148.18" data-duration="24.19"></div>
+  <div class="clip scene" id="S8" data-start="172.37" data-duration="33.83"></div>
+</div>
+
+<script>
+const T0={S1:0,S2:20.92,S3:60.77,S4:75.88,S5:106.77,S6:128.77,S7:148.18,S8:172.37};
+const DUR={S1:20.92,S2:39.85,S3:15.11,S4:30.89,S5:22.0,S6:19.41,S7:24.19,S8:33.83};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const sc=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(parent,tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e}
+function mksvg(parent){const s=document.createElementNS(NS,'svg');s.setAttribute('class','full');s.setAttribute('viewBox','0 0 1080 1920');parent.appendChild(s);return s}
+const at=(sid,rel)=>T0[sid]+rel;
+function show(t,sid,rel,d,y){tl.fromTo(t,{autoAlpha:0,y:y===undefined?18:y},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out'},at(sid,rel))}
+function hide(t,sid,rel,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},at(sid,rel))}
+function sceneInOut(sid){tl.to('#'+sid,{opacity:1,duration:.6,ease:'none'},T0[sid]);tl.to('#'+sid,{opacity:0,duration:.6,ease:'none'},T0[sid]+DUR[sid]-.6)}
+/* captions: [[start,end,html,cls]] */
+function caps(sid,list){const S=sc(sid);list.forEach(([a,b,h,c,top,fs])=>{const e=el(S,'cap '+(c||''),h);if(top)e.style.top=top+'px';if(fs)e.style.fontSize=fs+'px';show(e,sid,a,.8);hide(e,sid,b,.6)})}
+function plate(sid,file,origin,from,to){const S=sc(sid);
+  const box=el(S,'abs','',{left:'0',bottom:'0',width:'1080px',height:'1620px',overflow:'hidden'});
+  const im=el(box,'abs','<img src="assets/'+file+'" style="width:1080px;height:1620px;display:block"/>');
+  tl.fromTo(im,{scale:from,transformOrigin:origin},{scale:to,duration:DUR[sid],ease:'none'},T0[sid]);
+  const fade=el(S,'abs','',{left:'0',top:'300px',width:'1080px',height:'260px',background:'linear-gradient(180deg,#0a1226 0%,rgba(10,18,38,0) 100%)'});
+  const top=el(S,'abs','',{left:'0',top:'0',width:'1080px',height:'300px',background:'#0a1226'});
+  return im}
+const dim=(S,sid,a,b)=>{};
+
+/* ================= S1 : the question ================= */
+(function(){const S=sc('S1');
+ plate('S1','s1_kf.png','50% 75%',1.0,1.08);
+ caps('S1',[[.6,5.2,'How to do <em>great work</em>','',170,84],[5.9,11.8,'after <em>Paul Graham</em>','',200,64]]);
+ const names=['Choose','Learn','Notice','Explore'];
+ const row=names.map((n,i)=>{const p=el(S,'pill',(i+1)+' · '+n,{left:(70+i*0+0)+'px',top:(320)+'px'});return p});
+ // lay four pills in a 2x2 grid
+ row.forEach((p,i)=>{p.style.left=(i%2?560:100)+'px';p.style.top=(300+Math.floor(i/2)*90)+'px';show(p,'S1',12.9+i*1.1,.6);hide(p,'S1',18.4,.7)});
+ const cur=el(S,'cap','<em>curiosity</em>',{top:'200px',fontSize:'110px'});
+ show(cur,'S1',19.3,.9);hide(cur,'S1',20.3,.5);
+ sceneInOut('S1');
+})();
+
+/* ================= S2 : choose a field ================= */
+(function(){const S=sc('S2');
+ plate('S2','s2_kf.png','60% 60%',1.0,1.09);
+ caps('S2',[[.6,23.4,'1 · Choose a <em>field</em>','',160,80],[24.2,28.8,'Curiosity is the <em>engine</em><br>and the <em>rudder</em>','',150,66],[29.4,38.6,'Stay <em>upwind</em>','',170,84]]);
+ [['aptitude',5.0],['deep interest',6.0],['room for greatness',7.3]].forEach(([t,r],i)=>{const c=el(S,'pill',t,{left:(i===2?300:(i?560:100))+'px',top:(i===2?390:310)+'px'});show(c,'S2',r,.6);hide(c,'S2',23.4,.6)});
+ const sub=el(S,'sub','keep what is most interesting and options open',{top:'300px'});show(sub,'S2',35.6,.8);hide(sub,'S2',38.6,.6);
+ sceneInOut('S2');
+})();
+
+/* ================= S3 : the frontier ================= */
+(function(){const S=sc('S3');
+ plate('S3','s3_kf.png','50% 30%',1.0,1.10);
+ caps('S3',[[.4,5.2,'2 · Reach the <em>frontier</em>','',160,76],[5.9,14.2,'Knowledge is a <em>fractal</em><br>full of gaps','',150,66]]);
+ sceneInOut('S3');
+})();
+
+/* ================= S4 : notice and explore the gaps ================= */
+(function(){const S=sc('S4');
+ plate('S4','s4_kf.png','55% 45%',1.0,1.10);
+ caps('S4',[[.5,20.8,'3 · Notice the <em>gaps</em>','',160,80],[21.6,26.4,'4 · Explore the <em>strange</em> ones','',150,70],[27.2,30.2,'A good question is<br>a <em>partial discovery</em>','',150,66]]);
+ sceneInOut('S4');
+})();
+
+/* ================= S5 : start small (HTML diagram) ================= */
+(function(){const S=sc('S5');
+ const svg=mksvg(S);
+ caps('S5',[[.4,6.8,'Begin <em>small</em>','',170,90],[7.6,12.6,'The first version looks like a <em>toy</em>','',150,64],[14.0,21.0,'A plan only works for goals you can <em>describe</em>','',150,62]]);
+ const base=svgEl(svg,'line',{x1:90,y1:1360,x2:990,y2:1360,stroke:'#4fd1c5','stroke-width':3,opacity:0});
+ show(base,'S5',1.0,.8,0);
+ // three stages: sprout, sapling, tree
+ const g=[];
+ const mk=(cx,scale,label,t)=>{const grp=svgEl(svg,'g',{opacity:0});
+   svgEl(grp,'path',{d:`M${cx} 1360 L${cx} ${1360-120*scale}`,stroke:'#4fd1c5','stroke-width':8,'stroke-linecap':'round',fill:'none'});
+   const leaves=Math.round(2+scale*3);
+   for(let i=0;i<leaves;i++){const y=1360-(40+i*(110*scale/leaves)-0)*1;const dir=i%2?1:-1;
+     svgEl(grp,'path',{d:`M${cx} ${y} q ${dir*60*scale} -${40*scale} ${dir*90*scale} -${10*scale}`,stroke:'#f5b942','stroke-width':10,'stroke-linecap':'round',fill:'none'})}
+   if(scale>2){svgEl(grp,'circle',{cx:cx,cy:1360-120*scale-30,r:70*scale/1.6,fill:'#f5b942',opacity:.22});svgEl(grp,'circle',{cx:cx,cy:1360-120*scale-30,r:45*scale/1.6,fill:'#ffe08a',opacity:.28})}
+   const lb=el(S,'lab',label,{left:cx+'px',top:'1400px'});
+   tl.fromTo(grp,{autoAlpha:0,scale:.2,transformOrigin:cx+'px 1360px'},{autoAlpha:1,scale:1,duration:.9,ease:'back.out(1.6)'},at('S5',t));
+   show(lb,'S5',t+.3,.6);return grp};
+ mk(240,1,'toy',4.8);mk(520,1.7,'version two',6.4);mk(810,2.4,'the real thing',8.2);
+ // the plan card, crossed out
+ const card=el(S,'abs','<div class="mono" style="font-size:30px;color:#7d8ba6">THE PLAN</div><div style="margin-top:14px;font-size:34px;color:#dfe8f5">step 1 · step 2 · step 3 …</div>',{left:'160px',top:'620px',width:'760px',padding:'30px 40px',border:'2px solid rgba(79,209,197,.55)',borderRadius:'24px',background:'rgba(16,26,54,.9)',opacity:0});
+ show(card,'S5',13.8,.8);
+ const x=svgEl(svg,'path',{d:'M180 640 L900 770',stroke:'#ff6b6b','stroke-width':10,'stroke-linecap':'round',fill:'none',pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':1});
+ tl.to(x,{attr:{'stroke-dashoffset':0},duration:.8,ease:'power2.out'},at('S5',17.5));
+ sceneInOut('S5');
+})();
+
+/* ================= S6 : risk and ambition ================= */
+(function(){const S=sc('S6');
+ plate('S6','s6_kf.png','50% 55%',1.0,1.08);
+ caps('S6',[[1.2,12.4,'Take as much <em>risk</em><br>as you can afford','',150,72],[13.2,18.6,'Aim to be the <em>best</em>','',170,84]]);
+ sceneInOut('S6');
+})();
+
+/* ================= S7 : morale loop (HTML diagram) ================= */
+(function(){const S=sc('S7');
+ const svg=mksvg(S);
+ caps('S7',[[1.0,8.0,'Protect <em>morale</em><br>like a living organism','',150,64],[14.2,22.8,'Expect <em>setbacks</em>','',170,84]]);
+ const w=el(S,'orb','Work',{left:'320px',top:'820px'});
+ const m=el(S,'orb tl','Morale',{left:'760px',top:'820px'});
+ show(w,'S7',3.0,.8);show(m,'S7',3.6,.8);
+ const a1=svgEl(svg,'path',{d:'M410 740 C 500 620, 580 620, 670 740',stroke:'#f5b942','stroke-width':8,fill:'none','stroke-linecap':'round',pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':1});
+ const a2=svgEl(svg,'path',{d:'M670 900 C 580 1020, 500 1020, 410 900',stroke:'#4fd1c5','stroke-width':8,fill:'none','stroke-linecap':'round',pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':1});
+ tl.to(a1,{attr:{'stroke-dashoffset':0},duration:.9,ease:'power2.inOut'},at('S7',7.4));
+ tl.to(a2,{attr:{'stroke-dashoffset':0},duration:.9,ease:'power2.inOut'},at('S7',8.8));
+ const lab1=el(S,'sub','good work lifts morale',{top:'540px',fontSize:'34px'});show(lab1,'S7',7.8,.6);hide(lab1,'S7',12.0,.5);
+ const lab2=el(S,'sub','morale lifts good work',{top:'1060px',fontSize:'34px'});show(lab2,'S7',9.2,.6);hide(lab2,'S7',12.0,.5);
+ // setback: breaks the loop, then reconnects
+ const sb=el(S,'chip','setback',{left:'470px',top:'1180px',borderColor:'#ff6b6b',color:'#ff6b6b',fontSize:'40px'});
+ show(sb,'S7',12.4,.5);
+ tl.to(a2,{attr:{'stroke':'#ff6b6b'},duration:.3},at('S7',13.0));
+ tl.to(a2,{attr:{'stroke':'#4fd1c5'},duration:.6},at('S7',15.4));
+ hide(sb,'S7',15.4,.6);
+ // supports
+ [['colleagues you admire',16.8,160],['a small audience',19.5,560],['a healthy body',21.3,360]].forEach(([t,r,x],i)=>{const c=el(S,'pill',t,{left:x+'px',top:(1330+i*0)+'px'});c.style.top=(1320+(i===2?100:0))+'px';show(c,'S7',r,.6)});
+ sceneInOut('S7');
+})();
+
+/* ================= S8 : the decision ================= */
+(function(){const S=sc('S8');
+ plate('S8','s8_kf.png','50% 40%',1.0,1.10);
+ const fx=['ability','interest','effort','luck'];
+ caps('S8',[[1.4,9.6,'<em>ability</em> · <em>interest</em><br>effort · luck','',150,70],[16.0,21.4,'Modesty and fear<br>stop most people','',150,70],[22.8,27.4,'Do you want to do<br><em>great work</em>, or not?','',150,72],[28.0,30.6,'The discoveries are<br><em>out there</em>','',150,72],[31.2,33.4,'Why not by <em>you</em>?','',170,100]]);
+ sceneInOut('S8');
+ tl.to('#S8',{opacity:0,duration:.9,ease:'none'},T0.S8+DUR.S8-1.0);
+})();
+
+window.__timelines=window.__timelines||{};window.__timelines['main']=tl;tl.seek(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1020;--amber:#f5b942;--amber2:#ffe08a;--teal:#4fd1c5;--ink:#dfe8f5;--dim:#7d8ba6;--red:#ff6b6b}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--navy)}
+#root{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);background:#080d1c}
+.abs{position:absolute}
+.stage{position:absolute;left:0;bottom:0;width:1080px;height:1620px;overflow:hidden}
+.shotwrap{position:absolute;left:0;top:0;width:1080px;height:1620px;opacity:0;overflow:hidden}
+.shotwrap img,.shotwrap video{position:absolute;left:0;top:0;width:1080px;height:1620px;object-fit:cover;display:block}
+.topmask{position:absolute;left:0;top:0;width:1080px;height:300px;background:#0a1226}
+.topfade{position:absolute;left:0;top:300px;width:1080px;height:260px;background:linear-gradient(180deg,#0a1226 0%,rgba(10,18,38,0) 100%)}
+.cap{position:absolute;left:40px;width:1000px;text-align:center;top:160px;font-size:70px;line-height:1.12;letter-spacing:-.01em;opacity:0;color:var(--ink);text-shadow:0 4px 30px rgba(8,13,28,.95)}
+.cap em{font-style:italic;color:var(--amber)}
+.lt{position:absolute;left:40px;width:1000px;text-align:center;top:1640px;font-size:52px;font-style:italic;color:var(--amber2);opacity:0;text-shadow:0 0 24px rgba(8,13,28,1),0 4px 28px rgba(8,13,28,1),0 0 60px rgba(8,13,28,.9)}
+.node{position:absolute;width:56px;height:56px;margin-left:-28px;border-radius:50%;border:3px solid rgba(125,139,166,.55);background:#0a1226;color:var(--dim);font-size:30px;display:flex;align-items:center;justify-content:center;opacity:0}
+.nlab{position:absolute;width:200px;margin-left:-100px;text-align:center;font-size:26px;color:var(--dim);opacity:0;letter-spacing:.02em}
+.vc{position:absolute;border-radius:50%;opacity:0}
+.vl{position:absolute;font-size:30px;text-align:center;opacity:0;text-shadow:0 2px 14px rgba(8,13,28,1);width:200px;margin-left:-100px}
+.orb{position:absolute;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;color:#0a1020;opacity:0}
+.olab{position:absolute;width:260px;margin-left:-130px;text-align:center;font-size:36px;color:var(--ink);opacity:0;text-shadow:0 2px 16px rgba(8,13,28,1)}
+.ember{position:absolute;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#ffe9a8,rgba(245,185,66,0) 70%);opacity:0}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="206.2" data-width="1080" data-height="1920">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="206.2" data-volume="1"></audio>
+  <audio id="music" src="assets/music.wav" data-start="0" data-duration="206.2" data-volume="1"></audio>
+  <div class="stage" id="stage">
+<!--WRAPS-->
+  </div>
+  <div class="topmask"></div><div class="topfade"></div>
+  <div id="fx"></div>
+  <div id="ov"></div>
+</div>
+
+<script>
+const SHOTS=/*SHOTS*/[];
+const TOTAL=206.2;
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const ov=document.getElementById('ov'),fx=document.getElementById('fx');
+function el(p,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);p.appendChild(d);return d}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+function show(t,a,d,y){tl.fromTo(t,{autoAlpha:0,y:y===undefined?16:y},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out'},a)}
+function hide(t,a,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},a)}
+function caps(list){list.forEach(([a,b,h,top,fs])=>{const e=el(ov,'cap',h);if(top)e.style.top=top+'px';if(fs)e.style.fontSize=fs+'px';show(e,a,.8);hide(e,b,.6)})}
+
+/* ---------- shots: crossfade, Ken Burns on stills ---------- */
+const KB=[
+ {a:1.0,b:1.09,o:'50% 75%',x0:0,x1:0},{a:1.1,b:1.0,o:'50% 50%',x0:0,x1:0},{a:1.08,b:1.08,o:'50% 50%',x0:-34,x1:34},
+ {a:1.08,b:1.08,o:'50% 50%',x0:34,x1:-34},{a:1.0,b:1.12,o:'60% 40%',x0:0,x1:0},{a:1.1,b:1.02,o:'40% 60%',x0:0,x1:0}];
+SHOTS.forEach((s,i)=>{
+ const w=document.getElementById('W_'+s.id);
+ if(i===0)tl.set(w,{autoAlpha:1},0);else tl.fromTo(w,{autoAlpha:0},{autoAlpha:1,duration:.4,ease:'none'},Math.max(0,s.s-.4));
+ tl.set(w,{autoAlpha:0},s.e+.05);
+ if(!s.v){const k=KB[i%KB.length],im=document.getElementById('I_'+s.id),t0=Math.max(0,s.s-.4);
+  tl.fromTo(im,{scale:k.a,x:k.x0,transformOrigin:k.o},{scale:k.b,x:k.x1,duration:(s.e-t0)+.5,ease:'none'},t0)}
+});
+
+/* ---------- drifting embers (seeded) ---------- */
+(function(){const r=seedRand(11);
+ for(let i=0;i<16;i++){const e=el(fx,'ember','',{left:(40+r()*1000)+'px',top:(1000+r()*800)+'px'});
+  const dur=11+r()*8,rep=Math.ceil(TOTAL/dur);
+  tl.fromTo(e,{y:0,x:0},{y:-(500+r()*500),x:(r()-.5)*160,duration:dur,ease:'none',repeat:rep,immediateRender:false},r()*6);
+  tl.fromTo(e,{opacity:0},{opacity:.2+r()*.35,duration:dur/2,ease:'sine.inOut',yoyo:true,repeat:rep*2,immediateRender:false},r()*6)}})();
+
+/* ---------- step tracker (replaces repeated pill lists) ---------- */
+const STEPS=['Choose','Learn','Notice','Explore'],NX=[150,410,670,930],NY=64;
+const trLine=el(ov,'abs','',{left:'150px',top:(NY-1)+'px',width:'780px',height:'3px',background:'rgba(125,139,166,.35)',opacity:0});
+const nodes=STEPS.map((n,i)=>{const nd=el(ov,'node',String(i+1),{left:NX[i]+'px',top:(NY-28)+'px'});const lb=el(ov,'nlab',n,{left:NX[i]+'px',top:(NY+36)+'px'});return {nd,lb}});
+const AMB='#f5b942',TEAL='#4fd1c5',DIM='rgba(125,139,166,.55)';
+function state(i,t,mode){const n=nodes[i].nd,l=nodes[i].lb;
+ if(mode==='active'){tl.to(n,{backgroundColor:AMB,borderColor:AMB,color:'#0a1020',scale:1.18,duration:.5},t);tl.to(l,{color:'#ffe08a',duration:.5},t)}
+ if(mode==='done'){tl.to(n,{backgroundColor:'rgba(79,209,197,.22)',borderColor:TEAL,color:TEAL,scale:1,duration:.5},t);tl.to(l,{color:TEAL,duration:.5},t)}}
+tl.fromTo(trLine,{autoAlpha:0},{autoAlpha:1,duration:.6},12.8);
+nodes.forEach((n,i)=>{show(n.nd,13.0+i*1.0,.5,10);show(n.lb,13.2+i*1.0,.5,10)});
+state(0,21.6,'active');
+state(0,61.0,'done');state(1,61.0,'active');
+state(1,76.2,'done');state(2,76.2,'active');
+state(2,97.4,'done');state(3,97.4,'active');
+state(3,105.8,'done');
+[trLine,...nodes.map(n=>n.nd),...nodes.map(n=>n.lb)].forEach(t=>hide(t,106.6,.6));
+
+/* ---------- captions ---------- */
+caps([
+ [.6,5.2,'How to do <em>great work</em>',170,84],[5.9,11.8,'after <em>Paul Graham</em>',200,64],[19.3,20.7,'<em>curiosity</em>',190,110],
+ [21.6,44.4,'Choose a <em>field</em>',170,80],[45.1,49.7,'Curiosity is the <em>engine</em><br>and the <em>rudder</em>',160,66],[50.3,59.6,'Stay <em>upwind</em>',180,84],
+ [61.2,66.0,'Reach the <em>frontier</em>',170,76],[66.7,75.2,'Knowledge is a <em>fractal</em><br>full of gaps',160,66],
+ [76.4,96.8,'Notice the <em>gaps</em>',170,80],[97.5,102.4,'Explore the <em>strange</em> ones',170,70],[103.1,106.2,'A good question is<br>a <em>partial discovery</em>',160,66],
+ [107.2,113.6,'Begin <em>small</em>',170,90],[114.4,119.6,'The first version looks like a <em>toy</em>',170,64],[120.8,127.9,'A plan only works for goals<br>you can <em>describe</em>',160,62],
+ [130.0,141.2,'Take as much <em>risk</em><br>as you can afford',160,72],[142.0,147.6,'Aim to be the <em>best</em>',180,84],
+ [149.2,156.4,'Protect <em>morale</em><br>like a living organism',160,64],[162.4,171.4,'Expect <em>setbacks</em>',180,84],
+ [173.6,181.6,'What great work <em>needs</em>',190,64],[185.0,187.9,'an explosion of <em>new ideas</em>',190,64],
+ [188.5,193.8,'Modesty and fear<br>stop most people',160,70],[195.2,199.8,'Do you want to do<br><em>great work</em>, or not?',160,72],[200.4,203.0,'The discoveries are<br><em>out there</em>',160,72],[203.6,206.0,'Why not by <em>you</em>?',180,100]]);
+
+/* ---------- S2: three-way overlap (aptitude / interest / room for greatness) ---------- */
+(function(){const R=140,C=[[255,610,'rgba(79,209,197,.28)','#4fd1c5','aptitude',200,585],[425,610,'rgba(245,185,66,.28)','#f5b942','interest',480,585],[340,750,'rgba(223,232,245,.20)','#dfe8f5','room for<br>greatness',340,775]];
+ const cs=C.map(([x,y,f,s,l,lx,ly])=>{const c=el(ov,'vc','',{left:(x-R)+'px',top:(y-R)+'px',width:(2*R)+'px',height:(2*R)+'px',background:f,border:'3px solid '+s});
+  const lb=el(ov,'vl',l,{left:lx+'px',top:ly+'px',color:s,fontSize:'32px'});return {c,lb}});
+ const T=[25.9,26.9,28.2];cs.forEach((o,i)=>{tl.fromTo(o.c,{autoAlpha:0,scale:.4},{autoAlpha:1,scale:1,duration:.7,ease:'back.out(1.5)'},T[i]);show(o.lb,T[i]+.3,.5,8)});
+ const core=el(ov,'vc','',{left:(340-50)+'px',top:(665-50)+'px',width:'100px',height:'100px',background:'radial-gradient(circle,#fff6d6,rgba(245,185,66,.65) 55%,rgba(245,185,66,0) 72%)'});
+ tl.fromTo(core,{autoAlpha:0,scale:.3},{autoAlpha:1,scale:1.3,duration:.9,ease:'power2.out'},30.0);
+ tl.to(core,{scale:1.7,autoAlpha:.7,duration:1.2,yoyo:true,repeat:1,ease:'sine.inOut'},31.2);
+ const ct=el(ov,'vl','the <em>sweet spot</em>',{left:'340px',top:'935px',color:'#ffe08a',fontSize:'36px'});show(ct,30.4,.7,8);
+ cs.forEach(o=>{hide(o.c,34.4,.6);hide(o.lb,34.4,.6)});hide(core,34.4,.6);hide(ct,34.4,.6)})();
+
+/* ---------- S5: crossed-out plan ---------- */
+(function(){const card=el(ov,'abs','<div style="font-family:JetBrains Mono,monospace;font-size:28px;color:#7d8ba6">THE PLAN</div><div style="margin-top:12px;font-size:40px;color:#dfe8f5">step 1 · step 2 · step 3 …</div>',{left:'150px',top:'420px',width:'780px',padding:'28px 40px',border:'2px solid rgba(79,209,197,.6)',borderRadius:'24px',background:'rgba(12,20,44,.92)',opacity:0});
+ show(card,121.0,.8);
+ const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox','0 0 1080 1920');Object.assign(svg.style,{position:'absolute',left:0,top:0,width:'1080px',height:'1920px',overflow:'visible'});ov.appendChild(svg);
+ const x=document.createElementNS(NS,'path');x.setAttribute('d','M170 440 L910 560');x.setAttribute('stroke','#ff6b6b');x.setAttribute('stroke-width',10);x.setAttribute('stroke-linecap','round');x.setAttribute('fill','none');x.setAttribute('pathLength',1);x.setAttribute('stroke-dasharray',1);x.setAttribute('stroke-dashoffset',1);svg.appendChild(x);
+ tl.to(x,{attr:{'stroke-dashoffset':0},duration:.8,ease:'power2.out'},124.3);
+ hide(card,128.0,.6);tl.to(x,{opacity:0,duration:.6},128.0)})();
+
+/* ---------- S7: morale meter + support lines ---------- */
+(function(){const wrap=el(ov,'abs','',{left:'40px',top:'420px',width:'60px',height:'660px',opacity:0});
+ el(wrap,'abs','',{left:'20px',top:'60px',width:'20px',height:'560px',borderRadius:'10px',background:'rgba(125,139,166,.25)'});
+ const fill=el(wrap,'abs','',{left:'20px',top:'60px',width:'20px',height:'560px',borderRadius:'10px',background:'linear-gradient(180deg,#ffe08a,#f5b942)',transformOrigin:'50% 100%'});
+ const glow=el(wrap,'abs','',{left:'6px',top:'4px',width:'48px',height:'48px',borderRadius:'50%',background:'radial-gradient(circle,#fff6d6,rgba(245,185,66,.7) 50%,rgba(245,185,66,0) 72%)'});
+ const lab=el(wrap,'abs','morale',{left:'-10px',top:'630px',width:'80px',textAlign:'center',fontSize:'26px',color:'#ffe08a',textShadow:'0 2px 12px #080d1c'});
+ show(wrap,148.8,.8);
+ tl.fromTo(fill,{scaleY:.1},{scaleY:.85,duration:2.2,ease:'power2.out'},149.0);
+ tl.to(fill,{scaleY:.16,duration:2.4,ease:'power2.in'},158.2);tl.to(glow,{scale:.35,opacity:.5,duration:2.4,ease:'power2.in'},158.2);
+ tl.to(fill,{backgroundImage:'linear-gradient(180deg,#ff9b8f,#ff6b6b)',duration:.5},159.5);
+ tl.to(fill,{scaleY:.92,duration:4.2,ease:'power2.out'},164.4);tl.to(glow,{scale:1.2,opacity:1,duration:4.2,ease:'power2.out'},164.4);
+ tl.to(fill,{backgroundImage:'linear-gradient(180deg,#ffe08a,#f5b942)',duration:.6},164.6);
+ hide(wrap,171.4,.7);
+ [['colleagues you admire',164.8,167.2],['a small audience',167.7,169.0],['a healthy body',169.6,172.0]].forEach(([t,a,b])=>{const l=el(ov,'lt',t);show(l,a,.5,10);hide(l,b,.4)})})();
+
+/* ---------- S8: four factors -> two remain -> burst ---------- */
+(function(){const Y=560,spec=[['ability',200,'radial-gradient(circle at 38% 32%,#ffe9a8,#f5b942 58%,#c98a1a)'],['interest',420,'radial-gradient(circle at 38% 32%,#b9f5ee,#4fd1c5 58%,#2a8f87)'],['effort',660,'radial-gradient(circle at 38% 32%,#dfe8f5,#8fa2c4 58%,#5b6d90)'],['luck',880,'radial-gradient(circle at 38% 32%,#dfe8f5,#8fa2c4 58%,#5b6d90)']];
+ const T=[174.4,175.6,177.0,178.4];
+ const os=spec.map(([n,x,bg],i)=>{const o=el(ov,'orb','',{left:x+'px',top:Y+'px',background:bg});const l=el(ov,'olab',n,{left:x+'px',top:(Y+100)+'px'});
+  tl.fromTo(o,{autoAlpha:0,scale:.3},{autoAlpha:1,scale:1,duration:.7,ease:'back.out(1.6)'},T[i]);show(l,T[i]+.25,.5,8);return {o,l}});
+ [3,2].forEach((i,k)=>{const t=k?182.4:180.6;tl.to([os[i].o,os[i].l],{autoAlpha:.0,scale:.5,duration:1.1,ease:'power2.in'},t)});
+ tl.to(os[0].o,{x:'+=270',duration:1.4,ease:'power2.inOut'},183.0);tl.to(os[0].l,{x:'+=270',duration:1.4,ease:'power2.inOut'},183.0);
+ tl.to(os[1].o,{x:'+=190',duration:1.4,ease:'power2.inOut'},183.0);tl.to(os[1].l,{x:'+=190',duration:1.4,ease:'power2.inOut'},183.0);
+ const burst=el(ov,'orb','',{left:'540px',top:Y+'px',width:'150px',height:'150px',background:'radial-gradient(circle,#fff6d6,rgba(245,185,66,.8) 45%,rgba(79,209,197,.0) 72%)'});
+ tl.fromTo(burst,{autoAlpha:0,scale:.3},{autoAlpha:1,scale:4,duration:1.5,ease:'power3.out'},184.5);
+ tl.to([os[0].o,os[1].o,os[0].l,os[1].l],{autoAlpha:0,duration:.5},184.6);
+ tl.to(burst,{autoAlpha:0,duration:1.4},186.2)})();
+
+/* ---------- ending fade ---------- */
+const endf=el(ov,'abs','',{left:'0',top:'0',width:'1080px',height:'1920px',background:'#080d1c',opacity:0});
+tl.to(endf,{opacity:1,duration:1.0,ease:'none'},TOTAL-1.0);
+
+window.__timelines=window.__timelines||{};window.__timelines['main']=tl;tl.seek(0);
+</script>
+</body>
+</html>
