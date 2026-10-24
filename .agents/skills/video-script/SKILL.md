@@ -5,7 +5,7 @@ description: Write a narrated explainer-video script (60-90 s, 9:16) as scene be
 
 # Video script skill
 
-Produces the single artifact everything downstream depends on: `<topic>/narration.json` plus a human-readable script the user approves. Nothing (TTS, images, motion graphics, music) is generated until the user says the script is approved. Approval has been refused twice in this project for scripts that were confusing or the wrong depth, so the confirmation step is not optional.
+Produces the single artifact everything downstream depends on: `<topic>/narration.json` plus a human-readable script the user approves. Nothing (TTS, images, motion graphics) is generated until the user says the script is approved. Approval has been refused twice in this project for scripts that were confusing or the wrong depth, so the confirmation step is not optional.
 
 ## Inputs to settle first
 - Topic and the audience's starting point. Default audience: someone who is comfortable with technology but has never seen the internals.

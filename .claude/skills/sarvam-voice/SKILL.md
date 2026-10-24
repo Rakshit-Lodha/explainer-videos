@@ -5,7 +5,7 @@ description: Generate expressive, non-monotone narration with the Sarvam text-to
 
 # Sarvam voice skill (Ratan, with emotion)
 
-For ElevenLabs (the user's cloned voice, Eleven v4) use the `elevenlabs-voice` skill instead; the steps after the voice track exists (timing, composition retiming, loudness) are shared.
+This is the only voice used for explainer videos; do not use ElevenLabs. Videos have no background music, so the voice track is the only audio.
 
 ## Setup
 - Key: `SARVAM_API_KEY` in `/Users/rakshitlodha/Desktop/Videos/.env`. Never print it. Load it with `python-dotenv`.
