@@ -44,3 +44,6 @@ ai-course/lessons/*/hf/assets/lib/
 # ...except the course site's 720p lesson videos and posters, which Vercel serves from the repo
 !ai-course/site/videos/*.mp4
 !ai-course/site/videos/*.jpg
+
+# Agent worktrees (each builder commits on its own branch)
+.claude/worktrees/
