@@ -38,3 +38,6 @@ __pycache__/
 **/characters/
 **/scenes/
 *.log
+
+# AI course: vendored libs are copied into each lesson by tools/voice.py
+ai-course/lessons/*/hf/assets/lib/

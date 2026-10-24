@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="82.17" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="82.17" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 1.1 Vectors</div>
+  <div class="layer" id="STAGE"></div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="17.681"></div>
+  <div class="clip scene" id="S2" data-start="17.681" data-duration="16.521"></div>
+  <div class="clip scene" id="S3" data-start="34.202" data-duration="12.652"></div>
+  <div class="clip scene" id="S4" data-start="46.854" data-duration="12.416"></div>
+  <div class="clip scene" id="S5" data-start="59.27" data-duration="12.668"></div>
+  <div class="clip scene" id="S6" data-start="71.938" data-duration="10.232"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json; beats are placed at fractions of each scene. */
+const TIMING=/*TIMING*/{"starts": {"s1": 0.0, "s2": 17.681, "s3": 34.202, "s4": 46.854, "s5": 59.27, "s6": 71.938}, "total": 82.17}/*END*/;
+const IDS=['s1','s2','s3','s4','s5','s6'];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ============ persistent stage for s2-s4: plane, vector v and its list ============ */
+const STAGE=$('STAGE');
+const SP=plane(620,700,100);
+const ssvg=layerSvg(STAGE);
+drawGrid(ssvg,SP,-6,6,-3,6);
+const origin=svgEl('circle',{cx:SP(0,0)[0],cy:SP(0,0)[1],r:9,fill:C.ink},ssvg);
+const vA=mkArrow(ssvg,SP,C.blue,8,tex('\\vec{v}',60),34,-46,STAGE);
+const vCol=colvec(STAGE,1600,440,['3','1'],{fs:72,w:150,color:C.blue});
+let vColX=1600;
+function moveVCol(time,d,x){tl.to(vCol.box,{x:'+='+(x-vColX),duration:d,ease:'power2.inOut'},time);vColX=x}
+tl.to(STAGE,{autoAlpha:1,duration:.8},at('s2',0));
+tl.to(STAGE,{autoAlpha:0,duration:.6},at('s5',0)-.2);
+
+/* ============ S1: a sentence becomes lists of numbers ============ */
+(function(){const S=$('S1');const sid='s1';
+  const words=['the','cat','sat','on','the','mat'],idx=[0,4,8,12,15,19],cw=38.4,x0=960-22*cw/2;
+  const spread=[360,600,840,1080,1320,1560];
+  const rnd=seedRand(11);
+  const cols=[],W=[];
+  words.forEach((w,i)=>{
+    const cx=x0+(idx[i]+w.length/2)*cw;
+    const d=el(S,'word mono',w.split('').map(ch=>`<span class="ch" style="opacity:0;visibility:hidden">${ch}</span>`).join(''),{color:C.ink});
+    gsap.set(d,{x:cx,y:470,xPercent:-50});W.push({d,cx});
+    const vals=[];for(let k=0;k<6;k++)vals.push(fmt(rnd()*2-1,2));vals.push('⋮');
+    cols.push(colvec(S,spread[i],640,vals,{fs:30,w:150,color:i===1?C.blue:C.dim}));
+  });
+  const chars=S.querySelectorAll('.ch');
+  tl.to(chars,{autoAlpha:1,duration:.05,stagger:.07,ease:'none'},at(sid,.03));
+  W.forEach((o,i)=>tl.to(o.d,{x:spread[i],y:250,duration:1.1,ease:'power3.inOut'},at(sid,.27)+i*.06));
+  cols.forEach((c,i)=>{tl.fromTo(c.box,{autoAlpha:0,scaleY:0,transformOrigin:'50% 0%'},{autoAlpha:1,scaleY:1,duration:.9,ease:'power2.out',immediateRender:false},at(sid,.33)+i*.12)});
+  const others=cols.filter((c,i)=>i!==1).map(c=>c.box).concat(W.filter((o,i)=>i!==1).map(o=>o.d));
+  tl.to(others,{opacity:.22,duration:.8},at(sid,.68));
+  const glow=el(S,'hl','',{left:'515px',top:'200px',width:'170px',height:'760px',borderColor:C.blue,boxShadow:`0 0 40px ${C.blue}55`});
+  fadeIn(glow,at(sid,.7),.6);
+  const q=el(S,'cap','what is a <em>vector</em>?',{top:'960px',fontStyle:'italic',fontSize:'60px',left:'0'});
+  show(q,at(sid,.8),.8);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: arrow and list ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);
+  const olab=el(S,'lbl','origin',{color:C.dim,fontSize:'34px',fontStyle:'italic'});place(olab,SP(0,0)[0]-70,SP(0,0)[1]+42);
+  fadeIn(olab,at(sid,.1),.5);fadeOut(olab,at(sid,.4),.4);
+  setArrow(vA,{x0:0,y0:0,x1:0,y1:0});
+  grow(vA,at(sid,.22),1.4,3,1);
+  // the journey: right, then up
+  const legX=svgEl('line',{x1:SP(0,0)[0],y1:SP(0,0)[1],x2:SP(3,0)[0],y2:SP(3,0)[1],stroke:C.green,'stroke-width':6,'stroke-dasharray':'14 12','stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
+  const legY=svgEl('line',{x1:SP(3,0)[0],y1:SP(3,0)[1],x2:SP(3,1)[0],y2:SP(3,1)[1],stroke:C.red,'stroke-width':6,'stroke-dasharray':'14 12','stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
+  const lenX=300,lenY=100;
+  legX.setAttribute('stroke-dashoffset',0);
+  tl.set(legX,{attr:{'stroke-dasharray':`0 ${lenX}`}},0);tl.set(legY,{attr:{'stroke-dasharray':`0 ${lenY}`}},0);
+  tl.to(legX,{autoAlpha:1,duration:.2},at(sid,.46));tl.to(legX,{attr:{'stroke-dasharray':`${lenX} 0`},duration:1.1,ease:'power1.inOut'},at(sid,.46));
+  tl.to(legY,{autoAlpha:1,duration:.2},at(sid,.6));tl.to(legY,{attr:{'stroke-dasharray':`${lenY} 0`},duration:.7,ease:'power1.inOut'},at(sid,.6));
+  const rx=el(S,'lbl','right',{color:C.green,fontSize:'36px',fontStyle:'italic'});place(rx,SP(1.5,0)[0],SP(1.5,0)[1]+40);
+  const uy=el(S,'lbl','up',{color:C.red,fontSize:'36px',fontStyle:'italic'});place(uy,SP(3,.5)[0]+50,SP(3,.5)[1]);
+  fadeIn(rx,at(sid,.5),.4);fadeIn(uy,at(sid,.63),.4);
+  show(vCol.box,at(sid,.44),.7);
+  const h0=cellHL(S,vCol,0,C.green),h1=cellHL(S,vCol,1,C.red);
+  fadeIn(h0,at(sid,.48),.4);fadeOut(h0,at(sid,.76),.4);
+  fadeIn(h1,at(sid,.62),.4);fadeOut(h1,at(sid,.76),.4);
+  // picture and bookkeeping
+  const pic=el(S,'lbl','the picture',{color:C.ink,fontSize:'40px',fontStyle:'italic'});place(pic,SP(1.5,-1.6)[0],SP(1.5,-1.6)[1]);
+  const book=el(S,'lbl','the bookkeeping',{color:C.ink,fontSize:'40px',fontStyle:'italic'});place(book,1600,620);
+  const same=el(S,'lbl','same thing',{color:C.yellow,fontSize:'44px'});place(same,1600,830);
+  show(pic,at(sid,.78),.5);show(book,at(sid,.82),.5);show(same,at(sid,.88),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: adding is two journeys ============ */
+(function(){const S=$('S3');const sid='s3';
+  const svg=layerSvg(S);
+  const wA=mkArrow(svg,SP,C.yellow,8,tex('\\vec{w}',60),-62,-34,S);
+  setArrow(wA,{x0:0,y0:0,x1:0,y1:0});
+  tl.to(vA.label,{autoAlpha:0,duration:.3},at(sid,.02));tl.to(vA.label,{autoAlpha:1,duration:.3},at('s4',0));
+  grow(wA,at(sid,.02),1.0,1,2);
+  arrowTo(wA,at(sid,.16),1.6,{x0:3,y0:1,x1:4,y1:3});
+  const sA=mkArrow(svg,SP,C.pink,8,tex('\\vec{v}+\\vec{w}',54),120,30,S);
+  setArrow(sA,{x0:0,y0:0,x1:0,y1:0});
+  grow(sA,at(sid,.36),1.3,4,3);
+  // bookkeeping: matching entries add
+  moveVCol(at(sid,.44),.9,1420);
+  const plus=sym(S,'+',1515,440,64),eq=sym(S,'=',1715,440,64);
+  const wCol=colvec(S,1615,440,['1','2'],{fs:72,w:120,color:C.yellow});
+  const sCol=colvec(S,1815,440,['4','3'],{fs:72,w:120,color:C.pink});
+  sCol.cells.forEach(c=>c.classList.add('hid'));
+  show([plus,wCol.box,eq],at(sid,.5),.6,{stagger:.15});
+  fadeIn(sCol.box,at(sid,.58),.4);
+  const rows=[[.64,0],[.78,1]];
+  rows.forEach(([f,i])=>{const hs=[cellHL(S,{...vCol,cx:1420},i,C.ink),cellHL(S,wCol,i,C.ink)];
+    fadeIn(hs,at(sid,f),.3);fadeOut(hs,at(sid,f)+1.2,.3);show(sCol.cells[i],at(sid,f)+.4,.4,{y:-10})});
+  const agree=el(S,'cap','picture and arithmetic agree',{top:'830px',left:'1180px',width:'740px',fontSize:'40px',fontStyle:'italic',color:C.dim});
+  show(agree,at(sid,.88),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: scaling ============ */
+(function(){const S=$('S4');const sid='s4';
+  const svg=layerSvg(S);
+  const ghost=svgEl('line',{x1:SP(0,0)[0],y1:SP(0,0)[1],x2:SP(3,1)[0],y2:SP(3,1)[1],stroke:C.blue,'stroke-width':4,'stroke-dasharray':'10 10',style:'opacity:0;visibility:hidden'},svg);
+  tl.to(ghost,{autoAlpha:.45,duration:.5},at(sid,.04));
+  const cLab=el(S,'abs','',{left:'1300px',top:'170px',width:'560px',textAlign:'center',fontSize:'60px',color:C.yellow,opacity:0,visibility:'hidden'});
+  cLab.innerHTML='<span class="mono">c = <span id="cval">1.0</span></span>';
+  const cmul=sym(S,'c',1325,440,64);cmul.style.color=C.yellow;cmul.style.fontStyle='italic';
+  const eq=sym(S,'=',1540,440,64);
+  const rCol=colvec(S,1690,440,['3.0','1.0'],{fs:64,w:200,color:C.blue});
+  show([cLab,cmul,eq,rCol.box],at(sid,.02),.6,{stagger:.1});
+  const cval=cLab.querySelector('#cval');
+  const p={c:1};
+  const apply=()=>{const c=p.c;geom(vA,0,0,3*c,c);cval.textContent=fmt(c);rCol.cells[0].textContent=fmt(3*c);rCol.cells[1].textContent=fmt(c)};
+  const step=(f,d,c)=>tl.to(p,{c,duration:d,ease:'power2.inOut',immediateRender:false,onUpdate:apply},at(sid,f));
+  step(.07,1.6,2);step(.3,1.4,.5);step(.52,1.8,-1);step(.82,1.1,1);
+  const lbls=[['stretch',.12],['squish',.34],['flip',.58]].map(([t,f])=>{const d=el(S,'lbl',t,{color:C.ink,fontSize:'44px',fontStyle:'italic'});place(d,1580,640);show(d,at(sid,f),.4);fadeOut(d,at(sid,f)+1.6,.3);return d});
+  const scalar=el(S,'cap','<span style="color:#f5cf4a">c</span> is a <span style="color:#f5cf4a">scal</span>ar: it <span style="color:#f5cf4a">scal</span>es',{top:'770px',left:'1180px',width:'740px',fontSize:'50px',fontStyle:'italic'});
+  show(scalar,at(sid,.8),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: more entries, and words as vectors ============ */
+(function(){const S=$('S5');const sid='s5';
+  // 3D view: oblique projection
+  const O=[560,700],u=110;const P3=(x,y,z)=>[O[0]+u*(x+.5*z),O[1]-u*(y+.38*z)];
+  const svg=layerSvg(S);const g3=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  [[[-1,0,0],[5,0,0]],[[0,-1,0],[0,4,0]],[[0,0,-1],[0,0,4]]].forEach(([a,b])=>{const p=P3(...a),q=P3(...b);svgEl('line',{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:C.axis,'stroke-width':3,opacity:.85},g3)});
+  [[[3,0,0],[3,0,2]],[[0,0,2],[3,0,2]],[[3,0,2],[3,1,2]]].forEach(([a,b])=>{const p=P3(...a),q=P3(...b);svgEl('line',{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:C.dim,'stroke-width':2,'stroke-dasharray':'8 8'},g3)});
+  const a3=mkArrow(svg,(x,y)=>[x,y],C.blue,8);const tip=P3(3,1,2),o3=P3(0,0,0);
+  setArrow(a3,{x0:o3[0],y0:o3[1],x1:o3[0],y1:o3[1]});
+  fadeIn(g3,at(sid,.03),.6);showArrow(a3,at(sid,.08),.2);arrowTo(a3,at(sid,.08),1.1,{x1:tip[0],y1:tip[1]},'power2.out');
+  const c3=colvec(S,1560,520,['3','1','2'],{fs:68,w:140,color:C.blue});c3.cells.forEach(c=>c.setAttribute('data-layout-allow-overlap',''));
+  show(c3.box,at(sid,.06),.6);
+  const h=cellHL(S,c3,2,C.teal);fadeIn(h,at(sid,.12),.3);fadeOut(h,at(sid,.26),.3);
+  fadeOut([g3,a3.g,c3.box],at(sid,.3),.5);
+  // a long list that scrolls past
+  const box=el(S,'abs hid','',{left:'1460px',top:'140px',width:'200px',height:'780px',overflow:'hidden',color:C.blue});
+  el(box,'br l','',{position:'absolute',left:'0',top:'0',width:'18px',height:'780px',border:'4px solid currentColor',borderRight:'none',borderRadius:'6px 0 0 6px'});
+  el(box,'br r','',{position:'absolute',right:'0',top:'0',width:'18px',height:'780px',border:'4px solid currentColor',borderLeft:'none',borderRadius:'0 6px 6px 0'});
+  const inner=el(box,'abs','',{left:'0',top:'14px',width:'200px'});
+  const rnd=seedRand(5);for(let i=0;i<48;i++)el(inner,'cell mono',fmt(rnd()*2-1,2),{position:'relative',textAlign:'center',fontSize:'40px',lineHeight:'58px',color:C.ink});
+  fadeIn(box,at(sid,.32),.5);
+  tl.fromTo(inner,{y:0},{y:-1900,duration:SPAN[sid]*.3,ease:'power1.in',immediateRender:false},at(sid,.34));
+  const many=el(S,'cap','hundreds of entries, same two rules',{top:'470px',left:'200px',width:'1100px',fontSize:'52px',fontStyle:'italic'});
+  show(many,at(sid,.36),.6);fadeOut(many,at(sid,.56),.4);
+  fadeOut(box,at(sid,.6),.5);
+  // words as arrows
+  const WO=[760,600];const wsvg=layerSvg(S);
+  const dot=svgEl('circle',{cx:WO[0],cy:WO[1],r:8,fill:C.ink,style:'opacity:0;visibility:hidden'},wsvg);
+  fadeIn(dot,at(sid,.6),.3);
+  const groups=[
+    {f:.62,col:C.blue,items:[['cat',22,340],['kitten',38,250],['dog',56,330],['puppy',72,250]]},
+    {f:.74,col:C.yellow,items:[['car',150,320],['truck',172,350],['bus',194,280]]},
+    {f:.84,col:C.green,items:[['apple',262,300],['banana',298,320]]}];
+  groups.forEach(gp=>gp.items.forEach(([w,deg,len],k)=>{
+    const r=deg*Math.PI/180,x=WO[0]+len*Math.cos(r),y=WO[1]-len*Math.sin(r);
+    const a=mkArrow(wsvg,(px,py)=>[px,py],gp.col,5,`<span style="font-size:42px;font-style:italic">${w}</span>`,Math.cos(r)*70,-Math.sin(r)*48,S);
+    setArrow(a,{x0:WO[0],y0:WO[1],x1:WO[0],y1:WO[1]});
+    showArrow(a,at(sid,gp.f)+k*.12,.2);arrowTo(a,at(sid,gp.f)+k*.12,.8,{x1:x,y1:y},'power2.out')}));
+  const note=el(S,'abs','related meanings point in similar directions',{left:'1180px',top:'560px',width:'640px',fontSize:'44px',fontStyle:'italic',lineHeight:'1.3',opacity:0,visibility:'hidden'});
+  show(note,at(sid,.7),.6);
+  const flat=el(S,'abs','a flat sketch of much longer lists',{left:'1180px',top:'720px',width:'640px',fontSize:'32px',fontStyle:'italic',color:C.dim,opacity:0,visibility:'hidden'});
+  show(flat,at(sid,.86),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: payoff ============ */
+(function(){const S=$('S6');const sid='s6';
+  const P6=plane(470,620,90);const svg=layerSvg(S);
+  const g=drawGrid(svg,P6,-1,4,-1,3);g.setAttribute('style','opacity:0;visibility:hidden');
+  fadeIn(g,at(sid,.02),.6);
+  const a=mkArrow(svg,P6,C.blue,8);setArrow(a,{x0:0,y0:0,x1:0,y1:0});grow(a,at(sid,.06),1,3,1);
+  const eq=sym(S,'=',1000,560,90);show(eq,at(sid,.16),.5);
+  const col=colvec(S,1240,560,['3','1'],{fs:80,w:160,color:C.blue});show(col.box,at(sid,.2),.6);
+  const l1=el(S,'lbl','an arrow',{color:C.dim,fontSize:'40px',fontStyle:'italic'});place(l1,P6(1.5,0)[0],P6(0,-1.6)[1]);
+  const l2=el(S,'lbl','a list',{color:C.dim,fontSize:'40px',fontStyle:'italic'});place(l2,1240,760);
+  show([l1,l2],at(sid,.26),.5,{stagger:.1});
+  const add=el(S,'chip','<span class="mono" style="color:#e77fb3">+</span>&nbsp; add',{left:'1500px',top:'420px',borderColor:C.pink});
+  const scl=el(S,'chip','<span class="mono" style="color:#f5cf4a">×</span>&nbsp; scale',{left:'1500px',top:'560px',borderColor:C.yellow});
+  show([add,scl],at(sid,.5),.6,{stagger:.2});
+  const next=el(S,'cap','next &nbsp;·&nbsp; 1.2 &nbsp;linear combinations, span and basis',{top:'920px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
+  show(next,at(sid,.78),.7);
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

@@ -8,9 +8,10 @@ Every lesson has three parts:
 
 Pacing: about 80 lessons in 13 modules, roughly 15-25 minutes per lesson including the quiz and code.
 
-## Module 0: Orientation (2)
+## Module 0: Orientation (3)
 0.1 What it means for a machine to "learn": fitting a function to data
 0.2 The map of this course: math, then models, then transformers
+0.3 Reading math notation: Σ, subscripts and vectors
 
 ## Module 1: Linear algebra (8)
 1.1 Vectors: arrows and lists of numbers

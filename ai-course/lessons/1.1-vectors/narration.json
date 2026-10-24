@@ -1,0 +1,8 @@
+[
+ {"id":"s1","pace":0.95,"temperature":0.8,"text":"When you type a sentence into a language model, it does not read the words the way you do. It replaces each one with a long list of numbers, and everything clever that follows is arithmetic on those lists. So what is a list of numbers, really, and why do mathematicians call it a vector?"},
+ {"id":"s2","pace":1.0,"temperature":0.72,"text":"Picture a flat grid with an origin at its centre. A vector is an arrow from the origin to some point, and its list records the journey: how far to walk right, then how far to walk up. The arrow is the picture, the list is the bookkeeping, and both describe the same thing."},
+ {"id":"s3","pace":1.0,"temperature":0.78,"text":"Adding two vectors means taking one journey and then the other, so the second arrow starts where the first one ends. In the list, that is just adding the matching entries, which is why the picture and the arithmetic always agree."},
+ {"id":"s4","pace":0.97,"temperature":0.75,"text":"Multiplying a vector by an ordinary number stretches it, squishes it, or, if the number is negative, flips it to point the other way. Because the number's whole job is to scale the arrow, we call it a scalar."},
+ {"id":"s5","pace":0.95,"temperature":0.82,"text":"Nothing stops the list from growing. We cannot draw an arrow with hundreds of entries, yet the same two rules still apply, and that is what a word becomes inside a model, where related meanings point in similar directions."},
+ {"id":"s6","pace":0.92,"temperature":0.85,"text":"So a vector is an arrow and a list at once, and adding and scaling them is the raw material of every neural network in this course."}
+]
