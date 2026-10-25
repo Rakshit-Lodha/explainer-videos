@@ -273,7 +273,8 @@
     },
     {
      "num": "6.8",
-     "title": "Normalization (batch norm, layer norm)"
+     "title": "Normalization (batch norm, layer norm)",
+     "id": "6.8-normalization"
     },
     {
      "num": "6.9",
