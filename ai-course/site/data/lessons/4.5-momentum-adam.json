@@ -1,0 +1,132 @@
+{
+ "id": "4.5-momentum-adam",
+ "module": 4,
+ "title": "Momentum and Adam",
+ "summary": "In a long narrow valley plain gradient descent zigzags across the steep walls and creeps along the floor. Momentum keeps a velocity, a fading sum of past gradients, so the side-to-side parts cancel and the push along the floor builds up. Adaptive methods divide each parameter's step by the root of its running average squared gradient. Adam combines both, with a correction for starting the averages at zero.",
+ "video": "videos/4.5-momentum-adam.mp4",
+ "llm_link": "Adam and its variant AdamW (which applies weight decay separately from the gradient step) are the standard optimisers for training transformers, including large language models.",
+ "key_ideas": [
+  "Momentum: v ← β·v + ∇L, then w ← w − η·v (β ≈ 0.9).",
+  "Oscillating gradient components cancel inside v; consistent ones accumulate.",
+  "Adaptive scaling: s ← ρ·s + (1 − ρ)·g², then w ← w − η·g / (√s + ε), separately for each parameter.",
+  "Adam: m (average of g) and v (average of g²), bias-corrected by dividing by 1 − βᵗ, step η·m_c / (√v_c + ε). Defaults β₁ = 0.9, β₂ = 0.999.",
+  "Bias correction matters early: m and v start at 0, so without it the first steps are distorted."
+ ],
+ "quiz": [
+  {
+   "q": "Why does plain gradient descent zigzag in a long narrow valley?",
+   "options": [
+    "The learning rate is zero",
+    "The gradient points mostly across the valley (the steep direction), not along it towards the minimum",
+    "The valley has no minimum",
+    "Gradients are always horizontal"
+   ],
+   "answer": 1,
+   "explain": "The steep walls dominate the gradient, so each step crosses the valley and overshoots, while the gentle slope along the floor barely moves the parameters."
+  },
+  {
+   "q": "Predict the result: momentum with β = 0.9 and v = 0 sees the gradient 1 for three steps in a row. What is v after the third step?",
+   "options": [
+    "1",
+    "2.71",
+    "3",
+    "0.9"
+   ],
+   "answer": 1,
+   "explain": "v = 1, then 0.9·1 + 1 = 1.9, then 0.9·1.9 + 1 = 2.71. A steady push accumulates (towards 1/(1 − β) = 10)."
+  },
+  {
+   "q": "With gradients that alternate +1, −1, +1, −1, what happens to the momentum velocity?",
+   "options": [
+    "It grows without bound",
+    "It stays small, because the alternating pushes largely cancel",
+    "It equals the last gradient",
+    "It becomes negative forever"
+   ],
+   "answer": 1,
+   "explain": "Opposite signs cancel inside the fading sum, which is exactly how momentum damps the zigzag across a valley."
+  },
+  {
+   "q": "In Adam, what is the role of dividing by √v_c?",
+   "options": [
+    "It adds momentum",
+    "It scales each parameter's step by the size of its recent gradients, so steep directions take careful steps and gentle ones bolder steps",
+    "It makes the learning rate decay",
+    "It removes the need for gradients"
+   ],
+   "answer": 1,
+   "explain": "v tracks the average squared gradient per parameter; dividing by its root normalises the step size direction by direction."
+  },
+  {
+   "q": "Which optimiser is the usual choice for training large language models?",
+   "options": [
+    "Plain gradient descent on the full dataset",
+    "Adam or AdamW on mini-batches",
+    "Random search",
+    "Newton's method with the exact Hessian"
+   ],
+   "answer": 1,
+   "explain": "AdamW on mini-batches is standard for transformers; full-batch gradient descent and exact second-order methods are far too expensive at that scale."
+  }
+ ],
+ "problems": [
+  {
+   "id": "momentum",
+   "title": "Momentum in the narrow valley",
+   "prompt": "<p>Write <code>momentum(grad, p0, lr, beta, steps)</code>. <code>p0</code> is a list of parameters and <code>grad(p)</code> returns a list of the same length. Keep a velocity list <code>v</code> (starting at zeros) and on every step do, for each coordinate i:</p><pre>v[i] = beta * v[i] + g[i]\np[i] = p[i] - lr * v[i]</pre><p>Return the final parameters as a list. The valley's gradient function is provided; compare with plain gradient descent (beta = 0).</p><pre>momentum(grad, [-9, 1.2], 0.05, 0.9, 200)   # very close to [0, 0]</pre>",
+   "starter": "def grad(p):\n    # the narrow valley L = 0.05*x**2 + 2*y**2 from the video\n    x, y = p\n    return [0.1 * x, 4.0 * y]\n\ndef momentum(grad, p0, lr, beta, steps):\n    p = list(p0)\n    v = [0.0] * len(p)\n    for _ in range(steps):\n        g = grad(p)\n        # TODO: update every v[i], then every p[i]\n    return p\n",
+   "tests": [
+    {
+     "name": "converges",
+     "code": "p = momentum(grad, [-9, 1.2], 0.05, 0.9, 300)\nassert abs(p[0]) < 1e-3 and abs(p[1]) < 1e-3, f'momentum should reach the minimum (0, 0), got {p}'"
+    },
+    {
+     "name": "faster than plain descent",
+     "code": "pm = momentum(grad, [-9, 1.2], 0.05, 0.9, 60)\npg = momentum(grad, [-9, 1.2], 0.05, 0.0, 60)\nassert abs(pm[0]) < abs(pg[0]), f'after 60 steps momentum should be closer to 0 along the valley floor than plain descent: {pm[0]:.3f} vs {pg[0]:.3f}'"
+    },
+    {
+     "name": "one step",
+     "code": "p = momentum(lambda p: [2.0], [1.0], 0.1, 0.9, 2)\nassert abs(p[0] - (1 - 0.1 * 2 - 0.1 * 3.8)) < 1e-12, f'v goes 2, then 0.9*2 + 2 = 3.8, so p = 1 - 0.2 - 0.38 = 0.42; got {p}'"
+    },
+    {
+     "name": "beta 0 is plain descent",
+     "code": "p = momentum(lambda p: [2 * p[0]], [1.0], 0.1, 0.0, 1)\nassert abs(p[0] - 0.8) < 1e-12, f'with beta = 0 one step is 1 - 0.1 * 2 = 0.8, got {p}'"
+    }
+   ],
+   "hints": [
+    "for i in range(len(p)): v[i] = beta * v[i] + g[i]; p[i] -= lr * v[i]"
+   ],
+   "solution": "def grad(p):\n    # the narrow valley L = 0.05*x**2 + 2*y**2 from the video\n    x, y = p\n    return [0.1 * x, 4.0 * y]\n\ndef momentum(grad, p0, lr, beta, steps):\n    p = list(p0)\n    v = [0.0] * len(p)\n    for _ in range(steps):\n        g = grad(p)\n        for i in range(len(p)):\n            v[i] = beta * v[i] + g[i]\n            p[i] = p[i] - lr * v[i]\n    return p\n"
+  },
+  {
+   "id": "adam",
+   "title": "Adam from scratch (NumPy)",
+   "prompt": "<p>Write <code>adam(grad, p0, lr, steps, b1=0.9, b2=0.999, eps=1e-8)</code> where <code>p0</code> is a NumPy array and <code>grad(p)</code> returns an array of the same shape. For t = 1, 2, …, steps:</p><pre>g = grad(p)\nm = b1 * m + (1 - b1) * g\nv = b2 * v + (1 - b2) * g**2\nm_c = m / (1 - b1**t)\nv_c = v / (1 - b2**t)\np = p - lr * m_c / (np.sqrt(v_c) + eps)</pre><p>Every line works on whole arrays at once. Return the final <code>p</code>.</p>",
+   "starter": "import numpy as np\n\ndef adam(grad, p0, lr, steps, b1=0.9, b2=0.999, eps=1e-8):\n    p = p0.astype(float).copy()\n    m = np.zeros_like(p)\n    v = np.zeros_like(p)\n    for t in range(1, steps + 1):\n        g = grad(p)\n        # TODO: the five update lines\n        pass\n    return p\n",
+   "tests": [
+    {
+     "name": "first step has size lr in every coordinate",
+     "code": "import numpy as np\np = adam(lambda p: np.array([100.0, 0.01]), np.array([0.0, 0.0]), 0.1, 1)\nassert np.allclose(p, [-0.1, -0.1], atol=1e-6), f'after bias correction the first Adam step is lr * sign(g) in each coordinate, whatever the gradient size: expected [-0.1, -0.1], got {p}'"
+    },
+    {
+     "name": "narrow valley",
+     "code": "import numpy as np\ng = lambda p: np.array([0.1 * p[0], 4.0 * p[1]])\np = adam(g, np.array([-9.0, 1.2]), 0.2, 300)\nassert np.all(np.abs(p) < 0.05), f'Adam should end near (0, 0), got {p}'"
+    },
+    {
+     "name": "badly scaled bowl",
+     "code": "import numpy as np\ng = lambda p: np.array([2e-4 * (p[0] - 3), 2e4 * (p[1] + 1)])\np = adam(g, np.array([0.0, 0.0]), 0.05, 2000)\nassert abs(p[0] - 3) < 0.05 and abs(p[1] + 1) < 0.05, f'Adam scales each coordinate separately, so it should reach (3, -1) even with curvatures 1e8 apart; got {p}'"
+    },
+    {
+     "name": "keeps the shape",
+     "code": "import numpy as np\np = adam(lambda p: 2 * p, np.ones((2, 3)), 0.01, 5)\nassert p.shape == (2, 3), f'parameters can be any shape; expected (2, 3), got {p.shape}'"
+    }
+   ],
+   "hints": [
+    "Copy the five lines from the prompt into the loop, replacing pass.",
+    "b1**t uses the step number t, which starts at 1 so 1 - b1**t is never 0."
+   ],
+   "solution": "import numpy as np\n\ndef adam(grad, p0, lr, steps, b1=0.9, b2=0.999, eps=1e-8):\n    p = p0.astype(float).copy()\n    m = np.zeros_like(p)\n    v = np.zeros_like(p)\n    for t in range(1, steps + 1):\n        g = grad(p)\n        m = b1 * m + (1 - b1) * g\n        v = b2 * v + (1 - b2) * g ** 2\n        m_c = m / (1 - b1 ** t)\n        v_c = v / (1 - b2 ** t)\n        p = p - lr * m_c / (np.sqrt(v_c) + eps)\n    return p\n"
+  }
+ ],
+ "poster": "videos/4.5-momentum-adam.jpg"
+}

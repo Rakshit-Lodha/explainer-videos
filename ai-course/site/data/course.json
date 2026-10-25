@@ -119,7 +119,8 @@
     },
     {
      "num": "3.3",
-     "title": "Bayes' rule: updating beliefs"
+     "title": "Bayes' rule: updating beliefs",
+     "id": "3.3-bayes-rule"
     },
     {
      "num": "3.4",
@@ -133,11 +134,13 @@
     },
     {
      "num": "3.6",
-     "title": "Entropy: measuring surprise"
+     "title": "Entropy: measuring surprise",
+     "id": "3.6-entropy"
     },
     {
      "num": "3.7",
-     "title": "Cross-entropy and KL divergence (the loss behind LLMs)"
+     "title": "Cross-entropy and KL divergence (the loss behind LLMs)",
+     "id": "3.7-cross-entropy-kl"
     }
    ]
   },
@@ -147,27 +150,33 @@
    "lessons": [
     {
      "num": "4.1",
-     "title": "A loss function is a landscape"
+     "title": "A loss function is a landscape",
+     "id": "4.1-loss-landscape"
     },
     {
      "num": "4.2",
-     "title": "Gradient descent: roll downhill"
+     "title": "Gradient descent: roll downhill",
+     "id": "4.2-gradient-descent"
     },
     {
      "num": "4.3",
-     "title": "Learning rate: too small, too big, just right"
+     "title": "Learning rate: too small, too big, just right",
+     "id": "4.3-learning-rate"
     },
     {
      "num": "4.4",
-     "title": "Stochastic and mini-batch gradient descent"
+     "title": "Stochastic and mini-batch gradient descent",
+     "id": "4.4-sgd-minibatch"
     },
     {
      "num": "4.5",
-     "title": "Momentum and Adam"
+     "title": "Momentum and Adam",
+     "id": "4.5-momentum-adam"
     },
     {
      "num": "4.6",
-     "title": "Convex vs non-convex landscapes"
+     "title": "Convex vs non-convex landscapes",
+     "id": "4.6-convex-nonconvex"
     }
    ]
   },

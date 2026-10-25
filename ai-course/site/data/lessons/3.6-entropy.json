@@ -1,0 +1,166 @@
+{
+ "id": "3.6-entropy",
+ "module": 3,
+ "title": "Entropy: measuring surprise",
+ "summary": "The surprise of an outcome with probability p is log(1/p): zero for a certain event, larger for rarer ones, and additive for independent events. Entropy is the average surprise of a distribution, H = Σ p·log(1/p). It is largest when probability is spread evenly and zero when one outcome is certain.",
+ "video": "videos/3.6-entropy.mp4",
+ "llm_link": "Every next-token prediction of a language model is a distribution with an entropy: low when the continuation is obvious (\"The capital of France is …\"), high when many continuations are plausible. Cross-entropy, the training loss, is built directly from this idea (lesson 3.7).",
+ "key_ideas": [
+  "Surprise(p) = log(1/p) = −log p. Certain events (p = 1) carry 0 surprise.",
+  "Independent events: probabilities multiply, surprises add (the log turns products into sums).",
+  "With log base 2 the unit is bits: a fair coin flip is 1 bit, an outcome with p = 1/8 is 3 bits.",
+  "Entropy H(p) = Σ p(x)·log(1/p(x)): the expected surprise. Uniform over n outcomes gives log₂ n bits, the maximum.",
+  "Terms with p(x) = 0 contribute 0 (they never happen)."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: how many bits of surprise does an outcome with probability 1/16 carry?",
+   "options": [
+    "1/16",
+    "4",
+    "16",
+    "0.0625"
+   ],
+   "answer": 1,
+   "explain": "log₂(1/(1/16)) = log₂ 16 = 4 bits, the same as four fair coin flips landing in one particular order."
+  },
+  {
+   "q": "Which distribution over four outcomes has the highest entropy?",
+   "options": [
+    "[1, 0, 0, 0]",
+    "[0.7, 0.1, 0.1, 0.1]",
+    "[0.25, 0.25, 0.25, 0.25]",
+    "[0.5, 0.5, 0, 0]"
+   ],
+   "answer": 2,
+   "explain": "Entropy is largest when probability is spread evenly. The uniform distribution over 4 outcomes has log₂ 4 = 2 bits; [0.5, 0.5, 0, 0] has only 1 bit."
+  },
+  {
+   "q": "Two independent events happen, with surprises of 2 bits and 3 bits. What is the surprise of both happening?",
+   "options": [
+    "6 bits",
+    "5 bits",
+    "1.5 bits",
+    "3 bits"
+   ],
+   "answer": 1,
+   "explain": "Their probabilities multiply (1/4 · 1/8 = 1/32), so the surprises add: log₂ 32 = 5 bits."
+  },
+  {
+   "q": "A coin lands heads with probability 1. What is its entropy?",
+   "options": [
+    "1 bit",
+    "0 bits",
+    "Infinite",
+    "0.5 bits"
+   ],
+   "answer": 1,
+   "explain": "The only outcome that happens has surprise log(1/1) = 0, and the impossible outcome contributes 0 because it has probability 0. Nothing is left to learn."
+  },
+  {
+   "q": "A language model's next-token distribution after \"The capital of France is\" puts 0.93 on \"Paris\". Compared with its distribution at the start of a fresh sentence, its entropy is…",
+   "options": [
+    "Higher",
+    "Lower",
+    "The same, because the vocabulary is the same",
+    "Always exactly 1 bit"
+   ],
+   "answer": 1,
+   "explain": "A peaked distribution has low entropy. At the start of a new sentence many tokens are plausible, so the distribution is flatter and its entropy higher."
+  }
+ ],
+ "problems": [
+  {
+   "id": "surprise",
+   "title": "Surprise in bits",
+   "prompt": "<p>Write <code>surprise(p)</code> that returns the surprise in bits, log₂(1/p). Use <code>math.log2</code>.</p><pre>surprise(0.5)    # 1.0\nsurprise(1/8)    # 3.0\nsurprise(1.0)    # 0.0</pre>",
+   "starter": "import math\n\ndef surprise(p):\n    # TODO: return log base 2 of 1/p\n    pass\n",
+   "tests": [
+    {
+     "name": "fair coin",
+     "code": "out = surprise(0.5)\nassert out is not None, 'returned None'\nassert abs(out - 1.0) < 1e-12, f'a fair coin flip carries 1 bit, got {out}'"
+    },
+    {
+     "name": "one in eight",
+     "code": "out = surprise(1/8)\nassert abs(out - 3.0) < 1e-12, f'p = 1/8 is like three coin flips: 3 bits, got {out}. Check that you use log base 2'"
+    },
+    {
+     "name": "certain event",
+     "code": "out = surprise(1.0)\nassert abs(out) < 1e-12, f'a certain event has zero surprise, got {out}'"
+    },
+    {
+     "name": "independent surprises add",
+     "code": "a, b = surprise(0.25), surprise(0.1)\nassert abs(surprise(0.25 * 0.1) - (a + b)) < 1e-9, 'surprise of both events should equal the sum of the surprises'"
+    },
+    {
+     "name": "positive, not negative",
+     "code": "out = surprise(0.2)\nassert out > 0, f'surprise should be positive for p < 1, got {out}. log(1/p) = -log(p)'"
+    }
+   ],
+   "hints": [
+    "math.log2(1 / p)",
+    "Equivalently -math.log2(p)."
+   ],
+   "solution": "import math\n\ndef surprise(p):\n    return math.log2(1 / p)\n"
+  },
+  {
+   "id": "entropy",
+   "title": "Entropy of a distribution",
+   "prompt": "<p>Write <code>entropy(ps)</code> = Σ p·log₂(1/p) for a list of probabilities, in bits.</p><p>Outcomes with <code>p == 0</code> never happen, so they contribute 0; skip them (otherwise <code>1/p</code> raises <code>ZeroDivisionError</code>).</p><pre>entropy([0.5, 0.5])     # 1.0\nentropy([1/8] * 8)      # 3.0\nentropy([1.0, 0.0])     # 0.0</pre>",
+   "starter": "import math\n\ndef entropy(ps):\n    h = 0\n    for p in ps:\n        # TODO: skip p == 0, otherwise add p * log2(1/p)\n        pass\n    return h\n",
+   "tests": [
+    {
+     "name": "fair coin",
+     "code": "out = entropy([0.5, 0.5])\nassert abs(out - 1.0) < 1e-12, f'a fair coin has 1 bit of entropy, got {out}'"
+    },
+    {
+     "name": "uniform over 8",
+     "code": "out = entropy([1/8] * 8)\nassert abs(out - 3.0) < 1e-12, f'uniform over 8 outcomes gives log2(8) = 3 bits, got {out}'"
+    },
+    {
+     "name": "certain outcome",
+     "code": "out = entropy([1.0, 0.0])\nassert abs(out) < 1e-12, f'a certain outcome has zero entropy, got {out}. Are you skipping p == 0?'"
+    },
+    {
+     "name": "a biased coin",
+     "code": "import math\nout = entropy([0.9, 0.1])\nexp = 0.9 * math.log2(1/0.9) + 0.1 * math.log2(10)\nassert abs(out - exp) < 1e-12, f'expected {exp:.4f} bits, got {out}. Each term is p * log2(1/p): weight the surprise by its probability'"
+    },
+    {
+     "name": "uniform is the maximum",
+     "code": "assert entropy([0.25] * 4) > entropy([0.4, 0.3, 0.2, 0.1]), 'the uniform distribution should have the highest entropy'"
+    }
+   ],
+   "hints": [
+    "if p > 0: h += p * math.log2(1 / p)",
+    "Or in one line: sum(p * math.log2(1 / p) for p in ps if p > 0)"
+   ],
+   "solution": "import math\n\ndef entropy(ps):\n    return sum(p * math.log2(1 / p) for p in ps if p > 0)\n"
+  },
+  {
+   "id": "np",
+   "title": "Entropy in nats with NumPy",
+   "prompt": "<p>Machine learning code usually uses the natural log, which measures information in <b>nats</b> (1 bit = ln 2 ≈ 0.693 nats). Write <code>entropy_nats(p)</code> for a NumPy array <code>p</code>, without a Python loop.</p><p>Use a boolean mask to keep only the positive entries: <code>q = p[p &gt; 0]</code>, then <code>-(q * np.log(q)).sum()</code>.</p><pre>entropy_nats(np.array([0.5, 0.5]))        # 0.6931...\nentropy_nats(np.array([1.0, 0.0, 0.0]))   # 0.0</pre>",
+   "starter": "import numpy as np\n\ndef entropy_nats(p):\n    # TODO 1: keep only the positive entries with a boolean mask\n    # TODO 2: return -(q * np.log(q)).sum()\n    pass\n",
+   "tests": [
+    {
+     "name": "fair coin in nats",
+     "code": "import numpy as np\nout = entropy_nats(np.array([0.5, 0.5]))\nassert out is not None, 'returned None'\nassert abs(out - np.log(2)) < 1e-12, f'a fair coin has ln 2 = 0.6931 nats, got {out}'"
+    },
+    {
+     "name": "zeros are ignored",
+     "code": "import numpy as np\nout = entropy_nats(np.array([1.0, 0.0, 0.0]))\nassert abs(out) < 1e-12 and np.isfinite(out), f'a certain outcome has zero entropy, got {out}. 0 * log(0) gives nan in NumPy; mask the zeros out first'"
+    },
+    {
+     "name": "uniform over a vocabulary",
+     "code": "import numpy as np\nV = 50000\nout = entropy_nats(np.full(V, 1 / V))\nassert abs(out - np.log(V)) < 1e-6, f'uniform over 50000 tokens gives ln(50000) = 10.82 nats, got {out}'"
+    }
+   ],
+   "hints": [
+    "q = p[p > 0]",
+    "return -(q * np.log(q)).sum()"
+   ],
+   "solution": "import numpy as np\n\ndef entropy_nats(p):\n    q = p[p > 0]\n    return -(q * np.log(q)).sum()\n"
+  }
+ ],
+ "poster": "videos/3.6-entropy.jpg"
+}

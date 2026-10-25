@@ -1,0 +1,169 @@
+{
+ "id": "3.7-cross-entropy-kl",
+ "module": 3,
+ "title": "Cross-entropy and KL divergence (the loss behind LLMs)",
+ "summary": "Cross-entropy H(p, q) = Σ p(x)·log(1/q(x)) is the average surprise when outcomes come from the truth p but are scored with the model q. It is never below the entropy H(p), and the gap is the KL divergence, which is zero only when q = p. For next-token prediction p is one-hot, so the loss at each position is simply −log q(correct token).",
+ "video": "videos/3.7-cross-entropy-kl.mp4",
+ "llm_link": "This is the pre-training loss of GPT-style language models: the average over every position of −log q(actual next token). Minimising it is the same as minimising KL divergence to the data and the same as maximum likelihood. e raised to the average loss is the perplexity.",
+ "key_ideas": [
+  "H(p, q) = Σ p(x)·log(1/q(x)) = −Σ p(x)·log q(x): outcomes drawn from p, surprise measured with q.",
+  "H(p, q) ≥ H(p), with equality only when q = p.",
+  "D_KL(p ‖ q) = Σ p(x)·log(p(x)/q(x)) = H(p, q) − H(p) ≥ 0, and in general D_KL(p ‖ q) ≠ D_KL(q ‖ p).",
+  "For a one-hot p on the correct token, H(p) = 0 and H(p, q) = −log q(correct token).",
+  "LLM loss = average of −log q(xₜ | x<ₜ) over all positions (natural log, nats); a uniform guess over V tokens scores ln V; perplexity = e^loss."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: the model gives the correct next token probability 0.25. What is the cross-entropy loss at that position (natural log)?",
+   "options": [
+    "0.25",
+    "About 1.39",
+    "About 0.29",
+    "4"
+   ],
+   "answer": 1,
+   "explain": "With a one-hot target the loss is −ln q(correct) = −ln 0.25 = ln 4 ≈ 1.386."
+  },
+  {
+   "q": "When is H(p, q) equal to H(p)?",
+   "options": [
+    "Always",
+    "Only when q = p",
+    "When q is uniform",
+    "When p is uniform"
+   ],
+   "answer": 1,
+   "explain": "Cross-entropy is H(p) plus the KL divergence, and KL is zero only when the two distributions agree."
+  },
+  {
+   "q": "Why is KL divergence called a divergence rather than a distance?",
+   "options": [
+    "It can be negative",
+    "It is not symmetric: D_KL(p ‖ q) usually differs from D_KL(q ‖ p)",
+    "It is always zero",
+    "It is measured in metres"
+   ],
+   "answer": 1,
+   "explain": "A distance must be symmetric. KL penalises q for missing what p considers likely very differently from q expecting things that p never produces."
+  },
+  {
+   "q": "An untrained model spreads probability evenly over a vocabulary of 50,000 tokens. Roughly what loss does it start at?",
+   "options": [
+    "About 0.69",
+    "About 1",
+    "About 10.8",
+    "About 50,000"
+   ],
+   "answer": 2,
+   "explain": "Every correct token gets q = 1/50000, so the loss is ln 50000 ≈ 10.8 nats. Training brings it down from there."
+  },
+  {
+   "q": "A language model's average loss on some text is ln 20 ≈ 3.0 nats. What is its perplexity, and what does it mean?",
+   "options": [
+    "3.0: three plausible tokens",
+    "20: as uncertain as a fair choice among 20 tokens",
+    "0.05: almost certain",
+    "e: it is undefined"
+   ],
+   "answer": 1,
+   "explain": "Perplexity = e^loss = e^(ln 20) = 20. On average the model is as unsure as if it were choosing uniformly among 20 tokens."
+  }
+ ],
+ "problems": [
+  {
+   "id": "ce",
+   "title": "Cross-entropy of two distributions",
+   "prompt": "<p>Write <code>cross_entropy(p, q)</code> = −Σ p(x)·ln q(x) for two lists of the same length, using <code>math.log</code> (natural log, so the answer is in nats).</p><p>Skip terms where <code>p[i] == 0</code>: they never happen, so they contribute nothing (and q may be 0 there).</p><pre>cross_entropy([1, 0, 0], [0.5, 0.3, 0.2])            # 0.6931... = -ln 0.5\ncross_entropy([0.5, 0.5], [0.5, 0.5])                # 0.6931... = H(p)\ncross_entropy([0.5, 0.25, 0.15, 0.1], [0.62, 0.3, 0.06, 0.02])   # about 1.46</pre>",
+   "starter": "import math\n\ndef cross_entropy(p, q):\n    total = 0\n    for pi, qi in zip(p, q):\n        # TODO: skip pi == 0; otherwise subtract pi * log(qi)\n        pass\n    return total\n",
+   "tests": [
+    {
+     "name": "one-hot target",
+     "code": "import math\nout = cross_entropy([1, 0, 0], [0.5, 0.3, 0.2])\nassert abs(out - math.log(2)) < 1e-12, f'with a one-hot p the loss is -ln q(correct) = -ln 0.5 = 0.693, got {out}'"
+    },
+    {
+     "name": "q equal to p gives the entropy",
+     "code": "import math\nout = cross_entropy([0.5, 0.5], [0.5, 0.5])\nassert abs(out - math.log(2)) < 1e-12, f'when q = p, cross-entropy equals the entropy ln 2, got {out}'"
+    },
+    {
+     "name": "weather example",
+     "code": "import math\np = [0.5, 0.25, 0.15, 0.1]; q = [0.62, 0.3, 0.06, 0.02]\nexp = -sum(a * math.log(b) for a, b in zip(p, q))\nout = cross_entropy(p, q)\nassert abs(out - exp) < 1e-12, f'expected {exp:.4f}, got {out}. Each term is p * ln(1/q): weight by p, measure with q'"
+    },
+    {
+     "name": "zeros in p are skipped",
+     "code": "out = cross_entropy([1, 0], [1.0, 0.0])\nassert abs(out) < 1e-12, f'q gave probability 1 to the outcome that happened, so the loss is 0; got {out}. Skip p == 0 terms so log(0) is never called'"
+    },
+    {
+     "name": "positive",
+     "code": "out = cross_entropy([0.2, 0.8], [0.6, 0.4])\nassert out > 0, f'cross-entropy is a sum of positive surprises, got {out}. Did you forget the minus sign?'"
+    }
+   ],
+   "hints": [
+    "if pi > 0: total -= pi * math.log(qi)",
+    "One line: -sum(pi * math.log(qi) for pi, qi in zip(p, q) if pi > 0)"
+   ],
+   "solution": "import math\n\ndef cross_entropy(p, q):\n    return -sum(pi * math.log(qi) for pi, qi in zip(p, q) if pi > 0)\n"
+  },
+  {
+   "id": "kl",
+   "title": "KL divergence and its asymmetry",
+   "prompt": "<p>Write <code>kl(p, q)</code> = Σ p(x)·ln(p(x)/q(x)), skipping terms with <code>p[i] == 0</code>.</p><p>Then check the two facts from the video: <code>kl(p, q) == cross_entropy(p, q) − entropy(p)</code>, and <code>kl(p, q) != kl(q, p)</code> in general. (<code>cross_entropy</code> and <code>entropy</code> are provided.)</p><pre>kl([0.5, 0.5], [0.5, 0.5])     # 0.0\nkl([0.5, 0.5], [0.9, 0.1])     # 0.5108...\nkl([0.9, 0.1], [0.5, 0.5])     # 0.3681...</pre>",
+   "starter": "import math\n\ndef cross_entropy(p, q):\n    return -sum(pi * math.log(qi) for pi, qi in zip(p, q) if pi > 0)\n\ndef entropy(p):\n    return cross_entropy(p, p)\n\ndef kl(p, q):\n    # TODO: sum of p * log(p / q) over entries with p > 0\n    pass\n",
+   "tests": [
+    {
+     "name": "zero when equal",
+     "code": "out = kl([0.2, 0.3, 0.5], [0.2, 0.3, 0.5])\nassert out is not None, 'returned None'\nassert abs(out) < 1e-12, f'KL of a distribution with itself is 0, got {out}'"
+    },
+    {
+     "name": "matches the definition",
+     "code": "import math\nout = kl([0.5, 0.5], [0.9, 0.1])\nexp = 0.5 * math.log(0.5 / 0.9) + 0.5 * math.log(0.5 / 0.1)\nassert abs(out - exp) < 1e-12, f'expected {exp:.4f}, got {out}. The ratio inside the log is p / q'"
+    },
+    {
+     "name": "cross-entropy = entropy + KL",
+     "code": "p = [0.5, 0.25, 0.15, 0.1]; q = [0.62, 0.3, 0.06, 0.02]\nassert abs(kl(p, q) - (cross_entropy(p, q) - entropy(p))) < 1e-12, 'KL should equal the gap between cross-entropy and entropy'"
+    },
+    {
+     "name": "not symmetric",
+     "code": "a, b = kl([0.5, 0.5], [0.9, 0.1]), kl([0.9, 0.1], [0.5, 0.5])\nassert abs(a - b) > 0.1, f'KL is not symmetric: expected different values, got {a:.4f} and {b:.4f}'"
+    },
+    {
+     "name": "never negative",
+     "code": "import itertools\nfor p in ([0.1, 0.9], [0.3, 0.7], [0.5, 0.5]):\n    for q in ([0.2, 0.8], [0.6, 0.4], [0.99, 0.01]):\n        assert kl(p, q) >= -1e-12, f'KL({p}, {q}) came out negative: {kl(p, q)}'"
+    }
+   ],
+   "hints": [
+    "sum(pi * math.log(pi / qi) for pi, qi in zip(p, q) if pi > 0)"
+   ],
+   "solution": "import math\n\ndef cross_entropy(p, q):\n    return -sum(pi * math.log(qi) for pi, qi in zip(p, q) if pi > 0)\n\ndef entropy(p):\n    return cross_entropy(p, p)\n\ndef kl(p, q):\n    return sum(pi * math.log(pi / qi) for pi, qi in zip(p, q) if pi > 0)\n"
+  },
+  {
+   "id": "lm",
+   "title": "The language-model loss (NumPy)",
+   "prompt": "<p>A model reads a sequence of <code>T</code> positions and at each one outputs a distribution over a vocabulary of <code>V</code> tokens: <code>probs</code> has shape <code>(T, V)</code>, and each row sums to 1. <code>targets</code> has shape <code>(T,)</code> and holds the index of the token that actually came next at each position.</p><p>Write <code>lm_loss(probs, targets)</code> returning the tuple <code>(loss, perplexity)</code>: the loss is the mean over positions of −ln(probability of the correct token), and the perplexity is e<sup>loss</sup>.</p><p>To pick one entry per row, use <b>fancy indexing</b>: <code>probs[np.arange(T), targets]</code> has shape <code>(T,)</code>, row t, column targets[t].</p><pre>probs = np.array([[0.5, 0.3, 0.2],\n                  [0.1, 0.8, 0.1]])\nlm_loss(probs, np.array([0, 1]))   # (0.458..., 1.581...)</pre>",
+   "starter": "import numpy as np\n\ndef lm_loss(probs, targets):\n    T = probs.shape[0]\n    # TODO 1: p_correct = the probability of the correct token at each position, shape (T,)\n    # TODO 2: loss = mean of -log(p_correct)\n    # TODO 3: return loss, np.exp(loss)\n    pass\n",
+   "tests": [
+    {
+     "name": "small example",
+     "code": "import numpy as np\nprobs = np.array([[0.5, 0.3, 0.2], [0.1, 0.8, 0.1]])\nout = lm_loss(probs, np.array([0, 1]))\nassert out is not None, 'returned None'\nloss, ppl = out\nexp = (-np.log(0.5) - np.log(0.8)) / 2\nassert abs(loss - exp) < 1e-12, f'expected mean(-ln 0.5, -ln 0.8) = {exp:.4f}, got {loss}. Pick column targets[t] from row t'"
+    },
+    {
+     "name": "perplexity",
+     "code": "import numpy as np\nprobs = np.full((4, 20), 1 / 20)\nloss, ppl = lm_loss(probs, np.array([3, 7, 0, 19]))\nassert abs(ppl - 20) < 1e-9, f'a uniform guess over 20 tokens has perplexity 20, got {ppl}'"
+    },
+    {
+     "name": "untrained model",
+     "code": "import numpy as np\nV = 50000\nprobs = np.full((3, V), 1 / V)\nloss, _ = lm_loss(probs, np.array([1, 2, 3]))\nassert abs(loss - np.log(V)) < 1e-6, f'uniform over 50000 tokens should give ln(50000) = 10.82, got {loss}'"
+    },
+    {
+     "name": "uses the targets, not the max",
+     "code": "import numpy as np\nprobs = np.array([[0.9, 0.1], [0.9, 0.1]])\nloss, _ = lm_loss(probs, np.array([1, 1]))\nassert abs(loss - (-np.log(0.1))) < 1e-12, f'the correct token had probability 0.1 at both positions, so the loss is -ln 0.1 = 2.303; got {loss}. Did you use the largest probability instead of the target column?'"
+    }
+   ],
+   "hints": [
+    "p_correct = probs[np.arange(T), targets]",
+    "loss = -np.log(p_correct).mean(); return loss, np.exp(loss)"
+   ],
+   "solution": "import numpy as np\n\ndef lm_loss(probs, targets):\n    T = probs.shape[0]\n    p_correct = probs[np.arange(T), targets]\n    loss = -np.log(p_correct).mean()\n    return loss, np.exp(loss)\n"
+  }
+ ],
+ "poster": "videos/3.7-cross-entropy-kl.jpg"
+}

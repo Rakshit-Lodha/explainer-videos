@@ -1,0 +1,153 @@
+{
+ "id": "4.1-loss-landscape",
+ "module": 4,
+ "title": "A loss function is a landscape",
+ "summary": "A model's parameters are dials and its loss measures how badly it fits. Plotting the loss against one parameter gives a curve; against two it gives a surface over a map of settings, usually drawn as a contour map. Training is a search for low ground on that landscape, which for real networks has billions of dimensions.",
+ "video": "videos/4.1-loss-landscape.mp4",
+ "llm_link": "For a language model, every point of the landscape is one full setting of its billions of weights, and the height there is the average cross-entropy on the training text (lesson 3.7).",
+ "key_ideas": [
+  "Each setting of the parameters is a point; the loss at that point is its height.",
+  "One parameter: a curve, loss against w. Two parameters: a surface over the (w, b) plane.",
+  "Contour lines join settings with equal loss; close together means steep, far apart means flat.",
+  "Mean squared error of a line y = w·x + b: average of (yᵢ − (w·xᵢ + b))² over the data."
+ ],
+ "quiz": [
+  {
+   "q": "On a contour map of a loss, contour lines are packed closely together in one region. What does that tell you?",
+   "options": [
+    "The loss is flat there",
+    "The loss changes quickly there: the ground is steep",
+    "That region is the minimum",
+    "The model has fewer parameters there"
+   ],
+   "answer": 1,
+   "explain": "Each line is a fixed step in loss. Many lines in a short distance means the loss changes fast, like a steep hillside on a hiking map."
+  },
+  {
+   "q": "Predict the result: data (1, 2), (2, 4), (3, 6) and the model y = w·x. What is the mean squared error at w = 1?",
+   "options": [
+    "0",
+    "14/3 ≈ 4.67",
+    "2",
+    "14"
+   ],
+   "answer": 1,
+   "explain": "The errors are 2 − 1 = 1, 4 − 2 = 2 and 6 − 3 = 3; the squares are 1, 4 and 9; their mean is 14 / 3."
+  },
+  {
+   "q": "In the same example, where is the bottom of the loss curve?",
+   "options": [
+    "w = 0",
+    "w = 1",
+    "w = 2",
+    "w = 6"
+   ],
+   "answer": 2,
+   "explain": "y = 2x passes through every point, so every error is 0 and the loss is at its minimum, 0."
+  },
+  {
+   "q": "What is a single point on the (w, b) map?",
+   "options": [
+    "One data point",
+    "One complete model: a specific line",
+    "The gradient",
+    "The learning rate"
+   ],
+   "answer": 1,
+   "explain": "Choosing w and b fixes the whole line. The landscape's height at that point is how badly that particular line fits the data."
+  },
+  {
+   "q": "For a large language model, what are the coordinates of its loss landscape?",
+   "options": [
+    "The tokens of the vocabulary",
+    "All of its weights, billions of numbers",
+    "The words of the prompt",
+    "Just two numbers, w and b"
+   ],
+   "answer": 1,
+   "explain": "Every weight is one dial, so the landscape lives in a space with as many dimensions as the model has parameters. Its height is the training cross-entropy."
+  }
+ ],
+ "problems": [
+  {
+   "id": "mse",
+   "title": "The height of the landscape",
+   "prompt": "<p>Write <code>mse(w, b, xs, ys)</code>: the mean squared error of the line <code>y = w*x + b</code> on the data. For each point the error is <code>y − (w*x + b)</code>; square it, then average over all points.</p><pre>xs = [1, 2, 3, 4, 5]\nys = [2.6, 3.9, 5.1, 6.8, 7.6]\nmse(1.0, 0.0, xs, ys)   # 5.036\nmse(1.29, 1.33, xs, ys) # 0.0278 (the best fit)</pre>",
+   "starter": "def mse(w, b, xs, ys):\n    total = 0\n    # TODO: for each matching (x, y) pair, add (y - (w * x + b)) ** 2\n\n    # TODO: return the average, not the total\n    return total\n",
+   "tests": [
+    {
+     "name": "a line through the origin",
+     "code": "out = mse(1.0, 0.0, [1, 2, 3, 4, 5], [2.6, 3.9, 5.1, 6.8, 7.6])\nassert abs(out - 5.036) < 1e-9, f'expected 5.036, got {out}. Pair x and y with zip, and divide by the number of points'"
+    },
+    {
+     "name": "the best fit is low",
+     "code": "out = mse(1.29, 1.33, [1, 2, 3, 4, 5], [2.6, 3.9, 5.1, 6.8, 7.6])\nassert abs(out - 0.0278) < 1e-9, f'expected 0.0278 at the best fit, got {out}'"
+    },
+    {
+     "name": "perfect fit is zero",
+     "code": "out = mse(2.0, 1.0, [0, 1, 2], [1, 3, 5])\nassert abs(out) < 1e-12, f'y = 2x + 1 passes through every point, so the loss is 0; got {out}'"
+    },
+    {
+     "name": "an average, not a sum",
+     "code": "a = mse(0.0, 0.0, [1], [2])\nb = mse(0.0, 0.0, [1, 1], [2, 2])\nassert abs(a - b) < 1e-12, f'repeating the same data should not change the mean squared error; got {a} and {b}'"
+    }
+   ],
+   "hints": [
+    "for x, y in zip(xs, ys): total += (y - (w * x + b)) ** 2",
+    "return total / len(xs)"
+   ],
+   "solution": "def mse(w, b, xs, ys):\n    total = 0\n    for x, y in zip(xs, ys):\n        total += (y - (w * x + b)) ** 2\n    return total / len(xs)\n"
+  },
+  {
+   "id": "curve",
+   "title": "Walk along the curve",
+   "prompt": "<p>With b fixed at 0, the loss is a curve in w. Write <code>lowest_w(ws, xs, ys)</code> that evaluates the loss for every candidate in the list <code>ws</code> and returns the candidate with the smallest loss. (<code>mse</code> is provided.)</p><pre>ws = [0.5 + 0.01 * k for k in range(200)]   # 0.50, 0.51, ..., 2.49\nlowest_w(ws, [1, 2, 3, 4, 5], [2.6, 3.9, 5.1, 6.8, 7.6])   # 1.65 (up to rounding)</pre>",
+   "starter": "def mse(w, b, xs, ys):\n    return sum((y - (w * x + b)) ** 2 for x, y in zip(xs, ys)) / len(xs)\n\ndef lowest_w(ws, xs, ys):\n    best_w, best_loss = None, float('inf')\n    for w in ws:\n        # TODO: compute the loss at (w, 0); keep it if it beats best_loss\n        pass\n    return best_w\n",
+   "tests": [
+    {
+     "name": "finds the bottom",
+     "code": "ws = [0.5 + 0.01 * k for k in range(200)]\nout = lowest_w(ws, [1, 2, 3, 4, 5], [2.6, 3.9, 5.1, 6.8, 7.6])\nassert out is not None, 'returned None: did you update best_w inside the loop?'\nassert abs(out - 1.65) < 1e-9, f'the bottom of this curve on the grid is w = 1.65, got {out}'"
+    },
+    {
+     "name": "exact data",
+     "code": "out = lowest_w([1.0, 1.5, 2.0, 2.5], [1, 2, 3], [2, 4, 6])\nassert out == 2.0, f'y = 2x fits exactly, so w = 2.0 should win; got {out}'"
+    },
+    {
+     "name": "smallest, not largest",
+     "code": "out = lowest_w([-3.0, 0.0, 3.0], [1, 2], [0.1, 0.2])\nassert out == 0.0, f'w = 0 is closest to the data (slope 0.1); got {out}. Keep the candidate with the smallest loss'"
+    }
+   ],
+   "hints": [
+    "loss = mse(w, 0, xs, ys)",
+    "if loss < best_loss: best_w, best_loss = w, loss"
+   ],
+   "solution": "def mse(w, b, xs, ys):\n    return sum((y - (w * x + b)) ** 2 for x, y in zip(xs, ys)) / len(xs)\n\ndef lowest_w(ws, xs, ys):\n    best_w, best_loss = None, float('inf')\n    for w in ws:\n        loss = mse(w, 0, xs, ys)\n        if loss < best_loss:\n            best_w, best_loss = w, loss\n    return best_w\n"
+  },
+  {
+   "id": "surface",
+   "title": "The whole landscape at once (NumPy shapes)",
+   "prompt": "<p>Compute the loss on a whole grid of (w, b) settings without loops, using broadcasting with three axes:</p><ul><li><code>W[:, None, None]</code> has shape <code>(m, 1, 1)</code></li><li><code>B[None, :, None]</code> has shape <code>(1, k, 1)</code></li><li><code>x[None, None, :]</code> and <code>y[None, None, :]</code> have shape <code>(1, 1, n)</code></li></ul><p>So <code>y - (W*x + B)</code> has shape <code>(m, k, n)</code>. Square it and average over the last axis to get the surface of shape <code>(m, k)</code>.</p><p>Write <code>loss_surface(W, B, x, y)</code> returning that <code>(m, k)</code> array.</p><pre>W = np.linspace(0.6, 2.0, 141); B = np.linspace(-0.5, 3.5, 401)\nL = loss_surface(W, B, np.array([1, 2, 3, 4, 5], float), np.array([2.6, 3.9, 5.1, 6.8, 7.6]))\nL.shape                       # (141, 401)\ni, j = np.unravel_index(L.argmin(), L.shape)\nW[i], B[j]                    # about (1.29, 1.33)</pre>",
+   "starter": "import numpy as np\n\ndef loss_surface(W, B, x, y):\n    # TODO 1: pred = W[:, None, None] * x[None, None, :] + B[None, :, None]   # (m, k, n)\n    # TODO 2: return ((y[None, None, :] - pred) ** 2).mean(axis=2)          # (m, k)\n    pass\n",
+   "tests": [
+    {
+     "name": "shape",
+     "code": "import numpy as np\nL = loss_surface(np.linspace(0, 2, 5), np.linspace(-1, 1, 7), np.array([1, 2, 3, 4, 5], float), np.array([2.6, 3.9, 5.1, 6.8, 7.6]))\nassert L is not None, 'returned None'\nassert L.shape == (5, 7), f'expected shape (len(W), len(B)) = (5, 7), got {L.shape}. Average over the data axis (the last one)'"
+    },
+    {
+     "name": "matches the formula",
+     "code": "import numpy as np\nx = np.array([1, 2, 3, 4, 5], float); y = np.array([2.6, 3.9, 5.1, 6.8, 7.6])\nL = loss_surface(np.array([1.0, 1.5]), np.array([0.0, 0.5]), x, y)\nexp = np.mean((y - (1.5 * x + 0.5)) ** 2)\nassert abs(L[1, 1] - exp) < 1e-12, f'L[1, 1] should be the loss at w = 1.5, b = 0.5 ({exp:.4f}), got {L[1, 1]}. Check which axis holds W and which holds B'"
+    },
+    {
+     "name": "finds the best fit",
+     "code": "import numpy as np\nW = np.linspace(0.6, 2.0, 141); B = np.linspace(-0.5, 3.5, 401)\nL = loss_surface(W, B, np.array([1, 2, 3, 4, 5], float), np.array([2.6, 3.9, 5.1, 6.8, 7.6]))\ni, j = np.unravel_index(L.argmin(), L.shape)\nassert abs(W[i] - 1.29) < 0.011 and abs(B[j] - 1.33) < 0.011, f'the lowest point should be near (1.29, 1.33), got ({W[i]:.2f}, {B[j]:.2f})'"
+    }
+   ],
+   "hints": [
+    "Print pred.shape after TODO 1 to check it is (m, k, n).",
+    "mean(axis=2) averages over the n data points, leaving (m, k)."
+   ],
+   "solution": "import numpy as np\n\ndef loss_surface(W, B, x, y):\n    pred = W[:, None, None] * x[None, None, :] + B[None, :, None]\n    return ((y[None, None, :] - pred) ** 2).mean(axis=2)\n"
+  }
+ ],
+ "poster": "videos/4.1-loss-landscape.jpg"
+}

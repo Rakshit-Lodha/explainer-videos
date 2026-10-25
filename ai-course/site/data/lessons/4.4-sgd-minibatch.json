@@ -1,0 +1,158 @@
+{
+ "id": "4.4-sgd-minibatch",
+ "module": 4,
+ "title": "Stochastic and mini-batch gradient descent",
+ "summary": "The loss is an average over examples, so its gradient is the average of per-example gradients. Stochastic gradient descent follows one random example's gradient: cheap and noisy, but correct on average. A mini-batch averages a few dozen examples, shrinking the noise by about 1/√B while staying cheap. Training cycles through shuffled mini-batches, one epoch per full pass.",
+ "video": "videos/4.4-sgd-minibatch.mp4",
+ "llm_link": "Language models are trained on batches of token sequences (shape B × T), never on the whole corpus at once; each optimiser step uses the gradient of the loss averaged over one batch.",
+ "key_ideas": [
+  "∇L = (1/N) Σ ∇ℓᵢ: the full gradient is the average of the examples' gradients.",
+  "SGD: one random example per step. E[∇ℓᵢ] = ∇L, so the step is right on average but noisy.",
+  "Mini-batch of size B: average B gradients; the spread of the estimate shrinks like 1/√B.",
+  "An epoch is one full pass over the data in shuffled mini-batches.",
+  "Gradient noise can help the parameters leave flat regions and shallow dips."
+ ],
+ "quiz": [
+  {
+   "q": "Why not compute the exact gradient over the whole training set at every step?",
+   "options": [
+    "It would give the wrong direction",
+    "It is far too expensive: one step would need a pass over all the data",
+    "Gradients cannot be averaged",
+    "It makes the loss negative"
+   ],
+   "answer": 1,
+   "explain": "The exact gradient is correct but costs a full pass over the data; a mini-batch gives a good, cheap estimate."
+  },
+  {
+   "q": "Predict the result: per-example gradients in a batch are 1, 3, −2 and 6. What gradient does mini-batch gradient descent use?",
+   "options": [
+    "8",
+    "2",
+    "6",
+    "1.5"
+   ],
+   "answer": 1,
+   "explain": "The batch gradient is the average: (1 + 3 − 2 + 6) / 4 = 2."
+  },
+  {
+   "q": "You increase the batch size from 16 to 64. Roughly what happens to the noise (spread) of the gradient estimate?",
+   "options": [
+    "It doubles",
+    "It halves",
+    "It is divided by 4",
+    "It is unchanged"
+   ],
+   "answer": 1,
+   "explain": "The spread of an average scales like 1/√B. Going from 16 to 64 multiplies √B by 2, so the spread halves."
+  },
+  {
+   "q": "What is an epoch?",
+   "options": [
+    "One gradient step",
+    "One full pass over the training data",
+    "One mini-batch",
+    "The learning rate schedule"
+   ],
+   "answer": 1,
+   "explain": "With N examples and batch size B, one epoch is about N / B steps."
+  },
+  {
+   "q": "A language model is trained with batches of shape (B, T) = (8, 1024). How many next-token predictions does one batch's loss average over?",
+   "options": [
+    "8",
+    "1024",
+    "8192",
+    "1"
+   ],
+   "answer": 2,
+   "explain": "Every position of every sequence predicts its next token, so the loss averages over 8 × 1024 = 8192 positions (lesson 3.7)."
+  }
+ ],
+ "problems": [
+  {
+   "id": "avg",
+   "title": "The gradient is an average",
+   "prompt": "<p>For the model <code>y ≈ w * x</code> and the squared error of one example, <code>ℓᵢ = (w*xᵢ − yᵢ)²</code>, the example's gradient is <code>2 * (w*xᵢ − yᵢ) * xᵢ</code>.</p><p>Write <code>example_grad(w, x, y)</code> for one example and <code>batch_grad(w, xs, ys)</code> that averages it over the given examples.</p><pre>example_grad(1.0, 2.0, 5.0)              # -12.0\nbatch_grad(1.0, [1, 2, 3], [2, 4, 6])    # -9.333...</pre>",
+   "starter": "def example_grad(w, x, y):\n    # TODO: gradient of (w*x - y)**2 with respect to w\n    pass\n\ndef batch_grad(w, xs, ys):\n    # TODO: average example_grad over the matching (x, y) pairs\n    pass\n",
+   "tests": [
+    {
+     "name": "one example",
+     "code": "out = example_grad(1.0, 2.0, 5.0)\nassert out is not None, 'example_grad returned None'\nassert abs(out + 12.0) < 1e-12, f'2 * (1*2 - 5) * 2 = -12, got {out}'"
+    },
+    {
+     "name": "batch average",
+     "code": "out = batch_grad(1.0, [1, 2, 3], [2, 4, 6])\nassert out is not None, 'batch_grad returned None'\nassert abs(out - (-2 - 8 - 18) / 3) < 1e-12, f'the per-example gradients are -2, -8, -18, whose average is -9.333; got {out}. Average, do not sum'"
+    },
+    {
+     "name": "zero at the best fit",
+     "code": "out = batch_grad(2.0, [1, 2, 3], [2, 4, 6])\nassert abs(out) < 1e-12, f'w = 2 fits exactly, so the gradient is 0; got {out}'"
+    },
+    {
+     "name": "a batch of one is SGD",
+     "code": "assert abs(batch_grad(0.5, [3], [1]) - example_grad(0.5, 3, 1)) < 1e-12, 'a batch with one example should give that example\\'s gradient'"
+    }
+   ],
+   "hints": [
+    "return 2 * (w * x - y) * x",
+    "sum(example_grad(w, x, y) for x, y in zip(xs, ys)) / len(xs)"
+   ],
+   "solution": "def example_grad(w, x, y):\n    return 2 * (w * x - y) * x\n\ndef batch_grad(w, xs, ys):\n    return sum(example_grad(w, x, y) for x, y in zip(xs, ys)) / len(xs)\n"
+  },
+  {
+   "id": "epoch",
+   "title": "Shuffle an epoch into mini-batches",
+   "prompt": "<p>Write <code>epoch_batches(n, batch_size, seed)</code> that returns a list of batches, each a list of example indices. Every index from <code>0</code> to <code>n - 1</code> must appear exactly once, in a shuffled order, cut into consecutive chunks of <code>batch_size</code> (the last chunk may be smaller).</p><p>Shuffle with <code>random.Random(seed).shuffle(idx)</code> so the result is repeatable.</p><pre>b = epoch_batches(10, 4, seed=0)\n[len(x) for x in b]   # [4, 4, 2]</pre>",
+   "starter": "import random\n\ndef epoch_batches(n, batch_size, seed):\n    idx = list(range(n))\n    # TODO 1: shuffle idx with random.Random(seed)\n    # TODO 2: cut it into chunks of batch_size\n    batches = []\n\n    return batches\n",
+   "tests": [
+    {
+     "name": "batch sizes",
+     "code": "b = epoch_batches(10, 4, seed=0)\nassert [len(x) for x in b] == [4, 4, 2], f'10 examples in batches of 4 should give sizes [4, 4, 2], got {[len(x) for x in b]}'"
+    },
+    {
+     "name": "every example exactly once",
+     "code": "b = epoch_batches(103, 8, seed=1)\nflat = [i for x in b for i in x]\nassert sorted(flat) == list(range(103)), 'one epoch must visit every index exactly once: no repeats, none missing'"
+    },
+    {
+     "name": "shuffled",
+     "code": "b = epoch_batches(50, 50, seed=2)\nassert b[0] != list(range(50)), 'the order should be shuffled, not 0, 1, 2, ...'"
+    },
+    {
+     "name": "repeatable",
+     "code": "assert epoch_batches(20, 5, seed=3) == epoch_batches(20, 5, seed=3), 'the same seed should give the same batches'"
+    }
+   ],
+   "hints": [
+    "random.Random(seed).shuffle(idx) shuffles the list in place.",
+    "[idx[i:i + batch_size] for i in range(0, n, batch_size)]"
+   ],
+   "solution": "import random\n\ndef epoch_batches(n, batch_size, seed):\n    idx = list(range(n))\n    random.Random(seed).shuffle(idx)\n    return [idx[i:i + batch_size] for i in range(0, n, batch_size)]\n"
+  },
+  {
+   "id": "sgd",
+   "title": "Mini-batch SGD for a line (NumPy)",
+   "prompt": "<p>Train <code>y ≈ w*x + b</code> with mini-batch SGD. For each epoch, shuffle the indices with <code>rng.permutation(n)</code>, then for each chunk of <code>batch_size</code> indices compute the MSE gradient <b>on that batch only</b> and take a step:</p><pre>xb, yb = x[ix], y[ix]\nerr = w * xb + b - yb\ngw, gb = 2 * np.mean(err * xb), 2 * np.mean(err)</pre><p>Write <code>sgd_line(x, y, lr, batch_size, epochs, seed)</code> returning <code>(w, b)</code>, starting from 0, 0 with <code>rng = np.random.default_rng(seed)</code>.</p>",
+   "starter": "import numpy as np\n\ndef sgd_line(x, y, lr, batch_size, epochs, seed):\n    rng = np.random.default_rng(seed)\n    n = len(x)\n    w, b = 0.0, 0.0\n    for _ in range(epochs):\n        order = rng.permutation(n)\n        for i in range(0, n, batch_size):\n            ix = order[i:i + batch_size]\n            # TODO: batch gradient, then a step for w and b\n            pass\n    return w, b\n",
+   "tests": [
+    {
+     "name": "recovers a noisy line",
+     "code": "import numpy as np\nr = np.random.default_rng(0)\nx = r.uniform(-1, 1, 2000); y = 3 * x - 0.5 + r.normal(0, 0.3, 2000)\nw, b = sgd_line(x, y, 0.05, 32, 5, seed=1)\nassert abs(w - 3) < 0.1 and abs(b + 0.5) < 0.1, f'expected close to w = 3, b = -0.5, got ({w:.3f}, {b:.3f})'"
+    },
+    {
+     "name": "batch size 1 also works",
+     "code": "import numpy as np\nr = np.random.default_rng(2)\nx = r.uniform(-1, 1, 500); y = -2 * x + 1\nw, b = sgd_line(x, y, 0.05, 1, 3, seed=3)\nassert abs(w + 2) < 0.05 and abs(b - 1) < 0.05, f'pure SGD on exact data should reach w = -2, b = 1, got ({w:.3f}, {b:.3f})'"
+    },
+    {
+     "name": "uses many small steps",
+     "code": "import numpy as np\nx = np.linspace(-1, 1, 64); y = 2 * x\nw1, _ = sgd_line(x, y, 0.1, 64, 1, seed=0)\nw2, _ = sgd_line(x, y, 0.1, 8, 1, seed=0)\nassert abs(w2 - 2) < abs(w1 - 2), f'with batch size 8 one epoch takes 8 steps instead of 1, so it should get closer to w = 2: got {w2:.3f} vs {w1:.3f}'"
+    }
+   ],
+   "hints": [
+    "xb, yb = x[ix], y[ix]; err = w * xb + b - yb",
+    "w, b = w - lr * 2 * np.mean(err * xb), b - lr * 2 * np.mean(err)"
+   ],
+   "solution": "import numpy as np\n\ndef sgd_line(x, y, lr, batch_size, epochs, seed):\n    rng = np.random.default_rng(seed)\n    n = len(x)\n    w, b = 0.0, 0.0\n    for _ in range(epochs):\n        order = rng.permutation(n)\n        for i in range(0, n, batch_size):\n            ix = order[i:i + batch_size]\n            xb, yb = x[ix], y[ix]\n            err = w * xb + b - yb\n            w, b = w - lr * 2 * np.mean(err * xb), b - lr * 2 * np.mean(err)\n    return w, b\n"
+  }
+ ],
+ "poster": "videos/4.4-sgd-minibatch.jpg"
+}

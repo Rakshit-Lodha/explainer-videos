@@ -1,0 +1,157 @@
+{
+ "id": "3.3-bayes-rule",
+ "module": 3,
+ "title": "Bayes' rule: updating beliefs",
+ "summary": "Bayes' rule turns P(evidence | hypothesis) into P(hypothesis | evidence) by weighting with the prior and dividing by the overall probability of the evidence. With a rare disease, even an accurate test leaves a positive result far from certain, and repeated evidence moves the belief step by step.",
+ "video": "videos/3.3-bayes-rule.mp4",
+ "llm_link": "A language model computes P(next token | everything before). Each extra word in the prompt is new evidence that reshapes that conditional distribution, much as evidence turns a prior into a posterior.",
+ "key_ideas": [
+  "P(H | E) = P(E | H) · P(H) / P(E): posterior = likelihood × prior / evidence.",
+  "P(E) = P(E | H)·P(H) + P(E | not H)·P(not H): add up every way the evidence can happen.",
+  "P(E | H) and P(H | E) are different questions; confusing them is the classic mistake.",
+  "Today's posterior is tomorrow's prior: independent pieces of evidence can be applied one after another."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: prevalence 1%, the test catches 99% of the ill and falsely flags 1% of the healthy. You test positive. P(ill | +) is closest to…",
+   "options": [
+    "0.99",
+    "0.5",
+    "0.01",
+    "0.09"
+   ],
+   "answer": 1,
+   "explain": "Out of 10,000 people: 99 true positives and 99 false positives, so half of the 198 positives are ill. (0.99·0.01) / (0.99·0.01 + 0.01·0.99) = 0.5."
+  },
+  {
+   "q": "Same test, but the disease affects 1 in 10 people. What happens to P(ill | +)?",
+   "options": [
+    "It stays at 0.5",
+    "It rises well above 0.5 (about 0.92)",
+    "It falls below 0.5",
+    "It becomes exactly 0.99"
+   ],
+   "answer": 1,
+   "explain": "A larger prior means the true positives outnumber the false alarms: 0.099 / (0.099 + 0.009) ≈ 0.92."
+  },
+  {
+   "q": "Which quantity does a test's \"99% accuracy on sick patients\" describe?",
+   "options": [
+    "P(ill | +)",
+    "P(+ | ill)",
+    "P(ill)",
+    "P(+)"
+   ],
+   "answer": 1,
+   "explain": "It is the probability of a positive result given illness, the likelihood. What a patient wants is the reverse, P(ill | +)."
+  },
+  {
+   "q": "After one positive result your belief is 0.5. A second, independent positive test (same accuracy) arrives. The new belief is about…",
+   "options": [
+    "0.5",
+    "0.75",
+    "0.99",
+    "1.0"
+   ],
+   "answer": 2,
+   "explain": "Use 0.5 as the new prior: 0.99·0.5 / (0.99·0.5 + 0.01·0.5) = 0.99."
+  },
+  {
+   "q": "A language model reads \"The capital of France is\". In Bayesian terms, what do the words of the prompt act like?",
+   "options": [
+    "Evidence that reshapes the distribution over the next token",
+    "The prior, which never changes",
+    "Noise that the model ignores",
+    "The loss function"
+   ],
+   "answer": 0,
+   "explain": "The model outputs P(next token | context). Each extra word of context changes that conditional distribution, here concentrating it on \"Paris\"."
+  }
+ ],
+ "problems": [
+  {
+   "id": "bayes",
+   "title": "A Bayes calculator",
+   "prompt": "<p>Write <code>posterior(prior, sens, fpr)</code>: the probability of being ill after a positive test, where</p><ul><li><code>prior</code> = P(ill)</li><li><code>sens</code> = P(+ | ill), the sensitivity</li><li><code>fpr</code> = P(+ | healthy), the false-positive rate</li></ul><p>First compute the evidence P(+) = sens·prior + fpr·(1 − prior), then apply Bayes' rule.</p><pre>posterior(0.01, 0.99, 0.01)   # 0.5\nposterior(0.10, 0.99, 0.01)   # 0.9166...</pre>",
+   "starter": "def posterior(prior, sens, fpr):\n    # TODO 1: evidence = P(+), from both ways of testing positive\n\n    # TODO 2: return likelihood * prior / evidence\n    pass\n",
+   "tests": [
+    {
+     "name": "the rare-disease puzzle",
+     "code": "out = posterior(0.01, 0.99, 0.01)\nassert out is not None, 'posterior returned None'\nassert abs(out - 0.5) < 1e-9, f'expected 0.5 (99 true positives vs 99 false alarms), got {out}'"
+    },
+    {
+     "name": "a common disease",
+     "code": "out = posterior(0.10, 0.99, 0.01)\nassert abs(out - 0.099 / 0.108) < 1e-9, f'expected about 0.917, got {out}. Check P(+) = sens*prior + fpr*(1 - prior)'"
+    },
+    {
+     "name": "not the likelihood",
+     "code": "out = posterior(0.001, 0.99, 0.01)\nassert out < 0.1, f'with a 1-in-1000 prior a positive test is still probably a false alarm (about 0.09); got {out}. Did you return sens instead of P(ill | +)?'"
+    },
+    {
+     "name": "a perfect test",
+     "code": "out = posterior(0.01, 1.0, 0.0)\nassert abs(out - 1.0) < 1e-9, f'with no false positives, a positive result means certainly ill; got {out}'"
+    }
+   ],
+   "hints": [
+    "evidence = sens * prior + fpr * (1 - prior)",
+    "return sens * prior / evidence"
+   ],
+   "solution": "def posterior(prior, sens, fpr):\n    evidence = sens * prior + fpr * (1 - prior)\n    return sens * prior / evidence\n"
+  },
+  {
+   "id": "update",
+   "title": "Belief after several tests",
+   "prompt": "<p>Write <code>update_all(prior, results, sens, fpr)</code>. <code>results</code> is a list of test outcomes, <code>True</code> for positive and <code>False</code> for negative. Apply Bayes' rule once per result, using each posterior as the next prior, and return the final belief.</p><p>For a <b>negative</b> result the likelihoods change: P(− | ill) = 1 − sens and P(− | healthy) = 1 − fpr.</p><pre>update_all(0.01, [True, True], 0.99, 0.01)   # 0.99\nupdate_all(0.5, [False], 0.99, 0.01)         # 0.01</pre>",
+   "starter": "def update_all(prior, results, sens, fpr):\n    belief = prior\n    for positive in results:\n        # TODO: pick the two likelihoods for this result\n        #       (positive: sens and fpr; negative: 1 - sens and 1 - fpr)\n        # TODO: belief = likelihood_ill * belief / evidence\n        pass\n    return belief\n",
+   "tests": [
+    {
+     "name": "no tests, no change",
+     "code": "out = update_all(0.3, [], 0.9, 0.1)\nassert abs(out - 0.3) < 1e-9, f'with no evidence the belief should stay at the prior 0.3, got {out}'"
+    },
+    {
+     "name": "two positives",
+     "code": "out = update_all(0.01, [True, True], 0.99, 0.01)\nassert abs(out - 0.99) < 1e-9, f'first test gives 0.5, the second should give 0.99; got {out}. Are you feeding each posterior back in as the prior?'"
+    },
+    {
+     "name": "a negative result",
+     "code": "out = update_all(0.5, [False], 0.99, 0.01)\nassert abs(out - 0.01) < 1e-9, f'a negative result uses 1 - sens and 1 - fpr: 0.01*0.5 / (0.01*0.5 + 0.99*0.5) = 0.01, got {out}'"
+    },
+    {
+     "name": "order does not matter",
+     "code": "a = update_all(0.2, [True, False, True], 0.8, 0.1)\nb = update_all(0.2, [True, True, False], 0.8, 0.1)\nassert abs(a - b) < 1e-9, f'independent evidence gives the same answer in any order, got {a} and {b}'"
+    }
+   ],
+   "hints": [
+    "l1, l0 = (sens, fpr) if positive else (1 - sens, 1 - fpr)",
+    "belief = l1 * belief / (l1 * belief + l0 * (1 - belief))"
+   ],
+   "solution": "def update_all(prior, results, sens, fpr):\n    belief = prior\n    for positive in results:\n        l1, l0 = (sens, fpr) if positive else (1 - sens, 1 - fpr)\n        belief = l1 * belief / (l1 * belief + l0 * (1 - belief))\n    return belief\n"
+  },
+  {
+   "id": "curve",
+   "title": "Posterior for many priors at once (NumPy)",
+   "prompt": "<p>Redo <code>posterior</code> so that <code>prior</code> can be a NumPy <b>array</b> of priors. Because <code>+</code>, <code>*</code>, <code>/</code> and <code>1 - prior</code> all work entry by entry on arrays, the same formula returns an array of posteriors with the same shape: this is the curve from the video.</p><pre>priors = np.array([0.0001, 0.001, 0.01, 0.1])\nposterior_curve(priors, 0.99, 0.01)\n# array([0.0098, 0.0902, 0.5   , 0.9167])  (rounded)</pre>",
+   "starter": "import numpy as np\n\ndef posterior_curve(priors, sens, fpr):\n    # TODO: the same two lines as posterior(), written so they work on an array\n    pass\n",
+   "tests": [
+    {
+     "name": "matches the scalar formula",
+     "code": "import numpy as np\np = np.array([0.0001, 0.001, 0.01, 0.1])\nout = posterior_curve(p, 0.99, 0.01)\nassert out is not None, 'returned None'\nexp = 0.99 * p / (0.99 * p + 0.01 * (1 - p))\nassert np.allclose(out, exp), f'expected {np.round(exp, 4)}, got {out}'"
+    },
+    {
+     "name": "same shape as the input",
+     "code": "import numpy as np\np = np.linspace(0.01, 0.99, 7)\nout = posterior_curve(p, 0.9, 0.2)\nassert isinstance(out, np.ndarray) and out.shape == (7,), f'expected an array of shape (7,), got {type(out).__name__} {getattr(out, \"shape\", None)}. Avoid Python loops and lists: write the formula with array arithmetic'"
+    },
+    {
+     "name": "rises with the prior",
+     "code": "import numpy as np\nout = posterior_curve(np.linspace(0.01, 0.99, 50), 0.99, 0.01)\nassert np.all(np.diff(out) > 0), 'a larger prior should always give a larger posterior for the same positive test'"
+    }
+   ],
+   "hints": [
+    "evidence = sens * priors + fpr * (1 - priors) is already an array.",
+    "return sens * priors / evidence"
+   ],
+   "solution": "import numpy as np\n\ndef posterior_curve(priors, sens, fpr):\n    evidence = sens * priors + fpr * (1 - priors)\n    return sens * priors / evidence\n"
+  }
+ ],
+ "poster": "videos/3.3-bayes-rule.jpg"
+}
