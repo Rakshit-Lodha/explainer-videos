@@ -1,0 +1,150 @@
+{
+  "id": "6.3-activations",
+  "module": 6,
+  "title": "Activation functions (ReLU, GELU, why not linear)",
+  "summary": "Without a bend between them, stacked linear layers collapse into a single linear layer. The sigmoid bends but its flat tails starve learning; ReLU keeps a slope of 1 wherever it is active; GELU is a smooth ReLU used in GPT-2 and BERT. Sums of shifted hinges can trace almost any curve.",
+  "video": "videos/6.3-activations.mp4",
+  "llm_link": "GPT-2 and BERT use GELU in their feed-forward layers, and many recent models use a gated variant called SwiGLU. Without these bends, a hundred transformer blocks would be no more expressive than one matrix.",
+  "key_ideas": [
+    "W2(W1x + b1) + b2 = (W2W1)x + (W2b1 + b2): two linear layers are one linear layer, however many you stack.",
+    "Sigmoid squeezes into (0, 1); its slope is at most 1/4 and almost 0 in the tails, so learning signals fade.",
+    "ReLU = max(0, z): slope 1 when active, 0 when not. A neuron that is negative for every input is dead and stops learning.",
+    "Shifted, scaled ReLUs add up to tents, bumps and any curve made of straight pieces.",
+    "GELU(z) = z·Φ(z): like ReLU for large |z|, smooth near 0, with a small dip to about −0.17."
+  ],
+  "quiz": [
+    {
+      "q": "You stack 50 layers with no activation functions. What can the network represent?",
+      "options": [
+        "Any continuous function",
+        "Only what a single linear layer (Wx + b) can",
+        "Only the sigmoid",
+        "Nothing; it will crash"
+      ],
+      "answer": 1,
+      "explain": "Multiplying out the algebra merges all the matrices into one matrix and all the biases into one bias."
+    },
+    {
+      "q": "Predict the result: what is the largest slope the sigmoid ever has?",
+      "options": [
+        "1",
+        "1/2",
+        "1/4",
+        "It has no maximum"
+      ],
+      "answer": 2,
+      "explain": "σ'(z) = σ(z)(1 − σ(z)), which peaks at z = 0 where σ = 1/2, giving 1/2 · 1/2 = 1/4."
+    },
+    {
+      "q": "Predict the result: f(x) = ReLU(x + 1) − 2·ReLU(x) + ReLU(x − 1). What is f(0.5)?",
+      "options": [
+        "0.5",
+        "1.5",
+        "0",
+        "−0.5"
+      ],
+      "answer": 0,
+      "explain": "ReLU(1.5) − 2·ReLU(0.5) + ReLU(−0.5) = 1.5 − 1 + 0 = 0.5. This is the tent from the video, peaking at 1 when x = 0."
+    },
+    {
+      "q": "Why can a ReLU neuron 'die'?",
+      "options": [
+        "Its output grows without limit",
+        "If its input is negative for every example, its slope is 0 everywhere and it gets no learning signal",
+        "ReLU is not differentiable at 0",
+        "It always outputs exactly 1"
+      ],
+      "answer": 1,
+      "explain": "On the flat side the slope is zero, so backpropagation sends nothing to its weights and nothing can move it back."
+    },
+    {
+      "q": "Which activation does GPT-2 use in its feed-forward layers?",
+      "options": [
+        "Sigmoid",
+        "Step function",
+        "GELU",
+        "None; it is linear"
+      ],
+      "answer": 2,
+      "explain": "GPT-2 (and BERT) use GELU, a smooth version of ReLU. Many newer models use the gated SwiGLU."
+    }
+  ],
+  "problems": [
+    {
+      "id": "activations",
+      "title": "Three bends and their slopes",
+      "prompt": "<p>Write each activation and its slope (derivative). Use <code>math</code> only.</p><ul><li><code>sigmoid(z)</code> and <code>sigmoid_slope(z) = sigmoid(z) * (1 - sigmoid(z))</code></li><li><code>relu(z)</code> and <code>relu_slope(z)</code>: 1 if z &gt; 0 else 0</li><li><code>gelu(z) = z · Φ(z)</code> with <code>Φ(z) = 0.5 · (1 + erf(z / √2))</code>; <code>math.erf</code> exists.</li></ul>",
+      "starter": "import math\n\ndef sigmoid(z):\n    pass  # TODO\n\ndef sigmoid_slope(z):\n    pass  # TODO: sigmoid(z) * (1 - sigmoid(z))\n\ndef relu(z):\n    pass  # TODO\n\ndef relu_slope(z):\n    pass  # TODO: 1 if z > 0 else 0\n\ndef gelu(z):\n    pass  # TODO: z * 0.5 * (1 + erf(z / sqrt(2)))\n",
+      "tests": [
+        {
+          "name": "sigmoid",
+          "code": "assert sigmoid(0) == 0.5, f'sigmoid(0) should be 0.5, got {sigmoid(0)}'"
+        },
+        {
+          "name": "sigmoid slope peaks at 1/4",
+          "code": "s = sigmoid_slope(0)\nassert s is not None and abs(s - 0.25) < 1e-9, f'the steepest point is z = 0 with slope 0.25, got {s}'\nassert sigmoid_slope(6) < 0.003, f'far out in the tail the slope should be almost 0, got {sigmoid_slope(6)}'"
+        },
+        {
+          "name": "relu and its slope",
+          "code": "assert relu(-3) == 0 and relu(2.5) == 2.5, 'relu keeps positives and zeroes negatives'\nassert relu_slope(4) == 1 and relu_slope(-4) == 0, f'slope should be 1 when active and 0 when not, got {relu_slope(4)} and {relu_slope(-4)}'"
+        },
+        {
+          "name": "gelu is like relu far from zero",
+          "code": "g = gelu(5)\nassert g is not None and abs(g - 5) < 1e-4, f'gelu(5) should be almost 5, got {g}'\nassert abs(gelu(-5)) < 1e-4, f'gelu(-5) should be almost 0, got {gelu(-5)}'"
+        },
+        {
+          "name": "gelu dips below zero",
+          "code": "m = min(gelu(x / 100) for x in range(-300, 1))\nassert -0.18 < m < -0.16, f'GELU dips to about -0.17 near z = -0.75, your minimum is {m}'"
+        }
+      ],
+      "hints": [
+        "sigmoid: 1 / (1 + math.exp(-z))",
+        "gelu: z * 0.5 * (1 + math.erf(z / math.sqrt(2)))"
+      ],
+      "solution": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef sigmoid_slope(z):\n    s = sigmoid(z)\n    return s * (1 - s)\n\ndef relu(z):\n    return max(0, z)\n\ndef relu_slope(z):\n    return 1 if z > 0 else 0\n\ndef gelu(z):\n    return z * 0.5 * (1 + math.erf(z / math.sqrt(2)))\n"
+    },
+    {
+      "id": "collapse",
+      "title": "Two linear layers are one (NumPy)",
+      "prompt": "<p>Write <code>collapse(W1, b1, W2, b2)</code> that returns the single <code>(W, b)</code> with <code>W @ x + b == W2 @ (W1 @ x + b1) + b2</code> for every x. Multiply out the algebra from the video.</p><p>Then <code>check(x, W1, b1, W2, b2)</code> should return True when the two-layer and one-layer outputs agree (use <code>np.allclose</code>).</p>",
+      "starter": "import numpy as np\n\ndef collapse(W1, b1, W2, b2):\n    # TODO: W = ?, b = ?\n    W = None\n    b = None\n    return W, b\n\ndef check(x, W1, b1, W2, b2):\n    W, b = collapse(W1, b1, W2, b2)\n    two = W2 @ (W1 @ x + b1) + b2\n    one = W @ x + b\n    return np.allclose(two, one)\n",
+      "tests": [
+        {
+          "name": "collapses random layers",
+          "code": "import numpy as np\nrng = np.random.default_rng(1)\nW1, b1 = rng.normal(size=(4, 3)), rng.normal(size=4)\nW2, b2 = rng.normal(size=(2, 4)), rng.normal(size=2)\nW, b = collapse(W1, b1, W2, b2)\nassert W is not None and b is not None, 'collapse returned None'\nassert W.shape == (2, 3), f'3 inputs, 2 outputs: W should be (2, 3), got {W.shape}. Order matters: W2 @ W1, not W1 @ W2'\nfor _ in range(5):\n    x = rng.normal(size=3)\n    assert check(x, W1, b1, W2, b2), 'one-layer and two-layer outputs differ; the bias is W2 @ b1 + b2'"
+        },
+        {
+          "name": "bias goes through the second matrix",
+          "code": "import numpy as np\nW1, b1 = np.eye(2), np.array([1.0, 0.0])\nW2, b2 = np.array([[2.0, 0.0], [0.0, 3.0]]), np.zeros(2)\nW, b = collapse(W1, b1, W2, b2)\nassert np.allclose(b, [2, 0]), f'b1 = [1, 0] passes through W2, giving [2, 0]; got {b}'"
+        }
+      ],
+      "hints": [
+        "W2 @ (W1 @ x + b1) + b2 = (W2 @ W1) @ x + (W2 @ b1 + b2)",
+        "W = W2 @ W1; b = W2 @ b1 + b2"
+      ],
+      "solution": "import numpy as np\n\ndef collapse(W1, b1, W2, b2):\n    W = W2 @ W1\n    b = W2 @ b1 + b2\n    return W, b\n\ndef check(x, W1, b1, W2, b2):\n    W, b = collapse(W1, b1, W2, b2)\n    two = W2 @ (W1 @ x + b1) + b2\n    one = W @ x + b\n    return np.allclose(two, one)\n"
+    },
+    {
+      "id": "hinges",
+      "title": "Build a bump from hinges",
+      "prompt": "<p>Build curves out of ReLUs only (no <code>if</code> statements on x):</p><ul><li><code>tent(x)</code>: 0 outside [−1, 1], rising to 1 at x = 0.</li><li><code>bump(x)</code>: 0 below −2, rising to 1 by −1, flat at 1 up to 1, back to 0 at 2.</li></ul><pre>tent(0) == 1, tent(0.5) == 0.5, tent(3) == 0\nbump(0) == 1, bump(-1.5) == 0.5, bump(2.5) == 0</pre>",
+      "starter": "def relu(z):\n    return max(0, z)\n\ndef tent(x):\n    # TODO: three hinges, at -1, 0 and 1\n    return 0\n\ndef bump(x):\n    # TODO: four hinges, at -2, -1, 1 and 2\n    return 0\n",
+      "tests": [
+        {
+          "name": "tent values",
+          "code": "for x, want in [(-2, 0), (-1, 0), (-0.5, 0.5), (0, 1), (0.5, 0.5), (1, 0), (3, 0)]:\n    got = tent(x)\n    assert abs(got - want) < 1e-9, f'tent({x}) should be {want}, got {got}'"
+        },
+        {
+          "name": "bump values",
+          "code": "for x, want in [(-3, 0), (-2, 0), (-1.5, 0.5), (-1, 1), (0, 1), (1, 1), (1.5, 0.5), (2, 0), (2.5, 0)]:\n    got = bump(x)\n    assert abs(got - want) < 1e-9, f'bump({x}) should be {want}, got {got}'"
+        }
+      ],
+      "hints": [
+        "Each hinge relu(x - k) adds a corner at k. Its weight changes the slope from that point on.",
+        "tent: slope +1 from -1, then -1 from 0 (a change of -2), then 0 from 1 (a change of +1): relu(x+1) - 2*relu(x) + relu(x-1)",
+        "bump: relu(x+2) - relu(x+1) - relu(x-1) + relu(x-2)"
+      ],
+      "solution": "def relu(z):\n    return max(0, z)\n\ndef tent(x):\n    return relu(x + 1) - 2 * relu(x) + relu(x - 1)\n\ndef bump(x):\n    return relu(x + 2) - relu(x + 1) - relu(x - 1) + relu(x - 2)\n"
+    }
+  ]
+}

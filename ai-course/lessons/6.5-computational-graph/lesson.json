@@ -1,0 +1,165 @@
+{
+  "id": "6.5-computational-graph",
+  "module": 6,
+  "title": "Forward pass as a computational graph",
+  "summary": "A computational graph breaks a calculation into elementary operations (nodes) joined by the values that flow between them (edges). The forward pass pushes numbers through it from inputs to output, and if every value remembers its inputs and operation, the graph can later be walked backwards.",
+  "video": "videos/6.5-computational-graph.mp4",
+  "llm_link": "A language model's forward pass is one enormous graph of a few kinds of operation. PyTorch records it as the code runs (every result tensor has a grad_fn), and that record is what loss.backward() walks.",
+  "key_ideas": [
+    "Nodes are operations (×, +, ReLU); edges carry values from the operations that made them to the ones that use them.",
+    "Forward pass: evaluate nodes in an order where every node's inputs are ready. For L = (a·b + c)·f with a = 2, b = −3, c = 10, f = −2: e = −6, d = 4, L = −8.",
+    "A neuron is a small graph: multiply nodes, add nodes, a bias, and a ReLU node.",
+    "Each value stores its data, the set of values that produced it (_prev) and the operation (_op). That memory makes the backward pass possible.",
+    "Defining __add__ and __mul__ on a Value class makes ordinary Python expressions build the graph automatically."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: in the graph L = (a·b + c)·f with a = 1, b = 4, c = −2, f = 3, what is L?",
+      "options": [
+        "6",
+        "10",
+        "−6",
+        "2"
+      ],
+      "answer": 0,
+      "explain": "a·b = 4, plus c gives 2, times f gives 6. Each node waits for its inputs."
+    },
+    {
+      "q": "In a computational graph, what does a node represent?",
+      "options": [
+        "A weight",
+        "An elementary operation such as × or +",
+        "A whole layer",
+        "The loss only"
+      ],
+      "answer": 1,
+      "explain": "Nodes are operations; values travel along the edges between them."
+    },
+    {
+      "q": "Why should each value store links to the values that produced it?",
+      "options": [
+        "To save memory",
+        "So the graph can be walked backwards to see how each input influenced the output",
+        "So Python can print it",
+        "To make the forward pass faster"
+      ],
+      "answer": 1,
+      "explain": "The backward pass (next lesson) needs to know, for every value, which values it came from and through which operation."
+    },
+    {
+      "q": "How many Value objects does e = a * b + c create, if a, b and c already exist?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "answer": 1,
+      "explain": "a * b creates one new Value, and adding c to it creates a second. The graph grows by one node per operation."
+    },
+    {
+      "q": "In PyTorch, what tells you how a tensor y was computed?",
+      "options": [
+        "y.shape",
+        "y.grad_fn, which points at the operation that produced y",
+        "y.dtype",
+        "y.device"
+      ],
+      "answer": 1,
+      "explain": "Every result of a tracked operation has a grad_fn (for example AddBackward0): one node of the recorded graph."
+    }
+  ],
+  "problems": [
+    {
+      "id": "value",
+      "title": "A Value that remembers",
+      "prompt": "<p>Start your autograd engine. Complete the <code>Value</code> class so that adding or multiplying two Values returns a <b>new</b> Value whose <code>data</code> is the result, whose <code>_prev</code> is the set of the two inputs, and whose <code>_op</code> is <code>'+'</code> or <code>'*'</code>.</p><p>Plain numbers should work too: wrap them in a Value first. <code>__radd__</code> and <code>__rmul__</code> handle <code>2 * a</code>, where the number comes first.</p><pre>a, b, c = Value(2.0), Value(-3.0), Value(10.0)\ne = a * b          # Value(-6.0), e._prev == {a, b}, e._op == '*'\nd = e + c          # Value(4.0)</pre>",
+      "starter": "class Value:\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value({self.data})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        # TODO: return a new Value with data self.data + other.data,\n        #       _prev (self, other) and _op '+'\n        pass\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        # TODO: the same for multiplication, _op '*'\n        pass\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n",
+      "tests": [
+        {
+          "name": "multiplication makes a new Value",
+          "code": "a, b = Value(2.0), Value(-3.0)\ne = a * b\nassert isinstance(e, Value), f'a * b should return a Value, got {type(e).__name__}'\nassert e.data == -6.0, f'2 * -3 = -6, got {e.data}'"
+        },
+        {
+          "name": "it remembers its inputs and operation",
+          "code": "a, b = Value(2.0), Value(-3.0)\ne = a * b\nassert e._prev == {a, b}, f'e._prev should be the set {{a, b}}, got {e._prev}'\nassert e._op == '*', f\"e._op should be '*', got {e._op!r}\""
+        },
+        {
+          "name": "addition too",
+          "code": "a, c = Value(-6.0), Value(10.0)\nd = a + c\nassert isinstance(d, Value) and d.data == 4.0, f'-6 + 10 = 4, got {d}'\nassert d._prev == {a, c} and d._op == '+', 'd should remember a and c and the operation +'"
+        },
+        {
+          "name": "the whole expression from the video",
+          "code": "a, b, c, f = Value(2.0), Value(-3.0), Value(10.0), Value(-2.0)\nL = (a * b + c) * f\nassert L.data == -8.0, f'(2 * -3 + 10) * -2 = -8, got {L.data}'"
+        },
+        {
+          "name": "plain numbers on either side",
+          "code": "a = Value(3.0)\nassert (a * 2).data == 6.0, 'a * 2 should work: wrap the 2 in a Value'\nassert (2 * a).data == 6.0, '2 * a uses __rmul__'\nassert (a + 1).data == 4.0 and (1 + a).data == 4.0, 'a + 1 and 1 + a should both give 4.0'"
+        },
+        {
+          "name": "inputs are not changed",
+          "code": "a, b = Value(2.0), Value(5.0)\n_ = a * b\nassert a.data == 2.0 and b.data == 5.0, 'an operation must build a new Value, not modify its inputs'"
+        }
+      ],
+      "hints": [
+        "return Value(self.data + other.data, (self, other), '+')",
+        "Multiplication is the same line with * and '*'."
+      ],
+      "solution": "class Value:\n    \"\"\"A number that remembers how it was made (lesson 6.5).\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value({self.data})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data + other.data, (self, other), '+')\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data * other.data, (self, other), '*')\n\n    def __radd__(self, other):   # other + self, when other is a plain number\n        return self + other\n\n    def __rmul__(self, other):   # other * self\n        return self * other\n"
+    },
+    {
+      "id": "neuron-graph",
+      "title": "A neuron as a graph",
+      "prompt": "<p>The starter has a working <code>Value</code> with + and *. Add a <code>relu()</code> method that returns a new Value with data <code>max(0, data)</code>, <code>_prev = (self,)</code> and <code>_op = 'ReLU'</code>.</p><p>Then write <code>neuron(xs, ws, b)</code> that builds the graph from the video: multiply each input by its weight, add the products and the bias, and apply <code>relu()</code>. Inputs, weights and bias are all Values.</p>",
+      "starter": "class Value:\n    \"\"\"A number that remembers how it was made (lesson 6.5).\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value({self.data})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data + other.data, (self, other), '+')\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data * other.data, (self, other), '*')\n\n    def __radd__(self, other):   # other + self, when other is a plain number\n        return self + other\n\n    def __rmul__(self, other):   # other * self\n        return self * other\n\ndef relu(self):\n    # TODO: a new Value with data max(0, self.data), _prev (self,), _op 'ReLU'\n    pass\n\nValue.relu = relu    # attach it as a method\n\n\ndef neuron(xs, ws, b):\n    # TODO: total = b; for each (x, w): total = total + x * w; return total.relu()\n    pass\n",
+      "tests": [
+        {
+          "name": "relu node",
+          "code": "v = Value(-2.0).relu()\nassert isinstance(v, Value) and v.data == 0, f'relu of -2 should be a Value with data 0, got {v}'\nw = Value(3.0)\nr = w.relu()\nassert r.data == 3.0 and r._prev == {w} and r._op == 'ReLU', 'relu should remember its one input and the op name ReLU'"
+        },
+        {
+          "name": "neuron value",
+          "code": "xs = [Value(1.0), Value(2.0)]\nws = [Value(0.5), Value(-1.0)]\nout = neuron(xs, ws, Value(1.0))\nassert isinstance(out, Value), f'neuron should return a Value, got {type(out).__name__}'\nassert out.data == 0, f'z = 0.5 - 2 + 1 = -0.5 and ReLU gives 0, got {out.data}'\nout2 = neuron(xs, [Value(0.5), Value(1.0)], Value(0.0))\nassert out2.data == 2.5, f'z = 0.5 + 2 = 2.5, got {out2.data}'"
+        },
+        {
+          "name": "the output is a ReLU node",
+          "code": "out = neuron([Value(1.0)], [Value(2.0)], Value(0.5))\nassert out._op == 'ReLU', f\"the last operation should be ReLU, got {out._op!r}\""
+        },
+        {
+          "name": "every weight is in the graph",
+          "code": "ws = [Value(0.5), Value(-1.0), Value(2.0)]\nb = Value(0.1)\nout = neuron([Value(1.0), Value(1.0), Value(1.0)], ws, b)\nseen, stack = set(), [out]\nwhile stack:\n    v = stack.pop()\n    if v in seen: continue\n    seen.add(v); stack.extend(v._prev)\nassert all(w in seen for w in ws) and b in seen, 'walking back from the output should reach every weight and the bias'"
+        }
+      ],
+      "hints": [
+        "return Value(max(0, self.data), (self,), 'ReLU')",
+        "total = b\nfor x, w in zip(xs, ws):\n    total = total + x * w\nreturn total.relu()"
+      ],
+      "solution": "class Value:\n    \"\"\"A number that remembers how it was made (lesson 6.5).\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value({self.data})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data + other.data, (self, other), '+')\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data * other.data, (self, other), '*')\n\n    def __radd__(self, other):   # other + self, when other is a plain number\n        return self + other\n\n    def __rmul__(self, other):   # other * self\n        return self * other\n\ndef relu(self):\n    return Value(max(0, self.data), (self,), 'ReLU')\n\nValue.relu = relu\n\n\ndef neuron(xs, ws, b):\n    total = b\n    for x, w in zip(xs, ws):\n        total = total + x * w\n    return total.relu()\n"
+    },
+    {
+      "id": "topo",
+      "title": "Order the graph",
+      "prompt": "<p>The backward pass will need every node listed so that each node comes <b>after</b> all the nodes that produced it (a topological order). Write <code>topo_order(root)</code> with a depth-first search: visit a node's <code>_prev</code> first, then append the node. Keep a <code>visited</code> set so a value used twice appears once.</p><pre>a, b, c, f = Value(2.0), Value(-3.0), Value(10.0), Value(-2.0)\nL = (a * b + c) * f\nlen(topo_order(L))   # 7: a, b, a*b, c, +, f, L in some valid order</pre>",
+      "starter": "class Value:\n    \"\"\"A number that remembers how it was made (lesson 6.5).\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value({self.data})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data + other.data, (self, other), '+')\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data * other.data, (self, other), '*')\n\n    def __radd__(self, other):   # other + self, when other is a plain number\n        return self + other\n\n    def __rmul__(self, other):   # other * self\n        return self * other\n\ndef topo_order(root):\n    order, visited = [], set()\n\n    def visit(v):\n        # TODO: if v is not visited: mark it, visit each child in v._prev, then append v\n        pass\n\n    visit(root)\n    return order\n",
+      "tests": [
+        {
+          "name": "counts every node once",
+          "code": "a, b, c, f = Value(2.0), Value(-3.0), Value(10.0), Value(-2.0)\nL = (a * b + c) * f\norder = topo_order(L)\nassert len(order) == 7, f'the graph has 7 values (a, b, c, f, a*b, a*b+c, L), got {len(order)}'"
+        },
+        {
+          "name": "inputs come before outputs",
+          "code": "a, b, c, f = Value(2.0), Value(-3.0), Value(10.0), Value(-2.0)\nL = (a * b + c) * f\norder = topo_order(L)\npos = {v: i for i, v in enumerate(order)}\nfor v in order:\n    for p in v._prev:\n        assert pos[p] < pos[v], f'{p} was used to make {v} so it must come earlier in the list'\nassert order[-1] is L, 'the root must be last'"
+        },
+        {
+          "name": "a value used twice appears once",
+          "code": "a = Value(3.0)\ny = a * a + a\norder = topo_order(y)\nassert order.count(a) == 1, f'a is used three times but must appear once, appeared {order.count(a)} times'\nassert len(order) == 3, f'values: a, a*a, y; got {len(order)}'"
+        }
+      ],
+      "hints": [
+        "if v not in visited:\n    visited.add(v)\n    for child in v._prev:\n        visit(child)\n    order.append(v)",
+        "Appending after the children is what puts inputs first."
+      ],
+      "solution": "class Value:\n    \"\"\"A number that remembers how it was made (lesson 6.5).\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value({self.data})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data + other.data, (self, other), '+')\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        return Value(self.data * other.data, (self, other), '*')\n\n    def __radd__(self, other):   # other + self, when other is a plain number\n        return self + other\n\n    def __rmul__(self, other):   # other * self\n        return self * other\n\ndef topo_order(root):\n    order, visited = [], set()\n\n    def visit(v):\n        if v not in visited:\n            visited.add(v)\n            for child in v._prev:\n                visit(child)\n            order.append(v)\n\n    visit(root)\n    return order\n"
+    }
+  ]
+}

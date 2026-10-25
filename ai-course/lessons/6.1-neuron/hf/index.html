@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;border-radius:50%;border:4px solid;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;background:#10151c;opacity:0;visibility:hidden}
+.box{position:absolute;border-radius:16px;border:3px solid;display:flex;align-items:center;justify-content:center;text-align:center;background:#10151c;opacity:0;visibility:hidden}
+.code{position:absolute;font-family:'JetBrains Mono',monospace;font-size:30px;line-height:1.45;white-space:pre;background:#121821;border:2px solid #2a3442;border-radius:14px;padding:22px 30px;color:var(--ink);opacity:0;visibility:hidden}
+.code .k{color:#c792ea}.code .f{color:#58c4dd}.code .n{color:#f5cf4a}.code .c{color:#7f8b99}
+.px{position:absolute;border:1px solid #0e1116}
+
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="217.71" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="217.71" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 6.1 The neuron</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="30.354"></div>
+  <div class="clip scene" id="S2" data-start="30.354" data-duration="32.394"></div>
+  <div class="clip scene" id="S3" data-start="62.748" data-duration="30.758"></div>
+  <div class="clip scene" id="S4" data-start="93.506" data-duration="31.006"></div>
+  <div class="clip scene" id="S5" data-start="124.512" data-duration="46.645"></div>
+  <div class="clip scene" id="S6" data-start="171.157" data-duration="28.844"></div>
+  <div class="clip scene" id="S7" data-start="200.001" data-duration="17.709"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":30.354,"s3":62.748,"s4":93.506,"s5":124.512,"s6":171.157,"s7":200.001},"total":217.71,"cues":{"s1":[["inside",0.0],["every",0.435],["large",0.808],["language",1.181],["model",1.741],["there",2.114],["are",2.487],["billions",2.735],["of",3.295],["numbers",3.481],["and",4.227],["most",4.575],["of",5.011],["them",5.272],["belong",5.707],["to",6.316],["one",6.577],["small",6.925],["repeated",7.673],["part",7.913],["called",8.046],["a",8.232],["neuron",8.286],["the",9.065],["name",9.333],["comes",9.669],["from",10.072],["biology",10.408],["but",11.451],["the",11.689],["artificial",11.928],["version",12.583],["is",13.06],["far",13.239],["simpler",13.477],["than",13.954],["a",14.251],["brain",14.371],["cell",14.728],["it",15.522],["is",15.698],["a",15.875],["few",15.993],["lines",16.228],["of",16.581],["arithmetic",16.758],["you",17.405],["could",17.641],["do",17.994],["on",18.171],["paper",18.347],["if",19.019],["we",19.216],["understand",19.413],["exactly",20.136],["what",20.661],["one",20.989],["neuron",21.252],["computes",21.712],["the",22.735],["rest",22.962],["of",23.247],["a",23.418],["network",23.532],["becomes",23.988],["a",24.443],["matter",24.557],["of",24.956],["putting",25.127],["many",25.582],["of",25.867],["them",26.038],["together",26.323],["so",27.252],["what",27.441],["does",27.757],["a",28.073],["single",28.199],["neuron",28.641],["actually",29.083],["do",29.652]],"s2":[["a",0.0],["neuron",0.123],["receives",0.555],["a",1.109],["list",1.232],["of",1.54],["numbers",1.725],["as",2.218],["its",2.403],["input",2.649],["which",3.081],["is",3.45],["simply",3.635],["a",4.066],["vector",4.19],["and",5.072],["it",5.308],["holds",5.485],["a",5.839],["second",5.957],["list",6.371],["of",6.666],["the",6.843],["same",7.079],["length",7.374],["called",7.788],["its",8.201],["weights",8.437],["think",9.181],["of",9.493],["the",9.65],["weights",9.858],["as",10.275],["the",10.432],["volume",10.64],["knobs",11.005],["on",11.318],["a",11.474],["mixing",11.578],["desk",11.943],["each",12.57],["one",12.888],["decides",13.142],["how",13.651],["loudly",13.905],["its",14.349],["input",14.604],["is",14.985],["heard",15.175],["and",16.0],["a",16.236],["negative",16.354],["weight",16.886],["turns",17.299],["that",17.653],["input",17.948],["into",18.302],["an",18.597],["argument",18.774],["against",19.306],["the",20.111],["neuron",20.369],["multiplies",20.82],["each",21.53],["input",21.853],["by",22.24],["its",22.433],["weight",22.691],["and",23.143],["adds",23.401],["up",23.724],["the",23.917],["results",24.175],["and",25.043],["you",25.222],["already",25.401],["know",25.759],["this",25.982],["by",26.206],["another",26.34],["name",26.698],["because",27.285],["it",27.789],["is",27.977],["the",28.166],["dot",28.418],["product",28.67],["of",29.174],["the",29.363],["weight",29.614],["vector",30.055],["with",30.496],["the",30.811],["input",31.063],["vector",31.44]],"s3":[["to",0.0],["that",0.194],["sum",0.517],["the",0.775],["neuron",1.033],["adds",1.485],["one",1.808],["more",2.067],["number",2.39],["called",3.239],["the",3.676],["bias",3.926],["the",4.636],["bias",4.862],["does",5.144],["not",5.427],["depend",5.653],["on",6.048],["the",6.218],["input",6.444],["at",6.783],["all",6.952],["it",7.693],["works",7.914],["like",8.357],["the",8.726],["height",9.021],["of",9.537],["a",9.759],["bar",9.906],["that",10.201],["the",10.57],["weighted",10.865],["sum",11.529],["has",11.824],["to",12.12],["clear",12.341],["setting",12.983],["how",13.417],["easily",13.634],["the",14.015],["neuron",14.232],["is",14.612],["persuaded",14.775],["before",15.318],["any",15.698],["evidence",15.915],["arrives",16.404],["a",17.117],["large",17.251],["positive",17.654],["bias",18.259],["makes",18.595],["the",18.998],["neuron",19.267],["eager",19.737],["to",20.14],["respond",20.342],["while",21.42],["a",21.808],["large",21.937],["negative",22.325],["one",22.907],["makes",23.166],["it",23.554],["reluctant",23.748],["and",24.936],["together",25.212],["the",25.831],["weights",26.107],["and",26.658],["the",26.933],["bias",27.209],["produce",27.553],["a",28.104],["single",28.242],["number",28.724],["that",29.206],["we",29.55],["call",29.757],["z",30.101]],"s4":[["there",0.0],["is",0.308],["a",0.463],["picture",0.565],["hiding",0.976],["in",1.336],["this",1.49],["formula",1.747],["if",2.431],["the",2.614],["input",2.858],["has",3.223],["two",3.467],["entries",3.71],["every",4.711],["input",5.078],["is",5.445],["a",5.628],["point",5.751],["on",6.118],["the",6.301],["plane",6.546],["and",7.574],["the",7.825],["points",8.077],["where",8.517],["z",8.894],["is",9.02],["exactly",9.209],["zero",9.712],["form",10.026],["a",10.34],["straight",10.466],["line",11.032],["on",11.773],["one",11.991],["side",12.283],["of",12.648],["that",12.867],["line",13.231],["z",13.596],["is",13.742],["positive",13.961],["and",15.196],["on",15.413],["the",15.576],["other",15.793],["side",16.119],["it",16.39],["is",16.553],["negative",16.716],["so",17.749],["the",17.955],["neuron",18.229],["is",18.708],["really",18.914],["asking",19.393],["which",19.873],["side",20.284],["of",20.626],["its",20.832],["line",21.106],["a",21.448],["point",21.585],["falls",21.996],["on",22.407],["the",22.911],["weight",23.135],["vector",23.528],["points",23.921],["across",24.314],["the",24.707],["line",24.931],["toward",25.212],["the",25.605],["positive",25.829],["side",26.334],["and",27.197],["changing",27.418],["the",27.915],["bias",28.136],["slides",28.413],["the",28.799],["line",29.02],["without",29.297],["turning",29.739],["it",30.181]],"s5":[["if",0.0],["the",0.169],["neuron",0.395],["stopped",0.79],["there",1.241],["it",1.92],["would",2.095],["be",2.444],["a",2.618],["linear",2.735],["function",3.142],["and",4.24],["as",4.471],["we",4.643],["will",4.816],["see",5.104],["in",5.334],["a",5.507],["later",5.622],["lesson",5.967],["stacking",6.775],["linear",7.335],["functions",7.77],["never",8.392],["gives",8.765],["you",9.138],["anything",9.387],["more",9.947],["than",10.258],["another",10.569],["linear",11.066],["function",11.501],["so",12.462],["the",12.691],["neuron",12.997],["finishes",13.531],["by",14.219],["bending",14.448],["its",15.059],["output",15.365],["with",15.899],["a",16.281],["fixed",16.434],["function",16.892],["called",17.58],["the",18.114],["activation",18.42],["the",19.336],["most",19.642],["common",20.024],["one",20.559],["today",20.864],["is",21.322],["the",21.552],["rectified",21.857],["linear",22.621],["unit",23.156],["or",23.877],["relu",24.402],["which",25.717],["acts",25.888],["like",26.03],["a",26.173],["hinge",26.229],["it",26.554],["passes",26.747],["positive",27.199],["values",27.781],["through",28.233],["unchanged",28.749],["and",29.395],["replaces",29.653],["every",30.234],["negative",30.622],["value",31.203],["with",31.59],["zero",31.913],["older",32.555],["networks",33.063],["used",33.826],["the",34.249],["sigmoid",34.588],["instead",35.266],["a",36.188],["smooth",36.304],["curve",36.712],["that",37.061],["squeezes",37.352],["any",37.876],["number",38.109],["into",38.517],["the",38.808],["range",39.041],["between",39.39],["zero",39.856],["and",40.147],["one",40.38],["rather",41.207],["like",41.728],["a",42.1],["dimmer",42.249],["switch",42.77],["that",43.291],["never",43.664],["goes",44.11],["fully",44.482],["off",44.929],["or",45.227],["fully",45.45],["on",45.897]],"s6":[["put",0.0],["together",0.25],["a",1.086],["neuron",1.202],["takes",1.607],["a",1.955],["weighted",2.071],["sum",2.592],["shifts",3.171],["it",3.628],["by",3.824],["a",4.02],["bias",4.151],["and",4.846],["bends",5.039],["the",5.329],["result",5.522],["in",6.197],["a",6.358],["language",6.466],["model",6.949],["the",7.758],["feed-forward",8.006],["part",8.813],["of",9.123],["every",9.309],["transformer",9.682],["block",10.427],["contains",10.799],["thousands",11.358],["of",11.978],["these",12.164],["neurons",12.537],["side",13.033],["by",13.344],["side",13.53],["each",14.324],["reading",14.678],["the",15.245],["same",15.529],["token",15.883],["vector",16.308],["with",16.804],["its",17.159],["own",17.442],["weights",17.726],["and",18.293],["each",18.576],["bending",18.931],["its",19.498],["own",19.781],["sum",20.065],["so",20.678],["the",20.881],["multiplications",21.152],["and",22.235],["additions",22.506],["you",23.182],["have",23.453],["just",23.792],["seen",24.13],["run",24.468],["billions",24.739],["of",25.348],["times",25.551],["for",25.957],["every",26.228],["token",26.634],["the",27.04],["model",27.311],["produces",27.717]],"s7":[["so",0.0],["a",0.181],["neuron",0.301],["is",0.723],["a",0.904],["weighted",1.024],["sum",1.567],["plus",1.808],["a",2.109],["bend",2.23],["and",2.942],["on",3.193],["its",3.382],["own",3.633],["it",3.884],["can",4.072],["only",4.323],["divide",4.636],["its",5.076],["inputs",5.327],["with",5.766],["a",6.08],["single",6.205],["straight",6.644],["line",7.209],["in",8.028],["the",8.203],["next",8.436],["lesson",8.727],["we",9.135],["place",9.31],["many",9.66],["neurons",9.951],["side",10.417],["by",10.708],["side",10.883],["to",11.174],["form",11.349],["a",11.641],["layer",11.757],["and",12.649],["that",12.893],["one",13.198],["line",13.442],["becomes",13.747],["something",14.235],["much",14.845],["more",15.15],["flexible",15.455]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0',orange:'#f39c4a',purple:'#b48ef0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,last){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!last)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u,uy){return (x,y)=>[ox+u*x,oy-(uy||u)*y]}
+function drawGrid(svg,P,x0,x1,y0,y1,step){step=step||1;
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1+1e-9;x+=step){const a=P(x,y0),b=P(x,y1);const ax=Math.abs(x)<1e-9;svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:ax?C.axis:C.grid,'stroke-width':ax?3:1.6,opacity:ax?.9:.55},g)}
+  for(let y=y0;y<=y1+1e-9;y+=step){const a=P(x0,y),b=P(x1,y);const ax=Math.abs(y)<1e-9;svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:ax?C.axis:C.grid,'stroke-width':ax?3:1.6,opacity:ax?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ---- extra helpers for module 6 and 8 lessons ---- */
+/* a hidden SVG line or path, drawn on by animating its dash */
+function ln(svg,x1,y1,x2,y2,color,w,extra){return svgEl('line',Object.assign({x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+function pth(svg,d,color,w,extra){return svgEl('path',Object.assign({d,fill:'none',stroke:color,'stroke-width':w||5,'stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+function plen(e){if(e.tagName==='line'){const a=+e.getAttribute('x1'),b=+e.getAttribute('y1'),c=+e.getAttribute('x2'),d=+e.getAttribute('y2');return Math.hypot(c-a,d-b)}return e.getTotalLength()}
+function drawOn(e,time,d,ease){const L=plen(e)+2;tl.set(e,{attr:{'stroke-dasharray':`${L} ${L}`,'stroke-dashoffset':L}},0);
+  tl.to(e,{autoAlpha:1,duration:.15},time);tl.to(e,{attr:{'stroke-dashoffset':0},duration:d||1,ease:ease||'power1.inOut'},time)}
+/* sample y=f(x) on [x0,x1] into an SVG path through plane P */
+function fpath(f,P,x0,x1,n){n=n||160;let s='';for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n;const [px,py]=P(x,f(x));s+=(i?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)}return s}
+/* morph a path between two functions by tweening a mix parameter */
+function morphF(path,P,fa,fb,x0,x1,time,d,ease){const o={m:0};tl.to(o,{m:1,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>path.setAttribute('d',fpath(x=>fa(x)*(1-o.m)+fb(x)*o.m,P,x0,x1))},time)}
+/* circular node with a label */
+function node(parent,x,y,r,html,color,fs){const n=el(parent,'node',html,{left:(x-r)+'px',top:(y-r)+'px',width:2*r+'px',height:2*r+'px',borderColor:color||C.ink,fontSize:(fs||Math.round(r*.7))+'px',color:C.ink});n.cx=x;n.cy=y;n.r=r;return n}
+/* rounded box with a label */
+function boxEl(parent,x,y,w,h,html,color,fs){const b=el(parent,'box',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.ink,fontSize:(fs||40)+'px'});b.cx=x;b.cy=y;b.w=w;b.h=h;return b}
+/* edge between two circle nodes (stops at their rims) */
+function edge(svg,a,b,color,w,arrow){const dx=b.cx-a.cx,dy=b.cy-a.cy,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;const ra=a.r||a.w/2,rb=b.r||b.w/2;
+  return ln(svg,a.cx+ux*ra,a.cy+uy*ra,b.cx-ux*(rb+(arrow?6:0)),b.cy-uy*(rb+(arrow?6:0)),color||C.dim,w||3)}
+/* count a number shown in an element from a to b */
+function countTo(e,time,d,a,b,dp){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.textContent=fmt(o.v,dp)}},time)}
+function nextCap(S,sid,word,n,txt){const c=el(S,'cap','next &nbsp;·&nbsp; '+txt,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(c,cue(sid,word,n),.7);return c}
+
+/* clip a polygon (data coords) to the half-plane w.p + b >= 0 */
+function clipHalf(poly,w,b){const out=[];const f=p=>w[0]*p[0]+w[1]*p[1]+b;
+  for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length],fp=f(p),fq=f(q);
+    if(fp>=0)out.push(p);if((fp>=0)!==(fq>=0)){const t=fp/(fp-fq);out.push([p[0]+t*(q[0]-p[0]),p[1]+t*(q[1]-p[1])])}}
+  return out}
+const polyStr=(P,poly)=>poly.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ');
+
+/* ============ S1: a model is made of neurons ============ */
+(function(){const S=$('S1');const sid='s1';
+  const svg=layerSvg(S);const rnd=seedRand(7);
+  const cols=9,rows=7,x0=360,dx=150,y0=200,dy=110;const pts=[];
+  for(let c=0;c<cols;c++)for(let r=0;r<rows;r++)pts.push([x0+c*dx,y0+r*dy,c,r]);
+  const eg=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  pts.forEach(([x,y,c])=>{if(c<cols-1)for(let k=0;k<2;k++){const r2=Math.floor(rnd()*rows);svgEl('line',{x1:x,y1:y,x2:x+dx,y2:y0+r2*dy,stroke:rnd()<.5?C.blue:C.red,'stroke-width':1.4,opacity:.35},eg)}});
+  const dots=pts.map(([x,y])=>svgEl('circle',{cx:x,cy:y,r:16,fill:'#10151c',stroke:C.blue,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg));
+  tl.to(dots,{autoAlpha:1,duration:.25,stagger:.03},cue(sid,'billions'));
+  fadeIn(eg,cue(sid,'billions')+.6,1);
+  const pick=dots[3*rows+3];
+  const ring=svgEl('circle',{cx:pts[3*rows+3][0],cy:pts[3*rows+3][1],r:30,fill:'none',stroke:C.yellow,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(ring,cue(sid,'neuron'),.4);
+  const nlab=el(S,'lbl','a neuron',{color:C.yellow,fontSize:'44px',fontStyle:'italic'});place(nlab,pts[3*rows+3][0],pts[3*rows+3][1]-62);
+  nlab.setAttribute('data-layout-allow-overlap','');
+  show(nlab,cue(sid,'neuron'),.5);
+  // everything else dims, the chosen neuron comes forward
+  fadeOut([eg,ring,nlab],cue(sid,'arithmetic')-.2,.6);
+  tl.to(dots.filter(d=>d!==pick),{autoAlpha:0,duration:.8,stagger:.004},cue(sid,'arithmetic')-.2);
+  const big=node(S,960,500,130,tex('?',90),C.yellow);
+  tl.to(pick,{autoAlpha:0,duration:.4},cue(sid,'understand'));
+  tl.fromTo(big,{autoAlpha:0,scale:.15},{autoAlpha:1,scale:1,duration:1,ease:'power2.out',immediateRender:false},cue(sid,'understand'));
+  const q=el(S,'cap','what does <em>one neuron</em> compute?',{top:'800px',fontStyle:'italic',fontSize:'60px'});
+  show(q,cue(sid,'so',1),.8);
+  sceneInOut(sid);
+})();
+
+/* ============ shared diagram for s2: inputs, weights, one neuron ============ */
+const XV=[0.8,0.3,0.5],WV=[1.5,-2.0,0.7];
+
+/* ============ S2: weighted sum ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);
+  const xc=colvec(S,280,540,XV.map(v=>fmt(v)),{fs:60,w:150,color:C.blue});
+  const xl=el(S,'lbl',tex('\\mathbf{x}',60),{color:C.blue});place(xl,280,330);
+  const wc=colvec(S,520,540,WV.map(v=>fmt(v)),{fs:60,w:170,color:C.pink});
+  WV.forEach((v,i)=>{wc.cells[i].style.color=v>0?C.blue:C.red});
+  const wlab=el(S,'lbl',tex('\\mathbf{w}',60),{color:C.pink});place(wlab,520,330);
+  const N=node(S,1290,540,120,'',C.ink,58);
+  const ys=[0,1,2].map(i=>xc.cy-xc.H/2+xc.pad+i*xc.rowH+xc.rowH/2);
+  const E=[],pl=[];
+  ys.forEach((y,i)=>{const x1=625,y1=y,dx=N.cx-x1,dy=N.cy-y1,L=Math.hypot(dx,dy),x2=N.cx-dx/L*N.r,y2=N.cy-dy/L*N.r;
+    const col=WV[i]>0?C.blue:C.red;
+    E.push(ln(svg,x1,y1,x2,y2,col,3+3*Math.abs(WV[i])));
+    const p=el(S,'lbl',`<span class="mono" style="font-size:40px">${i===1?'('+fmt(WV[i]*XV[i],2)+')':fmt(WV[i]*XV[i],2)}</span>`,{color:C.yellow});place(p,720+i*260,800);pl.push(p);
+    p.setAttribute('data-layout-allow-overlap','')});
+  const wl=[wlab,wc.box];
+  show([xl,xc.box],cue(sid,'input'),.6);
+  E.forEach((e,i)=>drawOn(e,cue(sid,'weights')-.6+i*.15,.8));
+  show(N,cue(sid,'neuron'),.6);
+  show(wl,cue(sid,'weights'),.5,{stagger:.15});
+  const knob=el(S,'lbl','edge thickness = how loudly each input is heard',{color:C.dim,fontSize:'34px',fontStyle:'italic'});place(knob,960,200);
+  show(knob,cue(sid,'knobs'),.5);fadeOut(knob,cue(sid,'negative')-.3,.4);
+  // volume knobs: each edge pulses in turn
+  E.forEach((e,i)=>{tl.to(e,{attr:{'stroke-width':3+6*Math.abs(WV[i])},duration:.35,yoyo:true,repeat:1},cue(sid,'loudly')+i*.35)});
+  const negBox=el(S,'abs','<span style="font-size:36px;font-style:italic">negative: an argument against</span>',{left:'560px',top:'180px',width:'800px',textAlign:'center',color:C.red,opacity:0,visibility:'hidden'});
+  show(negBox,cue(sid,'negative'),.5);fadeOut(negBox,cue(sid,'multiplies')-.2,.4);
+  tl.to(E[1],{attr:{'stroke-width':14},duration:.4,yoyo:true,repeat:3},cue(sid,'negative'));
+  show(pl,cue(sid,'multiplies'),.5,{stagger:.25});
+  const sum=el(S,'abs mono','0.95',{left:'0px',top:'0px',fontSize:'58px',color:C.yellow,opacity:0,visibility:'hidden'});place(sum,N.cx,N.cy);
+  const plus=[sym(S,'+',850,800,44),sym(S,'+',1110,800,44),sym(S,'=',1370,800,44)];show(plus,cue(sid,'adds'),.4);
+  const tot=el(S,'lbl','<span class="mono" style="font-size:40px">0.95</span>',{color:C.yellow});place(tot,1480,800);show(tot,cue(sid,'adds')+.3,.4);
+  show(sum,cue(sid,'adds'),.6);
+  const sig=el(S,'lbl',tex('\\textstyle\\sum',60),{color:C.dim});place(sig,N.cx,N.cy-N.r-48);fadeIn(sig,cue(sid,'adds'),.5);
+  const dot=el(S,'cap',tex('\\mathbf{w}\\cdot\\mathbf{x}\\;=\\;w_1x_1+w_2x_2+w_3x_3',60),{top:'900px'});
+  show(dot,cue(sid,'dot'),.8);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: the bias as a bar to clear ============ */
+(function(){const S=$('S3');const sid='s3';
+  const svg=layerSvg(S);
+  const eq=el(S,'cap',tex('z \\;=\\; \\mathbf{w}\\cdot\\mathbf{x} \\;+\\; {\\color{#f5cf4a}b}',72),{top:'170px'});
+  show(eq,cue(sid,'bias'),.7);
+  // number line for the weighted sum
+  const NL=plane(960,640,220);
+  const axis=ln(svg,NL(-3.4,0)[0],640,NL(3.4,0)[0],640,C.axis,3);drawOn(axis,at(sid,.01),.8);
+  const ticks=[];for(let v=-3;v<=3;v++){ticks.push(ln(svg,NL(v,0)[0],628,NL(v,0)[0],652,C.axis,2));const t=el(S,'lbl',`<span class="mono" style="font-size:30px">${fmt(v,0)}</span>`,{color:C.dim});place(t,NL(v,0)[0],690);ticks.push(t)}
+  fadeIn(ticks,at(sid,.02),.6);
+  const sumDot=svgEl('circle',{cx:NL(.95,0)[0],cy:640,r:16,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);
+  const sumLab=el(S,'lbl',tex('\\mathbf{w}\\cdot\\mathbf{x}=0.95',44),{color:C.yellow});place(sumLab,NL(.95,0)[0],745);
+  show([sumLab],cue(sid,'sum'),.5);fadeIn(sumDot,cue(sid,'sum'),.4);
+  // the bar sits at -b: the weighted sum has to clear it
+  const bar=svgEl('rect',{x:0,y:430,width:14,height:220,rx:5,fill:C.pink,style:'opacity:0;visibility:hidden'},svg);
+  const barLab=el(S,'lbl','',{color:C.pink,fontSize:'36px'});barLab.setAttribute('data-layout-allow-overlap','');
+  const zLab=el(S,'abs mono','',{left:'760px',top:'800px',width:'400px',textAlign:'center',fontSize:'52px',opacity:0,visibility:'hidden'});
+  const pass=el(S,'abs','',{left:'560px',top:'890px',width:'800px',textAlign:'center',fontSize:'40px',fontStyle:'italic',opacity:0,visibility:'hidden'});
+  const st={b:0};
+  const apply=()=>{const b=st.b,x=NL(-b,0)[0];bar.setAttribute('x',x-7);gsap.set(barLab,{x:x,y:400,xPercent:-50,yPercent:-50});
+    barLab.innerHTML=`bar at −b &nbsp;<span class="mono">(b = ${fmt(b)})</span>`;const z=Math.round((.95+b)*100)/100;
+    zLab.innerHTML=`z = <span style="color:${z>0?C.green:C.red}">${fmt(z,2)}</span>`;
+    sumDot.setAttribute('fill',z>0?C.green:C.red);
+    pass.innerHTML=z>0?'clears the bar: z is positive':'falls short: z is negative';pass.style.color=z>0?C.green:C.red};
+  apply();
+  fadeIn([bar,barLab],cue(sid,'bar'),.5);fadeIn([zLab],cue(sid,'clear'),.5);fadeIn(pass,cue(sid,'clear'),.5);
+  const mv=(t,b,d)=>tl.to(st,{b,duration:d||1.2,ease:'power2.inOut',immediateRender:false,onUpdate:apply},t);
+  mv(cue(sid,'positive'),1.2);mv(cue(sid,'negative'),-1.5);mv(cue(sid,'together'),-.5);
+  const zcap=el(S,'lbl','one number, z',{color:C.ink,fontSize:'40px',fontStyle:'italic'});place(zcap,1500,800);show(zcap,cue(sid,'z'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: the neuron's line ============ */
+(function(){const S=$('S4');const sid='s4';
+  const P=plane(960,580,80);const svg=layerSvg(S);
+  const g=drawGrid(svg,P,-8,8,-5,5);g.setAttribute('style','opacity:0;visibility:hidden');fadeIn(g,at(sid,.01),.8);
+  const W=[1,1.5];const st={b:0};
+  const box=[[-8,-5],[8,-5],[8,5],[-8,5]];
+  const pos=svgEl('polygon',{fill:C.green,'fill-opacity':.16,style:'opacity:0;visibility:hidden'},svg);
+  const negp=svgEl('polygon',{fill:C.red,'fill-opacity':.16,style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:C.yellow,'stroke-width':6,style:'opacity:0;visibility:hidden'},svg);
+  const rnd=seedRand(21);const pts=[];for(let i=0;i<46;i++){const x=rnd()*15-7.5,y=rnd()*9-4.5;pts.push([x,y,svgEl('circle',{cx:P(x,y)[0],cy:P(x,y)[1],r:11,fill:C.ink,style:'opacity:0;visibility:hidden'},svg)])}
+  const wa=mkArrow(svg,P,C.blue,8,tex('\\mathbf{w}',54),40,-30,S);
+  const lab0=el(S,'lbl',tex('z=0',46),{color:C.yellow,background:'#0e1116dd',padding:'2px 10px',borderRadius:'8px'});
+  const plab=el(S,'lbl','z > 0',{color:C.green,fontSize:'48px'});place(plab,P(5.2,3.6)[0],P(5.2,3.6)[1]);
+  const nlab=el(S,'lbl','z < 0',{color:C.red,fontSize:'48px'});place(nlab,P(-5.4,-3.6)[0],P(-5.4,-3.6)[1]);
+  [plab,nlab].forEach(e=>{e.style.background='#0e1116cc';e.style.padding='4px 14px';e.style.borderRadius='10px'});
+  let colored=0;const cst={c:0};
+  const apply=()=>{const b=st.b;const n=Math.hypot(W[0],W[1]);const fx=-b*W[0]/(n*n),fy=-b*W[1]/(n*n);
+    const d=[-W[1]/n,W[0]/n];let t0=-99,t1=99;[[0,-8,8],[1,-5,5]].forEach(([k,lo,hi])=>{const f0=k?fy:fx;if(Math.abs(d[k])>1e-9){let ta=(lo-f0)/d[k],tb=(hi-f0)/d[k];if(ta>tb)[ta,tb]=[tb,ta];t0=Math.max(t0,ta);t1=Math.min(t1,tb)}});const a=P(fx+t0*d[0],fy+t0*d[1]),c=P(fx+t1*d[0],fy+t1*d[1]);
+    line.setAttribute('x1',a[0]);line.setAttribute('y1',a[1]);line.setAttribute('x2',c[0]);line.setAttribute('y2',c[1]);
+    pos.setAttribute('points',polyStr(P,clipHalf(box,W,b)));negp.setAttribute('points',polyStr(P,clipHalf(box,[-W[0],-W[1]],-b)));
+    pts.forEach(([x,y,e])=>{const z=W[0]*x+W[1]*y+b;e.setAttribute('fill',cst.c<.5?C.ink:(z>0?C.green:C.red))});
+    const lp=P(fx-4.2*d[0],fy-4.2*d[1]);gsap.set(lab0,{x:lp[0]+46,y:lp[1]-10,xPercent:-50,yPercent:-50});
+    geom(wa,fx,fy,fx+W[0]*1.6,fy+W[1]*1.6);wa.st={x0:fx,y0:fy,x1:fx+W[0]*1.6,y1:fy+W[1]*1.6}};
+  apply();
+  tl.to(pts.map(p=>p[2]),{autoAlpha:1,duration:.2,stagger:.03},cue(sid,'point'));
+  fadeIn(line,cue(sid,'straight'),.6);fadeIn(lab0,cue(sid,'straight'),.6);
+  fadeIn(pos,cue(sid,'positive'),.6);fadeIn(plab,cue(sid,'positive'),.5);
+  fadeIn(negp,cue(sid,'negative'),.6);fadeIn(nlab,cue(sid,'negative'),.5);
+  tl.to(cst,{c:1,duration:.6,immediateRender:false,onUpdate:apply},cue(sid,'asking'));
+  showArrow(wa,cue(sid,'weight'),.5);
+  const mv=(t,b,d)=>tl.to(st,{b,duration:d||1.4,ease:'power2.inOut',immediateRender:false,onUpdate:apply},t);
+  mv(cue(sid,'slides'),-3,1.2);mv(cue(sid,'turning'),2.5,1.4);
+  const bl=el(S,'abs','',{left:'1450px',top:'110px',width:'420px',textAlign:'center',fontSize:'40px',fontStyle:'italic',color:C.ink,background:'#0e1116dd',padding:'8px',borderRadius:'12px',opacity:0,visibility:'hidden'});
+  bl.innerHTML='bias slides the line';
+  show(bl,cue(sid,'changing'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: the bend ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);
+  const PA=plane(520,600,80);const PB=plane(1420,760,95,330);
+  const ga=drawGrid(svg,PA,-4,4,-4,4);ga.setAttribute('style','opacity:0;visibility:hidden');fadeIn(ga,at(sid,.01),.7);
+  const lin=x=>x,relu=x=>Math.max(0,x),sig=x=>1/(1+Math.exp(-x));
+  const fa=pth(svg,fpath(lin,PA,-4,4),C.blue,7);fadeIn(fa,at(sid,.03),.6);
+  const ta=el(S,'lbl',tex('a = z',50),{color:C.blue});place(ta,520,170);show(ta,at(sid,.03),.5);
+  const tb=el(S,'lbl',tex('a=\\max(0,\\,z)',50),{color:C.blue});place(tb,520,170);
+  const za=el(S,'lbl',tex('z',40),{color:C.dim});place(za,PA(4,0)[0]+30,PA(4,0)[1]+30);fadeIn(za,at(sid,.03),.5);
+  const linNote=el(S,'abs','',{left:'1080px',top:'300px',width:'700px',fontSize:'44px',fontStyle:'italic',lineHeight:'1.35',opacity:0,visibility:'hidden'});
+  linNote.innerHTML='linear on linear<br>is still linear';
+  show(linNote,cue(sid,'stacking'),.6);fadeOut(linNote,cue(sid,'activation')-.3,.4);
+  morphF(fa,PA,lin,relu,-4,4,cue(sid,'bending'),1.4);
+  fadeOut(ta,cue(sid,'bending'),.4);show(tb,cue(sid,'bending')+.4,.5);
+  const nm=el(S,'lbl','ReLU: a hinge',{color:C.ink,fontSize:'42px',fontStyle:'italic'});place(nm,1000,300);show(nm,cue(sid,'relu'),.5);fadeOut(nm,cue(sid,'older'),.4);
+  // a point travels along z; its output follows the hinge
+  const st={z:3};const dot=svgEl('circle',{r:13,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);
+  const ap=()=>{const p=PA(st.z,relu(st.z));dot.setAttribute('cx',p[0]);dot.setAttribute('cy',p[1])};ap();
+  fadeIn(dot,cue(sid,'passes'),.3);
+  tl.to(st,{z:-3.5,duration:2.6,ease:'power1.inOut',immediateRender:false,onUpdate:ap},cue(sid,'positive'));
+  fadeOut(dot,cue(sid,'zero')+.6,.4);
+  // sigmoid on the right
+  const gb=drawGrid(svg,PB,-4,4,0,1);gb.setAttribute('style','opacity:0;visibility:hidden');
+  fadeIn(gb,cue(sid,'older'),.6);
+  const fb=pth(svg,fpath(sig,PB,-4,4),C.yellow,7);drawOn(fb,cue(sid,'sigmoid'),1.2);
+  const tc=el(S,'lbl',tex('\\sigma(z)=\\frac{1}{1+e^{-z}}',50),{color:C.yellow});place(tc,1420,250);show(tc,cue(sid,'sigmoid'),.6);
+  const one=el(S,'lbl','<span class="mono" style="font-size:30px">1</span>',{color:C.dim});place(one,PB(-4,1)[0]-30,PB(0,1)[1]);
+  const zero=el(S,'lbl','<span class="mono" style="font-size:30px">0</span>',{color:C.dim});place(zero,PB(-4,0)[0]-30,PB(0,0)[1]);
+  fadeIn([one,zero],cue(sid,'range'),.5);
+  const dim=el(S,'lbl','a dimmer switch',{color:C.ink,fontSize:'40px',fontStyle:'italic'});place(dim,1420,880);show(dim,cue(sid,'dimmer'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: the whole neuron, then many of them ============ */
+(function(){const S=$('S6');const sid='s6';
+  const svg=layerSvg(S);
+  const y=420;
+  const xin=colvec(S,250,y,['x₁','x₂','x₃'],{fs:44,w:110,color:C.blue});
+  const b1=boxEl(S,620,y,240,120,tex('\\mathbf{w}\\cdot\\mathbf{x}',50),C.blue);
+  const b2=boxEl(S,960,y,200,120,tex('+\\,b',50),C.pink);
+  const b3=boxEl(S,1300,y,220,120,'',C.yellow);
+  const bs=svgEl('svg',{width:160,height:90,viewBox:'0 0 160 90',style:'position:absolute;left:30px;top:15px'},b3);
+  svgEl('path',{d:'M10 75 L80 75 L150 10',fill:'none',stroke:C.yellow,'stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round'},bs);
+  const out=node(S,1650,y,64,tex('a',50),C.green);
+  const ar=[[310,y,500,y],[740,y,860,y],[1060,y,1190,y],[1410,y,1586,y]].map(([a,b,c,d])=>ln(svg,a,b,c,d,C.dim,4));
+  const words=[['weighted sum',620,cue(sid,'weighted')],['bias',960,cue(sid,'bias')],['bend',1300,cue(sid,'bends')]].map(([t,x,f])=>{const e=el(S,'lbl',t,{color:C.ink,fontSize:'38px',fontStyle:'italic'});place(e,x,y+110);show(e,f,.4);return e});
+  show(xin.box,at(sid,0),.5);
+  show(b1,cue(sid,'weighted'),.5);drawOn(ar[0],cue(sid,'weighted'),.4);
+  show(b2,cue(sid,'bias'),.5);drawOn(ar[1],cue(sid,'shifts'),.4);
+  show(b3,cue(sid,'bends'),.5);drawOn(ar[2],cue(sid,'bends'),.4);
+  show(out,cue(sid,'result'),.5);drawOn(ar[3],cue(sid,'result'),.4);
+  const top=[xin.box,b1,b2,b3,out,...words];
+  tl.to(top,{y:-200,scale:.7,duration:1,ease:'power2.inOut'},cue(sid,'language'));
+  tl.to(ar,{autoAlpha:0,duration:.5},cue(sid,'language'));
+  tl.to(top,{autoAlpha:0,duration:.6},cue(sid,'feed-forward'));
+  // a feed-forward layer: one token vector, many neurons
+  const tok=colvec(S,420,600,['0.2','−1.1','0.7','⋮','0.4'],{fs:40,w:120,color:C.blue});
+  const tlab=el(S,'lbl','one token vector',{color:C.blue,fontSize:'36px',fontStyle:'italic'});place(tlab,420,410);
+  const L=[];const n=14;for(let i=0;i<n;i++)L.push(node(S,1100,250+i*50,18,'',C.yellow));
+  const eg=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const rnd=seedRand(3);
+  L.forEach(nd=>{for(let k=0;k<5;k++)svgEl('line',{x1:490,y1:600-110+k*55,x2:nd.cx-18,y2:nd.cy,stroke:rnd()<.5?C.blue:C.red,'stroke-width':1.2,opacity:.45},eg)});
+  show([tok.box,tlab],cue(sid,'transformer'),.6);
+  fadeIn(L,cue(sid,'thousands'),.3,.06);fadeIn(eg,cue(sid,'thousands')+.3,.8);
+  const fl=el(S,'abs','',{left:'1240px',top:'480px',width:'560px',fontSize:'42px',fontStyle:'italic',lineHeight:'1.35',opacity:0,visibility:'hidden'});
+  fl.innerHTML='thousands of neurons,<br>same input,<br>each with its own weights';
+  show(fl,cue(sid,'same'),.6);
+  const bil=el(S,'abs','',{left:'1240px',top:'760px',width:'560px',fontSize:'34px',fontStyle:'italic',color:C.dim,opacity:0,visibility:'hidden'});
+  bil.innerHTML='billions of multiply-adds per token';
+  show(bil,cue(sid,'billions'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: recap ============ */
+(function(){const S=$('S7');const sid='s7';
+  const f=el(S,'cap',tex('a \\;=\\; {\\color{#f5cf4a}f}\\big(\\,{\\color{#58c4dd}\\mathbf{w}\\cdot\\mathbf{x}}\\;+\\;{\\color{#e77fb3}b}\\,\\big)',96),{top:'300px'});
+  show(f,at(sid,.01),.8);
+  const l1=el(S,'lbl','weighted sum',{color:C.blue,fontSize:'40px',fontStyle:'italic'});place(l1,1000,520);
+  const l2=el(S,'lbl','bias',{color:C.pink,fontSize:'40px',fontStyle:'italic'});place(l2,1290,520);
+  const l3=el(S,'lbl','bend',{color:C.yellow,fontSize:'40px',fontStyle:'italic'});place(l3,700,520);
+  show(l1,cue(sid,'weighted'),.5);show(l3,cue(sid,'bend'),.5);show(l2,cue(sid,'bend')+.3,.5);
+  const one=el(S,'cap','alone: one straight line &nbsp;→&nbsp; together: a layer',{top:'680px',fontSize:'46px',fontStyle:'italic',color:C.ink});
+  show(one,cue(sid,'line'),.6);
+  nextCap(S,sid,'next',1,'6.2 &nbsp;layers: stacking transformations');
+  sceneInOut(sid,true);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
