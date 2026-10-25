@@ -1,0 +1,134 @@
+{
+  "id": "5.1-linear-regression",
+  "module": 5,
+  "title": "Linear regression as projection",
+  "summary": "Least squares picks the line whose squared residuals add up to the least. Seen as vectors, every possible prediction lies on a plane spanned by the feature columns, and the best prediction is the perpendicular shadow of the target vector on that plane, which gives the normal equations.",
+  "video": "videos/5.1-linear-regression.mp4",
+  "llm_link": "Researchers test whether a language model's hidden vectors encode a property (a date, a location, whether a statement is true) by fitting a linear model on those vectors, a linear probe. If a projection predicts the property well, the information is laid out linearly inside the model.",
+  "key_ideas": [
+    "A line predicts ŷ = w·x + b; a residual is actual minus predicted. Least squares minimises Σ residual².",
+    "Stack the targets into one vector y. Every prediction Xw is a combination of the columns of X (the feature column and a column of ones), so all predictions lie in the span of those columns.",
+    "The best prediction ŷ is the projection of y onto that span: the residual y − ŷ is perpendicular to every column.",
+    "Perpendicular means Xᵀ(y − Xw) = 0, which rearranges to the normal equations XᵀX w = Xᵀy.",
+    "In code, prefer np.linalg.lstsq (or solve) over inverting XᵀX; check that Xᵀr ≈ 0 and, with an intercept, Σr ≈ 0."
+  ],
+  "quiz": [
+    {
+      "q": "A house has actual price 50 and the line predicts 44. What is its residual?",
+      "options": [
+        "−6",
+        "6",
+        "36",
+        "94"
+      ],
+      "answer": 1,
+      "explain": "Residual = actual − predicted = 50 − 44 = 6. Least squares then squares it (36) before adding it to the total."
+    },
+    {
+      "q": "Predict the result: you fit least squares to the points (0, 1), (1, 3), (2, 5). What is the sum of squared residuals of the best line?",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "It depends on the starting guess"
+      ],
+      "answer": 0,
+      "explain": "The three points lie exactly on y = 2x + 1, so y is already inside the plane of possible predictions. Its projection is itself and every residual is 0. Least squares has no starting guess: the answer is unique."
+    },
+    {
+      "q": "In the vector picture, why is the residual vector perpendicular to the plane of predictions at the best fit?",
+      "options": [
+        "Because squared numbers are always positive",
+        "Because the closest point on a plane to y is where the connecting arrow meets the plane at a right angle",
+        "Because the column of ones forces it",
+        "It is only perpendicular when the data has no noise"
+      ],
+      "answer": 1,
+      "explain": "Any other point on the plane is further from y (Pythagoras: the extra sideways distance adds to the squared length). Shortest residual = perpendicular residual = least squares."
+    },
+    {
+      "q": "Why does the design matrix X get a column of ones?",
+      "options": [
+        "To make XᵀX square",
+        "So the model can learn an intercept b: w·x + b·1",
+        "To normalise the features",
+        "So the residuals are positive"
+      ],
+      "answer": 1,
+      "explain": "Each prediction is w·(area) + b·1. Without the ones column the line is forced through the origin. A side effect: because the residual is perpendicular to the ones column, the residuals sum to zero."
+    },
+    {
+      "q": "A researcher fits a linear model from a language model's hidden vectors to the year each sentence mentions, and it predicts well on held-out sentences. What does this suggest?",
+      "options": [
+        "The model memorised the test set",
+        "Information about the year is encoded roughly linearly in the hidden vectors",
+        "The model was trained with linear regression",
+        "Hidden vectors are lists of years"
+      ],
+      "answer": 1,
+      "explain": "This is a linear probe: a projection of the hidden vector recovers the year, so the information is laid out along a direction the probe can find. It says nothing about how the model itself was trained."
+    }
+  ],
+  "problems": [
+    {
+      "id": "fit_line",
+      "title": "The best line, from sums",
+      "prompt": "<p>For one feature, least squares has a closed form. With means x̄ and ȳ:</p><pre>w = Σ (xᵢ − x̄)(yᵢ − ȳ)  /  Σ (xᵢ − x̄)²\nb = ȳ − w·x̄</pre><p>Write <code>fit_line(xs, ys)</code> with plain Python lists that returns the tuple <code>(w, b)</code>. Each Σ runs over the pairs (xᵢ, yᵢ) together, which is exactly what <code>zip</code> gives you.</p><p>If every x is the same, no line can be fitted (the denominator is 0): raise a <code>ValueError</code>.</p><pre>fit_line([0, 1, 2], [1, 3, 5])   # (2.0, 1.0)</pre>",
+      "starter": "def fit_line(xs, ys):\n    n = len(xs)\n    x_bar = sum(xs) / n\n    y_bar = sum(ys) / n\n    # TODO 1: numerator = sum of (x - x_bar) * (y - y_bar) over the PAIRS (x, y)\n    num = 0\n    # TODO 2: denominator = sum of (x - x_bar) ** 2\n    den = 0\n    # TODO 3: if den is 0, raise ValueError(\"all x values are equal\")\n    w = 0\n    b = 0\n    return w, b\n",
+      "tests": [
+        {
+          "name": "exact line",
+          "code": "w, b = fit_line([0, 1, 2], [1, 3, 5])\nassert abs(w - 2) < 1e-9 and abs(b - 1) < 1e-9, f'points on y = 2x + 1 should give (2, 1), got ({w}, {b})'"
+        },
+        {
+          "name": "noisy data",
+          "code": "w, b = fit_line([1, 2, 3, 4], [2, 3, 5, 6])\nassert abs(w - 1.4) < 1e-9, f'slope should be 1.4, got {w}. Check that the numerator pairs x_i with its own y_i (zip), not every x with every y'\nassert abs(b - 0.5) < 1e-9, f'intercept should be 0.5 = y_bar - w * x_bar, got {b}'"
+        },
+        {
+          "name": "residuals sum to zero",
+          "code": "xs=[1.2,2.0,2.9,3.8,4.6]; ys=[2.6,2.1,4.2,3.3,5.0]\nw, b = fit_line(xs, ys)\nr = [y - (w*x + b) for x, y in zip(xs, ys)]\nassert abs(sum(r)) < 1e-9, f'with an intercept the residuals must add to 0 (they are perpendicular to the ones column); they add to {sum(r):.4f}'\nassert w != 0, 'w is still 0: compute it from num / den'"
+        },
+        {
+          "name": "vertical data is rejected",
+          "code": "try:\n    fit_line([3, 3, 3], [1, 2, 3])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('all x equal means den == 0; raise ValueError(...) instead of dividing by zero')"
+        }
+      ],
+      "hints": [
+        "num = sum((x - x_bar) * (y - y_bar) for x, y in zip(xs, ys)). A nested loop would pair every x with every y, which is a different (wrong) sum.",
+        "den = sum((x - x_bar) ** 2 for x in xs). Then: if den == 0: raise ValueError(\"all x values are equal\")",
+        "w = num / den and b = y_bar - w * x_bar."
+      ],
+      "solution": "def fit_line(xs, ys):\n    n = len(xs)\n    x_bar = sum(xs) / n\n    y_bar = sum(ys) / n\n    num = sum((x - x_bar) * (y - y_bar) for x, y in zip(xs, ys))\n    den = sum((x - x_bar) ** 2 for x in xs)\n    if den == 0:\n        raise ValueError(\"all x values are equal\")\n    w = num / den\n    b = y_bar - w * x_bar\n    return w, b\n"
+    },
+    {
+      "id": "normal",
+      "title": "Normal equations in NumPy",
+      "prompt": "<p>Now with matrices. <code>X</code> has one row per example and one column per feature, already including a column of ones. Write <code>fit_normal(X, y)</code> that returns the weight vector <code>w</code> solving the normal equations</p><pre>Xᵀ X w = Xᵀ y</pre><p>Use <code>np.linalg.solve(A, c)</code>, which solves <code>A w = c</code> without forming an inverse. Then write <code>project(X, y)</code> that returns the prediction vector ŷ = X w, the shadow of y on the column space.</p><p>The starter makes some synthetic data so you can experiment: 50 houses whose price is roughly 3 × area + 2.</p>",
+      "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\narea = rng.uniform(1, 10, size=50)\nprice = 3 * area + 2 + rng.normal(0, 1, size=50)\nX_demo = np.column_stack([area, np.ones(50)])   # shape (50, 2)\n\ndef fit_normal(X, y):\n    # TODO: build A = X^T X and c = X^T y, then solve A w = c\n    pass\n\ndef project(X, y):\n    # TODO: return X @ w, where w comes from fit_normal\n    pass\n\n# try it: print(fit_normal(X_demo, price))   # close to [3, 2]\n",
+      "tests": [
+        {
+          "name": "recovers slope and intercept",
+          "code": "w = fit_normal(X_demo, price)\nassert w is not None, 'fit_normal returned None'\nassert np.shape(w) == (2,), f'expected one weight per column, shape (2,), got {np.shape(w)}'\nassert abs(w[0] - 3) < 0.2 and abs(w[1] - 2) < 0.6, f'expected roughly [3, 2] for this data, got {w}'"
+        },
+        {
+          "name": "matches lstsq",
+          "code": "r2 = np.random.default_rng(1)\nX = np.column_stack([r2.normal(size=30), r2.normal(size=30), np.ones(30)])\ny = r2.normal(size=30)\nw = fit_normal(X, y)\nref = np.linalg.lstsq(X, y, rcond=None)[0]\nassert np.allclose(w, ref), f'should match np.linalg.lstsq: {ref}, got {w}. Did you use X.T @ X (shape (3, 3)) and X.T @ y?'"
+        },
+        {
+          "name": "residual is perpendicular to every column",
+          "code": "yh = project(X_demo, price)\nassert yh is not None and np.shape(yh) == (50,), f'project should return one prediction per example, shape (50,), got {np.shape(yh)}'\nr = price - yh\nassert np.allclose(X_demo.T @ r, 0, atol=1e-8), f'X.T @ (y - y_hat) should be ~0, got {X_demo.T @ r}'"
+        },
+        {
+          "name": "projecting twice changes nothing",
+          "code": "yh = project(X_demo, price)\nassert np.allclose(project(X_demo, yh), yh), 'a vector already on the plane is its own shadow: project(X, project(X, y)) should equal project(X, y)'"
+        }
+      ],
+      "hints": [
+        "A = X.T @ X has shape (2, 2) here; c = X.T @ y has shape (2,).",
+        "return np.linalg.solve(X.T @ X, X.T @ y)",
+        "project: w = fit_normal(X, y); return X @ w"
+      ],
+      "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\narea = rng.uniform(1, 10, size=50)\nprice = 3 * area + 2 + rng.normal(0, 1, size=50)\nX_demo = np.column_stack([area, np.ones(50)])\n\ndef fit_normal(X, y):\n    return np.linalg.solve(X.T @ X, X.T @ y)\n\ndef project(X, y):\n    return X @ fit_normal(X, y)\n"
+    }
+  ]
+}
