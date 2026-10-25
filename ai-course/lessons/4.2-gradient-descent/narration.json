@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Imagine standing on a hillside in thick fog. You cannot see the valley, but you can feel the slope beneath your feet, so you take a small step in the steepest downhill direction, feel the ground again, and step again. That is gradient descent, the procedure that trains almost every neural network."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "With one parameter, the slope is the derivative of the loss. If the slope is positive, the loss rises as w increases, so we should decrease w; if the slope is negative, we should increase it. Either way we move against the slope, and the update rule says exactly that: the new w is the old w minus a small number times the derivative."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "That small number is the learning rate, and it sets the length of each step. Because the slope becomes gentler as we approach the bottom of a smooth bowl, the steps shrink on their own, and the marker settles into the minimum instead of jumping past it."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "With two parameters there are two slopes, one along each axis, and stacking them into a vector gives the gradient. The gradient points in the direction of steepest ascent, so walking the opposite way is the steepest way down. On a contour map it always crosses the contour lines at right angles."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The algorithm is a short loop. Compute the loss and its gradient with respect to every parameter, take a step against the gradient, and repeat until the loss stops improving. Module two showed how such derivatives are found, and later in the course backpropagation will compute this gradient efficiently for millions of parameters at once."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "Gradient descent only knows the ground under its feet, so it finds a low point, not necessarily the lowest one, and its behaviour depends heavily on the size of each step. Next, in lesson four point three, we explore what happens when the learning rate is too small, too big, or just right."
+ }
+]

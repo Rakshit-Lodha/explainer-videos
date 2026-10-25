@@ -1,0 +1,157 @@
+{
+  "id": "4.2-gradient-descent",
+  "module": 4,
+  "title": "Gradient descent: roll downhill",
+  "summary": "Gradient descent repeatedly steps against the slope: w ← w − η·dL/dw. The learning rate η sets the step length, and steps shrink on their own as the slope flattens near a minimum. With many parameters the slopes form the gradient vector, which points uphill and crosses contour lines at right angles, so −∇L is the steepest way down.",
+  "video": "videos/4.2-gradient-descent.mp4",
+  "llm_link": "Every weight of a language model is updated by a gradient step on the cross-entropy loss (in practice with refinements such as Adam, lesson 4.5); backpropagation computes that gradient for billions of weights at once.",
+  "key_ideas": [
+    "Update rule: w_new = w − η · dL/dw. Positive slope → w decreases; negative slope → w increases.",
+    "η (the learning rate) scales the step; the step is also proportional to the slope, so it shrinks near a smooth minimum.",
+    "Gradient ∇L = [∂L/∂w₁, ∂L/∂w₂, …]: points in the direction of steepest ascent, perpendicular to contour lines.",
+    "The loop: compute loss and gradient, step against it, repeat until the loss stops improving.",
+    "It finds a low point, not necessarily the lowest one."
+  ],
+  "quiz": [
+    {
+      "q": "At the current w the derivative dL/dw is −3. Which way does gradient descent move w?",
+      "options": [
+        "Decrease w",
+        "Increase w",
+        "Leave w alone",
+        "Set w to −3"
+      ],
+      "answer": 1,
+      "explain": "w_new = w − η·(−3) = w + 3η. A negative slope means the loss falls as w grows, so we increase w."
+    },
+    {
+      "q": "Predict the result: L(w) = w², w = 3, η = 0.1. What is w after one step?",
+      "options": [
+        "2.4",
+        "2.7",
+        "0.6",
+        "3.6"
+      ],
+      "answer": 0,
+      "explain": "dL/dw = 2w = 6, so w_new = 3 − 0.1·6 = 2.4."
+    },
+    {
+      "q": "Why do the steps get shorter near the bottom of a smooth bowl, even with a fixed learning rate?",
+      "options": [
+        "The learning rate is automatically reduced",
+        "The step is η times the slope, and the slope approaches 0 near the minimum",
+        "The loss becomes negative",
+        "Gradient descent stops computing the gradient"
+      ],
+      "answer": 1,
+      "explain": "Step = η·slope. As the ground flattens, the slope shrinks and so does the step."
+    },
+    {
+      "q": "On a contour map, how does the gradient relate to the contour line through the current point?",
+      "options": [
+        "Parallel to it",
+        "At a right angle to it, pointing uphill",
+        "At 45° to it",
+        "There is no relationship"
+      ],
+      "answer": 1,
+      "explain": "Along a contour the loss does not change, so the direction of fastest change is perpendicular to it. The gradient points uphill; we step the opposite way."
+    },
+    {
+      "q": "When a language model is trained, what plays the role of w in the update rule?",
+      "options": [
+        "The input tokens",
+        "Every one of its weights, all updated together by one gradient step",
+        "Only the last layer",
+        "The learning rate"
+      ],
+      "answer": 1,
+      "explain": "The gradient has one entry per weight. Backpropagation computes all of them, and each weight moves against its own entry."
+    }
+  ],
+  "problems": [
+    {
+      "id": "gd1",
+      "title": "Gradient descent in one dimension",
+      "prompt": "<p>Write <code>gradient_descent(df, w0, lr, steps)</code>. <code>df</code> is a function that returns the derivative dL/dw at a given w. Starting from <code>w0</code>, apply <code>w = w - lr * df(w)</code> <code>steps</code> times and return the <b>list of all positions</b>, starting with <code>w0</code> (so it has <code>steps + 1</code> entries).</p><pre>df = lambda w: 2 * (w - 2)        # L(w) = (w - 2)**2\ngradient_descent(df, 5.0, 0.1, 3) # [5.0, 4.4, 3.92, 3.536]</pre>",
+      "starter": "def gradient_descent(df, w0, lr, steps):\n    ws = [w0]\n    w = w0\n    for _ in range(steps):\n        # TODO: update w against the slope, then append it\n        pass\n    return ws\n",
+      "tests": [
+        {
+          "name": "three steps",
+          "code": "df = lambda w: 2 * (w - 2)\nout = gradient_descent(df, 5.0, 0.1, 3)\nexp = [5.0, 4.4, 3.92, 3.536]\nassert len(out) == 4, f'expected steps + 1 = 4 positions, got {len(out)}'\nassert all(abs(a - b) < 1e-9 for a, b in zip(out, exp)), f'expected {exp}, got {out}'"
+        },
+        {
+          "name": "reaches the minimum",
+          "code": "df = lambda w: 2 * (w - 2)\nout = gradient_descent(df, -10.0, 0.1, 200)\nassert abs(out[-1] - 2) < 1e-6, f'after 200 steps w should be at the minimum 2, got {out[-1]}'"
+        },
+        {
+          "name": "moves against the slope",
+          "code": "df = lambda w: 2 * (w - 2)\nout = gradient_descent(df, 0.0, 0.1, 1)\nassert out[1] > out[0], f'at w = 0 the slope is negative, so w should increase; got {out}. Check the sign: w - lr * df(w)'"
+        },
+        {
+          "name": "steps shrink",
+          "code": "df = lambda w: 2 * (w - 2)\nout = gradient_descent(df, 5.0, 0.1, 5)\nd = [abs(out[i+1] - out[i]) for i in range(5)]\nassert all(d[i+1] < d[i] for i in range(4)), f'step lengths should shrink near the minimum, got {d}'"
+        }
+      ],
+      "hints": [
+        "w = w - lr * df(w)",
+        "ws.append(w) inside the loop, after updating."
+      ],
+      "solution": "def gradient_descent(df, w0, lr, steps):\n    ws = [w0]\n    w = w0\n    for _ in range(steps):\n        w = w - lr * df(w)\n        ws.append(w)\n    return ws\n"
+    },
+    {
+      "id": "grad2",
+      "title": "A numerical gradient in two dimensions",
+      "prompt": "<p>When you do not know the derivative formula, estimate each partial derivative with a <b>central difference</b>: nudge one coordinate by ±h and keep the other fixed.</p><pre>∂L/∂x ≈ (L(x + h, y) − L(x − h, y)) / (2h)</pre><p>Write <code>num_grad(L, x, y, h=1e-5)</code> returning the list <code>[dL/dx, dL/dy]</code>, then <code>descend(L, x, y, lr, steps)</code> that takes <code>steps</code> gradient steps and returns the final <code>(x, y)</code>.</p><pre>L = lambda x, y: x**2 + 4 * y**2\nnum_grad(L, -2.0, 0.9)          # about [-4.0, 7.2]\ndescend(L, -2.0, 0.9, 0.1, 100) # very close to (0, 0)</pre>",
+      "starter": "def num_grad(L, x, y, h=1e-5):\n    # TODO: central differences, one coordinate at a time\n    gx = 0\n    gy = 0\n    return [gx, gy]\n\ndef descend(L, x, y, lr, steps):\n    for _ in range(steps):\n        gx, gy = num_grad(L, x, y)\n        # TODO: step both coordinates against the gradient\n    return x, y\n",
+      "tests": [
+        {
+          "name": "gradient of a bowl",
+          "code": "L = lambda x, y: x**2 + 4 * y**2\ng = num_grad(L, -2.0, 0.9)\nassert abs(g[0] + 4.0) < 1e-5 and abs(g[1] - 7.2) < 1e-5, f'expected about [-4.0, 7.2] (that is [2x, 8y]), got {g}'"
+        },
+        {
+          "name": "partials are separate",
+          "code": "L = lambda x, y: 3 * x + 0 * y\ng = num_grad(L, 1.0, 5.0)\nassert abs(g[0] - 3) < 1e-6 and abs(g[1]) < 1e-6, f'L = 3x does not depend on y, so the gradient is [3, 0]; got {g}. Nudge only one coordinate at a time'"
+        },
+        {
+          "name": "descends to the minimum",
+          "code": "L = lambda x, y: x**2 + 4 * y**2\nx, y = descend(L, -2.0, 0.9, 0.1, 100)\nassert abs(x) < 1e-4 and abs(y) < 1e-4, f'after 100 steps you should be near (0, 0), got ({x:.4f}, {y:.4f})'"
+        },
+        {
+          "name": "a shifted bowl",
+          "code": "L = lambda x, y: (x - 1)**2 + (y + 2)**2\nx, y = descend(L, 5.0, 5.0, 0.2, 200)\nassert abs(x - 1) < 1e-4 and abs(y + 2) < 1e-4, f'the minimum is at (1, -2), got ({x:.4f}, {y:.4f})'"
+        }
+      ],
+      "hints": [
+        "gx = (L(x + h, y) - L(x - h, y)) / (2 * h); gy is the same with y nudged instead.",
+        "x, y = x - lr * gx, y - lr * gy"
+      ],
+      "solution": "def num_grad(L, x, y, h=1e-5):\n    gx = (L(x + h, y) - L(x - h, y)) / (2 * h)\n    gy = (L(x, y + h) - L(x, y - h)) / (2 * h)\n    return [gx, gy]\n\ndef descend(L, x, y, lr, steps):\n    for _ in range(steps):\n        gx, gy = num_grad(L, x, y)\n        x, y = x - lr * gx, y - lr * gy\n    return x, y\n"
+    },
+    {
+      "id": "fit",
+      "title": "Fit a line by gradient descent (NumPy)",
+      "prompt": "<p>Fit <code>y ≈ w*x + b</code> by minimising the mean squared error with gradient descent. For MSE the partial derivatives are</p><pre>err = (w*x + b) - y            # shape (n,)\ndL/dw = 2 * mean(err * x)\ndL/db = 2 * mean(err)</pre><p>Write <code>fit_line(x, y, lr, steps)</code> that starts from <code>w = b = 0</code>, takes <code>steps</code> gradient steps, and returns <code>(w, b)</code>. Use NumPy array arithmetic for <code>err</code>; no loop over data points.</p><pre>x = np.array([1., 2, 3, 4, 5]); y = np.array([2.6, 3.9, 5.1, 6.8, 7.6])\nfit_line(x, y, 0.05, 2000)   # about (1.29, 1.33)</pre>",
+      "starter": "import numpy as np\n\ndef fit_line(x, y, lr, steps):\n    w, b = 0.0, 0.0\n    for _ in range(steps):\n        # TODO 1: err = prediction - y (an array)\n        # TODO 2: gw = 2 * mean(err * x), gb = 2 * mean(err)\n        # TODO 3: step w and b against their gradients\n        pass\n    return w, b\n",
+      "tests": [
+        {
+          "name": "the data from 4.1",
+          "code": "import numpy as np\nx = np.array([1., 2, 3, 4, 5]); y = np.array([2.6, 3.9, 5.1, 6.8, 7.6])\nw, b = fit_line(x, y, 0.05, 2000)\nassert abs(w - 1.29) < 1e-3 and abs(b - 1.33) < 1e-3, f'expected about (1.29, 1.33), the least-squares line; got ({w:.4f}, {b:.4f})'"
+        },
+        {
+          "name": "exact line",
+          "code": "import numpy as np\nx = np.linspace(-1, 1, 21); y = 3 * x - 0.5\nw, b = fit_line(x, y, 0.2, 1000)\nassert abs(w - 3) < 1e-4 and abs(b + 0.5) < 1e-4, f'data lie on y = 3x - 0.5, got ({w:.4f}, {b:.4f}). Check the sign of the update'"
+        },
+        {
+          "name": "loss goes down",
+          "code": "import numpy as np\nx = np.array([1., 2, 3]); y = np.array([2., 4, 6])\nmse = lambda w, b: np.mean((w * x + b - y) ** 2)\nw1, b1 = fit_line(x, y, 0.05, 5)\nw2, b2 = fit_line(x, y, 0.05, 50)\nassert mse(w2, b2) < mse(w1, b1) < mse(0, 0), 'more steps should give a lower loss'"
+        }
+      ],
+      "hints": [
+        "err = (w * x + b) - y",
+        "w -= lr * 2 * np.mean(err * x); b -= lr * 2 * np.mean(err) (compute both gradients before updating either)"
+      ],
+      "solution": "import numpy as np\n\ndef fit_line(x, y, lr, steps):\n    w, b = 0.0, 0.0\n    for _ in range(steps):\n        err = (w * x + b) - y\n        gw = 2 * np.mean(err * x)\n        gb = 2 * np.mean(err)\n        w, b = w - lr * gw, b - lr * gb\n    return w, b\n"
+    }
+  ]
+}
