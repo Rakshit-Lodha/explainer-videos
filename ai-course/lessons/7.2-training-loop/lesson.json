@@ -1,0 +1,126 @@
+{
+ "id": "7.2-training-loop",
+ "module": 7,
+ "title": "The training loop",
+ "summary": "Every model is trained by the same loop: a forward pass turns a mini-batch into predictions, the loss boils them down to one number, the backward pass computes a gradient for every parameter (same shape as the parameter), and the update moves each weight a little against its gradient. Steps repeat over shuffled data in epochs, while the loop logs training loss, checks validation loss without updating, and saves checkpoints.",
+ "video": "videos/7.2-training-loop.mp4",
+ "llm_link": "Pretraining a language model is this loop: inputs are batches of text, targets are the same text shifted by one token, the loss is cross-entropy on the next token, and the loop runs for a very large number of steps across many machines.",
+ "key_ideas": [
+  "Forward pass: mini-batch → predictions → loss, one number averaged over the batch.",
+  "Backward pass: ∂L/∂w for every parameter, by the chain rule from the loss backwards; each gradient has the same shape as its weight.",
+  "Update: w ← w − η · ∂L/∂w. In PyTorch, gradients accumulate, so clear them (zero_grad) before each backward pass.",
+  "An epoch is one pass over every example; shuffle at the start of each epoch. Steps per epoch = ceil(N / batch size).",
+  "Log training loss, evaluate validation loss with no updates, and save checkpoints so you can resume and keep the best weights."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: 1,000 training examples, batch size 50. How many update steps make one epoch?",
+   "options": [
+    "50",
+    "20",
+    "1,000",
+    "1"
+   ],
+   "answer": 1,
+   "explain": "Each step uses one mini-batch of 50, so covering all 1,000 examples takes 1000 / 50 = 20 steps."
+  },
+  {
+   "q": "A weight matrix W has shape (128, 64). What is the shape of ∂L/∂W?",
+   "options": [
+    "(64, 128)",
+    "(128,)",
+    "(128, 64)",
+    "A single number"
+   ],
+   "answer": 2,
+   "explain": "There is one partial derivative per entry of W, so the gradient has exactly W's shape."
+  },
+  {
+   "q": "In PyTorch you forget to call optimizer.zero_grad() inside the loop. What happens?",
+   "options": [
+    "Training raises an error",
+    "Each step uses the sum of the current and all earlier gradients",
+    "Nothing, gradients are cleared automatically",
+    "The learning rate is reset"
+   ],
+   "answer": 1,
+   "explain": "backward() adds into .grad. Without clearing, old gradients keep pushing every later step: the ghosts of earlier batches."
+  },
+  {
+   "q": "Why does the loop measure validation loss without updating the weights?",
+   "options": [
+    "Updates on validation data would make it part of training, so it would no longer measure generalisation",
+    "Validation data has no labels",
+    "It is faster to update",
+    "Validation loss cannot be differentiated"
+   ],
+   "answer": 0,
+   "explain": "The validation set is only useful as an honest check on unseen data; training on it destroys that."
+  },
+  {
+   "q": "When a language model is pretrained, what are the targets for a batch of text?",
+   "options": [
+    "Human-written labels",
+    "The same text shifted by one token",
+    "Random tokens",
+    "The embeddings of the input"
+   ],
+   "answer": 1,
+   "explain": "At every position the target is simply the next token, so the text supervises itself."
+  }
+ ],
+ "problems": [
+  {
+   "id": "loop-lists",
+   "title": "Train a line with the loop",
+   "prompt": "<p>Write the whole training loop for <code>pred = w * x + b</code> with plain Python lists. Start from <code>w = 0, b = 0</code>. Each epoch, use all the data (one batch):</p><ol><li>forward: predictions and the mean squared error <code>L = mean((pred - y)**2)</code>; append L to <code>losses</code></li><li>backward: <code>dw = mean(2 * (pred - y) * x)</code>, <code>db = mean(2 * (pred - y))</code></li><li>update: <code>w -= lr * dw</code>, <code>b -= lr * db</code></li></ol><p>Return <code>(w, b, losses)</code>.</p><pre>xs = [0, 1, 2, 3, 4]; ys = [1, 3, 5, 7, 9]   # y = 2x + 1\ntrain_line(xs, ys)   # w ≈ 2, b ≈ 1</pre>",
+   "starter": "def train_line(xs, ys, lr=0.05, epochs=500):\n    w, b = 0.0, 0.0\n    losses = []\n    n = len(xs)\n    for epoch in range(epochs):\n        # TODO 1 forward: preds and loss (append to losses)\n        # TODO 2 backward: dw and db\n        # TODO 3 update: w and b\n        pass\n    return w, b, losses\n",
+   "tests": [
+    {
+     "name": "recovers y = 2x + 1",
+     "code": "w, b, losses = train_line([0, 1, 2, 3, 4], [1, 3, 5, 7, 9])\nassert abs(w - 2) < 0.05 and abs(b - 1) < 0.1, f'expected w ≈ 2, b ≈ 1, got w = {w:.3f}, b = {b:.3f}. Check the signs: subtract lr * gradient.'"
+    },
+    {
+     "name": "one loss per epoch, falling",
+     "code": "w, b, losses = train_line([0, 1, 2, 3], [0, -1, -2, -3], epochs=100)\nassert len(losses) == 100, f'append one loss per epoch: expected 100 values, got {len(losses)}'\nassert losses[-1] < losses[0] * 0.01, f'loss should fall a lot: first {losses[0]:.3f}, last {losses[-1]:.3f}'"
+    },
+    {
+     "name": "first loss is measured before any update",
+     "code": "w, b, losses = train_line([1, 2], [3, 5], epochs=1)\nassert abs(losses[0] - 17.0) < 1e-9, f'with w = b = 0 the first loss is mean(3², 5²) = 17, got {losses[0] if losses else None}. Compute the loss in the forward pass, before updating.'"
+    }
+   ],
+   "hints": [
+    "preds = [w * x + b for x in xs]; errs = [p - y for p, y in zip(preds, ys)]",
+    "loss = sum(e * e for e in errs) / n; dw = sum(2 * e * x for e, x in zip(errs, xs)) / n; db = sum(2 * e for e in errs) / n",
+    "w -= lr * dw; b -= lr * db  (zip, not a nested loop)"
+   ],
+   "solution": "def train_line(xs, ys, lr=0.05, epochs=500):\n    w, b = 0.0, 0.0\n    losses = []\n    n = len(xs)\n    for epoch in range(epochs):\n        preds = [w * x + b for x in xs]\n        errs = [p - y for p, y in zip(preds, ys)]\n        losses.append(sum(e * e for e in errs) / n)\n        dw = sum(2 * e * x for e, x in zip(errs, xs)) / n\n        db = sum(2 * e for e in errs) / n\n        w -= lr * dw\n        b -= lr * db\n    return w, b, losses\n"
+  },
+  {
+   "id": "minibatch-loop",
+   "title": "Mini-batches, epochs and shuffling (NumPy)",
+   "prompt": "<p>Two functions for a logistic-regression classifier trained with mini-batches.</p><ul><li><code>minibatches(n, batch_size, rng)</code>: shuffle the indices <code>0..n-1</code> with <code>rng.permutation(n)</code> and split them into consecutive chunks of <code>batch_size</code> (the last chunk may be smaller). Return a list of index arrays.</li><li><code>train_logreg(X, y, lr=0.5, epochs=30, batch_size=16, seed=0)</code>: start from <code>w = zeros(d)</code>, <code>b = 0</code>; make <code>rng = np.random.default_rng(seed)</code>; for each epoch, for each batch: <code>p = sigmoid(Xb @ w + b)</code>, <code>dw = Xb.T @ (p - yb) / len(yb)</code>, <code>db = mean(p - yb)</code>, then update. After each epoch, append the full-data cross-entropy to <code>history</code>. Return <code>(w, b, history)</code>.</li></ul>",
+   "starter": "import numpy as np\n\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\n\ndef minibatches(n, batch_size, rng):\n    # TODO: idx = rng.permutation(n); return [idx[i:i + batch_size] for i in range(0, n, batch_size)]\n    return [np.arange(n)]\n\ndef train_logreg(X, y, lr=0.5, epochs=30, batch_size=16, seed=0):\n    rng = np.random.default_rng(seed)\n    w = np.zeros(X.shape[1]); b = 0.0\n    history = []\n    # TODO: for each epoch, for each batch in minibatches(...): forward, gradients, update\n    # TODO: after each epoch, append the cross-entropy on all of X, y\n    return w, b, history\n",
+   "tests": [
+    {
+     "name": "batches cover every example once",
+     "code": "import numpy as np\nbs = minibatches(50, 16, np.random.default_rng(1))\nassert [len(b) for b in bs] == [16, 16, 16, 2], f'50 examples in batches of 16 should give sizes [16, 16, 16, 2], got {[len(b) for b in bs]}'\nassert sorted(np.concatenate(bs).tolist()) == list(range(50)), 'every index 0..49 must appear exactly once per epoch'"
+    },
+    {
+     "name": "the order is shuffled",
+     "code": "import numpy as np\nrng = np.random.default_rng(2)\na = np.concatenate(minibatches(30, 10, rng)); b = np.concatenate(minibatches(30, 10, rng))\nassert not np.array_equal(a, np.arange(30)), 'indices should be shuffled with rng.permutation, not left in order'\nassert not np.array_equal(a, b), 'each epoch should draw a fresh shuffle'"
+    },
+    {
+     "name": "learns a separable problem",
+     "code": "import numpy as np\nr = np.random.default_rng(0)\nX = np.vstack([r.normal(-1.5, 1, (100, 2)), r.normal(1.5, 1, (100, 2))]); y = np.r_[np.zeros(100), np.ones(100)]\nw, b, hist = train_logreg(X, y)\nacc = ((sigmoid(X @ w + b) > 0.5) == y).mean()\nassert acc > 0.9, f'accuracy should exceed 0.9, got {acc:.2f}'\nassert len(hist) == 30, f'one history value per epoch: expected 30, got {len(hist)}'\nassert hist[-1] < hist[0], f'loss should fall: first {hist[0] if hist else None}, last {hist[-1] if hist else None}'"
+    }
+   ],
+   "hints": [
+    "idx = rng.permutation(n); return [idx[i:i + batch_size] for i in range(0, n, batch_size)]",
+    "for epoch in range(epochs):\n    for idx in minibatches(len(y), batch_size, rng):\n        Xb, yb = X[idx], y[idx]",
+    "After the batches: p = np.clip(sigmoid(X @ w + b), 1e-9, 1 - 1e-9); history.append(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))"
+   ],
+   "solution": "import numpy as np\n\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\n\ndef minibatches(n, batch_size, rng):\n    idx = rng.permutation(n)\n    return [idx[i:i + batch_size] for i in range(0, n, batch_size)]\n\ndef train_logreg(X, y, lr=0.5, epochs=30, batch_size=16, seed=0):\n    rng = np.random.default_rng(seed)\n    w = np.zeros(X.shape[1]); b = 0.0\n    history = []\n    for epoch in range(epochs):\n        for idx in minibatches(len(y), batch_size, rng):\n            Xb, yb = X[idx], y[idx]\n            p = sigmoid(Xb @ w + b)\n            w = w - lr * (Xb.T @ (p - yb) / len(yb))\n            b = b - lr * np.mean(p - yb)\n        p = np.clip(sigmoid(X @ w + b), 1e-9, 1 - 1e-9)\n        history.append(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))\n    return w, b, history\n"
+  }
+ ]
+}
