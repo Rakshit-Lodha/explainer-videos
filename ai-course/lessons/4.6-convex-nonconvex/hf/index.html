@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.note{position:absolute;font-size:40px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+.ttl{position:absolute;font-size:46px;opacity:0;visibility:hidden;white-space:nowrap}
+svg .hid{opacity:0;visibility:hidden}
+</style>
+</head>
+
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="120.78" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="120.78" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 4.6 Convex vs non-convex</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="14.979"></div>
+  <div class="clip scene" id="S2" data-start="14.979" data-duration="20.518"></div>
+  <div class="clip scene" id="S3" data-start="35.497" data-duration="18.285"></div>
+  <div class="clip scene" id="S4" data-start="53.782" data-duration="24.443"></div>
+  <div class="clip scene" id="S5" data-start="78.225" data-duration="26.491"></div>
+  <div class="clip scene" id="S6" data-start="104.716" data-duration="16.064"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":14.979,"s3":35.497,"s4":53.782,"s5":78.225,"s6":104.716},"total":120.78,"cues":{"s1":[["so",0.0],["far",0.203],["our",0.474],["landscapes",0.744],["have",1.489],["been",1.827],["tidy",2.165],["bowls",2.504],["where",3.303],["walking",3.63],["downhill",4.067],["from",4.559],["anywhere",4.832],["leads",5.323],["to",5.651],["the",5.815],["same",6.033],["bottom",6.306],["bowls",7.03],["like",7.392],["that",7.694],["have",7.996],["a",8.298],["name",8.419],["convex",9.016],["and",10.154],["in",10.411],["deep",10.605],["learning",10.926],["they",11.505],["are",11.827],["the",12.085],["exception",12.342],["rather",12.985],["than",13.436],["the",13.758],["rule",14.015]],"s2":[["a",0.0],["function",0.133],["is",0.734],["convex",0.934],["if",1.4],["the",1.6],["straight",1.867],["line",2.467],["between",2.801],["any",3.334],["two",3.601],["points",3.868],["on",4.335],["its",4.535],["graph",4.801],["never",5.201],["dips",5.602],["below",5.935],["the",6.335],["graph",6.602],["stretch",7.288],["a",7.671],["string",7.767],["between",8.103],["two",8.486],["points",8.678],["on",9.014],["a",9.158],["bowl",9.254],["and",9.494],["it",9.685],["hangs",9.829],["above",10.117],["the",10.405],["surface",10.596],["that",11.721],["simple",12.012],["property",12.42],["guarantees",12.944],["that",13.585],["any",13.876],["local",14.109],["minimum",14.458],["is",14.924],["also",15.098],["the",15.389],["global",15.622],["minimum",16.03],["so",17.025],["gradient",17.183],["descent",17.655],["cannot",18.075],["get",18.442],["stuck",18.652],["in",18.966],["the",19.124],["wrong",19.334],["valley",19.648]],"s3":[["a",0.0],["non-convex",0.123],["landscape",0.8],["breaks",1.415],["that",1.845],["guarantee",2.153],["the",3.002],["string",3.207],["can",3.564],["pass",3.769],["beneath",4.024],["the",4.433],["surface",4.637],["and",5.554],["the",5.772],["terrain",5.991],["can",6.428],["hold",6.647],["several",6.92],["valleys",7.357],["of",7.794],["different",7.958],["depths",8.504],["where",9.471],["you",9.796],["start",10.013],["then",10.338],["decides",10.608],["where",11.042],["you",11.367],["end",11.583],["up",11.8],["so",12.46],["two",12.637],["runs",12.873],["of",13.168],["gradient",13.346],["descent",13.877],["that",14.35],["begin",14.645],["a",14.999],["little",15.118],["apart",15.531],["can",15.885],["roll",16.122],["into",16.417],["different",16.712],["valleys",17.303]],"s4":[["in",0.0],["many",0.153],["dimensions",0.408],["there",0.97],["is",1.276],["a",1.429],["second",1.531],["feature",1.888],["the",2.642],["saddle",2.822],["point",3.137],["which",4.0],["curves",4.404],["upwards",4.876],["in",5.415],["some",5.617],["directions",5.953],["and",6.694],["downwards",6.963],["in",7.637],["others",7.839],["like",8.801],["a",9.059],["pass",9.162],["between",9.42],["two",9.832],["mountains",10.038],["the",11.006],["gradient",11.213],["there",11.68],["is",11.991],["zero",12.146],["so",12.87],["a",13.059],["careful",13.185],["descent",13.689],["can",14.193],["slow",14.445],["to",14.76],["a",14.949],["crawl",15.075],["nearby",15.453],["in",16.515],["high",16.705],["dimensional",17.021],["problems",17.781],["saddle",18.765],["points",19.229],["are",19.692],["thought",19.957],["to",20.486],["be",20.685],["far",20.883],["more",21.148],["common",21.479],["than",21.942],["poor",22.273],["local",22.604],["minima",23.001]],"s5":[["neural",0.0],["networks",0.489],["are",1.118],["non-convex",1.398],["yet",2.616],["training",2.839],["them",3.341],["works",3.62],["remarkably",3.954],["well",4.567],["part",5.174],["of",5.466],["the",5.641],["reason",5.874],["is",6.282],["that",6.458],["the",6.749],["noise",6.983],["in",7.333],["mini-batch",7.508],["gradients",8.149],["helps",8.733],["the",9.083],["parameters",9.316],["drift",9.958],["away",10.308],["from",10.6],["saddles",10.892],["and",11.358],["flat",11.592],["regions",11.883],["and",12.947],["part",13.194],["is",13.504],["that",13.69],["in",13.999],["very",14.185],["large",14.494],["networks",14.866],["many",15.423],["of",15.732],["the",15.918],["low",16.166],["valleys",16.413],["appear",16.909],["to",17.342],["be",17.528],["about",17.713],["equally",18.085],["good",18.58],["linear",19.236],["regression",19.968],["by",21.646],["contrast",21.766],["is",22.166],["convex",22.286],["which",23.046],["is",23.42],["why",23.607],["it",23.857],["always",24.044],["reaches",24.481],["the",24.98],["same",25.23],["answer",25.542]],"s6":[["that",0.0],["completes",0.305],["our",0.915],["tour",1.159],["of",1.464],["optimisation",1.647],["from",2.744],["the",3.05],["landscape",3.294],["itself",3.906],["to",4.334],["the",4.517],["shape",4.762],["of",5.129],["its",5.312],["terrain",5.557],["next",6.476],["module",7.438],["five",7.843],["begins",8.133],["classical",8.539],["machine",9.118],["learning",9.582],["with",10.104],["lesson",10.393],["five",10.799],["point",11.089],["one",11.437],["linear",12.355],["regression",12.795],["as",13.487],["projection",13.676]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0',bg:'#0e1116'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeTo(t,time,v,d){tl.to(t,{autoAlpha:v,duration:d||.5,ease:'power1.inOut'},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,last){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!last)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+/* a text label: lbl(parent, html, x, y, css) centred on (x,y), hidden until shown */
+function lbl(parent,html,x,y,css){const d=el(parent,'lbl',html,css);place(d,x,y);return d}
+/* a hidden text block with its top-left at (x,y) */
+function note(parent,html,x,y,w,css){return el(parent,'note',html,Object.assign({left:x+'px',top:y+'px',width:w+'px'},css||{}))}
+
+/* drive(state, time, dur, target, render): tween a plain state object and redraw from it.
+   Every frame is recomputed from the tweened values, so seeking in any order lands on the same picture. */
+function drive(st,time,d,to,render,ease){const from={...st.v},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>render(o)},time);st.v=tgt}
+function state(v,render){render(v);return {v:{...v}}}
+
+/* plotting: axes(svg,{x,y,w,h,xmin,xmax,ymin,ymax}) maps data to pixels and draws the axes */
+function axes(svg,o){const X=v=>o.x+(v-o.xmin)/(o.xmax-o.xmin)*o.w,Y=v=>o.y+o.h-(v-o.ymin)/(o.ymax-o.ymin)*o.h;
+  const g=svgEl('g',{},svg);const y0=Y(o.xAt!=null?o.xAt:Math.max(o.ymin,0)),x0=X(o.yAt!=null?o.yAt:Math.max(o.xmin,0));
+  svgEl('line',{x1:o.x,y1:y0,x2:o.x+o.w,y2:y0,stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  if(o.yaxis!==false)svgEl('line',{x1:x0,y1:o.y,x2:x0,y2:o.y+o.h,stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  (o.xticks||[]).forEach(t=>svgEl('line',{x1:X(t),y1:y0-8,x2:X(t),y2:y0+8,stroke:C.axis,'stroke-width':2},g));
+  (o.yticks||[]).forEach(t=>svgEl('line',{x1:x0-8,y1:Y(t),x2:x0+8,y2:Y(t),stroke:C.axis,'stroke-width':2},g));
+  return {X,Y,g,o}}
+function gridLines(svg,A,xs,ys){const g=svgEl('g',{},svg);
+  xs.forEach(x=>svgEl('line',{x1:A.X(x),y1:A.o.y,x2:A.X(x),y2:A.o.y+A.o.h,stroke:C.grid,'stroke-width':1.4,opacity:.45},g));
+  ys.forEach(y=>svgEl('line',{x1:A.o.x,y1:A.Y(y),x2:A.o.x+A.o.w,y2:A.Y(y),stroke:C.grid,'stroke-width':1.4,opacity:.45},g));return g}
+function fpath(A,fn,a,b,n){n=n||160;let d='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+=(i?'L':'M')+A.X(x).toFixed(1)+','+A.Y(fn(x)).toFixed(1)}return d}
+function farea(A,fn,a,b,n,base){n=n||120;base=base||0;let d='M'+A.X(a).toFixed(1)+','+A.Y(base).toFixed(1);
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+='L'+A.X(x).toFixed(1)+','+A.Y(fn(x)).toFixed(1)}return d+'L'+A.X(b).toFixed(1)+','+A.Y(base).toFixed(1)+'Z'}
+function polyPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function rectAttr(r,x,y,w,h){r.setAttribute('x',x.toFixed(1));r.setAttribute('y',y.toFixed(1));r.setAttribute('width',Math.max(0,w).toFixed(1));r.setAttribute('height',Math.max(0,h).toFixed(1))}
+/* bar chart: bars(svg,A,xs,hs,{w,color}) returns rects and a set(hs) redraw */
+function bars(svg,A,xs,hs,o){o=o||{};const w=o.w||.7;const g=svgEl('g',{},svg);
+  const rs=xs.map(()=>svgEl('rect',{fill:o.color||C.blue,'fill-opacity':o.op==null?.85:o.op,stroke:o.stroke||'none','stroke-width':o.sw||0,rx:3},g));
+  const set=h=>rs.forEach((r,i)=>{const x0=A.X(xs[i]-w/2),x1=A.X(xs[i]+w/2),yb=A.Y(0),yt=A.Y(h[i]);rectAttr(r,x0,Math.min(yb,yt),x1-x0,Math.abs(yb-yt))});
+  set(hs);return {g,rs,set}}
+const gauss=(x,m,s)=>Math.exp(-.5*((x-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
+
+/* arrows (from lesson 1.1): geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(a.hl||30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+const PX=(x,y)=>[x,y];
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+function hl(parent,x,y,w,h,color){return el(parent,'hl','',{left:x+'px',top:y+'px',width:w+'px',height:h+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+/* closing line naming the next lesson */
+function nextUp(S,text,time){const n=el(S,'cap','next &nbsp;·&nbsp; '+text,{top:'940px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(n,time,.7);return n}
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ===================== scenes ===================== */
+function roll(f,x0,lr,n){const df=x=>(f(x+1e-4)-f(x-1e-4))/2e-4;const xs=[x0];for(let i=0;i<n;i++)xs.push(xs[i]-lr*df(xs[i]));return xs}
+function ballOn(svg,A,f,xs,col){const b=svgEl('circle',{r:14,fill:col},svg);
+  const render=o=>{const k=Math.min(xs.length-2,Math.floor(o.i)),t=o.i-k;const x=xs[k]+(xs[k+1]-xs[k])*t;b.setAttribute('cx',A.X(x));b.setAttribute('cy',A.Y(f(x))-14)};
+  const st=state({i:0},render);gsap.set(b,{autoAlpha:0});return {b,st,render,n:xs.length-1}}
+const NC=x=>2.3+1.2*Math.cos(1.3*x)+.06*(x-5)**2-.5*Math.exp(-((x-7.3)**2)/.8);
+
+/* ============ S1: tidy bowls ============ */
+(function(){const S=$('S1');const sid='s1';const svg=layerSvg(S);
+  const A=axes(svg,{x:260,y:220,w:1400,h:600,xmin:-5,xmax:5,ymin:0,ymax:6.5,xticks:[],yaxis:false});
+  const f=x=>.25*x*x+.3;
+  const cv=svgEl('path',{d:fpath(A,f,-5,5,200),fill:'none',stroke:C.blue,'stroke-width':6},svg);
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(cv);fadeIn(g,cue(sid,'tidy'),.6);
+  const balls=[-4.6,-2.5,3.2,4.7].map((x0,i)=>ballOn(svg,A,f,roll(f,x0,.35,40),[C.pink,C.yellow,C.green,C.red][i]));
+  balls.forEach((b,i)=>{fadeIn(b.b,cue(sid,'anywhere')-.4,.3);drive(b.st,cue(sid,'anywhere')+i*.15,3,{i:b.n},b.render,'power2.out')});
+  const sb=note(S,'every start ends at the same bottom',700,860,600,{fontSize:'40px',color:C.dim,textAlign:'center'});show(sb,cue(sid,'same'),.5);
+  const cx=el(S,'chip','convex',{left:'860px',top:'150px',borderColor:C.blue,color:C.blue,fontSize:'52px'});show(cx,cue(sid,'convex'),.6);
+  const ex=note(S,'in deep learning: the exception',1260,170,600,{fontSize:'38px',color:C.dim});show(ex,cue(sid,'exception'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: the string test ============ */
+(function(){const S=$('S2');const sid='s2';const svg=layerSvg(S);
+  const A=axes(svg,{x:200,y:230,w:1000,h:600,xmin:-5,xmax:5,ymin:0,ymax:6.5,xticks:[],yaxis:false});
+  const f=x=>.22*x*x+.4;
+  const cv=svgEl('path',{d:fpath(A,f,-5,5,200),fill:'none',stroke:C.blue,'stroke-width':6},svg);
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(cv);fadeIn(g,at(sid,.01),.5);
+  const ch=svgEl('line',{stroke:C.yellow,'stroke-width':5},svg),pa=svgEl('circle',{r:12,fill:C.yellow},svg),pb=svgEl('circle',{r:12,fill:C.yellow},svg);
+  const render=o=>{const a=[A.X(o.a),A.Y(f(o.a))],b=[A.X(o.b),A.Y(f(o.b))];ch.setAttribute('x1',a[0]);ch.setAttribute('y1',a[1]);ch.setAttribute('x2',b[0]);ch.setAttribute('y2',b[1]);
+    pa.setAttribute('cx',a[0]);pa.setAttribute('cy',a[1]);pb.setAttribute('cx',b[0]);pb.setAttribute('cy',b[1])};
+  const st=state({a:-3.5,b:2},render);gsap.set([ch,pa,pb],{autoAlpha:0});
+  fadeIn([ch,pa,pb],cue(sid,'straight'),.5);
+  drive(st,cue(sid,'string'),2,{a:-1,b:4.4},render);drive(st,cue(sid,'string')+2.4,2,{a:-4.2,b:-.5},render);drive(st,cue(sid,'guarantees'),1.8,{a:-3,b:3.5},render);
+  const n1=note(S,'the line between two points never dips below the graph',1260,260,560,{fontSize:'38px'});show(n1,cue(sid,'never'),.5);
+  const f1=lbl(S,tex('f(\\lambda a+(1-\\lambda)b)\\le\\lambda f(a)+(1-\\lambda)f(b)',34),1530,460,{color:C.yellow});show(f1,cue(sid,'dips'),.6);
+  const n2=el(S,'chip','any local minimum is the global minimum',{left:'1250px',top:'580px',borderColor:C.blue,color:C.blue,fontSize:'34px'});show(n2,cue(sid,'local'),.6);
+  const n3=note(S,'gradient descent cannot get stuck in the wrong valley',1260,700,560,{fontSize:'36px',color:C.dim});show(n3,cue(sid,'stuck'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: non-convex ============ */
+(function(){const S=$('S3');const sid='s3';const svg=layerSvg(S);
+  const A=axes(svg,{x:160,y:230,w:1600,h:560,xmin:0,xmax:10,ymin:0,ymax:5.5,xticks:[],yaxis:false});
+  const cv=svgEl('path',{d:farea(A,NC,0,10,300),fill:C.yellow,'fill-opacity':.07,stroke:C.yellow,'stroke-width':5},svg);
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(cv);fadeIn(g,at(sid,.01),.5);
+  // a string that passes beneath the surface
+  const a=1.2,b=3.9;const ch=svgEl('line',{x1:A.X(a),y1:A.Y(NC(a)),x2:A.X(b),y2:A.Y(NC(b)),stroke:C.red,'stroke-width':5,style:'opacity:0;visibility:hidden'},svg);
+  const ends=[a,b].map(x=>svgEl('circle',{cx:A.X(x),cy:A.Y(NC(x)),r:11,fill:C.red,style:'opacity:0;visibility:hidden'},svg));
+  fadeIn([ch].concat(ends),cue(sid,'string'),.5);
+  const n1=lbl(S,'the string passes beneath the surface',A.X(2.55),A.Y(4.9),{fontSize:'36px',fontStyle:'italic',color:C.red});show(n1,cue(sid,'beneath'),.5);
+  fadeOut([ch,n1].concat(ends),cue(sid,'start')-.4,.4);
+  const v=note(S,'several valleys of different depths',1180,150,640,{fontSize:'38px',color:C.ink});show(v,cue(sid,'several'),.5);
+  // two runs that start a little apart
+  const r1=ballOn(svg,A,NC,roll(NC,4.65,.12,60),C.pink),r2=ballOn(svg,A,NC,roll(NC,5.05,.12,60),C.green);
+  [r1,r2].forEach(r=>{fadeIn(r.b,cue(sid,'start'),.4);drive(r.st,cue(sid,'apart')+.2,3.2,{i:r.n},r.render,'power2.out')});
+  const n2=note(S,'two starts a little apart, two different valleys',1180,210,640,{fontSize:'38px',color:C.pink});show(n2,cue(sid,'different'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: a saddle point ============ */
+(function(){const S=$('S4');const sid='s4';const svg=layerSvg(S);
+  const P3=(x,y,z)=>[620+x*230+y*120,560-y*80-z*110];const z=(x,y)=>x*x-y*y;
+  const gS=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);const N=14;
+  for(let i=0;i<=N;i++){const u=-1.3+2.6*i/N;let d1='',d2='';for(let k=0;k<=40;k++){const t=-1.3+2.6*k/40;const p=P3(u,t,z(u,t)),q=P3(t,u,z(t,u));d1+=(k?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1);d2+=(k?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)}
+    svgEl('path',{d:d1,fill:'none',stroke:C.blue,'stroke-width':1.6,opacity:.8},gS);svgEl('path',{d:d2,fill:'none',stroke:C.blue,'stroke-width':1.6,opacity:.8},gS)}
+  fadeIn(gS,cue(sid,'saddle')-.5,.7);
+  const c0=P3(0,0,0);const sp=svgEl('circle',{cx:c0[0],cy:c0[1],r:12,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);fadeIn(sp,cue(sid,'saddle'),.4);
+  const up=lbl(S,'curves up this way',P3(1.25,0,z(1.25,0))[0]+40,P3(1.25,0,z(1.25,0))[1]-30,{fontSize:'32px',fontStyle:'italic',color:C.green});show(up,cue(sid,'upwards'),.4);
+  const dn=lbl(S,'and down this way',P3(0,-1.3,z(0,-1.3))[0]-40,P3(0,-1.3,z(0,-1.3))[1]+50,{fontSize:'32px',fontStyle:'italic',color:C.red});show(dn,cue(sid,'downwards'),.4);
+  const pass=note(S,'like a pass between two mountains',1200,240,600,{fontSize:'40px'});show(pass,cue(sid,'pass'),.5);
+  const g0=lbl(S,tex('\\nabla L=0\\;\\text{at the saddle}',46),1500,380,{color:C.yellow});show(g0,cue(sid,'zero'),.5);
+  // a descent that crawls past it: gradient descent on z = x^2 - y^2 starting almost on the ridge
+  const pts=[];let x=1.2,y=.02;for(let i=0;i<28;i++){pts.push([x,y]);x-=.08*2*x;y-=.08*(-2*y)}
+  const px=pts.map(([a,b])=>P3(a,b,z(a,b)));const ball=svgEl('circle',{r:12,fill:C.pink},svg);gsap.set(ball,{autoAlpha:0});
+  const render=o=>{const k=Math.min(px.length-2,Math.floor(o.i)),t=o.i-k;ball.setAttribute('cx',px[k][0]+(px[k+1][0]-px[k][0])*t);ball.setAttribute('cy',px[k][1]+(px[k+1][1]-px[k][1])*t)};
+  const st=state({i:0},render);fadeIn(ball,cue(sid,'careful'),.4);drive(st,cue(sid,'careful'),SPAN[sid]-(cue(sid,'careful')-START[sid])-1.2,{i:27},render,'none');
+  const cr=note(S,'descent slows to a crawl near it',1200,470,600,{fontSize:'38px',color:C.pink});show(cr,cue(sid,'crawl'),.5);
+  const th=note(S,'in high dimensions, saddles are thought to be far more common than poor local minima',1200,600,600,{fontSize:'34px',color:C.dim});show(th,cue(sid,'thought'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: why training works anyway ============ */
+(function(){const S=$('S5');const sid='s5';const svg=layerSvg(S);
+  const A=axes(svg,{x:160,y:300,w:1100,h:420,xmin:0,xmax:10,ymin:0,ymax:4,xticks:[],yaxis:false});
+  const f=x=>1.2+.55*Math.cos(2.4*x)+.25*Math.cos(5.1*x+1)+.4*Math.exp(-((x-1)**2)/2);
+  const cv=svgEl('path',{d:farea(A,f,0,10,400),fill:C.yellow,'fill-opacity':.07,stroke:C.yellow,'stroke-width':4},svg);
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(cv);fadeIn(g,cue(sid,'non-convex'),.5);
+  const nn=note(S,'a neural network\'s loss: non-convex',160,220,900,{fontSize:'40px'});show(nn,cue(sid,'non-convex'),.5);
+  const mins=[];for(let x=.05;x<9.95;x+=.01)if(f(x)<f(x-.01)&&f(x)<f(x+.01)&&f(x)<1.1)mins.push(x);
+  const md=mins.map(x=>svgEl('circle',{cx:A.X(x),cy:A.Y(f(x)),r:9,fill:C.green,style:'opacity:0;visibility:hidden'},svg));
+  fadeIn(md,cue(sid,'equally'),.4,.1);
+  const eq=note(S,'many low valleys, about equally good',160,770,900,{fontSize:'38px',color:C.green});show(eq,cue(sid,'equally'),.5);
+  const no=note(S,'mini-batch noise helps the parameters drift off saddles and flat regions',160,840,1100,{fontSize:'34px',color:C.dim});show(no,cue(sid,'noise'),.5);
+  // inset: linear regression is a bowl
+  const B=axes(svg,{x:1400,y:380,w:400,h:280,xmin:-3,xmax:3,ymin:0,ymax:4,xticks:[],yaxis:false});
+  const bc=svgEl('path',{d:fpath(B,x=>.4*x*x+.2,-3,3),fill:'none',stroke:C.blue,'stroke-width':5},svg);
+  const gb=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);gb.appendChild(B.g);gb.appendChild(bc);fadeIn(gb,cue(sid,'linear'),.5);
+  const bl=lbl(S,'linear regression: convex',1600,720,{fontSize:'34px',fontStyle:'italic',color:C.blue});show(bl,cue(sid,'linear'),.5);
+  const sa=lbl(S,'always the same answer',1600,770,{fontSize:'32px',fontStyle:'italic',color:C.dim});show(sa,cue(sid,'same'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: the module in one picture ============ */
+(function(){const S=$('S6');const sid='s6';
+  const items=[['4.1','a landscape'],['4.2','a slope'],['4.3','a step size'],['4.4','noisy estimates'],['4.5','memory'],['4.6','the shape of the terrain']];
+  const ch=items.map(([n,t],i)=>el(S,'chip',`<span class="mono" style="color:#7f8b99">${n}</span>&nbsp; ${t}`,{left:(240+(i%3)*500)+'px',top:(300+Math.floor(i/3)*130)+'px',borderColor:[C.yellow,C.pink,C.green,C.red,C.teal,C.blue][i],fontSize:'40px'}));
+  tl.to(ch,{autoAlpha:1,duration:.4,stagger:.25},cue(sid,'tour'));
+  nextUp(S,'module 5 &nbsp;·&nbsp; 5.1 &nbsp;linear regression as projection',cue(sid,'next'));
+  sceneInOut(sid,true);
+})();
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
