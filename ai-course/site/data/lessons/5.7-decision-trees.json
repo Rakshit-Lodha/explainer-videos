@@ -1,0 +1,164 @@
+{
+ "id": "5.7-decision-trees",
+ "module": 5,
+ "title": "Decision trees",
+ "summary": "A decision tree asks a sequence of yes/no questions, each comparing one feature with a threshold, so it cuts the feature space into axis-aligned rectangles. Each cut is chosen greedily to reduce Gini impurity the most. Unlimited depth memorises the data; depth limits, minimum leaf sizes and pruning regularise it, and ensembles (random forests, gradient boosting) make trees strong and stable.",
+ "video": "videos/5.7-decision-trees.mp4",
+ "llm_link": "Language models do not use decision trees, but mixture-of-experts models contain a learned router that sends each token to a few of many expert sub-networks: a soft, trainable cousin of a tree's branching question.",
+ "key_ideas": [
+  "Each internal node asks 'is feature f < t?'. Geometrically that is a straight cut parallel to an axis, and the leaves are rectangles.",
+  "Gini impurity G = 1 − Σ pₖ²: 0 for a pure group, 0.5 for a 50/50 mix of two classes.",
+  "A split is scored by the size-weighted average impurity of its two sides; the tree keeps the split that lowers impurity most.",
+  "Trees are grown greedily and recursively until a stopping rule (pure, too few points, depth limit).",
+  "Deep trees overfit. Random forests average many trees trained on resampled data; gradient boosting adds trees that correct the remaining errors."
+ ],
+ "quiz": [
+  {
+   "q": "A node holds 10 points: 7 of class A and 3 of class B. What is its Gini impurity?",
+   "options": [
+    "0.30",
+    "0.42",
+    "0.50",
+    "0.21"
+   ],
+   "answer": 1,
+   "explain": "1 − (0.7² + 0.3²) = 1 − (0.49 + 0.09) = 0.42."
+  },
+  {
+   "q": "Predict the result: a split sends 4 points (all class A) left and 4 points (2 A, 2 B) right. What is the weighted Gini of the split?",
+   "options": [
+    "0",
+    "0.25",
+    "0.5",
+    "0.125"
+   ],
+   "answer": 1,
+   "explain": "Left is pure (G = 0). Right is 50/50 (G = 0.5). Weighted: (4·0 + 4·0.5) / 8 = 0.25."
+  },
+  {
+   "q": "What shape are the regions a decision tree carves out of a 2-feature plane?",
+   "options": [
+    "Circles",
+    "Rectangles with sides parallel to the axes",
+    "Arbitrary polygons",
+    "Straight bands at any angle"
+   ],
+   "answer": 1,
+   "explain": "Each question compares one feature with a number, which is a vertical or horizontal cut. Combining them gives axis-aligned rectangles."
+  },
+  {
+   "q": "Why does a random forest usually beat a single deep tree on new data?",
+   "options": [
+    "Each tree in it is deeper",
+    "Averaging many trees trained on different resamples cancels out their individual quirks, lowering variance",
+    "It uses no thresholds",
+    "It trains on the test set"
+   ],
+   "answer": 1,
+   "explain": "A single tree is unstable: small data changes can change its first question. Averaging many decorrelated trees keeps their shared signal and cancels the noise."
+  },
+  {
+   "q": "In a mixture-of-experts language model, what does the router do?",
+   "options": [
+    "Splits the text into tokens",
+    "Sends each token to a few of many expert sub-networks, a learned and soft version of a branching question",
+    "Chooses the learning rate",
+    "Builds a decision tree over the vocabulary"
+   ],
+   "answer": 1,
+   "explain": "Only the selected experts process the token, so the model can have many parameters while using a fraction of them per token. The router is trained along with everything else."
+  }
+ ],
+ "problems": [
+  {
+   "id": "gini",
+   "title": "Gini impurity",
+   "prompt": "<p>Write <code>gini(labels)</code> for a plain list of labels (any hashable values): 1 minus the sum, over classes, of the squared fraction of labels in that class. An empty list has impurity 0.</p><pre>gini(['a', 'a', 'a'])        # 0.0\ngini(['a', 'b'])             # 0.5\ngini(['a'] * 7 + ['b'] * 3)  # 0.42</pre>",
+   "starter": "def gini(labels):\n    n = len(labels)\n    if n == 0:\n        return 0.0\n    # TODO 1: count how many times each label appears (a dict works)\n    # TODO 2: return 1 - sum of (count / n) ** 2\n    pass\n",
+   "tests": [
+    {
+     "name": "pure group",
+     "code": "out = gini(['a', 'a', 'a'])\nassert out is not None, 'gini returned None'\nassert abs(out) < 1e-12, f'a pure group has impurity 0, got {out}'"
+    },
+    {
+     "name": "fifty-fifty",
+     "code": "out = gini(['a', 'b', 'a', 'b'])\nassert abs(out - 0.5) < 1e-12, f'a 50/50 mix of two classes has impurity 0.5, got {out}'"
+    },
+    {
+     "name": "seven and three",
+     "code": "out = gini(['a'] * 7 + ['b'] * 3)\nassert abs(out - 0.42) < 1e-12, f'1 - (0.7**2 + 0.3**2) = 0.42, got {out}'"
+    },
+    {
+     "name": "three classes",
+     "code": "out = gini([0, 1, 2])\nassert abs(out - 2/3) < 1e-12, f'three equal classes: 1 - 3*(1/3)**2 = 2/3, got {out}'"
+    }
+   ],
+   "hints": [
+    "counts = {}\nfor y in labels: counts[y] = counts.get(y, 0) + 1",
+    "return 1 - sum((c / n) ** 2 for c in counts.values())"
+   ],
+   "solution": "def gini(labels):\n    n = len(labels)\n    if n == 0:\n        return 0.0\n    counts = {}\n    for y in labels:\n        counts[y] = counts.get(y, 0) + 1\n    return 1 - sum((c / n) ** 2 for c in counts.values())\n"
+  },
+  {
+   "id": "split",
+   "title": "The best threshold for one feature",
+   "prompt": "<p>Write <code>best_split(xs, ys)</code>: try every threshold halfway between two neighbouring distinct values of <code>xs</code>; for each one, send points with <code>x &lt; t</code> left and the rest right, and compute the weighted impurity</p><pre>(len(left) · gini(left) + len(right) · gini(right)) / n</pre><p>Return <code>(best_t, best_score)</code> for the lowest score. A <code>gini</code> function is provided.</p><pre>best_split([1, 2, 3, 10, 11, 12], ['a','a','a','b','b','b'])  # (6.5, 0.0)</pre>",
+   "starter": "def gini(labels):\n    n = len(labels)\n    if n == 0:\n        return 0.0\n    counts = {}\n    for y in labels:\n        counts[y] = counts.get(y, 0) + 1\n    return 1 - sum((c / n) ** 2 for c in counts.values())\n\ndef best_split(xs, ys):\n    n = len(xs)\n    values = sorted(set(xs))\n    best_t, best_score = None, float('inf')\n    for a, b in zip(values, values[1:]):\n        t = (a + b) / 2\n        # TODO: left labels (x < t), right labels (x >= t), weighted gini, keep the best\n        pass\n    return best_t, best_score\n",
+   "tests": [
+    {
+     "name": "perfect split",
+     "code": "t, s = best_split([1, 2, 3, 10, 11, 12], ['a', 'a', 'a', 'b', 'b', 'b'])\nassert t == 6.5 and abs(s) < 1e-12, f'the gap between 3 and 10 separates the classes perfectly: expected (6.5, 0.0), got ({t}, {s})'"
+    },
+    {
+     "name": "order of input does not matter",
+     "code": "t, s = best_split([12, 1, 11, 2, 10, 3], ['b', 'a', 'b', 'a', 'b', 'a'])\nassert t == 6.5, f'pair each x with its own label (zip), then threshold on x: expected 6.5, got {t}'"
+    },
+    {
+     "name": "weighted by size",
+     "code": "t, s = best_split([1, 2, 3, 4], ['a', 'a', 'b', 'a'])\nassert t == 2.5 and abs(s - 0.25) < 1e-9, f'cut at 2.5: left [a, a] is pure, right [b, a] has gini 0.5, weighted (2*0 + 2*0.5)/4 = 0.25. Got ({t}, {s}); weight each side by its size'"
+    },
+    {
+     "name": "no split possible",
+     "code": "t, s = best_split([5, 5, 5], ['a', 'b', 'a'])\nassert t is None, 'with only one distinct x value there is nothing to split on: return (None, inf)'"
+    }
+   ],
+   "hints": [
+    "left = [y for x, y in zip(xs, ys) if x < t]; right = [y for x, y in zip(xs, ys) if x >= t]",
+    "score = (len(left) * gini(left) + len(right) * gini(right)) / n",
+    "if score < best_score: best_t, best_score = t, score"
+   ],
+   "solution": "def gini(labels):\n    n = len(labels)\n    if n == 0:\n        return 0.0\n    counts = {}\n    for y in labels:\n        counts[y] = counts.get(y, 0) + 1\n    return 1 - sum((c / n) ** 2 for c in counts.values())\n\ndef best_split(xs, ys):\n    n = len(xs)\n    values = sorted(set(xs))\n    best_t, best_score = None, float('inf')\n    for a, b in zip(values, values[1:]):\n        t = (a + b) / 2\n        left = [y for x, y in zip(xs, ys) if x < t]\n        right = [y for x, y in zip(xs, ys) if x >= t]\n        score = (len(left) * gini(left) + len(right) * gini(right)) / n\n        if score < best_score:\n            best_t, best_score = t, score\n    return best_t, best_score\n"
+  },
+  {
+   "id": "predict",
+   "title": "Walk down a tree",
+   "prompt": "<p>A tree is stored as nested dicts. An internal node looks like <code>{'feature': 0, 'threshold': 2.5, 'left': ..., 'right': ...}</code> and a leaf looks like <code>{'label': 'cat'}</code>. Go left when <code>x[feature] &lt; threshold</code>, otherwise right.</p><p>Write <code>predict(tree, x)</code> that returns the leaf's label, using a <code>while</code> loop (no recursion needed).</p>",
+   "starter": "tree = {'feature': 0, 'threshold': 50,\n        'left': {'label': 'decline'},\n        'right': {'feature': 1, 'threshold': 40,\n                  'left': {'label': 'approve'},\n                  'right': {'label': 'review'}}}\n\ndef predict(tree, x):\n    node = tree\n    # TODO: while the node is not a leaf, step left or right\n    return None\n",
+   "tests": [
+    {
+     "name": "left leaf",
+     "code": "assert predict(tree, [30, 25]) == 'decline', 'x[0] = 30 < 50 goes left to decline'"
+    },
+    {
+     "name": "two steps",
+     "code": "assert predict(tree, [80, 25]) == 'approve', 'x[0] = 80 goes right, then x[1] = 25 < 40 goes left to approve'\nassert predict(tree, [80, 60]) == 'review', 'x[0] = 80 right, x[1] = 60 right: review'"
+    },
+    {
+     "name": "threshold itself goes right",
+     "code": "assert predict(tree, [50, 0]) == 'approve', 'x < threshold goes left, so x == threshold goes right'"
+    },
+    {
+     "name": "a single leaf is a tree too",
+     "code": "assert predict({'label': 'only'}, [1, 2]) == 'only', 'a tree that is just a leaf always predicts its label'"
+    }
+   ],
+   "hints": [
+    "while 'label' not in node:",
+    "node = node['left'] if x[node['feature']] < node['threshold'] else node['right']",
+    "return node['label']"
+   ],
+   "solution": "tree = {'feature': 0, 'threshold': 50,\n        'left': {'label': 'decline'},\n        'right': {'feature': 1, 'threshold': 40,\n                  'left': {'label': 'approve'},\n                  'right': {'label': 'review'}}}\n\ndef predict(tree, x):\n    node = tree\n    while 'label' not in node:\n        node = node['left'] if x[node['feature']] < node['threshold'] else node['right']\n    return node['label']\n"
+  }
+ ],
+ "poster": "videos/5.7-decision-trees.jpg"
+}

@@ -58,3 +58,8 @@ Follow `course.md` § Build pipeline. Use 1.1 (`lessons/1.1-vectors/`) as the re
   - k-nearest neighbours is described as learning no weights and storing every training example, with prediction-time comparison against stored points.
   - Distances between random points are described as becoming increasingly alike in high dimensions (the curse of dimensionality).
   - Retrieval-augmented generation is described as nearest-neighbour search over document embeddings, usually using cosine similarity and approximate search.
+- **5.7:**
+  - Random forests are described as using random resamples and feature subsets whose averaged votes reduce individual-tree instability.
+  - Gradient boosting is described as adding trees sequentially to correct errors left by earlier trees.
+  - Tree ensembles are described as among the strongest methods for tabular business data.
+  - Mixture-of-experts language models are described as routing each token to a small subset of expert sub-networks.
