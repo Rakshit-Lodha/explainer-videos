@@ -1,0 +1,167 @@
+{
+ "id": "0.3-notation",
+ "module": 0,
+ "title": "Reading math notation: Σ, subscripts and vectors",
+ "summary": "A subscript is a house number on a street of entries, a bold letter is the whole street, and Σ is a for loop written vertically. With two lists under one Σ there is still only one counter, so in Python it is one loop over zip, not a loop inside a loop.",
+ "video": "videos/0.3-notation.mp4",
+ "llm_link": "The formula Σ xᵢ yᵢ is the dot product. Attention inside a transformer computes it for every pair of query and key vectors to score how well two tokens match, so this one line runs an enormous number of times for every token a model reads.",
+ "key_ideas": [
+  "xᵢ (x sub i) is one entry of the list x. Math usually counts from 1; Python counts from 0, so x₁ is x[0].",
+  "A bold x (or x with an arrow) is the whole vector; plain xᵢ is a single entry of it.",
+  "Σ from i = 1 to n of (something with i) means: total = 0; for each i from 1 to n, add the something. The counter is the subscript.",
+  "Σᵢ xᵢ yᵢ has one counter shared by both lists: walk them together with zip. Two counters (Σᵢ Σⱼ xᵢ yⱼ) is a different formula: every pair, a nested loop.",
+  "Σᵢ xᵢ yᵢ is the dot product x · y."
+ ],
+ "quiz": [
+  {
+   "q": "x = [7, 2, 9]. What is x₂ in math notation, and how do you write it in Python?",
+   "options": [
+    "9, written x[2]",
+    "2, written x[1]",
+    "2, written x[2]",
+    "7, written x[0]"
+   ],
+   "answer": 1,
+   "explain": "Math counts houses from 1, so x₂ is the second entry, 2. Python counts from 0, so the second entry is x[1]."
+  },
+  {
+   "q": "In a formula, what is the difference between a bold x and xᵢ?",
+   "options": [
+    "None, they are two ways to write the same thing",
+    "Bold x is the whole vector; xᵢ is one number inside it",
+    "Bold x is a number; xᵢ is a list",
+    "xᵢ means x multiplied by i"
+   ],
+   "answer": 1,
+   "explain": "The bold letter names the whole street; the subscripted plain letter is a single house on that street."
+  },
+  {
+   "q": "Predict the result: Σ from i = 1 to 3 of i²",
+   "options": [
+    "6",
+    "9",
+    "14",
+    "36"
+   ],
+   "answer": 2,
+   "explain": "Let i walk 1, 2, 3 and add i² on each pass: 1 + 4 + 9 = 14."
+  },
+  {
+   "q": "Predict the result: x = [1, 2] and y = [3, 4]. What is Σᵢ xᵢ yᵢ?",
+   "options": [
+    "11",
+    "21",
+    "10",
+    "24"
+   ],
+   "answer": 0,
+   "explain": "One counter, so pair entries at the same position: 1·3 + 2·4 = 11. A nested loop would multiply every pair, 1·3 + 1·4 + 2·3 + 2·4 = 21, which is the different formula Σᵢ Σⱼ xᵢ yⱼ."
+  },
+  {
+   "q": "Where does Σᵢ xᵢ yᵢ show up inside a language model?",
+   "options": [
+    "Only when counting the words in the prompt",
+    "As the dot product that scores how well two token vectors match, for example in attention",
+    "It is used only during tokenization",
+    "It never appears; models avoid sums"
+   ],
+   "answer": 1,
+   "explain": "Σᵢ xᵢ yᵢ is the dot product. Attention computes it between query and key vectors to decide how much each token should look at each other token."
+  }
+ ],
+ "problems": [
+  {
+   "id": "sigma",
+   "title": "Σ as a loop",
+   "prompt": "<p>Translate notation into Python.</p><ul><li><code>entry(x, i)</code> returns x<sub>i</sub> using <b>math numbering</b>, where the first entry is x<sub>1</sub>.</li><li><code>sigma(x)</code> returns Σ<sub>i=1</sub><sup>n</sup> x<sub>i</sub> using an explicit running total and a <code>for</code> loop (no <code>sum()</code>, so you practise reading the Σ).</li></ul><pre>entry([7, 2, 9], 2)   # 2  (x sub 2)\nsigma([3, 1, 4, 1, 5])  # 14</pre>",
+   "starter": "def entry(x, i):\n    # TODO: math counts from 1, Python counts from 0\n    pass\n\n\ndef sigma(x):\n    total = 0\n    # TODO: let the counter walk over every position and add that entry\n\n    return total\n",
+   "tests": [
+    {
+     "name": "x sub 1 is the first entry",
+     "code": "out = entry([7, 2, 9], 1)\nassert out == 7, f'x sub 1 is the first house, 7; got {out}. Python indexes from 0, so use x[i - 1].'"
+    },
+    {
+     "name": "x sub 2",
+     "code": "out = entry([7, 2, 9], 2)\nassert out == 2, f'x sub 2 is the second entry, 2; got {out}'"
+    },
+    {
+     "name": "x sub n is the last entry",
+     "code": "out = entry([7, 2, 9], 3)\nassert out == 9, f'x sub 3 is the last entry, 9; got {out}'"
+    },
+    {
+     "name": "sigma adds every entry",
+     "code": "out = sigma([3, 1, 4, 1, 5])\nassert out == 14, f'3 + 1 + 4 + 1 + 5 = 14, got {out}'"
+    },
+    {
+     "name": "sigma of an empty list is 0",
+     "code": "out = sigma([])\nassert out == 0, f'a sum over no terms is 0 (the running total never changes), got {out}'"
+    },
+    {
+     "name": "sigma with negatives",
+     "code": "out = sigma([2.5, -1, -1.5])\nassert abs(out) < 1e-9, f'2.5 - 1 - 1.5 = 0, got {out}'"
+    }
+   ],
+   "hints": [
+    "entry: return x[i - 1]",
+    "sigma: for i in range(len(x)): total += x[i]  (or simply: for v in x: total += v)"
+   ],
+   "solution": "def entry(x, i):\n    return x[i - 1]\n\n\ndef sigma(x):\n    total = 0\n    for i in range(len(x)):\n        total += x[i]\n    return total\n"
+  },
+  {
+   "id": "sum_xy",
+   "title": "Two lists, one counter",
+   "prompt": "<p>Write <code>sum_xy(x, y)</code> that computes Σ<sub>i</sub> x<sub>i</sub> y<sub>i</sub>: multiply entries at the <b>same position</b> and add the products.</p><p>There is only one counter, so walk both lists together with <code>zip</code>. A loop inside a loop computes a different formula.</p><p>If the lists have different lengths the formula makes no sense, so raise a <code>ValueError</code>.</p><pre>sum_xy([1, 2], [3, 4])            # 1*3 + 2*4 = 11\nsum_xy([3, 1, 4, 1, 5], [2, 0, 1, 3, 1])   # 18</pre>",
+   "starter": "def sum_xy(x, y):\n    # TODO 1: raise ValueError if the lengths differ\n\n    total = 0\n    # TODO 2: one loop over zip(x, y), adding a * b\n\n    return total\n",
+   "tests": [
+    {
+     "name": "pairs entries at the same position",
+     "code": "out = sum_xy([1, 2], [3, 4])\nassert out != 21, 'got 21: that is 1*3 + 1*4 + 2*3 + 2*4, every pair. A nested loop computes the double sum over i and j; use a single loop over zip(x, y).'\nassert out == 11, f'1*3 + 2*4 = 11, got {out}'"
+    },
+    {
+     "name": "the example from the video",
+     "code": "out = sum_xy([3, 1, 4, 1, 5], [2, 0, 1, 3, 1])\nassert out == 18, f'3*2 + 1*0 + 4*1 + 1*3 + 5*1 = 18, got {out}'"
+    },
+    {
+     "name": "orthogonal vectors give 0",
+     "code": "out = sum_xy([1, 0], [0, 1])\nassert out == 0, f'1*0 + 0*1 = 0, got {out}'"
+    },
+    {
+     "name": "rejects different lengths",
+     "code": "try:\n    sum_xy([1, 2, 3], [1, 2])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected a ValueError when the lengths differ (zip would silently drop the extra entry)')"
+    }
+   ],
+   "hints": [
+    "if len(x) != len(y): raise ValueError(\"x and y must have the same length\")",
+    "for a, b in zip(x, y): total += a * b",
+    "One line once it works: sum(a * b for a, b in zip(x, y))"
+   ],
+   "solution": "def sum_xy(x, y):\n    if len(x) != len(y):\n        raise ValueError(\"x and y must have the same length\")\n    total = 0\n    for a, b in zip(x, y):\n        total += a * b\n    return total\n"
+  },
+  {
+   "id": "double_sum",
+   "title": "Two counters: the double sum",
+   "prompt": "<p>Now the formula with <b>two</b> counters: Σ<sub>i</sub> Σ<sub>j</sub> x<sub>i</sub> y<sub>j</sub>. Each sigma is its own loop, so here a nested loop is exactly right: every entry of x meets every entry of y.</p><p>Write <code>double_sum(x, y)</code>. The lists may have different lengths.</p><pre>double_sum([1, 2], [3, 4])   # 1*3 + 1*4 + 2*3 + 2*4 = 21</pre><p>Afterwards, compare your answer with <code>sum(x) * sum(y)</code>. Why are they always equal?</p>",
+   "starter": "def double_sum(x, y):\n    total = 0\n    # TODO: outer loop over x (counter i), inner loop over y (counter j)\n\n    return total\n",
+   "tests": [
+    {
+     "name": "every pair",
+     "code": "out = double_sum([1, 2], [3, 4])\nassert out != 11, 'got 11: that pairs only matching positions (one counter). Here there are two counters, so every x entry must meet every y entry.'\nassert out == 21, f'1*3 + 1*4 + 2*3 + 2*4 = 21, got {out}'"
+    },
+    {
+     "name": "different lengths are fine",
+     "code": "out = double_sum([1, 2, 3], [10])\nassert out == 60, f'each of 1, 2, 3 meets 10: 10 + 20 + 30 = 60, got {out}'"
+    },
+    {
+     "name": "equals sum(x) * sum(y)",
+     "code": "x = [3, 1, 4, 1, 5]; y = [2, 0, 1, 3, 1]\nout = double_sum(x, y)\nassert out == sum(x) * sum(y), f'the double sum factors into (sum of x) times (sum of y) = {sum(x) * sum(y)}, got {out}'"
+    }
+   ],
+   "hints": [
+    "for a in x:\n    for b in y:\n        total += a * b",
+    "It equals sum(x) * sum(y) because multiplication distributes over addition: (x1 + x2)(y1 + y2) expands into every pair."
+   ],
+   "solution": "def double_sum(x, y):\n    total = 0\n    for a in x:\n        for b in y:\n            total += a * b\n    return total\n"
+  }
+ ],
+ "poster": "videos/0.3-notation.jpg"
+}

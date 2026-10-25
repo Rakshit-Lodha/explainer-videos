@@ -1,0 +1,161 @@
+{
+ "id": "3.4-gaussian",
+ "module": 3,
+ "title": "The Gaussian and why it's everywhere",
+ "summary": "The Gaussian (normal) distribution is a symmetric bell fixed by two numbers: the mean μ sets its centre and the standard deviation σ its width. About 68% of its probability lies within 1σ, 95% within 2σ and 99.7% within 3σ, and the central limit theorem explains why sums of many small independent effects look Gaussian.",
+ "video": "videos/3.4-gaussian.mp4",
+ "llm_link": "Neural network weights, including those of language models, are commonly initialised by sampling from a narrow Gaussian. Assuming Gaussian errors is also what makes squared error the natural loss for regression (next lesson).",
+ "key_ideas": [
+  "p(x) = 1/(σ√(2π)) · exp(−(x − μ)² / (2σ²)). Changing μ slides the bell; a larger σ makes it wider and lower, keeping the area at 1.",
+  "Rule of thumb: about 68% within μ ± σ, 95% within μ ± 2σ, 99.7% within μ ± 3σ.",
+  "Central limit theorem: the sum of many independent random effects (with finite variance) tends towards a Gaussian, whatever their own shape.",
+  "One die is flat, two dice make a triangle, five dice already look like a bell."
+ ],
+ "quiz": [
+  {
+   "q": "You increase σ of a Gaussian from 1 to 2 and keep μ fixed. What happens to the peak height?",
+   "options": [
+    "It doubles",
+    "It halves",
+    "It stays the same",
+    "It moves to the right"
+   ],
+   "answer": 1,
+   "explain": "The peak height is 1/(σ√(2π)). Doubling σ halves it, because the bell spreads out and the total area must remain 1."
+  },
+  {
+   "q": "Adult heights are roughly Gaussian with μ = 170 cm and σ = 7 cm. Predict the result: about what fraction of adults are between 156 and 184 cm?",
+   "options": [
+    "About 68%",
+    "About 95%",
+    "About 99.7%",
+    "About 50%"
+   ],
+   "answer": 1,
+   "explain": "156 and 184 are μ − 2σ and μ + 2σ, and about 95% of a Gaussian lies within two standard deviations of the mean."
+  },
+  {
+   "q": "What does the central limit theorem say?",
+   "options": [
+    "Every random variable is Gaussian",
+    "Sums of many independent random effects tend towards a Gaussian, whatever shape each effect has",
+    "The mean of a Gaussian is always 0",
+    "Dice are Gaussian"
+   ],
+   "answer": 1,
+   "explain": "A single die is flat, not Gaussian. It is the sum of many independent effects that becomes bell-shaped."
+  },
+  {
+   "q": "The sum of two fair dice has what shape?",
+   "options": [
+    "Flat",
+    "A triangle peaked at 7",
+    "A bell peaked at 6",
+    "Two peaks"
+   ],
+   "answer": 1,
+   "explain": "There are six ways to make 7 but only one way to make 2 or 12, so the probabilities rise linearly to 7 and fall again."
+  },
+  {
+   "q": "A language model's weight matrices are often initialised from N(0, 0.02²). What does that mean in practice?",
+   "options": [
+    "All weights start at 0.02",
+    "Weights start as small random numbers centred on 0, most within about ±0.04",
+    "Weights are 0 or 1",
+    "Weights are sorted from smallest to largest"
+   ],
+   "answer": 1,
+   "explain": "Mean 0 and σ = 0.02 means small random values around 0; about 95% fall within ±2σ = ±0.04."
+  }
+ ],
+ "problems": [
+  {
+   "id": "pdf",
+   "title": "The Gaussian density",
+   "prompt": "<p>Write <code>gaussian_pdf(x, mu, sigma)</code> that returns</p><pre>p(x) = 1 / (sigma * sqrt(2*pi)) * exp(-(x - mu)**2 / (2 * sigma**2))</pre><p>using <code>math.sqrt</code>, <code>math.pi</code> and <code>math.exp</code>. Watch the brackets: the whole <code>sigma * sqrt(2*pi)</code> is in the denominator.</p><pre>gaussian_pdf(0, 0, 1)   # 0.3989...\ngaussian_pdf(1, 0, 1)   # 0.2419...</pre>",
+   "starter": "import math\n\ndef gaussian_pdf(x, mu, sigma):\n    # TODO: translate the formula, one piece at a time\n    coef = 0      # 1 / (sigma * sqrt(2 pi))\n    expo = 0      # -(x - mu)**2 / (2 sigma**2)\n    return coef * math.exp(expo)\n",
+   "tests": [
+    {
+     "name": "peak of the standard normal",
+     "code": "out = gaussian_pdf(0, 0, 1)\nassert abs(out - 0.3989422804) < 1e-8, f'expected 1/sqrt(2*pi) = 0.39894, got {out}'"
+    },
+    {
+     "name": "one sigma away",
+     "code": "out = gaussian_pdf(1, 0, 1)\nassert abs(out - 0.2419707245) < 1e-8, f'expected 0.24197, got {out}. Is (x - mu) squared before dividing by 2*sigma**2?'"
+    },
+    {
+     "name": "wider means lower",
+     "code": "a, b = gaussian_pdf(0, 0, 1), gaussian_pdf(0, 0, 2)\nassert abs(b - a / 2) < 1e-9, f'doubling sigma should halve the peak; got {a} and {b}. Is sigma in the denominator of the coefficient?'"
+    },
+    {
+     "name": "shifting mu",
+     "code": "out = gaussian_pdf(5, 5, 1)\nassert abs(out - 0.3989422804) < 1e-8, f'the peak moves to x = mu, so p(5) with mu = 5 should be the peak 0.39894; got {out}'"
+    },
+    {
+     "name": "area is about 1",
+     "code": "area = sum(gaussian_pdf(-8 + 0.01 * i, 0, 1.5) * 0.01 for i in range(1600))\nassert abs(area - 1) < 1e-3, f'the area under any Gaussian should be 1; a Riemann sum gave {area:.4f}'"
+    }
+   ],
+   "hints": [
+    "coef = 1 / (sigma * math.sqrt(2 * math.pi))",
+    "expo = -(x - mu) ** 2 / (2 * sigma ** 2)"
+   ],
+   "solution": "import math\n\ndef gaussian_pdf(x, mu, sigma):\n    coef = 1 / (sigma * math.sqrt(2 * math.pi))\n    expo = -(x - mu) ** 2 / (2 * sigma ** 2)\n    return coef * math.exp(expo)\n"
+  },
+  {
+   "id": "dice",
+   "title": "Sum of n dice (the central limit theorem by hand)",
+   "prompt": "<p>Write <code>dice_sum_dist(n)</code> that returns a list <code>d</code> where <code>d[s]</code> is the probability that <code>n</code> fair dice add up to <code>s</code> (so <code>d</code> has length <code>6*n + 1</code>, and entries below <code>n</code> are 0).</p><p>Build it one die at a time: start from <code>[1.0]</code> (zero dice always sum to 0); adding a die spreads each existing probability <code>p</code> at sum <code>s</code> into <code>s+1 … s+6</code>, each getting <code>p/6</code>.</p><pre>dice_sum_dist(1)  # [0, 1/6, 1/6, 1/6, 1/6, 1/6, 1/6]\ndice_sum_dist(2)[7]  # 6/36</pre>",
+   "starter": "def dice_sum_dist(n):\n    d = [1.0]\n    for _ in range(n):\n        new = [0.0] * (len(d) + 6)\n        # TODO: for each sum s with probability p in d,\n        #       add p / 6 to new[s + 1] ... new[s + 6]\n\n        d = new\n    return d\n",
+   "tests": [
+    {
+     "name": "one die is flat",
+     "code": "d = dice_sum_dist(1)\nassert len(d) == 7, f'one die: sums 0..6, so length 7; got {len(d)}'\nassert all(abs(x - 1/6) < 1e-12 for x in d[1:]), f'each face 1-6 should have 1/6, got {d}'"
+    },
+    {
+     "name": "two dice make a triangle",
+     "code": "d = dice_sum_dist(2)\nassert abs(d[7] - 6/36) < 1e-12, f'there are 6 ways to roll 7 with two dice, so 6/36; got {d[7]}'\nassert abs(d[2] - 1/36) < 1e-12 and abs(d[12] - 1/36) < 1e-12, 'only one way each to roll 2 or 12'"
+    },
+    {
+     "name": "always a distribution",
+     "code": "d = dice_sum_dist(5)\nassert abs(sum(d) - 1) < 1e-9, f'probabilities must add up to 1, got {sum(d)}'"
+    },
+    {
+     "name": "five dice: bell around 17.5",
+     "code": "d = dice_sum_dist(5)\nassert abs(d[17] - d[18]) < 1e-12 and abs(d[17] - max(d)) < 1e-12, 'five dice should peak in the middle, at 17 and 18 (mean 17.5)'"
+    }
+   ],
+   "hints": [
+    "for s, p in enumerate(d): for f in range(1, 7): new[s + f] += p / 6",
+    "The loop over n repeats this once per die, so each die convolves the distribution once more."
+   ],
+   "solution": "def dice_sum_dist(n):\n    d = [1.0]\n    for _ in range(n):\n        new = [0.0] * (len(d) + 6)\n        for s, p in enumerate(d):\n            for f in range(1, 7):\n                new[s + f] += p / 6\n        d = new\n    return d\n"
+  },
+  {
+   "id": "rule",
+   "title": "Check 68-95-99.7 with samples (NumPy)",
+   "prompt": "<p>Write <code>fraction_within(x, k)</code>: given a NumPy array of samples <code>x</code>, return the fraction of samples within <code>k</code> standard deviations of the sample mean.</p><p>Use a boolean mask: <code>np.abs(x - m) &lt;= k * s</code> gives an array of True/False, and <code>.mean()</code> of it is the fraction of True.</p><pre>rng = np.random.default_rng(0)\nx = rng.normal(170, 7, size=100000)\nfraction_within(x, 1)   # about 0.683\nfraction_within(x, 2)   # about 0.954</pre>",
+   "starter": "import numpy as np\n\ndef fraction_within(x, k):\n    m = x.mean()\n    s = x.std()\n    # TODO: build the boolean mask and return its mean\n    pass\n",
+   "tests": [
+    {
+     "name": "one sigma",
+     "code": "import numpy as np\nx = np.random.default_rng(0).normal(170, 7, size=200000)\nout = fraction_within(x, 1)\nassert out is not None, 'returned None'\nassert abs(out - 0.6827) < 0.01, f'about 68% of a Gaussian is within 1 sigma, got {out:.3f}'"
+    },
+    {
+     "name": "two sigma",
+     "code": "import numpy as np\nx = np.random.default_rng(1).normal(0, 3, size=200000)\nout = fraction_within(x, 2)\nassert abs(out - 0.9545) < 0.01, f'about 95% is within 2 sigma, got {out:.3f}'"
+    },
+    {
+     "name": "small example",
+     "code": "import numpy as np\nx = np.array([-1.0, 1.0, -1.0, 1.0, 10.0, -10.0])\nm, s = x.mean(), x.std()\nout = fraction_within(x, 1)\nexp = np.mean(np.abs(x - m) <= s)\nassert abs(out - exp) < 1e-12, f'expected {exp}, got {out}. Use np.abs(x - m) <= k * s'"
+    }
+   ],
+   "hints": [
+    "mask = np.abs(x - m) <= k * s",
+    "return mask.mean() (True counts as 1, False as 0)"
+   ],
+   "solution": "import numpy as np\n\ndef fraction_within(x, k):\n    m = x.mean()\n    s = x.std()\n    return (np.abs(x - m) <= k * s).mean()\n"
+  }
+ ],
+ "poster": "videos/3.4-gaussian.jpg"
+}

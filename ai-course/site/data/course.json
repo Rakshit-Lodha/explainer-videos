@@ -17,7 +17,8 @@
     },
     {
      "num": "0.3",
-     "title": "Reading math notation: Σ, subscripts and vectors"
+     "title": "Reading math notation: Σ, subscripts and vectors",
+     "id": "0.3-notation"
     }
    ]
   },
@@ -32,11 +33,13 @@
     },
     {
      "num": "1.2",
-     "title": "Linear combinations, span and basis"
+     "title": "Linear combinations, span and basis",
+     "id": "1.2-span-basis"
     },
     {
      "num": "1.3",
-     "title": "Matrices as transformations of space"
+     "title": "Matrices as transformations of space",
+     "id": "1.3-matrices"
     },
     {
      "num": "1.4",
@@ -49,15 +52,18 @@
     },
     {
      "num": "1.6",
-     "title": "Dot product and projection (similarity)"
+     "title": "Dot product and projection (similarity)",
+     "id": "1.6-dot-product-projection"
     },
     {
      "num": "1.7",
-     "title": "Eigenvectors: directions that only stretch"
+     "title": "Eigenvectors: directions that only stretch",
+     "id": "1.7-eigenvectors"
     },
     {
      "num": "1.8",
-     "title": "SVD and PCA intuition (rotate, stretch, rotate)"
+     "title": "SVD and PCA intuition (rotate, stretch, rotate)",
+     "id": "1.8-svd-pca"
     }
    ]
   },
@@ -67,7 +73,8 @@
    "lessons": [
     {
      "num": "2.1",
-     "title": "Derivative: slope of a zoomed-in curve"
+     "title": "Derivative: slope of a zoomed-in curve",
+     "id": "2.1-derivative"
     },
     {
      "num": "2.2",
@@ -102,7 +109,8 @@
     },
     {
      "num": "3.2",
-     "title": "Expectation and variance"
+     "title": "Expectation and variance",
+     "id": "3.2-expectation-variance"
     },
     {
      "num": "3.3",
@@ -110,11 +118,13 @@
     },
     {
      "num": "3.4",
-     "title": "The Gaussian and why it's everywhere"
+     "title": "The Gaussian and why it's everywhere",
+     "id": "3.4-gaussian"
     },
     {
      "num": "3.5",
-     "title": "Maximum likelihood"
+     "title": "Maximum likelihood",
+     "id": "3.5-maximum-likelihood"
     },
     {
      "num": "3.6",
@@ -167,15 +177,18 @@
     },
     {
      "num": "5.2",
-     "title": "Logistic regression and the sigmoid"
+     "title": "Logistic regression and the sigmoid",
+     "id": "5.2-logistic-regression"
     },
     {
      "num": "5.3",
-     "title": "Overfitting and the bias-variance trade-off"
+     "title": "Overfitting and the bias-variance trade-off",
+     "id": "5.3-overfitting"
     },
     {
      "num": "5.4",
-     "title": "Regularization (L1, L2)"
+     "title": "Regularization (L1, L2)",
+     "id": "5.4-regularization"
     },
     {
      "num": "5.5",
@@ -205,23 +218,28 @@
    "lessons": [
     {
      "num": "6.1",
-     "title": "The neuron: weighted sum plus a bend"
+     "title": "The neuron: weighted sum plus a bend",
+     "id": "6.1-neuron"
     },
     {
      "num": "6.2",
-     "title": "Layers: stacking transformations"
+     "title": "Layers: stacking transformations",
+     "id": "6.2-layers"
     },
     {
      "num": "6.3",
-     "title": "Activation functions (ReLU, GELU, why not linear)"
+     "title": "Activation functions (ReLU, GELU, why not linear)",
+     "id": "6.3-activations"
     },
     {
      "num": "6.4",
-     "title": "Why depth helps"
+     "title": "Why depth helps",
+     "id": "6.4-depth"
     },
     {
      "num": "6.5",
-     "title": "Forward pass as a computational graph"
+     "title": "Forward pass as a computational graph",
+     "id": "6.5-computational-graph"
     },
     {
      "num": "6.6",
@@ -296,15 +314,18 @@
     },
     {
      "num": "9.2",
-     "title": "Embeddings: meaning as direction"
+     "title": "Embeddings: meaning as direction",
+     "id": "9.2-embeddings"
     },
     {
      "num": "9.3",
-     "title": "RNNs and why they struggled"
+     "title": "RNNs and why they struggled",
+     "id": "9.3-rnns"
     },
     {
      "num": "9.4",
-     "title": "Attention: which words should look at which"
+     "title": "Attention: which words should look at which",
+     "id": "9.4-attention"
     },
     {
      "num": "9.5",
@@ -343,15 +364,18 @@
     },
     {
      "num": "10.2",
-     "title": "Fine-tuning and instruction tuning"
+     "title": "Fine-tuning and instruction tuning",
+     "id": "10.2-fine-tuning"
     },
     {
      "num": "10.3",
-     "title": "Learning from human preferences (RLHF, DPO)"
+     "title": "Learning from human preferences (RLHF, DPO)",
+     "id": "10.3-preferences"
     },
     {
      "num": "10.4",
-     "title": "Context windows and the KV cache"
+     "title": "Context windows and the KV cache",
+     "id": "10.4-kv-cache"
     },
     {
      "num": "10.5",
@@ -359,7 +383,8 @@
     },
     {
      "num": "10.6",
-     "title": "Tool use and agents"
+     "title": "Tool use and agents",
+     "id": "10.6-tools-agents"
     },
     {
      "num": "10.7",
@@ -373,7 +398,8 @@
    "lessons": [
     {
      "num": "11.1",
-     "title": "Autoencoders and VAEs"
+     "title": "Autoencoders and VAEs",
+     "id": "11.1-autoencoders"
     },
     {
      "num": "11.2",

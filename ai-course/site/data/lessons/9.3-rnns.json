@@ -1,0 +1,174 @@
+{
+ "id": "9.3-rnns",
+ "module": 9,
+ "title": "RNNs and why they struggled",
+ "summary": "A recurrent network reads one token at a time and rewrites a hidden state: h_t = tanh(W_h h_{t-1} + W_x x_t + b), with the same weights at every step. Training sends gradients back through the unrolled chain, where repeated multiplication makes them vanish or explode. Gates (LSTM, GRU) helped, but processing stays sequential and the whole past must fit in one vector.",
+ "video": "videos/9.3-rnns.mp4",
+ "llm_link": "Transformers replaced RNNs in language models mainly because attention lets every position be computed in parallel during training and lets any token look directly at any earlier token, instead of passing everything through one hidden vector, one step at a time.",
+ "key_ideas": [
+  "Hidden state: a fixed-size vector that summarises everything read so far.",
+  "Update rule: h_t = tanh(W_h h_{t-1} + W_x x_t + b). The same W_h, W_x and b are used at every step.",
+  "Backpropagation through time multiplies by roughly the same factor at every step back, so gradients vanish (factor < 1) or explode (factor > 1).",
+  "LSTMs and GRUs add a gated, protected path that carries information with little change.",
+  "Two limits remain: steps must run one after another, and the whole past squeezes through one vector."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: a scalar RNN with h_t = tanh(w·h_{t-1} + x_t), w = 0.5, all inputs x_t = 0 and h_0 = 0. How strongly does h_3 depend on h_0 (the product of the step-back factors w·(1 − h_t²))?",
+   "options": [
+    "1.5",
+    "0.125",
+    "0.5",
+    "0"
+   ],
+   "answer": 1,
+   "explain": "With zero inputs every h_t stays 0, so tanh's slope is 1 and each step back multiplies by w = 0.5. Three steps: 0.5 × 0.5 × 0.5 = 0.125."
+  },
+  {
+   "q": "Why can one RNN read sentences of any length?",
+   "options": [
+    "It has one weight matrix per position",
+    "It uses the same weights at every step, applied in a loop",
+    "It pads every sentence to a fixed length",
+    "It stores all tokens in the hidden state"
+   ],
+   "answer": 1,
+   "explain": "The cell is a single function applied repeatedly. More tokens just means more loop iterations."
+  },
+  {
+   "q": "What is the job of tanh in the update rule?",
+   "options": [
+    "It makes the network linear",
+    "It squashes each entry into (−1, 1) so the hidden state cannot grow without bound",
+    "It normalises the state to length 1",
+    "It picks the most important token"
+   ],
+   "answer": 1,
+   "explain": "Without a squashing function, repeatedly multiplying by W_h could make the state grow without limit. tanh keeps every entry between −1 and 1 (and adds the bend that makes the network non-linear)."
+  },
+  {
+   "q": "The recurrent factor per step back is about 0.8. Roughly what fraction of the gradient survives 20 steps back?",
+   "options": [
+    "About 80%",
+    "About 16%",
+    "About 1%",
+    "Exactly 0"
+   ],
+   "answer": 2,
+   "explain": "0.8 to the power 20 is about 0.012, so roughly 1% of the signal reaches a word 20 steps back. That is why distant dependencies were hard to learn."
+  },
+  {
+   "q": "Which limitation of RNNs mattered most for training very large language models on GPUs?",
+   "options": [
+    "tanh is slow to compute",
+    "Step t cannot be computed until step t − 1 is done, so a long sequence cannot be processed in parallel",
+    "RNNs cannot use embeddings",
+    "RNNs need a separate model per sentence length"
+   ],
+   "answer": 1,
+   "explain": "GPUs are fast when they do many independent operations at once. A transformer processes all positions of a training sequence in parallel; an RNN has to walk through them in order."
+  }
+ ],
+ "problems": [
+  {
+   "id": "shapes",
+   "title": "Shape drill: one RNN step",
+   "prompt": "<p>Predict the shape of each expression and write it as a tuple. Then print the real shapes. The last one is a preview of why attention won: the <i>input</i> part of every step can be computed for all T positions at once.</p><p>Rules: <code>(a, b) @ (b,)</code> gives <code>(a,)</code>; <code>(a, b) @ (b, c)</code> gives <code>(a, c)</code>; <code>.T</code> swaps the two axes.</p>",
+   "starter": "import numpy as np\n\nT, d, H = 5, 3, 4            # sequence length, embedding width, hidden size\nX  = np.zeros((T, d))        # the embedded sentence, one row per token\nWx = np.zeros((H, d))        # input weights\nWh = np.zeros((H, H))        # recurrent weights\nb  = np.zeros(H)\nh  = np.zeros(H)             # the hidden state (the index card)\n\n# Predict each shape as a tuple before printing anything.\nanswers = {\n    \"X\": None,\n    \"X[0]\": None,\n    \"Wx @ X[0]\": None,\n    \"Wh @ h\": None,\n    \"Wh @ h + Wx @ X[0] + b\": None,\n    \"X @ Wx.T\": None,\n}\n",
+   "tests": [
+    {
+     "name": "shape of X",
+     "code": "import numpy as np\ngot = answers['X']\nreal = (X).shape\nassert got is not None, 'fill in your prediction for X'\nassert tuple(got) == real, f'you predicted {got} but X has shape {real}. One row per token (T) and one column per embedding dimension (d).'"
+    },
+    {
+     "name": "shape of X[0]",
+     "code": "import numpy as np\ngot = answers['X[0]']\nreal = (X[0]).shape\nassert got is not None, 'fill in your prediction for X[0]'\nassert tuple(got) == real, f'you predicted {got} but X[0] has shape {real}. One integer index picks one row: the vector of the first token, d numbers.'"
+    },
+    {
+     "name": "shape of Wx @ X[0]",
+     "code": "import numpy as np\ngot = answers['Wx @ X[0]']\nreal = (Wx @ X[0]).shape\nassert got is not None, 'fill in your prediction for Wx @ X[0]'\nassert tuple(got) == real, f'you predicted {got} but Wx @ X[0] has shape {real}. (H, d) @ (d,) gives (H,): the input is mapped into the hidden-state space.'"
+    },
+    {
+     "name": "shape of Wh @ h",
+     "code": "import numpy as np\ngot = answers['Wh @ h']\nreal = (Wh @ h).shape\nassert got is not None, 'fill in your prediction for Wh @ h'\nassert tuple(got) == real, f'you predicted {got} but Wh @ h has shape {real}. (H, H) @ (H,) gives (H,): the old memory, mixed.'"
+    },
+    {
+     "name": "shape of Wh @ h + Wx @ X[0] + b",
+     "code": "import numpy as np\ngot = answers['Wh @ h + Wx @ X[0] + b']\nreal = (Wh @ h + Wx @ X[0] + b).shape\nassert got is not None, 'fill in your prediction for Wh @ h + Wx @ X[0] + b'\nassert tuple(got) == real, f'you predicted {got} but Wh @ h + Wx @ X[0] + b has shape {real}. All three terms are (H,), so they add entry by entry and the new state has the same shape as the old one.'"
+    },
+    {
+     "name": "shape of X @ Wx.T",
+     "code": "import numpy as np\ngot = answers['X @ Wx.T']\nreal = (X @ Wx.T).shape\nassert got is not None, 'fill in your prediction for X @ Wx.T'\nassert tuple(got) == real, f'you predicted {got} but X @ Wx.T has shape {real}. (T, d) @ (d, H) gives (T, H): the input part for every step at once. Only the recurrent part has to wait for the previous step.'"
+    }
+   ],
+   "hints": [
+    "Wx has shape (H, d). Wx.T has shape (d, H).",
+    "A matrix times a vector gives a vector with as many entries as the matrix has rows."
+   ],
+   "solution": "import numpy as np\n\nT, d, H = 5, 3, 4            # sequence length, embedding width, hidden size\nX  = np.zeros((T, d))        # the embedded sentence, one row per token\nWx = np.zeros((H, d))        # input weights\nWh = np.zeros((H, H))        # recurrent weights\nb  = np.zeros(H)\nh  = np.zeros(H)             # the hidden state (the index card)\n\n# Predict each shape as a tuple before printing anything.\nanswers = {\n    \"X\": (5, 3),\n    \"X[0]\": (3,),\n    \"Wx @ X[0]\": (4,),\n    \"Wh @ h\": (4,),\n    \"Wh @ h + Wx @ X[0] + b\": (4,),\n    \"X @ Wx.T\": (5, 4),\n}\n"
+  },
+  {
+   "id": "rnn",
+   "title": "An RNN forward pass",
+   "prompt": "<p>Write <code>rnn_forward(X, Wh, Wx, b, h0)</code>. <code>X</code> is <code>(T, d)</code>. Starting from <code>h0</code>, apply</p><p style=\"text-align:center\"><code>h = np.tanh(Wh @ h + Wx @ x + b)</code></p><p>for each row <code>x</code> of <code>X</code> in order, and return all T hidden states stacked into a <code>(T, H)</code> array (row t is the state after reading token t).</p>",
+   "starter": "import numpy as np\n\ndef rnn_forward(X, Wh, Wx, b, h0):\n    h = h0\n    states = []\n    # TODO: for each row x of X:\n    #   update h with the rule, then append it to states\n    # TODO: return np.array(states)  (shape (T, H))\n    pass\n",
+   "tests": [
+    {
+     "name": "returns (T, H)",
+     "code": "import numpy as np\nrng=np.random.default_rng(0)\nT,d,H=6,3,4\nout=rnn_forward(rng.normal(size=(T,d)),rng.normal(size=(H,H))*.5,rng.normal(size=(H,d)),np.zeros(H),np.zeros(H))\nassert out is not None, 'rnn_forward returned None; return np.array(states)'\nassert np.shape(out)==(T,H), f'expected one hidden state per token, shape (T, H) = {(T,H)}, got {np.shape(out)}'"
+    },
+    {
+     "name": "one step by hand",
+     "code": "import numpy as np\nX=np.array([[1.0,0.0]])\nWh=np.eye(2); Wx=np.array([[1.0,0.0],[0.0,1.0]]); b=np.array([0.0,0.5]); h0=np.array([0.5,0.0])\nout=rnn_forward(X,Wh,Wx,b,h0)\nexp=np.tanh(np.array([1.5,0.5]))\nassert np.allclose(out[0],exp), f'first state should be tanh(Wh@h0 + Wx@x + b) = {exp}, got {out[0]}'"
+    },
+    {
+     "name": "memory carries forward",
+     "code": "import numpy as np\nX=np.array([[1.0],[0.0],[0.0]])\nout=rnn_forward(X,np.array([[0.9]]),np.array([[1.0]]),np.zeros(1),np.zeros(1))\nassert out[1,0]>0 and out[2,0]>0, 'with zero input, the state should still carry the first token forward through Wh; did you reset h each step?'\nassert out[2,0]<out[1,0]<out[0,0], 'with |Wh| < 1 and no new input, the memory should fade step by step'"
+    },
+    {
+     "name": "order matters",
+     "code": "import numpy as np\nrng=np.random.default_rng(3)\nWh=rng.normal(size=(3,3))*.6;Wx=rng.normal(size=(3,2));b=np.zeros(3);h0=np.zeros(3)\nX=rng.normal(size=(4,2))\na=rnn_forward(X,Wh,Wx,b,h0)[-1];c=rnn_forward(X[::-1],Wh,Wx,b,h0)[-1]\nassert not np.allclose(a,c), 'reading the tokens in reverse order should give a different final state; is each step using the previous h?'"
+    }
+   ],
+   "hints": [
+    "for x in X: h = np.tanh(Wh @ h + Wx @ x + b); states.append(h)",
+    "np.array(states) stacks a list of T vectors of length H into a (T, H) array."
+   ],
+   "solution": "import numpy as np\n\ndef rnn_forward(X, Wh, Wx, b, h0):\n    h = h0\n    states = []\n    for x in X:\n        h = np.tanh(Wh @ h + Wx @ x + b)\n        states.append(h)\n    return np.array(states)\n"
+  },
+  {
+   "id": "vanish",
+   "title": "Watch the gradient vanish",
+   "prompt": "<p>Use the smallest possible RNN: one number of memory. <code>h_t = tanh(w * h_{t-1} + u * x_t)</code>, starting from <code>h_0 = 0</code>.</p><p>One step back multiplies the gradient by the derivative of <code>h_t</code> with respect to <code>h_{t-1}</code>, which is <code>w * (1 - h_t**2)</code> (the slope of tanh is <code>1 - tanh²</code>). So the influence of <code>h_0</code> on the last state is the <b>product</b> of those factors over all steps.</p><p>Write <code>memory_signal(xs, w, u)</code> that runs the RNN over the inputs <code>xs</code> and returns that product. Then try <code>w = 0.9</code> over 50 steps, or <code>w = 1.5</code>, and see what happens.</p>",
+   "starter": "import numpy as np\n\ndef memory_signal(xs, w, u):\n    h = 0.0\n    signal = 1.0\n    # TODO: for each input x:\n    #   h = np.tanh(w * h + u * x)\n    #   signal = signal * (the factor for this step)\n    return signal\n",
+   "tests": [
+    {
+     "name": "zero input, w = 0.5",
+     "code": "out=memory_signal([0.0]*10,0.5,1.0)\nassert abs(out-0.5**10)<1e-12, f'with zero input h stays 0, tanh has slope 1, and each step multiplies by w: expected 0.5**10 = {0.5**10:.6f}, got {out}'"
+    },
+    {
+     "name": "w = 1 and zero input keeps the signal",
+     "code": "out=memory_signal([0.0]*30,1.0,1.0)\nassert abs(out-1.0)<1e-12, f'factor 1 at every step should leave the signal at exactly 1, got {out}'"
+    },
+    {
+     "name": "w = 0.9 over 50 steps",
+     "code": "out=memory_signal([0.0]*50,0.9,1.0)\nassert out<0.01, f'0.9**50 is about 0.005: after 50 steps almost nothing is left. Got {out}'"
+    },
+    {
+     "name": "saturated tanh kills the gradient",
+     "code": "out=memory_signal([3.0]*10,1.0,1.0)\nassert out<1e-6, f'large inputs push h close to 1, where the slope 1 - h**2 is nearly 0; the product should be tiny, got {out}. Did you use the new h in the factor?'"
+    },
+    {
+     "name": "exploding",
+     "code": "out=memory_signal([0.0]*20,1.5,1.0)\nassert out>1000, f'a factor of 1.5 per step grows to 1.5**20, about 3300; got {out}'"
+    }
+   ],
+   "hints": [
+    "Update h first, then multiply: signal *= w * (1 - h**2).",
+    "The factor uses the new h_t, the one you just computed."
+   ],
+   "solution": "import numpy as np\n\ndef memory_signal(xs, w, u):\n    h = 0.0\n    signal = 1.0\n    for x in xs:\n        h = np.tanh(w * h + u * x)\n        signal = signal * w * (1 - h**2)\n    return signal\n"
+  }
+ ],
+ "poster": "videos/9.3-rnns.jpg"
+}

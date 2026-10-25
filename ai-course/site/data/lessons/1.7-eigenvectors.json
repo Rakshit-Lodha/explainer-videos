@@ -1,0 +1,170 @@
+{
+ "id": "1.7-eigenvectors",
+ "module": 1,
+ "title": "Eigenvectors: directions that only stretch",
+ "summary": "Most arrows are turned off their line by a matrix, but an eigenvector stays on its own line and is only stretched by a factor λ, its eigenvalue: A v = λ v. Eigenvalues are where det(A − λI) = 0, and repeated multiplication pulls any arrow towards the direction with the largest eigenvalue.",
+ "video": "videos/1.7-eigenvectors.mp4",
+ "llm_link": "A signal passed through many layers, or many steps of a recurrent network, is multiplied again and again; stretch factors above one make it explode and below one make it vanish. That is one reason old recurrent networks forgot long contexts, and why transformers are built so that information does not have to pass through one long chain of the same matrix.",
+ "key_ideas": [
+  "An eigenvector of A is a nonzero arrow that A only stretches (or flips): A v = λ v. The number λ is its eigenvalue.",
+  "For A = [[3, 1], [0, 2]] the x-axis is stretched by 3 and the diagonal direction [1, −1] by 2.",
+  "(A − λI) v = 0 with v ≠ 0 means A − λI crushes the plane, so det(A − λI) = 0. Solving it gives the eigenvalues.",
+  "A rotation by 90° has no real eigenvectors; a shear has just one eigen-direction.",
+  "Power iteration: multiplying by A over and over pulls almost any arrow towards the eigenvector with the largest |λ|."
+ ],
+ "quiz": [
+  {
+   "q": "Which of these is an eigenvector of A = [[3, 1], [0, 2]]?",
+   "options": [
+    "[0, 1]",
+    "[1, 1]",
+    "[1, −1]",
+    "[2, 1]"
+   ],
+   "answer": 2,
+   "explain": "A·[1, −1] = [3 − 1, 0 − 2] = [2, −2] = 2·[1, −1], so it stays on its line with eigenvalue 2. A·[0, 1] = [1, 2], which points somewhere new."
+  },
+  {
+   "q": "Predict the result: A = [[2, 0], [0, 5]] times the arrow [0, 1]. What is the eigenvalue?",
+   "options": [
+    "2",
+    "5",
+    "7",
+    "It is not an eigenvector"
+   ],
+   "answer": 1,
+   "explain": "A·[0, 1] = [0, 5] = 5·[0, 1]. For a diagonal matrix the axes are eigenvectors and the diagonal entries are their eigenvalues."
+  },
+  {
+   "q": "Why does a 90° rotation have no real eigenvectors?",
+   "options": [
+    "Its determinant is 0",
+    "It turns every arrow off its own line, so none is merely stretched",
+    "Its eigenvalues are both 1",
+    "Rotations only have eigenvectors in 3D"
+   ],
+   "answer": 1,
+   "explain": "An eigenvector must stay on its line. A quarter turn moves every nonzero arrow to a perpendicular line; det(R − λI) = λ² + 1 = 0 has no real solution."
+  },
+  {
+   "q": "To find eigenvalues we solve det(A − λI) = 0. Why the determinant?",
+   "options": [
+    "Because the determinant equals the sum of eigenvalues",
+    "Because A − λI must send a nonzero v to 0, which only a matrix that crushes the plane (det 0) can do",
+    "Because it makes the matrix symmetric",
+    "It is a convention with no geometric reason"
+   ],
+   "answer": 1,
+   "explain": "(A − λI)v = 0 with v ≠ 0 means many points land on the origin, so A − λI flattens space, and a flattening matrix has determinant 0 (lesson 1.5)."
+  },
+  {
+   "q": "A recurrent network multiplies its hidden state by the same matrix at every step, and that matrix's largest stretch factor is 0.9. Roughly what is left of a signal from 50 steps ago?",
+   "options": [
+    "About 90%",
+    "About 45%",
+    "About half a percent (0.9⁵⁰ ≈ 0.005)",
+    "It grows"
+   ],
+   "answer": 2,
+   "explain": "Each step multiplies by about 0.9, and 0.9⁵⁰ ≈ 0.005. The early words fade to almost nothing: the vanishing problem that made old recurrent networks forget long sentences."
+  }
+ ],
+ "problems": [
+  {
+   "id": "check",
+   "title": "Is it an eigenvector?",
+   "prompt": "<p><code>matvec(A, v)</code> (from lesson 1.3) is given. Write <code>eigenvalue_of(A, v)</code> for a 2×2 matrix and a nonzero 2D vector:</p><ul><li>if <code>A v</code> lies on the same line as <code>v</code>, return the stretch factor λ (so that <code>A v = λ v</code>);</li><li>otherwise return <code>None</code>.</li></ul><p>Two 2D vectors <code>p</code> and <code>q</code> are on the same line exactly when <code>p[0]*q[1] − p[1]*q[0]</code> is 0 (the parallelogram they span has no area).</p><pre>eigenvalue_of([[3, 1], [0, 2]], [1, -1])   # 2.0\neigenvalue_of([[3, 1], [0, 2]], [0, 1])    # None</pre>",
+   "starter": "def matvec(A, v):\n    return [A[0][0] * v[0] + A[0][1] * v[1], A[1][0] * v[0] + A[1][1] * v[1]]\n\ndef eigenvalue_of(A, v, tol=1e-9):\n    w = matvec(A, v)\n    # TODO 1: if abs(v[0]*w[1] - v[1]*w[0]) > tol, A turned v off its line: return None\n    # TODO 2: otherwise w = lam * v. Find lam = (w . v) / (v . v) and return it\n    pass\n",
+   "tests": [
+    {
+     "name": "the x-axis is stretched by 3",
+     "code": "out = eigenvalue_of([[3, 1], [0, 2]], [1, 0])\nassert out is not None and abs(out - 3) < 1e-9, f'A·[1,0] = [3,0] = 3·[1,0], so expected 3, got {out}'"
+    },
+    {
+     "name": "the diagonal is stretched by 2",
+     "code": "out = eigenvalue_of([[3, 1], [0, 2]], [1, -1])\nassert out is not None and abs(out - 2) < 1e-9, f'A·[1,-1] = [2,-2], so expected 2, got {out}'"
+    },
+    {
+     "name": "a turned arrow is not an eigenvector",
+     "code": "out = eigenvalue_of([[3, 1], [0, 2]], [0, 1])\nassert out is None, f'A·[0,1] = [1,2] points somewhere new, so expected None, got {out}'"
+    },
+    {
+     "name": "flips count (negative eigenvalue)",
+     "code": "out = eigenvalue_of([[0, 1], [1, 0]], [1, -1])\nassert out is not None and abs(out + 1) < 1e-9, f'swapping entries sends [1,-1] to [-1,1] = -1·[1,-1], so expected -1, got {out}. Do not use abs() on lambda'"
+    },
+    {
+     "name": "rotation: nothing survives",
+     "code": "out = eigenvalue_of([[0, -1], [1, 0]], [1, 0])\nassert out is None, f'a quarter turn moves [1,0] to [0,1], expected None, got {out}'"
+    }
+   ],
+   "hints": [
+    "cross = v[0] * w[1] - v[1] * w[0]; if abs(cross) > tol: return None",
+    "lam = (w[0] * v[0] + w[1] * v[1]) / (v[0] ** 2 + v[1] ** 2). This is the projection from lesson 1.6: how many copies of v fit in w."
+   ],
+   "solution": "def matvec(A, v):\n    return [A[0][0] * v[0] + A[0][1] * v[1], A[1][0] * v[0] + A[1][1] * v[1]]\n\ndef eigenvalue_of(A, v, tol=1e-9):\n    w = matvec(A, v)\n    if abs(v[0] * w[1] - v[1] * w[0]) > tol:\n        return None\n    return (w[0] * v[0] + w[1] * v[1]) / (v[0] ** 2 + v[1] ** 2)\n"
+  },
+  {
+   "id": "eigvals",
+   "title": "Eigenvalues from det(A − λI) = 0",
+   "prompt": "<p>For <code>A = [[a, b], [c, d]]</code>, <code>det(A − λI) = (a − λ)(d − λ) − bc</code>. Expanding gives the quadratic</p><pre>λ² − (a + d)·λ + (ad − bc) = 0</pre><p>Write <code>eigenvalues2(A)</code> that returns the real solutions as a list sorted from largest to smallest, or an empty list when there are none (the discriminant is negative). A repeated root appears twice.</p><pre>eigenvalues2([[3, 1], [0, 2]])    # [3.0, 2.0]\neigenvalues2([[0, -1], [1, 0]])   # []   (rotation)</pre>",
+   "starter": "import math\n\ndef eigenvalues2(A):\n    (a, b), (c, d) = A\n    tr = a + d          # trace\n    det = a * d - b * c\n    # TODO 1: disc = tr**2 - 4*det. If disc < 0, return []\n    # TODO 2: r = math.sqrt(disc); return [(tr + r) / 2, (tr - r) / 2]\n    pass\n",
+   "tests": [
+    {
+     "name": "the lesson's matrix",
+     "code": "out = eigenvalues2([[3, 1], [0, 2]])\nassert out is not None, 'returned None'\nassert len(out) == 2 and abs(out[0] - 3) < 1e-9 and abs(out[1] - 2) < 1e-9, f'expected [3, 2], got {out}'"
+    },
+    {
+     "name": "rotation has no real eigenvalues",
+     "code": "out = eigenvalues2([[0, -1], [1, 0]])\nassert out == [], f'det(R - λI) = λ² + 1 has no real roots, expected [], got {out}'"
+    },
+    {
+     "name": "shear: a repeated eigenvalue",
+     "code": "out = eigenvalues2([[1, 1], [0, 1]])\nassert len(out) == 2 and all(abs(x - 1) < 1e-9 for x in out), f'a shear has eigenvalue 1 twice, expected [1, 1], got {out}'"
+    },
+    {
+     "name": "symmetric matrix",
+     "code": "out = eigenvalues2([[2, 1], [1, 2]])\nassert len(out) == 2 and abs(out[0] - 3) < 1e-9 and abs(out[1] - 1) < 1e-9, f'expected [3, 1] (sorted largest first), got {out}'"
+    },
+    {
+     "name": "product of eigenvalues is the determinant",
+     "code": "out = eigenvalues2([[4, 2], [1, 3]])\nassert abs(out[0] * out[1] - 10) < 1e-9, f'the eigenvalues should multiply to det = 4*3 - 2*1 = 10, got {out}'"
+    }
+   ],
+   "hints": [
+    "This is the quadratic formula with p = −(a + d) and q = ad − bc: λ = (tr ± √(tr² − 4·det)) / 2.",
+    "Return [(tr + r) / 2, (tr - r) / 2]: the + root is the larger one, so the list is already sorted."
+   ],
+   "solution": "import math\n\ndef eigenvalues2(A):\n    (a, b), (c, d) = A\n    tr = a + d\n    det = a * d - b * c\n    disc = tr ** 2 - 4 * det\n    if disc < 0:\n        return []\n    r = math.sqrt(disc)\n    return [(tr + r) / 2, (tr - r) / 2]\n"
+  },
+  {
+   "id": "power",
+   "title": "Power iteration (NumPy)",
+   "prompt": "<p>Write <code>power_iteration(A, v0, steps=100)</code>: start from <code>v0</code>, and <code>steps</code> times replace <code>v</code> by <code>A @ v</code> scaled back to length 1 (divide by <code>np.linalg.norm</code>). Without the rescaling, the numbers would explode or vanish.</p><p>Return <code>(lam, v)</code> where <code>v</code> is the final unit vector and <code>lam = v @ (A @ v)</code>, the stretch factor along it.</p><pre>A = np.array([[3., 1.], [0., 2.]])\nlam, v = power_iteration(A, np.array([-0.6, 0.8]))\n# lam ≈ 3, v ≈ ±[1, 0]</pre>",
+   "starter": "import numpy as np\n\ndef power_iteration(A, v0, steps=100):\n    v = v0 / np.linalg.norm(v0)\n    for _ in range(steps):\n        # TODO 1: v = A @ v\n        # TODO 2: v = v / np.linalg.norm(v)\n        pass\n    # TODO 3: lam = v @ (A @ v); return lam, v\n    return None, v\n",
+   "tests": [
+    {
+     "name": "finds the largest eigenvalue",
+     "code": "import numpy as np\nA = np.array([[3., 1.], [0., 2.]])\nlam, v = power_iteration(A, np.array([-0.6, 0.8]))\nassert lam is not None, 'lam is None: compute lam = v @ (A @ v) after the loop'\nassert abs(lam - 3) < 1e-6, f'expected about 3, got {lam}. Is the loop actually updating v?'"
+    },
+    {
+     "name": "the vector points along the x-axis",
+     "code": "import numpy as np\nA = np.array([[3., 1.], [0., 2.]])\nlam, v = power_iteration(A, np.array([-0.6, 0.8]))\nassert abs(abs(v[0]) - 1) < 1e-6 and abs(v[1]) < 1e-6, f'expected v close to [1, 0] or [-1, 0], got {v}'"
+    },
+    {
+     "name": "v has length 1",
+     "code": "import numpy as np\nA = np.array([[2., 1.], [1., 2.]])\nlam, v = power_iteration(A, np.array([1., 0.]))\nassert abs(np.linalg.norm(v) - 1) < 1e-9, f'v should be rescaled to length 1 every step, got length {np.linalg.norm(v)}'"
+    },
+    {
+     "name": "works in 3D and agrees with NumPy",
+     "code": "import numpy as np\nA = np.array([[4., 1., 0.], [1., 3., 1.], [0., 1., 2.]])\nlam, v = power_iteration(A, np.array([1., 1., 1.]), steps=200)\nref = max(np.linalg.eigvalsh(A))\nassert abs(lam - ref) < 1e-6, f'np.linalg.eigvalsh says the largest eigenvalue is {ref:.6f}, you got {lam}'"
+    }
+   ],
+   "hints": [
+    "Inside the loop: v = A @ v, then v = v / np.linalg.norm(v).",
+    "After the loop, A @ v ≈ lam * v, and since v has length 1, lam = v @ (A @ v)."
+   ],
+   "solution": "import numpy as np\n\ndef power_iteration(A, v0, steps=100):\n    v = v0 / np.linalg.norm(v0)\n    for _ in range(steps):\n        v = A @ v\n        v = v / np.linalg.norm(v)\n    lam = v @ (A @ v)\n    return lam, v\n"
+  }
+ ],
+ "poster": "videos/1.7-eigenvectors.jpg"
+}

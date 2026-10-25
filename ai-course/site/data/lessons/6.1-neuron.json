@@ -1,0 +1,164 @@
+{
+ "id": "6.1-neuron",
+ "module": 6,
+ "title": "The neuron: weighted sum plus a bend",
+ "summary": "A neuron multiplies each input by a weight, adds the products (a dot product), adds a bias, and bends the result with an activation function such as ReLU. Before the bend, it splits its input space with a straight line.",
+ "video": "videos/6.1-neuron.mp4",
+ "llm_link": "The feed-forward part of every transformer block is thousands of these neurons side by side, each reading the same token vector with its own weights. GPT-2 bends with GELU, a smooth cousin of ReLU.",
+ "key_ideas": [
+  "Weighted sum: z = w · x + b. Each weight sets how loudly its input is heard; a negative weight makes that input argue against firing.",
+  "The bias does not depend on the input. It sets how easily the neuron fires, like the height of a bar the weighted sum must clear.",
+  "With two inputs, the points where z = 0 form a straight line. The weight vector points across it toward z > 0; changing b slides the line without turning it.",
+  "The activation bends z: ReLU(z) = max(0, z) keeps positives and zeroes negatives; the sigmoid 1 / (1 + e^(−z)) squeezes z into (0, 1).",
+  "Without the bend a neuron is a linear function, and stacks of linear functions stay linear."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: a ReLU neuron has w = [0.5, −1], b = 1 and receives x = [1, 2]. What does it output?",
+   "options": [
+    "−0.5",
+    "0",
+    "0.5",
+    "1.5"
+   ],
+   "answer": 1,
+   "explain": "z = 0.5·1 + (−1)·2 + 1 = −0.5. ReLU replaces negative values with zero, so the output is 0."
+  },
+  {
+   "q": "In a two-input neuron, what does increasing the bias b do to the line z = 0?",
+   "options": [
+    "Rotates it",
+    "Slides it without turning it",
+    "Makes it curved",
+    "Nothing; the bias only matters after the activation"
+   ],
+   "answer": 1,
+   "explain": "The line's direction is set by w alone. Changing b moves every point's z by the same amount, so the line shifts parallel to itself."
+  },
+  {
+   "q": "You want a large value of input x₂ to make the neuron less likely to fire. What should you do?",
+   "options": [
+    "Make w₂ negative",
+    "Make b larger",
+    "Make x₂'s weight exactly zero",
+    "Use a sigmoid instead of ReLU"
+   ],
+   "answer": 0,
+   "explain": "A negative weight turns its input into an argument against: the bigger x₂ is, the more it lowers z."
+  },
+  {
+   "q": "Which values can a sigmoid output?",
+   "options": [
+    "Any real number",
+    "Only 0 or 1",
+    "Numbers strictly between 0 and 1",
+    "Numbers from −1 to 1"
+   ],
+   "answer": 2,
+   "explain": "1 / (1 + e^(−z)) approaches 0 for very negative z and 1 for very positive z, but never reaches either: a dimmer that never goes fully off or fully on."
+  },
+  {
+   "q": "Inside one feed-forward layer of a transformer, how do the neurons relate to each other?",
+   "options": [
+    "Each reads a different token",
+    "They all read the same token vector, each with its own weights and bias",
+    "They share one weight vector",
+    "Only one neuron is active per token"
+   ],
+   "answer": 1,
+   "explain": "Every neuron in the layer computes its own weighted sum of the same input vector, so the layer produces many different numbers from one token."
+  }
+ ],
+ "problems": [
+  {
+   "id": "neuron",
+   "title": "One ReLU neuron",
+   "prompt": "<p>Write <code>neuron(x, w, b)</code> for plain Python lists: compute the weighted sum <code>z = w·x + b</code>, then return <code>max(0, z)</code> (ReLU).</p><p>If <code>x</code> and <code>w</code> have different lengths, raise a <code>ValueError</code>: a weight per input is the whole idea.</p><pre>neuron([1, 2], [0.5, 1], 0)     # 2.5\nneuron([1, 2], [0.5, -1], 1)    # 0   (z was -0.5)</pre>",
+   "starter": "def neuron(x, w, b):\n    # TODO 1: raise ValueError if len(x) != len(w)\n\n    # TODO 2: z = sum of w[i] * x[i], plus b\n    z = 0\n\n    # TODO 3: apply ReLU and return the result\n    return z\n",
+   "tests": [
+    {
+     "name": "positive sum passes through",
+     "code": "out = neuron([1, 2], [0.5, 1], 0)\nassert abs(out - 2.5) < 1e-9, f'expected 2.5 (0.5*1 + 1*2 + 0), got {out}'"
+    },
+    {
+     "name": "negative sum becomes zero",
+     "code": "out = neuron([1, 2], [0.5, -1], 1)\nassert out == 0, f'z = 0.5 - 2 + 1 = -0.5, and ReLU turns negatives into 0, but you returned {out}'"
+    },
+    {
+     "name": "bias is added",
+     "code": "out = neuron([0, 0], [3, 4], 1.5)\nassert abs(out - 1.5) < 1e-9, f'with zero inputs the output should be just the bias 1.5, got {out}. Did you forget + b?'"
+    },
+    {
+     "name": "works for three inputs",
+     "code": "out = neuron([0.8, 0.3, 0.5], [1.5, -2.0, 0.7], 0)\nassert abs(out - 0.95) < 1e-9, f'expected 0.95 (the example from the video), got {out}'"
+    },
+    {
+     "name": "rejects mismatched lengths",
+     "code": "try:\n    neuron([1, 2, 3], [1, 2], 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('three inputs but two weights should raise ValueError; raise ValueError(\"...\") is the syntax')"
+    }
+   ],
+   "hints": [
+    "Check lengths first: if len(x) != len(w): raise ValueError(\"one weight per input\")",
+    "The weighted sum is a dot product: z = sum(wi * xi for wi, xi in zip(w, x)) + b",
+    "ReLU is one call: return max(0, z)"
+   ],
+   "solution": "def neuron(x, w, b):\n    if len(x) != len(w):\n        raise ValueError(\"one weight per input\")\n    z = sum(wi * xi for wi, xi in zip(w, x)) + b\n    return max(0, z)\n"
+  },
+  {
+   "id": "activation",
+   "title": "Swap the bend",
+   "prompt": "<p>Real networks use different activations, so pass the bend in as a function. Write:</p><ul><li><code>relu(z)</code>: <code>max(0, z)</code></li><li><code>sigmoid(z)</code>: <code>1 / (1 + e<sup>−z</sup>)</code>, using <code>math.exp</code></li><li><code>neuron(x, w, b, activation)</code>: the weighted sum plus bias, passed through <code>activation</code></li></ul><pre>neuron([1, 2], [0.5, -1], 1, relu)      # 0\nneuron([1, 2], [0.5, -1], 1, sigmoid)   # 0.3775...  (sigmoid(-0.5))</pre><p>Functions are values in Python: <code>activation(z)</code> calls whichever function was passed in.</p>",
+   "starter": "import math\n\ndef dot(a, b):\n    return sum(x * y for x, y in zip(a, b))\n\ndef relu(z):\n    # TODO\n    pass\n\ndef sigmoid(z):\n    # TODO: 1 / (1 + e^(-z))\n    pass\n\ndef neuron(x, w, b, activation):\n    # TODO: weighted sum plus bias, then call activation on it\n    pass\n",
+   "tests": [
+    {
+     "name": "relu",
+     "code": "assert relu(3) == 3 and relu(-2) == 0, f'relu(3) should be 3 and relu(-2) should be 0, got {relu(3)} and {relu(-2)}'"
+    },
+    {
+     "name": "sigmoid(0) is one half",
+     "code": "out = sigmoid(0)\nassert out is not None and abs(out - 0.5) < 1e-9, f'sigmoid(0) = 1 / (1 + 1) = 0.5, got {out}'"
+    },
+    {
+     "name": "sigmoid stays between 0 and 1",
+     "code": "hi, lo = sigmoid(10), sigmoid(-10)\nassert 0.99 < hi < 1 and 0 < lo < 0.01, f'sigmoid(10) should be just below 1 and sigmoid(-10) just above 0, got {hi} and {lo}. Check the sign inside exp.'"
+    },
+    {
+     "name": "neuron uses the activation it is given",
+     "code": "a = neuron([1, 2], [0.5, -1], 1, relu)\nb = neuron([1, 2], [0.5, -1], 1, sigmoid)\nassert a == 0, f'with relu the output should be 0, got {a}'\nassert b is not None and abs(b - 0.37754) < 1e-4, f'with sigmoid the output should be sigmoid(-0.5) = 0.3775, got {b}'"
+    }
+   ],
+   "hints": [
+    "relu: return max(0, z). sigmoid: return 1 / (1 + math.exp(-z))",
+    "neuron: z = dot(w, x) + b, then return activation(z)"
+   ],
+   "solution": "import math\n\ndef dot(a, b):\n    return sum(x * y for x, y in zip(a, b))\n\ndef relu(z):\n    return max(0, z)\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef neuron(x, w, b, activation):\n    return activation(dot(w, x) + b)\n"
+  },
+  {
+   "id": "and-gate",
+   "title": "Choose the weights: an AND gate",
+   "prompt": "<p>A neuron's line can separate the corner (1, 1) of the unit square from the other three corners. Pick numbers for <code>w</code> and <code>b</code> so that a sigmoid neuron outputs <b>more than 0.5 only for x = [1, 1]</b> and less than 0.5 for [0, 0], [0, 1] and [1, 0].</p><p>No training here: think about the line z = 0. Where must it pass so that (1, 1) is on the positive side and the other corners are not?</p>",
+   "starter": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef neuron(x, w, b):\n    return sigmoid(sum(wi * xi for wi, xi in zip(w, x)) + b)\n\n# TODO: choose the weights and the bias\nw = [0, 0]\nb = 0\n",
+   "tests": [
+    {
+     "name": "fires for [1, 1]",
+     "code": "out = neuron([1, 1], w, b)\nassert out > 0.5, f'for [1, 1] the output should be above 0.5 but is {out:.3f}; z = w1 + w2 + b must be positive'"
+    },
+    {
+     "name": "silent for [0, 0]",
+     "code": "out = neuron([0, 0], w, b)\nassert out < 0.5, f'for [0, 0] the output should be below 0.5 but is {out:.3f}; here z is just b, so b must be negative'"
+    },
+    {
+     "name": "silent for one input alone",
+     "code": "o1, o2 = neuron([1, 0], w, b), neuron([0, 1], w, b)\nassert o1 < 0.5 and o2 < 0.5, f'[1, 0] gave {o1:.3f} and [0, 1] gave {o2:.3f}; each single weight plus b must stay negative'"
+    }
+   ],
+   "hints": [
+    "For [0, 0] the sum is just b, so b must be negative.",
+    "Each weight alone must not overcome b, but the two together must: w1 + b < 0, w2 + b < 0, w1 + w2 + b > 0.",
+    "One answer: w = [1, 1], b = -1.5. The line x1 + x2 = 1.5 cuts off the corner (1, 1)."
+   ],
+   "solution": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef neuron(x, w, b):\n    return sigmoid(sum(wi * xi for wi, xi in zip(w, x)) + b)\n\nw = [1, 1]\nb = -1.5\n"
+  }
+ ],
+ "poster": "videos/6.1-neuron.jpg"
+}

@@ -1,0 +1,159 @@
+{
+ "id": "5.3-overfitting",
+ "module": 5,
+ "title": "Overfitting and the bias-variance trade-off",
+ "summary": "A flexible model can fit its training data perfectly and still fail on new data. Training error only falls as flexibility grows, while test error falls and then rises. Expected test error splits into bias squared, variance and irreducible noise.",
+ "video": "videos/5.3-overfitting.mp4",
+ "llm_link": "Language model training is monitored with the loss on held-out text: if the training loss keeps falling while the held-out loss rises, the model is memorising. Very large networks can also show double descent, where test error falls again past the point where the model can fit the training data exactly.",
+ "key_ideas": [
+  "Underfitting: the model is too stiff to follow the pattern (high bias). Overfitting: it bends to fit the noise (high variance).",
+  "Training error never rises as flexibility grows; test error is U-shaped. The bottom of the U is the model you want.",
+  "Bias: error from systematic wrongness. Variance: how much the fitted model changes when you redraw the training data.",
+  "Expected squared test error = bias² + variance + noise. The noise is a floor no model can beat.",
+  "More data, a simpler model or regularisation lower variance; always judge on data the model has not seen."
+ ],
+ "quiz": [
+  {
+   "q": "As you raise the polynomial degree, why can the training error never go up?",
+   "options": [
+    "Because higher degrees use less data",
+    "Because a higher-degree polynomial can always copy the lower-degree fit (set the extra coefficients to 0) and possibly do better",
+    "Because test error goes down",
+    "It can go up if the learning rate is wrong"
+   ],
+   "answer": 1,
+   "explain": "The degree-d polynomials include all lower-degree ones, so the best fit at degree d is at least as good on the same training points. Least squares finds that best fit exactly."
+  },
+  {
+   "q": "Predict the diagnosis: a model has training error 0.01 and test error 0.90.",
+   "options": [
+    "Underfitting (high bias)",
+    "Overfitting (high variance)",
+    "A perfect model",
+    "Too much data"
+   ],
+   "answer": 1,
+   "explain": "A tiny training error with a large test error means the model fitted details of the training set that do not carry over: overfitting."
+  },
+  {
+   "q": "A bathroom scale always reads 2 kg heavy. In bias-variance terms, its error is…",
+   "options": [
+    "Variance: it changes every time",
+    "Bias: a systematic error that averaging many readings cannot remove",
+    "Noise: it can be learned away",
+    "Neither"
+   ],
+   "answer": 1,
+   "explain": "Bias is a consistent offset from the truth. Averaging many readings cancels random scatter (variance) but leaves bias untouched."
+  },
+  {
+   "q": "You collect five times as much training data for a degree-9 model. Which term of the error does this mainly shrink?",
+   "options": [
+    "Bias",
+    "Variance",
+    "Noise",
+    "None of them"
+   ],
+   "answer": 1,
+   "explain": "More points pin the flexible curve down, so refitting on a fresh sample moves it much less. Bias (the model's built-in limits) and the noise floor do not change."
+  },
+  {
+   "q": "During language model training, the training loss keeps falling but the loss on held-out text starts rising. What is the most likely explanation?",
+   "options": [
+    "The model is generalising better",
+    "The model is starting to memorise its training text",
+    "The tokenizer is broken",
+    "The held-out text is too long"
+   ],
+   "answer": 1,
+   "explain": "A widening gap between training and held-out loss is the classic sign of overfitting. Engineers watch it and keep the checkpoint with the best held-out loss."
+  }
+ ],
+ "problems": [
+  {
+   "id": "mse",
+   "title": "Mean squared error",
+   "prompt": "<p>Write <code>mse(ys, preds)</code> with plain lists: the average of (y − prediction)² over matching pairs.</p><pre>mse([1, 2, 3], [1, 2, 5])   # (0 + 0 + 4) / 3 = 1.333...</pre><p>If the lists have different lengths, pairing them makes no sense: raise a <code>ValueError</code>.</p>",
+   "starter": "def mse(ys, preds):\n    # TODO 1: raise ValueError if the lengths differ\n    # TODO 2: average of (y - p) ** 2 over the pairs\n    pass\n",
+   "tests": [
+    {
+     "name": "example",
+     "code": "out = mse([1, 2, 3], [1, 2, 5])\nassert out is not None, 'mse returned None'\nassert abs(out - 4/3) < 1e-12, f'expected 4/3, got {out}. Square each difference, then divide by the number of pairs'"
+    },
+    {
+     "name": "perfect predictions give 0",
+     "code": "assert mse([0.5, -1], [0.5, -1]) == 0, 'identical lists should give 0'"
+    },
+    {
+     "name": "sign does not matter",
+     "code": "assert abs(mse([0], [2]) - mse([0], [-2])) < 1e-12, 'errors of +2 and -2 should cost the same: did you square them?'"
+    },
+    {
+     "name": "length mismatch",
+     "code": "try:\n    mse([1, 2], [1])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('different lengths should raise ValueError, not silently drop values (zip stops at the shorter list)')"
+    }
+   ],
+   "hints": [
+    "if len(ys) != len(preds): raise ValueError(\"lengths differ\")",
+    "return sum((y - p) ** 2 for y, p in zip(ys, preds)) / len(ys)"
+   ],
+   "solution": "def mse(ys, preds):\n    if len(ys) != len(preds):\n        raise ValueError(\"lengths differ\")\n    return sum((y - p) ** 2 for y, p in zip(ys, preds)) / len(ys)\n"
+  },
+  {
+   "id": "sweep",
+   "title": "Find the bottom of the valley",
+   "prompt": "<p>The starter makes the video's experiment: 12 noisy training points from sin(2πx) and 200 test points from the same curve.</p><p>Write <code>errors_by_degree(degrees)</code> that, for each degree, fits <code>np.polyfit(x_tr, y_tr, d)</code>, then returns two lists: the training MSE and the test MSE (use <code>np.polyval(coefs, x)</code> to predict). Then write <code>best_degree(degrees)</code> returning the degree with the lowest <b>test</b> error.</p><p>Print the two lists for degrees 0 to 11 and look at the U shape.</p>",
+   "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\nx_tr = np.sort(rng.uniform(0, 1, 12))\ny_tr = np.sin(2 * np.pi * x_tr) + rng.normal(0, 0.25, 12)\nx_te = rng.uniform(0, 1, 200)\ny_te = np.sin(2 * np.pi * x_te) + rng.normal(0, 0.25, 200)\n\ndef errors_by_degree(degrees):\n    train_err, test_err = [], []\n    for d in degrees:\n        # TODO: fit coefs on the training set, then append both MSEs\n        pass\n    return train_err, test_err\n\ndef best_degree(degrees):\n    # TODO: the degree whose test error is lowest\n    pass\n",
+   "tests": [
+    {
+     "name": "one error per degree",
+     "code": "tr, te = errors_by_degree(range(10))\nassert len(tr) == 10 and len(te) == 10, f'expected 10 training and 10 test errors, got {len(tr)} and {len(te)}'"
+    },
+    {
+     "name": "training error never rises",
+     "code": "tr, te = errors_by_degree(range(10))\nfor a, b in zip(tr, tr[1:]):\n    assert b <= a + 1e-9, f'training error went up ({a:.4f} -> {b:.4f}); are you measuring it on x_tr, y_tr?'"
+    },
+    {
+     "name": "high degree overfits",
+     "code": "tr, te = errors_by_degree([3, 11])\nassert tr[1] < 1e-6, f'degree 11 through 12 points should fit them almost exactly, training MSE {tr[1]}'\nassert te[1] > 3 * te[0], f'degree 11 should do far worse on test data than degree 3 ({te[1]:.3f} vs {te[0]:.3f}); measure test error on x_te, y_te'"
+    },
+    {
+     "name": "best degree is in the valley",
+     "code": "b = best_degree(list(range(12)))\nassert b is not None, 'best_degree returned None'\nassert 3 <= b <= 7, f'the lowest test error should be at a moderate degree, got {b}. Pick by test error, not training error'"
+    }
+   ],
+   "hints": [
+    "coefs = np.polyfit(x_tr, y_tr, d); train_err.append(np.mean((np.polyval(coefs, x_tr) - y_tr) ** 2))",
+    "Do the same with x_te, y_te for the test error.",
+    "best_degree: tr, te = errors_by_degree(degrees); return list(degrees)[int(np.argmin(te))]"
+   ],
+   "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\nx_tr = np.sort(rng.uniform(0, 1, 12))\ny_tr = np.sin(2 * np.pi * x_tr) + rng.normal(0, 0.25, 12)\nx_te = rng.uniform(0, 1, 200)\ny_te = np.sin(2 * np.pi * x_te) + rng.normal(0, 0.25, 200)\n\ndef errors_by_degree(degrees):\n    train_err, test_err = [], []\n    for d in degrees:\n        coefs = np.polyfit(x_tr, y_tr, d)\n        train_err.append(np.mean((np.polyval(coefs, x_tr) - y_tr) ** 2))\n        test_err.append(np.mean((np.polyval(coefs, x_te) - y_te) ** 2))\n    return train_err, test_err\n\ndef best_degree(degrees):\n    tr, te = errors_by_degree(degrees)\n    return list(degrees)[int(np.argmin(te))]\n"
+  },
+  {
+   "id": "variance",
+   "title": "Measure variance directly",
+   "prompt": "<p>Variance is how much the fitted model moves when the training data is redrawn. Write <code>predictions_at(x0, degree, n_trials)</code>: for each trial t, draw a fresh training set with <code>make_data(seed=t)</code>, fit a polynomial of the given degree, and record its prediction at <code>x0</code>. Return the predictions as a NumPy array.</p><p>Then compare <code>predictions_at(0.95, 1, 50).std()</code> with <code>predictions_at(0.95, 9, 50).std()</code>.</p>",
+   "starter": "import numpy as np\n\ndef make_data(seed, n=12):\n    r = np.random.default_rng(seed)\n    x = np.sort(r.uniform(0, 1, n))\n    return x, np.sin(2 * np.pi * x) + r.normal(0, 0.25, n)\n\ndef predictions_at(x0, degree, n_trials):\n    preds = []\n    for t in range(n_trials):\n        # TODO: fresh data, fit, predict at x0\n        pass\n    return np.array(preds)\n",
+   "tests": [
+    {
+     "name": "one prediction per trial",
+     "code": "p = predictions_at(0.5, 3, 20)\nassert p.shape == (20,), f'expected 20 predictions, got shape {p.shape}'"
+    },
+    {
+     "name": "flexible models vary more",
+     "code": "s1 = predictions_at(0.95, 1, 50).std(); s9 = predictions_at(0.95, 9, 50).std()\nassert s9 > 3 * s1, f'degree 9 should scatter much more than degree 1 (std {s9:.3f} vs {s1:.3f}); make sure each trial uses make_data(seed=t)'"
+    },
+    {
+     "name": "uses different data each trial",
+     "code": "p = predictions_at(0.5, 1, 5)\nassert p.std() > 0, 'all predictions are identical: draw new data in every trial'"
+    }
+   ],
+   "hints": [
+    "x, y = make_data(seed=t); coefs = np.polyfit(x, y, degree)",
+    "preds.append(np.polyval(coefs, x0))"
+   ],
+   "solution": "import numpy as np\n\ndef make_data(seed, n=12):\n    r = np.random.default_rng(seed)\n    x = np.sort(r.uniform(0, 1, n))\n    return x, np.sin(2 * np.pi * x) + r.normal(0, 0.25, n)\n\ndef predictions_at(x0, degree, n_trials):\n    preds = []\n    for t in range(n_trials):\n        x, y = make_data(seed=t)\n        coefs = np.polyfit(x, y, degree)\n        preds.append(np.polyval(coefs, x0))\n    return np.array(preds)\n"
+  }
+ ],
+ "poster": "videos/5.3-overfitting.jpg"
+}

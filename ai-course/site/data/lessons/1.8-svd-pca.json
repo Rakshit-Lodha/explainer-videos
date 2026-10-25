@@ -1,0 +1,162 @@
+{
+ "id": "1.8-svd-pca",
+ "module": 1,
+ "title": "SVD and PCA intuition (rotate, stretch, rotate)",
+ "summary": "Every matrix, square or rectangular, is a rotation, a stretch along the axes, and another rotation: M = U Σ Vᵀ. The stretch factors (singular values) are the half-axes of the ellipse a unit circle becomes; keeping only the largest gives the best low-rank approximation, and applied to centred data the top direction is the first principal component.",
+ "video": "videos/1.8-svd-pca.mp4",
+ "llm_link": "LoRA fine-tunes a large language model by learning a low-rank update ΔW = B·A (two thin matrices) instead of changing the full weight matrix, betting that the change a task needs lives in a few directions. PCA is how embeddings with hundreds of dimensions get drawn as flat 2D maps.",
+ "key_ideas": [
+  "A matrix turns the unit circle into an ellipse. Its half-axes are the singular values σ₁ ≥ σ₂ ≥ 0, and the axes are perpendicular.",
+  "M = U Σ Vᵀ: Vᵀ rotates the special input directions onto the axes, Σ stretches along them, U rotates into place (a rotation may include a mirror flip).",
+  "Unlike eigenvectors, the SVD exists for every matrix, including rectangular ones.",
+  "Keeping the top k singular values gives the best rank-k approximation (Eckart–Young) with far fewer numbers.",
+  "PCA: subtract the mean, take the SVD of the data; the first right singular vector is the direction of greatest spread. Projecting onto it turns 2 numbers per point into 1."
+ ],
+ "quiz": [
+  {
+   "q": "The matrix [[3, 0], [0, 0.5]] is applied to the unit circle. What are the half-axes of the ellipse?",
+   "options": [
+    "3 and 0.5",
+    "3.5 and 0",
+    "1 and 1",
+    "6 and 1"
+   ],
+   "answer": 0,
+   "explain": "It stretches x by 3 and y by 0.5, so the circle becomes an ellipse with half-axes 3 and 0.5: these are the singular values."
+  },
+  {
+   "q": "Predict the result: what are the singular values of [[3, 0], [0, −2]]?",
+   "options": [
+    "3 and −2",
+    "3 and 2",
+    "1 and 1",
+    "−3 and 2"
+   ],
+   "answer": 1,
+   "explain": "Singular values are lengths of half-axes, so they are never negative. The −2 is a stretch by 2 combined with a flip, and the flip goes into U or V."
+  },
+  {
+   "q": "In M = U Σ Vᵀ, which piece changes lengths?",
+   "options": [
+    "U",
+    "Σ",
+    "Vᵀ",
+    "All three equally"
+   ],
+   "answer": 1,
+   "explain": "U and Vᵀ are rotations (possibly with a mirror flip), which keep lengths. Only the diagonal Σ stretches, along the axes."
+  },
+  {
+   "q": "Why does PCA subtract the average before taking the SVD?",
+   "options": [
+    "To make every value positive",
+    "So the directions describe spread around the centre of the cloud, not the cloud's position",
+    "To make the matrix square",
+    "To normalise each point to length 1"
+   ],
+   "answer": 1,
+   "explain": "Without centring, the biggest 'direction' would mostly point from the origin to wherever the cloud sits. Centring makes the SVD measure how the points spread out."
+  },
+  {
+   "q": "LoRA replaces an update to a 4096 × 4096 weight matrix (16,777,216 numbers) with B·A, where B is 4096 × 8 and A is 8 × 4096. How many numbers does it train?",
+   "options": [
+    "4,096",
+    "32,768",
+    "65,536",
+    "16,777,216"
+   ],
+   "answer": 2,
+   "explain": "4096·8 + 8·4096 = 65,536: about 0.4% of the full matrix, because the update is limited to rank 8, a few directions."
+  }
+ ],
+ "problems": [
+  {
+   "id": "center",
+   "title": "Centre a cloud of points",
+   "prompt": "<p>PCA starts by moving the cloud so its average sits at the origin. Write <code>center(points)</code> for a list of 2D points <code>[[x, y], ...]</code>: compute the mean x and mean y, and return a <b>new</b> list with the mean subtracted from every point.</p><pre>center([[1, 2], [3, 6]])   # [[-1.0, -2.0], [1.0, 2.0]]</pre>",
+   "starter": "def center(points):\n    n = len(points)\n    # TODO 1: mx = sum of all x values / n, my = sum of all y values / n\n\n    # TODO 2: return [[x - mx, y - my] for each point]\n    pass\n",
+   "tests": [
+    {
+     "name": "two points",
+     "code": "out = center([[1, 2], [3, 6]])\nassert out is not None, 'center returned None. Did you forget return?'\nassert out == [[-1.0, -2.0], [1.0, 2.0]], f'the mean is (2, 4), so expected [[-1, -2], [1, 2]], got {out}'"
+    },
+    {
+     "name": "the result averages to zero",
+     "code": "out = center([[2, 0], [4, 1], [9, 5], [1, 2]])\nmx = sum(p[0] for p in out) / 4; my = sum(p[1] for p in out) / 4\nassert abs(mx) < 1e-12 and abs(my) < 1e-12, f'after centring the mean should be (0, 0), got ({mx}, {my}). Divide the sums by the number of points'"
+    },
+    {
+     "name": "spread is unchanged",
+     "code": "pts = [[0, 0], [10, 0]]\nout = center(pts)\nassert out[1][0] - out[0][0] == 10, f'centring only shifts the cloud; the gap between points must stay 10, got {out}'"
+    },
+    {
+     "name": "inputs are not modified",
+     "code": "pts = [[1, 1], [3, 3]]\ncenter(pts)\nassert pts == [[1, 1], [3, 3]], 'your function changed the input list; build a new list instead'"
+    }
+   ],
+   "hints": [
+    "mx = sum(p[0] for p in points) / n, and the same with p[1] for my.",
+    "return [[x - mx, y - my] for x, y in points]"
+   ],
+   "solution": "def center(points):\n    n = len(points)\n    mx = sum(p[0] for p in points) / n\n    my = sum(p[1] for p in points) / n\n    return [[x - mx, y - my] for x, y in points]\n"
+  },
+  {
+   "id": "lowrank",
+   "title": "Best rank-k approximation (NumPy)",
+   "prompt": "<p><code>U, S, Vt = np.linalg.svd(M)</code> returns the three factors, with the singular values <code>S</code> as a 1D array sorted largest first. Then <code>M == U @ np.diag(S) @ Vt</code> (for a square M).</p><p>Write <code>rank_k(M, k)</code> that keeps only the top <code>k</code> singular values: use the first <code>k</code> columns of <code>U</code>, the first <code>k</code> values of <code>S</code> and the first <code>k</code> rows of <code>Vt</code>.</p><p>Shapes to predict first: if <code>M</code> is (4, 4) and <code>k = 1</code>, what are the shapes of <code>U[:, :k]</code>, <code>np.diag(S[:k])</code> and <code>Vt[:k, :]</code>?</p>",
+   "starter": "import numpy as np\n\ndef rank_k(M, k):\n    U, S, Vt = np.linalg.svd(M)\n    # TODO: return U[:, :k] @ np.diag(S[:k]) @ Vt[:k, :]\n    pass\n",
+   "tests": [
+    {
+     "name": "full rank rebuilds M",
+     "code": "import numpy as np\nM = np.array([[3., 1.], [1., 2.]])\nout = rank_k(M, 2)\nassert out is not None, 'rank_k returned None'\nassert np.allclose(out, M), f'keeping every singular value should rebuild M exactly, got {out}'"
+    },
+    {
+     "name": "rank 1 has one nonzero singular value",
+     "code": "import numpy as np\nM = np.array([[4., 2., 0.], [1., 3., 1.], [0., 1., 2.]])\nout = rank_k(M, 1)\ns = np.linalg.svd(out, compute_uv=False)\nassert out.shape == (3, 3), f'the approximation should have the same shape as M, (3, 3); got {out.shape}'\nassert s[1] < 1e-9, f'a rank-1 matrix has only one nonzero singular value, got {s}. Are you slicing U[:, :k] (columns) and Vt[:k, :] (rows)?'"
+    },
+    {
+     "name": "error is the dropped singular values",
+     "code": "import numpy as np\nM = np.array([[4., 2., 0.], [1., 3., 1.], [0., 1., 2.]])\nS = np.linalg.svd(M, compute_uv=False)\nerr = np.linalg.norm(M - rank_k(M, 1))\nassert abs(err - np.sqrt(S[1]**2 + S[2]**2)) < 1e-9, f'the error of the best rank-1 approximation should be sqrt(σ2² + σ3²) = {np.sqrt(S[1]**2+S[2]**2):.4f}, got {err:.4f}'"
+    },
+    {
+     "name": "works for rectangular matrices",
+     "code": "import numpy as np\nM = np.arange(12.).reshape(3, 4)\nU, S, Vt = np.linalg.svd(M)\nout = rank_k(M, 2)\nassert out.shape == (3, 4), f'expected shape (3, 4), got {out.shape}. For a non-square M, slicing keeps the shapes compatible'"
+    }
+   ],
+   "hints": [
+    "U[:, :k] is (n, k), np.diag(S[:k]) is (k, k), Vt[:k, :] is (k, m). Their product is (n, m), the shape of M.",
+    "return U[:, :k] @ np.diag(S[:k]) @ Vt[:k, :]"
+   ],
+   "solution": "import numpy as np\n\ndef rank_k(M, k):\n    U, S, Vt = np.linalg.svd(M)\n    return U[:, :k] @ np.diag(S[:k]) @ Vt[:k, :]\n"
+  },
+  {
+   "id": "pca",
+   "title": "First principal component (NumPy)",
+   "prompt": "<p><code>X</code> is a data matrix with one point per row, shape <code>(n, d)</code>. Write <code>pca1(X)</code> that returns <code>(pc, scores)</code>:</p><ul><li><code>pc</code>: the first principal component, a unit vector of shape <code>(d,)</code>: centre X (subtract the mean of each column, <code>X.mean(axis=0)</code>), take <code>np.linalg.svd</code>, and use the first row of <code>Vt</code>;</li><li><code>scores</code>: each centred point projected onto <code>pc</code> (one number per point, shape <code>(n,)</code>).</li></ul>",
+   "starter": "import numpy as np\n\ndef pca1(X):\n    # TODO 1: Xc = X - X.mean(axis=0)   (broadcasting subtracts the mean row from every row)\n    # TODO 2: U, S, Vt = np.linalg.svd(Xc, full_matrices=False); pc = Vt[0]\n    # TODO 3: scores = Xc @ pc   (the shadow of every point on pc)\n    pass\n",
+   "tests": [
+    {
+     "name": "finds the long direction",
+     "code": "import numpy as np\nrng = np.random.default_rng(0)\nt = rng.normal(0, 3, 200); s = rng.normal(0, 0.3, 200)\nd = np.array([np.cos(0.6), np.sin(0.6)]); e = np.array([-d[1], d[0]])\nX = np.outer(t, d) + np.outer(s, e) + np.array([5., -2.])\nout = pca1(X)\nassert out is not None, 'pca1 returned None'\npc, scores = out\nassert abs(abs(pc @ d) - 1) < 0.01, f'pc should point along the cigar, direction {d.round(3)} (or its negative); got {np.round(pc, 3)}. Did you centre X first?'"
+    },
+    {
+     "name": "pc is a unit vector of shape (d,)",
+     "code": "import numpy as np\nX = np.array([[1., 2., 0.], [3., 1., 1.], [0., 0., 2.], [2., 5., 1.]])\npc, scores = pca1(X)\nassert pc.shape == (3,), f'pc should have shape (3,), got {pc.shape}. Take a row of Vt, not a column of U'\nassert abs(np.linalg.norm(pc) - 1) < 1e-9, f'pc should have length 1, got {np.linalg.norm(pc)}'"
+    },
+    {
+     "name": "one score per point, centred",
+     "code": "import numpy as np\nX = np.array([[1., 2.], [3., 1.], [0., 0.], [2., 5.], [4., 4.]])\npc, scores = pca1(X)\nassert scores.shape == (5,), f'expected one score per row, shape (5,), got {scores.shape}'\nassert abs(scores.mean()) < 1e-9, f'scores of centred data average to 0, got mean {scores.mean()}. Project the centred Xc, not X'"
+    },
+    {
+     "name": "the scores carry the largest spread",
+     "code": "import numpy as np\nX = np.array([[1., 2.], [3., 1.], [0., 0.], [2., 5.], [4., 4.]])\npc, scores = pca1(X)\nXc = X - X.mean(axis=0)\nfor ang in np.linspace(0, np.pi, 37):\n    u = np.array([np.cos(ang), np.sin(ang)])\n    assert (Xc @ u).var() <= scores.var() + 1e-9, 'some other direction has more spread than your pc'"
+    }
+   ],
+   "hints": [
+    "X.mean(axis=0) has shape (d,): one mean per column. X - X.mean(axis=0) subtracts it from every row (broadcasting).",
+    "U, S, Vt = np.linalg.svd(Xc, full_matrices=False); pc = Vt[0]; scores = Xc @ pc; return pc, scores"
+   ],
+   "solution": "import numpy as np\n\ndef pca1(X):\n    Xc = X - X.mean(axis=0)\n    U, S, Vt = np.linalg.svd(Xc, full_matrices=False)\n    pc = Vt[0]\n    scores = Xc @ pc\n    return pc, scores\n"
+  }
+ ],
+ "poster": "videos/1.8-svd-pca.jpg"
+}

@@ -1,0 +1,160 @@
+{
+ "id": "11.1-autoencoders",
+ "module": 11,
+ "title": "Autoencoders and VAEs",
+ "summary": "An autoencoder compresses its input through a narrow bottleneck and rebuilds it, trained only on reconstruction error, so the data is its own target. A linear one learns the same subspace as PCA. A plain autoencoder leaves gaps in its code space, so random codes decode badly. A VAE encodes each input as a Gaussian cloud, samples with the reparameterisation trick z = μ + σ·ε, and adds a KL penalty toward N(0, I), which makes the code space something you can sample from.",
+ "video": "videos/11.1-autoencoders.mp4",
+ "llm_link": "Image generators such as Stable Diffusion (latent diffusion) run in the latent space of an autoencoder rather than on pixels, and many multimodal models turn images into tokens with an autoencoder that has a discrete codebook (a VQ-VAE style tokenizer).",
+ "key_ideas": [
+  "Encoder: x → z (short code through a bottleneck); decoder: z → x̂. Loss: reconstruction error such as ‖x − x̂‖². No labels.",
+  "A linear autoencoder with squared error learns the principal-component subspace (the same subspace as PCA).",
+  "Plain autoencoders leave gaps between clusters of codes; decoding a code from a gap gives nonsense.",
+  "VAE (Kingma & Welling, 2013): the encoder outputs μ and log σ² per dimension; z = μ + σ·ε with ε ~ N(0, I) (reparameterisation keeps the path to the loss differentiable).",
+  "KL(N(μ, σ²) ‖ N(0, 1)) = ½ Σ (μ² + σ² − log σ² − 1). Loss = reconstruction + KL = −ELBO.",
+  "Latent diffusion compresses images with an autoencoder (KL- or VQ-regularised) and generates in the latent space."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: the encoder outputs μ = 0 and log σ² = 0 (so σ = 1) in every dimension. What is the KL penalty toward N(0, 1)?",
+   "options": [
+    "1",
+    "0",
+    "0.5",
+    "Infinite"
+   ],
+   "answer": 1,
+   "explain": "½(0² + 1 − 0 − 1) = 0 per dimension: the cloud already is the standard normal, so there is nothing to pay."
+  },
+  {
+   "q": "Why do random codes often decode to smudges with a plain autoencoder?",
+   "options": [
+    "The decoder is too small",
+    "Nothing forces the codes of real examples to fill the space, so random points land in gaps no training example occupied",
+    "The bottleneck is too wide",
+    "Autoencoders cannot decode at all"
+   ],
+   "answer": 1,
+   "explain": "The loss only checks real examples. The VAE's KL term pulls all clouds toward N(0, I) so the space is filled."
+  },
+  {
+   "q": "What does the reparameterisation trick z = μ + σ·ε achieve?",
+   "options": [
+    "It removes the randomness",
+    "It moves the randomness into ε so gradients can flow from the loss back to μ and σ",
+    "It makes σ always equal to 1",
+    "It replaces the decoder"
+   ],
+   "answer": 1,
+   "explain": "Sampling z directly is not differentiable with respect to μ and σ. Writing it as a deterministic function of μ, σ and an independent ε fixes that."
+  },
+  {
+   "q": "A linear autoencoder with a 1-dimensional bottleneck is trained with squared error on 2-D points. Which direction does its code capture?",
+   "options": [
+    "The x-axis",
+    "The direction of greatest variance (the first principal component)",
+    "A random direction",
+    "The direction of least variance"
+   ],
+   "answer": 1,
+   "explain": "Keeping the direction of greatest variance loses the least squared error, which is exactly what PCA's first component does."
+  },
+  {
+   "q": "Why do latent diffusion models such as Stable Diffusion run in an autoencoder's latent space instead of on pixels?",
+   "options": [
+    "Pixels cannot be denoised",
+    "The latent is much smaller, so generation is far cheaper while the decoder restores detail",
+    "Autoencoders add colour",
+    "It removes the need for training"
+   ],
+   "answer": 1,
+   "explain": "Compressing first means every denoising step works on far fewer numbers; the decoder maps the final latent back to an image."
+  }
+ ],
+ "problems": [
+  {
+   "id": "reparam",
+   "title": "The reparameterisation trick (NumPy)",
+   "prompt": "<p>The encoder outputs <code>mu</code> and <code>log_var</code> (log σ²), both arrays of the code size. Write <code>reparameterize(mu, log_var, eps)</code> = <code>mu + sigma * eps</code>, where <code>sigma = exp(0.5 * log_var)</code>.</p><p>The noise <code>eps</code> is passed in (normally drawn from a standard normal) so that the tests are deterministic.</p><pre>reparameterize(np.array([1.0, -2.0]), np.array([0.0, np.log(4.0)]), np.array([0.5, 1.0]))\n# array([1.5, 0. ])   sigma = [1, 2]</pre>",
+   "starter": "import numpy as np\n\ndef reparameterize(mu, log_var, eps):\n    # TODO 1: sigma from log_var (log of the variance, so take exp of HALF of it)\n    # TODO 2: return mu + sigma * eps\n    pass\n",
+   "tests": [
+    {
+     "name": "example",
+     "code": "import numpy as np\nout = reparameterize(np.array([1.0, -2.0]), np.array([0.0, np.log(4.0)]), np.array([0.5, 1.0]))\nassert out is not None, 'reparameterize returned None'\nassert np.allclose(out, [1.5, 0.0]), f'expected [1.5, 0.0], got {out}. log_var = log(4) means variance 4, so sigma = 2, not 4.'"
+    },
+    {
+     "name": "zero noise gives the mean",
+     "code": "import numpy as np\nmu = np.array([0.3, -0.7, 2.0])\nassert np.allclose(reparameterize(mu, np.array([1.0, 2.0, -1.0]), np.zeros(3)), mu), 'with eps = 0 the sample must equal mu'"
+    },
+    {
+     "name": "samples have the right spread",
+     "code": "import numpy as np\nrng = np.random.default_rng(0)\neps = rng.standard_normal((20000, 1))\nz = reparameterize(np.array([5.0]), np.array([np.log(9.0)]), eps)\nassert abs(z.mean() - 5) < 0.1 and abs(z.std() - 3) < 0.1, f'samples should have mean 5 and std 3, got mean {z.mean():.2f}, std {z.std():.2f}'"
+    }
+   ],
+   "hints": [
+    "sigma = np.exp(0.5 * log_var)  (because exp(0.5·log σ²) = σ)",
+    "return mu + sigma * eps"
+   ],
+   "solution": "import numpy as np\n\ndef reparameterize(mu, log_var, eps):\n    sigma = np.exp(0.5 * log_var)\n    return mu + sigma * eps\n"
+  },
+  {
+   "id": "kl",
+   "title": "The KL penalty",
+   "prompt": "<p>Write <code>kl_to_standard_normal(mu, log_var)</code>, the KL divergence from the encoder's Gaussian to N(0, I), summed over the code dimensions:</p><p><code>0.5 * Σ (mu² + exp(log_var) − log_var − 1)</code></p><pre>kl_to_standard_normal(np.array([0.0]), np.array([0.0]))   # 0.0\nkl_to_standard_normal(np.array([1.0]), np.array([0.0]))   # 0.5</pre>",
+   "starter": "import numpy as np\n\ndef kl_to_standard_normal(mu, log_var):\n    # TODO: 0.5 * sum(mu**2 + exp(log_var) - log_var - 1)\n    pass\n",
+   "tests": [
+    {
+     "name": "already standard normal",
+     "code": "import numpy as np\nout = kl_to_standard_normal(np.zeros(4), np.zeros(4))\nassert out is not None and abs(out) < 1e-12, f'mu = 0 and sigma = 1 is N(0, 1) itself, so KL = 0; got {out}'"
+    },
+    {
+     "name": "shifted mean",
+     "code": "import numpy as np\nout = kl_to_standard_normal(np.array([1.0]), np.array([0.0]))\nassert abs(out - 0.5) < 1e-12, f'moving the mean to 1 costs 0.5 * 1**2 = 0.5, got {out}'"
+    },
+    {
+     "name": "narrow cloud costs too",
+     "code": "import numpy as np\nout = kl_to_standard_normal(np.array([0.0]), np.array([np.log(0.25)]))\nexp = 0.5 * (0.25 - np.log(0.25) - 1)\nassert abs(out - exp) < 1e-12, f'a variance of 0.25 should cost {exp:.4f}, got {out}'"
+    },
+    {
+     "name": "sums over dimensions",
+     "code": "import numpy as np\na = kl_to_standard_normal(np.array([1.0, 0.0]), np.array([0.0, 0.0]))\nb = kl_to_standard_normal(np.array([1.0, 1.0]), np.array([0.0, 0.0]))\nassert abs(b - 2 * a) < 1e-12, 'two identical shifted dimensions should cost twice one: sum over the code, do not average'"
+    },
+    {
+     "name": "never negative",
+     "code": "import numpy as np\nrng = np.random.default_rng(3)\nfor _ in range(20):\n    v = kl_to_standard_normal(rng.normal(size=5), rng.normal(size=5))\n    assert v >= 0, f'KL divergence is never negative, got {v}'"
+    }
+   ],
+   "hints": [
+    "Everything is element-wise: mu**2 + np.exp(log_var) - log_var - 1",
+    "return 0.5 * np.sum(...)"
+   ],
+   "solution": "import numpy as np\n\ndef kl_to_standard_normal(mu, log_var):\n    return 0.5 * np.sum(mu**2 + np.exp(log_var) - log_var - 1)\n"
+  },
+  {
+   "id": "linear",
+   "title": "A linear autoencoder is PCA (NumPy)",
+   "prompt": "<p>A 2-D point cloud is compressed to <b>one number</b> and rebuilt. The best linear encoder projects onto the direction of greatest variance: the top eigenvector of the covariance matrix.</p><p>Write <code>fit(X)</code> returning <code>(mean, w)</code>: the column means (shape <code>(2,)</code>) and the unit direction <code>w</code> (shape <code>(2,)</code>) of greatest variance. Then <code>reconstruct(X, mean, w)</code>: encode <code>z = (X − mean) @ w</code>, decode <code>mean + z[:, None] * w</code>.</p><p><code>np.linalg.eigh(C)</code> returns eigenvalues in ascending order and the eigenvectors as <b>columns</b>, so the last column is the one you want.</p>",
+   "starter": "import numpy as np\n\ndef fit(X):\n    mean = X.mean(axis=0)\n    Xc = X - mean\n    C = Xc.T @ Xc / len(X)          # 2 x 2 covariance\n    # TODO: vals, vecs = np.linalg.eigh(C); w = the eigenvector of the largest eigenvalue\n    w = None\n    return mean, w\n\ndef reconstruct(X, mean, w):\n    # TODO 1: z = (X - mean) @ w          shape (n,)\n    # TODO 2: return mean + z[:, None] * w  shape (n, 2)\n    pass\n",
+   "tests": [
+    {
+     "name": "points on a line rebuild exactly",
+     "code": "import numpy as np\nt = np.linspace(-3, 3, 50)\nX = np.stack([2 + t, 1 + 0.5 * t], axis=1)\nmean, w = fit(X)\nassert w is not None, 'fit returned w = None'\nXr = reconstruct(X, mean, w)\nassert Xr is not None, 'reconstruct returned None'\nassert np.allclose(Xr, X), 'points exactly on a line need only one number each: the reconstruction should be exact'"
+    },
+    {
+     "name": "w is a unit vector along the line",
+     "code": "import numpy as np\nt = np.linspace(-3, 3, 50)\nX = np.stack([t, 0.5 * t], axis=1)\nmean, w = fit(X)\nassert abs(np.linalg.norm(w) - 1) < 1e-9, f'w should have length 1, got {np.linalg.norm(w)}'\nd = np.array([1, 0.5]) / np.linalg.norm([1, 0.5])\nassert abs(abs(w @ d) - 1) < 1e-9, f'w should point along the line [1, 0.5] (either sign), got {w}. Did you take the first column (smallest eigenvalue) instead of the last?'"
+    },
+    {
+     "name": "beats any other direction",
+     "code": "import numpy as np\nrng = np.random.default_rng(0)\nX = rng.normal(size=(300, 2)) @ np.array([[3.0, 1.0], [0.0, 0.5]])\nmean, w = fit(X)\nerr = np.mean((reconstruct(X, mean, w) - X) ** 2)\nfor a in np.linspace(0, np.pi, 37):\n    u = np.array([np.cos(a), np.sin(a)])\n    e = np.mean((reconstruct(X, mean, u) - X) ** 2)\n    assert err <= e + 1e-9, f'direction at angle {a:.2f} rebuilds better ({e:.4f} < {err:.4f}); w should be the top principal direction'"
+    }
+   ],
+   "hints": [
+    "vals, vecs = np.linalg.eigh(C); w = vecs[:, -1]  (last column = largest eigenvalue)",
+    "z = (X - mean) @ w gives one number per point.",
+    "z[:, None] has shape (n, 1), so z[:, None] * w broadcasts to (n, 2)."
+   ],
+   "solution": "import numpy as np\n\ndef fit(X):\n    mean = X.mean(axis=0)\n    Xc = X - mean\n    C = Xc.T @ Xc / len(X)\n    vals, vecs = np.linalg.eigh(C)\n    w = vecs[:, -1]\n    return mean, w\n\ndef reconstruct(X, mean, w):\n    z = (X - mean) @ w\n    return mean + z[:, None] * w\n"
+  }
+ ],
+ "poster": "videos/11.1-autoencoders.jpg"
+}
