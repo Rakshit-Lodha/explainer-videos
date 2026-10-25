@@ -1,0 +1,50 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "At the top of a transformer, each position holds one vector, and a final linear layer turns that vector into one score for every token in the vocabulary. These raw scores are called logits, and for a model with fifty thousand tokens there are fifty thousand of them at every position. Everything the network has computed comes down to this list, and this lesson is about the very last step: turning the scores into a choice, and the choices into text."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Softmax turns the logits into a probability distribution, like a weather forecast that gives a chance to every possible outcome rather than a single verdict. During training every position is used, each one predicting the token that follows it. When we generate, though, only the last position matters, because every earlier position was predicting a token we can already see. So generation reads one distribution, the one at the end of the sequence, and asks which token should come next."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "The simplest answer is to take the most probable token every time, which is called greedy decoding. It is predictable, and for short factual answers it can work well, but over longer passages it tends to repeat itself and drift into loops, because the most likely next word is very often a safe and familiar one. A writer who always chooses the most expected word produces prose that is correct and lifeless."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "The alternative is to sample: draw a token at random, in proportion to its probability, like spinning a wheel whose slices are sized by the forecast. A token with probability one half is picked about half the time, and an unlikely token only occasionally. The chosen token is appended to the text, the longer text is fed back into the model, and the process repeats one token at a time. This loop is called autoregressive generation, and it is how chat models write their replies."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "Temperature controls how adventurous the sampling is. Before the softmax, we divide every logit by a number called the temperature. A temperature below one stretches the differences between scores, so the favourite becomes even more likely and the output grows more predictable; as the temperature approaches zero, sampling turns into greedy decoding. A temperature above one squeezes the scores together and flattens the distribution, so surprising tokens appear more often. It is the same effect of score spread on softmax that we met in attention."
+ },
+ {
+  "id": "s6",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "Even at a sensible temperature, a vocabulary of tens of thousands contains a long tail of tokens that are each very unlikely but, taken together, are chosen surprisingly often, and a single strange token can derail a sentence. Top k sampling keeps only the k most probable tokens, sets every other logit to minus infinity, and renormalises. A popular variant, nucleus or top p sampling, keeps the smallest group of tokens whose probabilities add up to a chosen total, so the cut adapts to how confident the model is."
+ },
+ {
+  "id": "s7",
+  "pace": 0.98,
+  "temperature": 0.78,
+  "text": "Two practical details complete the loop. The model can only read a fixed number of tokens, its context window, so before each step we keep only the most recent ones. And generation stops when the model produces a special end of text token, or when we reach a length limit."
+ },
+ {
+  "id": "s8",
+  "pace": 0.92,
+  "temperature": 0.84,
+  "text": "With that, our small GPT is complete, from characters to a stream of vectors and back to characters again. It can already generate, but its weights are still random, so what it writes is noise. Next we turn to how such models are trained at scale, with pretraining and scaling laws."
+ }
+]

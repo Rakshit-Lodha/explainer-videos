@@ -386,7 +386,8 @@
     },
     {
      "num": "9.10",
-     "title": "Predicting the next token and sampling (temperature, top-k)"
+     "title": "Predicting the next token and sampling (temperature, top-k)",
+     "id": "9.10-sampling"
     }
    ]
   },

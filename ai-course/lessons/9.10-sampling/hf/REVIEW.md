@@ -1,0 +1,7 @@
+# Review: 9.10 Predicting the next token and sampling
+
+- Creative call: this lesson had no WIP snapshot, so the script, `lesson.json` and composition were all written new. Visuals use the course GPT's own 8-character vocabulary ("hello world"): logits from W_out, softmax probabilities and last-position-only generation, greedy decoding typing itself into a loop, a probability wheel with a spinning pointer and the autoregressive loop, three temperature panels, a 40-token long tail cut by top-k and top-p (percentages computed in the page), a sliding context window ending in <|endoftext|>, and the full pipeline producing noise from random weights. The problems are inverse-CDF sampling, temperature plus top-k in NumPy, and GPT step 8: `gpt_logits` and `generate`, built on 9.9's block.
+- Measured: checker OK (pick 4/4, temp-topk 4/4, generate 5/5); Hyperframes check passed with 0 errors and 0 warnings; the delivery master is 1920x1080 at 30 fps and 239.3 seconds. Audio was measured and normalized, not listened to.
+- Looked at: twelve composition snapshots, a zoomed snapshot of the end token, and three frames sampled from the master.
+- Repairs: the long-tail chart scale was reduced so the renormalised top-k bars stay below their labels; the end-of-text chip now sits after the last visible token rather than off-screen; JetBrains Mono ligatures, which turned "<|" and "|>" into triangles, were disabled on that chip.
+- Kept warnings: none.

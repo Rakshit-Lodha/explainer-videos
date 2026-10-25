@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;border-radius:50%;border:4px solid;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;background:#10151c;opacity:0;visibility:hidden}
+.box{position:absolute;border-radius:16px;border:3px solid;display:flex;align-items:center;justify-content:center;text-align:center;background:#10151c;opacity:0;visibility:hidden}
+.code{position:absolute;font-family:'JetBrains Mono',monospace;font-size:30px;line-height:1.45;white-space:pre;background:#121821;border:2px solid #2a3442;border-radius:14px;padding:22px 30px;color:var(--ink);opacity:0;visibility:hidden}
+.code .k{color:#c792ea}.code .f{color:#58c4dd}.code .n{color:#f5cf4a}.code .c{color:#7f8b99}
+.px{position:absolute;border:1px solid #0e1116}
+
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="239.2" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="239.2" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 9.10 Sampling</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="32.69"></div>
+  <div class="clip scene" id="S2" data-start="32.69" data-duration="32.123"></div>
+  <div class="clip scene" id="S3" data-start="64.813" data-duration="28.81"></div>
+  <div class="clip scene" id="S4" data-start="93.623" data-duration="31.441"></div>
+  <div class="clip scene" id="S5" data-start="125.064" data-duration="36.746"></div>
+  <div class="clip scene" id="S6" data-start="161.81" data-duration="37.158"></div>
+  <div class="clip scene" id="S7" data-start="198.968" data-duration="18.627"></div>
+  <div class="clip scene" id="S8" data-start="217.595" data-duration="21.605"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":32.69,"s3":64.813,"s4":93.623,"s5":125.064,"s6":161.81,"s7":198.968,"s8":217.595},"total":239.2,"cues":{"s1":[["at",0.0],["the",0.175],["top",0.409],["of",0.643],["a",0.819],["transformer",0.936],["each",2.192],["position",2.493],["holds",3.035],["one",3.396],["vector",3.636],["and",4.266],["a",4.562],["final",4.709],["linear",5.152],["layer",5.669],["turns",6.112],["that",6.555],["vector",6.924],["into",7.441],["one",7.81],["score",8.105],["for",8.548],["every",8.843],["token",9.286],["in",9.729],["the",9.95],["vocabulary",10.246],["these",11.625],["raw",11.981],["scores",12.218],["are",12.632],["called",12.87],["logits",13.284],["and",14.151],["for",14.41],["a",14.669],["model",14.799],["with",15.188],["fifty",15.512],["thousand",15.902],["tokens",16.485],["there",16.939],["are",17.328],["fifty",17.588],["thousand",17.977],["of",18.56],["them",18.755],["at",19.079],["every",19.274],["position",19.663],["everything",20.577],["the",21.31],["network",21.577],["has",22.111],["computed",22.377],["comes",22.977],["down",23.377],["to",23.711],["this",23.911],["list",24.244],["and",24.644],["this",24.911],["lesson",25.244],["is",25.711],["about",25.911],["the",26.311],["very",26.577],["last",26.911],["step",27.244],["turning",27.963],["the",28.432],["scores",28.666],["into",29.077],["a",29.37],["choice",29.487],["and",30.335],["the",30.595],["choices",30.854],["into",31.373],["text",31.697]],"s2":[["softmax",0.0],["turns",0.507],["the",0.887],["logits",1.14],["into",1.583],["a",1.9],["probability",2.026],["distribution",2.786],["like",3.941],["a",4.199],["weather",4.302],["forecast",4.714],["that",5.178],["gives",5.436],["a",5.746],["chance",5.849],["to",6.21],["every",6.364],["possible",6.674],["outcome",7.138],["rather",7.55],["than",7.911],["a",8.169],["single",8.272],["verdict",8.633],["during",9.415],["training",9.814],["every",10.327],["position",10.67],["is",11.183],["used",11.354],["each",12.095],["one",12.347],["predicting",12.548],["the",13.103],["token",13.304],["that",13.606],["follows",13.858],["it",14.261],["when",14.803],["we",15.378],["generate",15.722],["though",16.871],["only",18.154],["the",18.237],["last",18.303],["position",18.386],["matters",18.534],["because",19.127],["every",19.709],["earlier",20.146],["position",20.728],["was",21.382],["predicting",21.673],["a",22.474],["token",22.619],["we",23.055],["can",23.274],["already",23.565],["see",24.147],["so",24.813],["generation",24.998],["reads",25.677],["one",26.047],["distribution",26.294],["the",27.284],["one",27.402],["at",27.521],["the",27.61],["end",27.729],["of",27.848],["the",27.937],["sequence",28.055],["and",28.691],["asks",28.98],["which",29.342],["token",29.775],["should",30.209],["come",30.715],["next",31.076]],"s3":[["the",0.0],["simplest",0.263],["answer",0.854],["is",1.314],["to",1.511],["take",1.708],["the",2.036],["most",2.299],["probable",2.627],["token",3.218],["every",3.612],["time",4.006],["which",4.935],["is",5.268],["called",5.435],["greedy",5.823],["decoding",6.211],["it",7.117],["is",7.293],["predictable",7.468],["and",8.645],["for",8.857],["short",9.068],["factual",9.386],["answers",9.809],["it",10.232],["can",10.391],["work",10.603],["well",10.867],["but",11.532],["over",11.777],["longer",12.083],["passages",12.512],["it",13.063],["tends",13.247],["to",13.615],["repeat",13.798],["itself",14.227],["and",14.656],["drift",14.901],["into",15.268],["loops",15.575],["because",16.336],["the",16.878],["most",17.15],["likely",17.489],["next",17.964],["word",18.303],["is",18.642],["very",18.845],["often",19.185],["a",19.591],["safe",19.727],["and",20.066],["familiar",20.338],["one",20.948],["a",21.557],["writer",21.695],["who",22.176],["always",22.451],["chooses",22.932],["the",23.482],["most",23.757],["expected",24.1],["word",24.719],["produces",25.063],["prose",25.681],["that",26.094],["is",26.437],["correct",26.644],["and",27.193],["lifeless",27.468]],"s4":[["the",0.0],["alternative",0.293],["is",1.173],["to",1.393],["sample",1.612],["draw",2.33],["a",2.571],["token",2.668],["at",2.957],["random",3.102],["in",3.887],["proportion",4.038],["to",4.595],["its",4.747],["probability",4.949],["like",6.141],["spinning",6.405],["a",6.88],["wheel",6.986],["whose",7.303],["slices",7.62],["are",7.99],["sized",8.201],["by",8.518],["the",8.677],["forecast",8.888],["a",9.938],["token",10.044],["with",10.363],["probability",10.629],["one",11.266],["half",11.479],["is",11.745],["picked",11.904],["about",12.276],["half",12.595],["the",12.861],["time",13.073],["and",13.963],["an",14.192],["unlikely",14.363],["token",14.878],["only",15.221],["occasionally",15.507],["the",16.606],["chosen",16.808],["token",17.16],["is",17.463],["appended",17.614],["to",18.068],["the",18.219],["text",18.42],["the",19.089],["longer",19.318],["text",19.719],["is",20.005],["fed",20.177],["back",20.406],["into",20.692],["the",20.979],["model",21.208],["and",21.82],["the",22.059],["process",22.297],["repeats",22.775],["one",23.252],["token",23.491],["at",23.849],["a",24.028],["time",24.147],["this",24.877],["loop",25.153],["is",25.429],["called",25.595],["autoregressive",25.981],["generation",26.81],["and",27.931],["it",28.192],["is",28.387],["how",28.582],["chat",28.843],["models",29.168],["write",29.624],["their",30.014],["replies",30.405]],"s5":[["temperature",0.0],["controls",0.773],["how",1.353],["adventurous",1.61],["the",2.383],["sampling",2.641],["is",3.22],["before",3.949],["the",4.603],["softmax",4.976],["we",6.002],["divide",6.135],["every",6.445],["logit",6.71],["by",6.976],["a",7.109],["number",7.197],["called",7.507],["the",7.817],["temperature",7.994],["a",8.905],["temperature",9.008],["below",9.628],["one",9.938],["stretches",10.145],["the",10.662],["differences",10.869],["between",11.489],["scores",11.902],["so",12.604],["the",12.784],["favourite",13.025],["becomes",13.626],["even",14.106],["more",14.407],["likely",14.707],["and",15.128],["the",15.368],["output",15.609],["grows",16.029],["more",16.39],["predictable",16.69],["as",17.916],["the",18.07],["temperature",18.276],["approaches",18.893],["zero",19.458],["sampling",20.123],["turns",20.664],["into",21.025],["greedy",21.325],["decoding",21.746],["a",22.584],["temperature",22.72],["above",23.535],["one",23.943],["squeezes",24.214],["the",24.826],["scores",25.097],["together",25.573],["and",26.184],["flattens",26.456],["the",27.067],["distribution",27.339],["so",28.539],["surprising",28.737],["tokens",29.465],["appear",29.928],["more",30.391],["often",30.722],["it",31.565],["is",31.747],["the",31.929],["same",32.172],["effect",32.475],["of",32.9],["score",33.082],["spread",33.446],["on",33.871],["softmax",34.053],["that",34.538],["we",34.842],["met",35.024],["in",35.267],["attention",35.449]],"s6":[["even",0.0],["at",0.295],["a",0.472],["sensible",0.59],["temperature",1.122],["a",2.17],["vocabulary",2.307],["of",3.061],["tens",3.266],["of",3.608],["thousands",3.814],["contains",4.499],["a",5.115],["long",5.252],["tail",5.594],["of",5.937],["tokens",6.142],["that",6.621],["are",6.964],["each",7.238],["very",7.58],["unlikely",7.923],["but",8.539],["taken",9.197],["together",9.531],["are",10.406],["chosen",10.658],["surprisingly",11.099],["often",11.918],["and",12.696],["a",12.948],["single",13.075],["strange",13.516],["token",14.021],["can",14.399],["derail",14.651],["a",15.093],["sentence",15.219],["top",16.107],["k",16.374],["sampling",16.507],["keeps",17.107],["only",17.507],["the",17.84],["k",18.107],["most",18.24],["probable",18.573],["tokens",19.173],["sets",20.072],["every",20.403],["other",20.8],["logit",21.197],["to",21.595],["minus",21.794],["infinity",22.191],["and",23.232],["renormalises",23.509],["a",24.735],["popular",24.934],["variant",25.73],["nucleus",26.769],["or",27.05],["top",27.155],["p",27.296],["sampling",27.366],["keeps",28.172],["the",28.556],["smallest",28.812],["group",29.387],["of",29.771],["tokens",29.963],["whose",30.41],["probabilities",30.794],["add",31.69],["up",31.945],["to",32.137],["a",32.329],["chosen",32.457],["total",32.905],["so",33.706],["the",33.89],["cut",34.135],["adapts",34.38],["to",34.809],["how",34.993],["confident",35.238],["the",35.85],["model",36.095],["is",36.463]],"s7":[["two",0.0],["practical",0.213],["details",0.745],["complete",1.17],["the",1.649],["loop",1.862],["the",2.536],["model",2.774],["can",3.131],["only",3.369],["read",3.666],["a",3.964],["fixed",4.083],["number",4.44],["of",4.856],["tokens",5.035],["its",5.886],["context",6.125],["window",6.602],["so",7.544],["before",7.747],["each",8.221],["step",8.559],["we",8.898],["keep",9.101],["only",9.439],["the",9.777],["most",10.048],["recent",10.386],["ones",10.86],["and",11.551],["generation",11.776],["stops",12.392],["when",12.728],["the",13.008],["model",13.232],["produces",13.569],["a",14.073],["special",14.185],["end",14.633],["of",14.857],["text",15.025],["token",15.306],["or",16.28],["when",16.439],["we",16.706],["reach",16.865],["a",17.185],["length",17.292],["limit",17.664]],"s8":[["with",0.0],["that",0.356],["our",0.784],["small",1.068],["gpt",1.496],["is",1.781],["complete",1.995],["from",3.092],["characters",3.42],["to",4.142],["a",4.339],["stream",4.471],["of",4.93],["vectors",5.127],["and",5.652],["back",5.915],["to",6.243],["characters",6.44],["again",7.162],["it",8.057],["can",8.235],["already",8.472],["generate",8.947],["but",9.541],["its",9.778],["weights",10.016],["are",10.491],["still",10.728],["random",11.084],["so",11.559],["what",11.737],["it",12.034],["writes",12.212],["is",12.628],["noise",12.806],["next",13.975],["we",14.267],["turn",14.442],["to",14.734],["how",14.91],["such",15.143],["models",15.436],["are",15.845],["trained",16.078],["at",16.546],["scale",16.721],["with",17.822],["pretraining",18.125],["and",18.852],["scaling",19.095],["laws",19.579]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0',orange:'#f39c4a',purple:'#b48ef0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,last){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!last)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u,uy){return (x,y)=>[ox+u*x,oy-(uy||u)*y]}
+function drawGrid(svg,P,x0,x1,y0,y1,step){step=step||1;
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1+1e-9;x+=step){const a=P(x,y0),b=P(x,y1);const ax=Math.abs(x)<1e-9;svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:ax?C.axis:C.grid,'stroke-width':ax?3:1.6,opacity:ax?.9:.55},g)}
+  for(let y=y0;y<=y1+1e-9;y+=step){const a=P(x0,y),b=P(x1,y);const ax=Math.abs(y)<1e-9;svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:ax?C.axis:C.grid,'stroke-width':ax?3:1.6,opacity:ax?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ---- extra helpers for module 6 and 8 lessons ---- */
+/* a hidden SVG line or path, drawn on by animating its dash */
+function ln(svg,x1,y1,x2,y2,color,w,extra){return svgEl('line',Object.assign({x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+function pth(svg,d,color,w,extra){return svgEl('path',Object.assign({d,fill:'none',stroke:color,'stroke-width':w||5,'stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+function plen(e){if(e.tagName==='line'){const a=+e.getAttribute('x1'),b=+e.getAttribute('y1'),c=+e.getAttribute('x2'),d=+e.getAttribute('y2');return Math.hypot(c-a,d-b)}return e.getTotalLength()}
+function drawOn(e,time,d,ease){const L=plen(e)+2;tl.set(e,{attr:{'stroke-dasharray':`${L} ${L}`,'stroke-dashoffset':L}},0);
+  tl.to(e,{autoAlpha:1,duration:.15},time);tl.to(e,{attr:{'stroke-dashoffset':0},duration:d||1,ease:ease||'power1.inOut'},time)}
+/* sample y=f(x) on [x0,x1] into an SVG path through plane P */
+function fpath(f,P,x0,x1,n){n=n||160;let s='';for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n;const [px,py]=P(x,f(x));s+=(i?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)}return s}
+/* morph a path between two functions by tweening a mix parameter */
+function morphF(path,P,fa,fb,x0,x1,time,d,ease){const o={m:0};tl.to(o,{m:1,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>path.setAttribute('d',fpath(x=>fa(x)*(1-o.m)+fb(x)*o.m,P,x0,x1))},time)}
+/* circular node with a label */
+function node(parent,x,y,r,html,color,fs){const n=el(parent,'node',html,{left:(x-r)+'px',top:(y-r)+'px',width:2*r+'px',height:2*r+'px',borderColor:color||C.ink,fontSize:(fs||Math.round(r*.7))+'px',color:C.ink});n.cx=x;n.cy=y;n.r=r;return n}
+/* rounded box with a label */
+function boxEl(parent,x,y,w,h,html,color,fs){const b=el(parent,'box',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.ink,fontSize:(fs||40)+'px'});b.cx=x;b.cy=y;b.w=w;b.h=h;return b}
+/* edge between two circle nodes (stops at their rims) */
+function edge(svg,a,b,color,w,arrow){const dx=b.cx-a.cx,dy=b.cy-a.cy,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;const ra=a.r||a.w/2,rb=b.r||b.w/2;
+  return ln(svg,a.cx+ux*ra,a.cy+uy*ra,b.cx-ux*(rb+(arrow?6:0)),b.cy-uy*(rb+(arrow?6:0)),color||C.dim,w||3)}
+/* count a number shown in an element from a to b */
+function countTo(e,time,d,a,b,dp){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.textContent=fmt(o.v,dp)}},time)}
+/* bracketed matrix of strings; cells[r][c] */
+function matrix(parent,cx,cy,rows,o){o=o||{};const fs=o.fs||44,cw=o.cw||fs*2.4,rowH=fs*1.35,pad=fs*.3,nr=rows.length,nc=rows[0].length,W=nc*cw+36,H=nr*rowH+pad*2;
+  const box=el(parent,'colv hid','',{left:(cx-W/2)+'px',top:(cy-H/2)+'px',width:W+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=rows.map((r,i)=>r.map((v,j)=>el(box,'cell',v,{left:(18+j*cw)+'px',top:(pad+i*rowH)+'px',width:cw+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink})));
+  return {box,cells,cx,cy,W,H,rowH,cw,pad,nr,nc}}
+function rowHL(parent,m,i,color){return el(parent,'hl','',{left:(m.cx-m.W/2+10)+'px',top:(m.cy-m.H/2+m.pad+i*m.rowH-2)+'px',width:(m.W-20)+'px',height:(m.rowH+4)+'px',borderColor:color,boxShadow:`0 0 20px ${color}55`})}
+function colHL(parent,m,j,color){return el(parent,'hl','',{left:(m.cx-m.W/2+18+j*m.cw)+'px',top:(m.cy-m.H/2+6)+'px',width:m.cw+'px',height:(m.H-12)+'px',borderColor:color,boxShadow:`0 0 20px ${color}55`})}
+function nextCap(S,sid,word,n,txt){const c=el(S,'cap','next &nbsp;·&nbsp; '+txt,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(c,cue(sid,word,n),.7);return c}
+
+/* a batch x features grid of numbers */
+function grid(S,cx,cy,rows,cols,cw,ch,seed){const rnd=seedRand(seed);const cells=[];const x0=cx-cols*cw/2,y0=cy-rows*ch/2;
+  const box=el(S,'abs','',{left:x0+'px',top:y0+'px',width:cols*cw+'px',height:rows*ch+'px',opacity:0,visibility:'hidden'});
+  for(let r=0;r<rows;r++){const row=[];for(let c=0;c<cols;c++){const v=(rnd()*2-1)*(1+c)+c*1.5;const d=el(box,'abs mono',fmt(v,1),{left:c*cw+'px',top:r*ch+'px',width:(cw-6)+'px',height:(ch-6)+'px',lineHeight:(ch-6)+'px',textAlign:'center',fontSize:'28px',background:'#161d27',border:'1px solid #2a3442',borderRadius:'8px',color:C.ink});row.push(d)}cells.push(row)}
+  return {box,cells,x0,y0,cw,ch,rows,cols}}
+function colBox(S,G,c,color){return el(S,'hl','',{left:(G.x0+c*G.cw-6)+'px',top:(G.y0-8)+'px',width:(G.cw+6)+'px',height:(G.rows*G.ch+10)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function rowBox(S,G,r,color){return el(S,'hl','',{left:(G.x0-8)+'px',top:(G.y0+r*G.ch-6)+'px',width:(G.cols*G.cw+10)+'px',height:(G.ch+6)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+
+function arrowHead(svg,x,y,ux,uy,color){const hl=20,hw=11;return svgEl('polygon',{points:`${x+ux*4},${y+uy*4} ${x-ux*hl-uy*hw},${y-uy*hl+ux*hw} ${x-ux*hl+uy*hw},${y-uy*hl-ux*hw}`,fill:color,style:'opacity:0;visibility:hidden'},svg)}
+function lab(S,html,x,y,color,size,italic){const d=el(S,'lbl',html,{color:color||C.ink,fontSize:(size||36)+'px',fontStyle:italic===false?'normal':'italic'});place(d,x,y);return d}
+function texAt(S,s,size,x,y,color){const d=el(S,'lbl',tex(s,size),{color:color||C.ink});place(d,x,y);return d}
+function arrowR(svg,x0,y,x1,color){const p=pth(svg,`M${x0} ${y} L${x1-6} ${y}`,color||C.dim,4);const h=arrowHead(svg,x1,y,1,0,color||C.dim);return [p,h]}
+function showArrowR(a,t){drawOn(a[0],t,.4);fadeIn(a[1],t+.35,.15)}
+function chip(S,txt,x,y,color,fs){const c=el(S,'chip',txt,{borderColor:color||C.dim,fontSize:(fs||34)+'px',fontFamily:"'JetBrains Mono',monospace",padding:'8px 20px'});place(c,x,y);return c}
+const VOC=['␣','d','e','h','l','o','r','w'];
+const LOG=[-.5,.3,1.0,-1.2,2.4,1.6,-.2,.1];
+const sm=(z,T)=>{const a=z.map(v=>v/(T||1)),m=Math.max(...a),e=a.map(v=>Math.exp(v-m)),s=e.reduce((x,y)=>x+y);return e.map(v=>v/s)};
+/* vertical bars from a baseline; values may be negative; returns bar divs */
+function bars(S,x0,base,vals,o){o=o||{};const w=o.w||70,gap=o.gap||24,sc=o.scale||100;
+  return vals.map((v,i)=>{const h=Math.max(2,Math.abs(v)*sc);const b=el(S,'abs','',{left:(x0+i*(w+gap))+'px',top:(v>=0?base-h:base)+'px',width:w+'px',height:h+'px',borderRadius:'5px',
+    background:o.color?(typeof o.color==='function'?o.color(i,v):o.color):(v>=0?C.blue:C.red),transformOrigin:v>=0?'50% 100%':'50% 0%',opacity:0,visibility:'hidden'});return b})}
+function barLabels(S,x0,y,labels,o){o=o||{};const w=o.w||70,gap=o.gap||24;return labels.map((t,i)=>{const d=el(S,'lbl mono',t,{color:o.color||C.dim,fontSize:(o.fs||28)+'px'});place(d,x0+i*(w+gap)+w/2,y);return d})}
+
+/* ============ S1: logits ============ */
+(function(){const S=$('S1');const sid='s1';const svg=layerSvg(S);
+  ['h','e','l'].forEach((c,i)=>{const t=chip(S,c,220+i*90,860,C.dim);show(t,at(sid,0),.4)});
+  const blk=boxEl(S,310,690,300,80,'<span style="font-size:30px">transformer blocks</span>',C.pink);show(blk,at(sid,.01),.4);
+  const vec=[];for(let i=0;i<8;i++){vec.push(el(S,'abs','',{left:(170+i*36)+'px',top:'500px',width:'32px',height:'40px',borderRadius:'4px',background:`rgba(88,196,221,${(.25+.7*Math.abs(Math.sin(i*1.7))).toFixed(2)})`,opacity:0,visibility:'hidden'}))}
+  tl.to(vec,{autoAlpha:1,duration:.2,stagger:.04},cue(sid,'vector'));
+  const vl=lab(S,'the last position’s vector',310,460,C.blue,28);show(vl,cue(sid,'vector'),.4);
+  const up=pth(svg,'M310 645 L310 548',C.dim,3);drawOn(up,cue(sid,'vector'),.3);
+  const a1=arrowR(svg,470,520,600,C.dim);showArrowR(a1,cue(sid,'linear'));
+  const W=boxEl(S,700,520,180,80,'<span style="font-size:30px">W_out</span>',C.yellow);show(W,cue(sid,'linear'),.4);
+  const wl=lab(S,'final linear layer',700,610,C.yellow,28);show(wl,cue(sid,'layer'),.4);
+  const a2=arrowR(svg,800,520,900,C.dim);showArrowR(a2,cue(sid,'score'));
+  const B=bars(S,960,560,LOG,{scale:90});tl.to(B,{autoAlpha:1,duration:.2,stagger:.06},cue(sid,'score'));
+  const z=ln(svg,950,560,1720,560,C.axis,2);fadeIn(z,cue(sid,'score'),.3);
+  const L=barLabels(S,960,800,VOC);fadeIn(L,cue(sid,'score'),.3);
+  const ll=lab(S,'logits: one raw score per token in the vocabulary',1330,250,C.ink,34);show(ll,cue(sid,'logits'),.4);
+  const fl=lab(S,'(a GPT-2-sized vocabulary: about fifty thousand)',1330,310,C.dim,28);show(fl,cue(sid,'fifty'),.4);
+  const cap=el(S,'cap','scores → a choice → text',{top:'920px',fontSize:'42px',fontStyle:'italic',color:C.yellow});show(cap,cue(sid,'choice'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: probabilities, and only the last position ============ */
+(function(){const S=$('S2');const sid='s2';const svg=layerSvg(S);
+  const P=sm(LOG);
+  const B=bars(S,560,860,P,{scale:600,color:(i)=>i===4?C.green:C.teal});tl.to(B,{autoAlpha:1,duration:.2,stagger:.05},cue(sid,'softmax'));
+  const z=ln(svg,550,860,1320,860,C.axis,2);fadeIn(z,cue(sid,'softmax'),.3);
+  const L=barLabels(S,560,895,VOC);fadeIn(L,cue(sid,'softmax'),.3);
+  const V=P.map((p,i)=>{const d=el(S,'lbl mono',p.toFixed(2),{color:C.ink,fontSize:'24px'});place(d,560+i*94+35,860-p*600-20);return d});fadeIn(V,cue(sid,'probability'),.3);
+  const f=texAt(S,'p=\\mathrm{softmax}(\\text{logits})',44,1600,620);show(f,cue(sid,'probability'),.4);
+  const fc=lab(S,'like a forecast: a chance for every outcome',1600,700,C.dim,28);show(fc,cue(sid,'forecast'),.4);
+  const word='hello'.split('');const nx=['e','l','l','o','?'];
+  const tops=word.map((c,i)=>{const t=chip(S,c,560+i*150,230,C.dim);show(t,cue(sid,'training'),.3);return t});
+  const preds=nx.map((c,i)=>{const t=lab(S,c,560+i*150,370,i===4?C.green:C.dim,32,false);show(t,cue(sid,'predicting'),.3);return t});
+  const ars=word.map((c,i)=>{const a=pth(svg,`M${560+i*150} 262 L${560+i*150} 335`,C.dim,3);drawOn(a,cue(sid,'predicting'),.3);return a});
+  const tr=lab(S,'training: every position predicts its next token',1500,230,C.dim,28);show(tr,cue(sid,'training'),.4);
+  tl.to([...tops.slice(0,4),...preds.slice(0,4),...ars.slice(0,4)],{autoAlpha:.2,duration:.4},cue(sid,'only'));
+  tl.to(tops[4],{borderColor:C.green,duration:.3},cue(sid,'only'));
+  const gl=lab(S,'generating: only the last position matters',1500,300,C.green,30);show(gl,cue(sid,'only'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: greedy decoding ============ */
+(function(){const S=$('S3');const sid='s3';const svg=layerSvg(S);
+  const P=sm(LOG);
+  const B=bars(S,260,700,P,{scale:600,color:C.teal,w:60,gap:20});fadeIn(B,at(sid,0),.4);
+  const z=ln(svg,250,700,900,700,C.axis,2);fadeIn(z,at(sid,0),.3);const L=barLabels(S,260,735,VOC,{w:60,gap:20});fadeIn(L,at(sid,0),.3);
+  tl.to(B[4],{backgroundColor:C.yellow,boxShadow:'0 0 24px #f5cf4aaa',duration:.3},cue(sid,'probable'));
+  const gl=lab(S,'greedy decoding: always the argmax',580,250,C.yellow,34);show(gl,cue(sid,'greedy'),.4);
+  const txt=el(S,'abs mono','',{left:'1040px',top:'420px',width:'780px',fontSize:'40px',lineHeight:'1.6',color:C.ink,opacity:0,visibility:'hidden'});show(txt,cue(sid,'predictable'),.3);
+  const seq='the cat sat on the mat and the cat sat on the mat and the cat sat on the mat';
+  const o={n:0};tl.to(o,{n:seq.length,duration:8,ease:'none',immediateRender:false,onUpdate:()=>{txt.textContent=seq.slice(0,Math.round(o.n))}},cue(sid,'passages'));
+  const lp=lab(S,'it repeats itself and drifts into loops',1430,720,C.red,32);show(lp,cue(sid,'loops'),.4);
+  const lf=lab(S,'correct and lifeless',1430,790,C.dim,32);show(lf,cue(sid,'lifeless'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: sampling and the autoregressive loop ============ */
+(function(){const S=$('S4');const sid='s4';const svg=layerSvg(S);
+  const P=sm(LOG),cx=480,cy=560,R=240,cols=[C.dim,C.pink,C.blue,C.red,C.green,C.teal,C.purple,C.orange];
+  let a0=-Math.PI/2;const mids=[];const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  P.forEach((p,i)=>{const a1=a0+p*2*Math.PI;const large=p>.5?1:0;
+    svgEl('path',{d:`M${cx} ${cy} L${cx+R*Math.cos(a0)} ${cy+R*Math.sin(a0)} A${R} ${R} 0 ${large} 1 ${cx+R*Math.cos(a1)} ${cy+R*Math.sin(a1)} Z`,fill:cols[i],'fill-opacity':.55,stroke:'#0e1116','stroke-width':3},g);
+    const am=(a0+a1)/2;mids.push(am);if(p>.04){const t=el(S,'lbl mono',VOC[i],{color:C.ink,fontSize:'34px'});place(t,cx+R*.68*Math.cos(am),cy+R*.68*Math.sin(am));fadeIn(t,cue(sid,'wheel'),.4)}a0=a1});
+  fadeIn(g,cue(sid,'wheel'),.4);
+  const ptr=svgEl('line',{x1:cx,y1:cy,x2:cx,y2:cy-R-30,stroke:C.yellow,'stroke-width':6,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
+  const hub=svgEl('circle',{cx,cy,r:12,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);fadeIn([ptr,hub],cue(sid,'spinning'),.3);
+  const st={a:-Math.PI/2};const ap=()=>{ptr.setAttribute('x2',cx+(R+30)*Math.cos(st.a));ptr.setAttribute('y2',cy+(R+30)*Math.sin(st.a))};ap();
+  tl.to(st,{a:mids[4]+6*Math.PI,duration:3,ease:'power3.out',immediateRender:false,onUpdate:ap},cue(sid,'spinning'));
+  const sl=lab(S,'sample: slices sized by probability',480,220,C.ink,32);show(sl,cue(sid,'sample'),.4);
+  const M=boxEl(S,1350,330,300,80,'<span style="font-size:30px">model</span>',C.pink);show(M,cue(sid,'appended'),.4);
+  const out=['h','e','l','l','o','␣','w'];const ch=out.map((c,i)=>chip(S,c,1100+i*90,560,i<3?C.dim:C.green));
+  show(ch.slice(0,3),cue(sid,'appended')-.5,.3);
+  [3,4,5,6].forEach((k,j)=>show(ch[k],(j?cue(sid,'repeats')+(j-1)*.9:cue(sid,'appended')+.3),.3));
+  const fb=pth(svg,'M1640 560 L1720 560 L1720 330 L1505 330',C.dim,3),fbh=arrowHead(svg,1500,330,-1,0,C.dim);drawOn(fb,cue(sid,'fed'),.6);fadeIn(fbh,cue(sid,'fed')+.5,.2);
+  const fb2=pth(svg,'M1200 330 L1050 330 L1050 520',C.dim,3);drawOn(fb2,cue(sid,'fed')+.6,.5);
+  const ar=lab(S,'autoregressive generation: one token at a time',1380,700,C.green,32);show(ar,cue(sid,'autoregressive'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: temperature ============ */
+(function(){const S=$('S5');const sid='s5';const svg=layerSvg(S);
+  const f=texAt(S,'p=\\mathrm{softmax}\\!\\left(\\frac{\\text{logits}}{T}\\right)',52,960,190);show(f,cue(sid,'divide'),.5);
+  const panels=[[0.5,'T = 0.5: sharper',C.blue,'below'],[1,'T = 1',C.teal,'divide'],[2,'T = 2: flatter',C.pink,'above']];
+  panels.forEach(([T,t,c,w],k)=>{const x0=150+k*580,P=sm(LOG,T);const B=bars(S,x0,780,P,{scale:420,w:46,gap:14,color:c});tl.to(B,{autoAlpha:1,duration:.2,stagger:.04},cue(sid,w));
+    const z=ln(svg,x0-6,780,x0+8*60,780,C.axis,2);fadeIn(z,cue(sid,w),.3);const L=barLabels(S,x0,812,VOC,{w:46,gap:14,fs:24});fadeIn(L,cue(sid,w),.3);
+    const tl1=lab(S,t,x0+234,330,c,32,false);show(tl1,cue(sid,w),.4)});
+  const zr=lab(S,'T → 0: greedy decoding',384,880,C.blue,28);show(zr,cue(sid,'zero'),.4);
+  const sp=lab(S,'surprising tokens appear more often',1544,880,C.pink,28);show(sp,cue(sid,'surprising'),.4);
+  const at9=el(S,'cap','the same effect of score spread on softmax that we met in attention',{top:'960px',fontSize:'34px',fontStyle:'italic',color:C.dim});show(at9,cue(sid,'spread'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: top-k and top-p ============ */
+(function(){const S=$('S6');const sid='s6';const svg=layerSvg(S);
+  const n=40,raw=[...Array(n)].map((_,i)=>1/Math.pow(i+1,1.05)),Z=raw.reduce((a,b)=>a+b),P=raw.map(v=>v/Z);
+  const k=6,tail=P.slice(k).reduce((a,b)=>a+b);let cum=0,np=0;for(let i=0;i<n;i++){cum+=P[i];if(cum>=.8){np=i+1;break}}
+  const x0=200,w=26,gap=8,base=760,sc=1000;
+  const B=bars(S,x0,base,P,{scale:sc,w,gap,color:C.teal});tl.to(B,{autoAlpha:1,duration:.12,stagger:.02},cue(sid,'vocabulary'));
+  const z=ln(svg,x0-6,base,x0+n*(w+gap),base,C.axis,2);fadeIn(z,cue(sid,'vocabulary'),.3);
+  tl.to(B.slice(k),{backgroundColor:C.red,duration:.4},cue(sid,'tail'));
+  const tb=lab(S,`the long tail: together ${Math.round(tail*100)}% of the probability`,x0+(k+n)/2*(w+gap),base-200,C.red,30);show(tb,cue(sid,'together'),.4);
+  const kx=x0+k*(w+gap)-gap/2;const kl=ln(svg,kx,base+30,kx,280,C.yellow,3,{'stroke-dasharray':'8 6'});fadeIn(kl,cue(sid,'top'),.3);
+  const kt=lab(S,`top-k, k = ${k}`,kx-90,260,C.yellow,30,false);show(kt,cue(sid,'top'),.4);
+  tl.to(B.slice(k),{opacity:.12,duration:.4},cue(sid,'sets'));
+  const inf=lab(S,'−∞',x0+(k+n)/2*(w+gap),base+50,C.red,32,false);show(inf,cue(sid,'minus'),.3);
+  const keep=P.slice(0,k).reduce((a,b)=>a+b);tl.to(B.slice(0,k),{scaleY:1/keep,backgroundColor:C.yellow,duration:.7,ease:'power2.inOut'},cue(sid,'renormalises'));
+  const rn=lab(S,'renormalised to sum to 1',x0+k*(w+gap)/2+20,200,C.yellow,28);show(rn,cue(sid,'renormalises'),.4);
+  tl.to(tb,{autoAlpha:0,duration:.3},cue(sid,'nucleus'));
+  const px=x0+np*(w+gap)-gap/2;const pl=ln(svg,px,base+30,px,360,C.pink,3,{'stroke-dasharray':'8 6'});fadeIn(pl,cue(sid,'nucleus'),.3);
+  const pt=lab(S,`top-p, p = 0.8: the smallest set reaching 80% (${np} tokens here)`,px+40,380,C.pink,28);pt.style.translate='0 -50%';show(pt,cue(sid,'total'),.4);
+  const ad=lab(S,'the cut adapts to how confident the model is',1200,900,C.ink,30);show(ad,cue(sid,'adapts'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: context window and stopping ============ */
+(function(){const S=$('S7');const sid='s7';
+  const txt='hello world hello world hello'.split('');const slot=60,x0=130,y=540,win=16;
+  const ch=txt.map((c,i)=>{const d=el(S,'abs mono',c===' '?'␣':c,{left:(x0+i*slot)+'px',top:(y-30)+'px',width:(slot-8)+'px',height:'60px',lineHeight:'60px',textAlign:'center',fontSize:'30px',border:'2px solid #2a3442',borderRadius:'8px',background:'#11161e',color:C.ink,opacity:0,visibility:'hidden'});return d});
+  const n0=18;tl.to(ch.slice(0,n0),{autoAlpha:1,duration:.15,stagger:.03},at(sid,0));
+  const W=el(S,'hl','',{left:(x0+(n0-win)*slot-8)+'px',top:(y-42)+'px',width:(win*slot+8)+'px',height:'84px',borderColor:C.yellow,borderWidth:'4px'});fadeIn(W,cue(sid,'context'),.3);
+  const wl=lab(S,'context window: the model reads only these',x0+(n0-win/2)*slot,420,C.yellow,30);show(wl,cue(sid,'window'),.4);
+  for(let j=0;j<5;j++){const t=cue(sid,'recent')+j*.7;show(ch[n0+j],t,.25);tl.to(W,{x:(j+1)*slot,duration:.3},t);tl.to(wl,{x:(j+1)*slot,duration:.3},t)}
+  const dim=ch.slice(0,7);tl.to(dim,{opacity:.25,duration:.4},cue(sid,'recent')+3.5);
+  const end=el(S,'abs mono','&lt;|endoftext|&gt;',{left:(x0+(n0+5)*slot+10)+'px',top:(y-30)+'px',height:'60px',lineHeight:'60px',padding:'0 14px',fontSize:'24px',border:'2px solid '+C.red,borderRadius:'8px',background:'#1e1214',color:C.red,fontVariantLigatures:'none',opacity:0,visibility:'hidden'});
+  show(end,cue(sid,'end'),.4);const el1=lab(S,'stop at a special end-of-text token',960,700,C.red,32);show(el1,cue(sid,'special'),.4);
+  const el2=lab(S,'or at a length limit',960,760,C.dim,30);show(el2,cue(sid,'length'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S8: the whole GPT ============ */
+(function(){const S=$('S8');const sid='s8';const svg=layerSvg(S);
+  const steps=[['characters',C.dim],['ids',C.dim],['embeddings + positions',C.blue],['blocks',C.pink],['logits',C.yellow],['sample',C.green],['character',C.dim]];
+  const xs=[150,370,640,920,1150,1380,1630];
+  steps.forEach(([t,c],i)=>{const b=boxEl(S,xs[i],420,i===2?280:180,80,`<span style="font-size:26px">${t}</span>`,c);show(b,cue(sid,'characters')+i*.25,.3);
+    if(i){const a=arrowR(svg,xs[i-1]+(i-1===2?140:90),420,xs[i]-(i===2?140:90),C.dim);showArrowR(a,cue(sid,'characters')+i*.25)}});
+  const lp=pth(svg,'M1630 465 L1630 560 L150 560 L150 465',C.dim,3);drawOn(lp,cue(sid,'back'),.8);
+  const gpt=lab(S,'our small GPT, complete',890,280,C.ink,38,false);show(gpt,cue(sid,'complete'),.4);
+  const noise=el(S,'abs mono','hwlo d eorlwhh ol rdew',{left:'560px',top:'650px',width:'800px',textAlign:'center',fontSize:'40px',color:C.red,opacity:0,visibility:'hidden'});show(noise,cue(sid,'random'),.4);
+  const nl=lab(S,'random weights: what it writes is noise',960,740,C.dim,30);show(nl,cue(sid,'noise'),.4);
+  nextCap(S,sid,'next',1,'10.1 &nbsp;pretraining and scaling laws');
+  sceneInOut(sid,true);
+})();
+
+/* KaTeX stacks glyphs on purpose; tell the layout checker */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

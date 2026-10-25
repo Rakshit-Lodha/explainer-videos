@@ -1,0 +1,169 @@
+{
+ "id": "9.10-sampling",
+ "module": 9,
+ "title": "Predicting the next token and sampling (temperature, top-k)",
+ "summary": "A final linear layer turns each position's vector into logits, one score per vocabulary token, and softmax turns them into probabilities. Generation uses only the last position. Greedy decoding always takes the most probable token and tends to repeat; sampling draws in proportion to probability. Temperature divides the logits (below 1 sharper, above 1 flatter, near 0 greedy), top-k keeps the k best tokens and top-p the smallest set reaching a total probability. Each chosen token is appended and fed back: autoregressive generation, cropped to the context window.",
+ "video": "videos/9.10-sampling.mp4",
+ "llm_link": "Every chat model writes its reply this way, one sampled token at a time, usually with a temperature combined with top-k or top-p; the settings change how predictable or adventurous the text is.",
+ "key_ideas": [
+  "Logits: one raw score per vocabulary token at every position; softmax gives a distribution. Generation reads only the last position.",
+  "Greedy decoding: argmax every step. Predictable, but tends to repeat and loop.",
+  "Sampling: draw in proportion to probability (inverse CDF: the first index where the running total exceeds u).",
+  "Temperature: softmax(logits / T). T < 1 sharpens, T > 1 flattens, T → 0 is greedy. Top-k keeps the k largest logits; top-p the smallest set with total probability ≥ p.",
+  "Autoregressive loop: append the token, crop to the context window, repeat until an end token or a length limit."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: logits [2, 1, 0] at temperature T → 0. Which token is chosen?",
+   "options": [
+    "Each with probability 1/3",
+    "Always token 0",
+    "Always token 2",
+    "Token 1 most often"
+   ],
+   "answer": 1,
+   "explain": "Dividing by a tiny temperature makes the gaps enormous, so softmax puts essentially all the weight on the largest logit: greedy decoding."
+  },
+  {
+   "q": "Predict the result: probabilities [0.5, 0.3, 0.2] and a uniform draw u = 0.65. With inverse-CDF sampling, which index is chosen?",
+   "options": [
+    "0",
+    "1",
+    "2",
+    "None"
+   ],
+   "answer": 1,
+   "explain": "Running totals are 0.5, 0.8, 1.0. The first total above 0.65 is 0.8, at index 1."
+  },
+  {
+   "q": "What does a temperature of 2 do to the distribution?",
+   "options": [
+    "Makes it sharper",
+    "Flattens it, so unlikely tokens are chosen more often",
+    "Leaves it unchanged",
+    "Removes the unlikely tokens"
+   ],
+   "answer": 1,
+   "explain": "Halving every logit squeezes their differences, so softmax spreads the probability more evenly."
+  },
+  {
+   "q": "Why does top-k sampling help even at a sensible temperature?",
+   "options": [
+    "It makes generation faster",
+    "It cuts the long tail of individually rare tokens that together are picked surprisingly often",
+    "It removes the need for softmax",
+    "It always picks the best token"
+   ],
+   "answer": 1,
+   "explain": "Setting all but the k best logits to −∞ prevents a single strange token from derailing the text."
+  },
+  {
+   "q": "When generating, why do we read only the last position's logits?",
+   "options": [
+    "The others are zero",
+    "Earlier positions predict tokens we already have",
+    "Softmax only works on one row",
+    "To save memory"
+   ],
+   "answer": 1,
+   "explain": "During training every position predicts its next token; during generation only the prediction after the final token is new."
+  }
+ ],
+ "problems": [
+  {
+   "id": "pick",
+   "title": "Greedy and sampled choices",
+   "prompt": "<p>Plain Python, no NumPy.</p><ul><li><code>greedy(logits)</code>: the index of the largest logit.</li><li><code>sample_index(probs, u)</code>: inverse-CDF sampling. Walk through <code>probs</code> keeping a running total, and return the first index where the total becomes greater than <code>u</code> (u is a uniform number in [0, 1)). If rounding leaves you at the end, return the last index.</li></ul><pre>sample_index([0.5, 0.3, 0.2], 0.65)   # 1</pre>",
+   "starter": "def greedy(logits):\n    # TODO: index of the largest value\n    return 0\n\ndef sample_index(probs, u):\n    total = 0.0\n    # TODO: add each probability; return i as soon as total > u\n    return 0\n",
+   "tests": [
+    {
+     "name": "greedy",
+     "code": "assert greedy([0.1, 2.5, -1.0, 2.0]) == 1, f'the largest logit 2.5 is at index 1, got {greedy([0.1, 2.5, -1.0, 2.0])}'"
+    },
+    {
+     "name": "the example",
+     "code": "assert sample_index([0.5, 0.3, 0.2], 0.65) == 1, 'running totals 0.5, 0.8, 1.0: the first above 0.65 is at index 1'"
+    },
+    {
+     "name": "edges",
+     "code": "assert sample_index([0.5, 0.3, 0.2], 0.0) == 0, 'u = 0 picks index 0'\nassert sample_index([0.5, 0.3, 0.2], 0.95) == 2, 'u = 0.95 falls in the last slice'\nassert sample_index([0.25, 0.25, 0.25, 0.25], 0.9999999) == 3, 'return the last index if you reach the end'"
+    },
+    {
+     "name": "frequencies match the probabilities",
+     "code": "probs = [0.6, 0.3, 0.1]\nN = 1000\ncounts = [0, 0, 0]\nfor k in range(N):\n    counts[sample_index(probs, (k + 0.5) / N)] += 1\nassert counts == [600, 300, 100], f'evenly spaced u should split exactly 600 / 300 / 100, got {counts}'"
+    }
+   ],
+   "hints": [
+    "return max(range(len(logits)), key=lambda i: logits[i])",
+    "for i, p in enumerate(probs):\n    total += p\n    if total > u:\n        return i",
+    "After the loop: return len(probs) - 1"
+   ],
+   "solution": "def greedy(logits):\n    return max(range(len(logits)), key=lambda i: logits[i])\n\ndef sample_index(probs, u):\n    total = 0.0\n    for i, p in enumerate(probs):\n        total += p\n        if total > u:\n            return i\n    return len(probs) - 1\n"
+  },
+  {
+   "id": "temp-topk",
+   "title": "Temperature and top-k (NumPy)",
+   "prompt": "<p>Write <code>sampling_probs(logits, temperature=1.0, top_k=None)</code> returning the probability vector we would sample from:</p><ol><li>divide the logits by <code>temperature</code>;</li><li>if <code>top_k</code> is given, set every logit smaller than the k-th largest to <code>-np.inf</code>;</li><li>apply a numerically stable softmax.</li></ol>",
+   "starter": "import numpy as np\n\ndef sampling_probs(logits, temperature=1.0, top_k=None):\n    z = np.asarray(logits, dtype=float)\n    # TODO 1: temperature\n    # TODO 2: top-k mask\n    # TODO 3: stable softmax (subtract the max)\n    return z\n",
+   "tests": [
+    {
+     "name": "plain softmax",
+     "code": "import numpy as np\np = sampling_probs([2.0, 1.0, 0.0])\nassert np.allclose(p, np.exp([2, 1, 0]) / np.exp([2, 1, 0]).sum()), f'temperature 1 without top-k is just softmax, got {p}'"
+    },
+    {
+     "name": "temperature sharpens and flattens",
+     "code": "import numpy as np\ncold = sampling_probs([2.0, 1.0, 0.0], temperature=0.5)\nhot = sampling_probs([2.0, 1.0, 0.0], temperature=2.0)\nbase = sampling_probs([2.0, 1.0, 0.0])\nassert cold[0] > base[0] > hot[0], f'the favourite should get more weight when cold and less when hot: {cold[0]:.3f}, {base[0]:.3f}, {hot[0]:.3f}'\nassert np.isclose(cold.sum(), 1) and np.isclose(hot.sum(), 1), 'probabilities must sum to 1'"
+    },
+    {
+     "name": "top-k",
+     "code": "import numpy as np\np = sampling_probs([3.0, 0.5, 2.0, -1.0, 1.0], top_k=2)\nassert np.count_nonzero(p) == 2 and p[0] > 0 and p[2] > 0, f'only the two largest logits (indices 0 and 2) may keep probability, got {p}'\nassert np.isclose(p.sum(), 1), 'renormalised probabilities must sum to 1'"
+    },
+    {
+     "name": "huge logits do not overflow",
+     "code": "import numpy as np\np = sampling_probs([1000.0, 999.0])\nassert np.all(np.isfinite(p)) and np.isclose(p.sum(), 1), f'subtract the max before exp; got {p}'"
+    }
+   ],
+   "hints": [
+    "z = z / temperature",
+    "if top_k is not None:\n    kth = np.sort(z)[-top_k]\n    z = np.where(z < kth, -np.inf, z)",
+    "e = np.exp(z - z.max()); return e / e.sum()"
+   ],
+   "solution": "import numpy as np\n\ndef sampling_probs(logits, temperature=1.0, top_k=None):\n    z = np.asarray(logits, dtype=float)\n    z = z / temperature\n    if top_k is not None:\n        kth = np.sort(z)[-top_k]\n        z = np.where(z < kth, -np.inf, z)\n    e = np.exp(z - z.max())\n    return e / e.sum()\n"
+  },
+  {
+   "id": "generate",
+   "title": "Logits and generation (GPT, step 8)",
+   "prompt": "<p>The last step of the character-level GPT. The starter contains everything from lessons 9.1 to 9.9 (embeddings, positions, multi-head attention, layer norm and the transformer block), plus two blocks of random weights, a final layer norm and the output matrix <code>W_out</code> of shape (d, V).</p><ul><li><code>gpt_logits(ids)</code>: crop to the last <code>block_size</code> ids, build the stream, run every block, apply the final layer norm and multiply by <code>W_out</code>, returning (T, V).</li><li><code>generate(ids, n_new, temperature, top_k, rng)</code>: repeat n_new times: take the last row of logits; if <code>temperature == 0</code> pick the argmax; otherwise divide by temperature, apply top-k if given, softmax and sample with <code>rng.choice(V, p=probs)</code>; append the token.</li></ul><p>The weights are random, so the text is gibberish. Training comes next.</p>",
+   "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef causal_mask(T):\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef attend(Q, K, V):\n    T, dk = Q.shape\n    return softmax(Q @ K.T / np.sqrt(dk) + causal_mask(T)) @ V\n\ndef multi_head_attention(x, Wq, Wk, Wv, Wo, n_heads):          # lesson 9.7\n    Q, K, V = x @ Wq, x @ Wk, x @ Wv\n    dh = Q.shape[1] // n_heads\n    outs = [attend(Q[:, k*dh:(k+1)*dh], K[:, k*dh:(k+1)*dh], V[:, k*dh:(k+1)*dh]) for k in range(n_heads)]\n    return np.concatenate(outs, axis=1) @ Wo\n\ndef layer_norm(x, gamma, beta, eps=1e-5):                       # this lesson, problem 2\n    mean = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    return (x - mean) / np.sqrt(var + eps) * gamma + beta\n\ndef gelu(x):\n    \"\"\"The smooth ReLU used in GPT-2 (tanh approximation).\"\"\"\n    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * x**3)))\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.8) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, n_heads, block_size = 8, 2, 16\ntok_emb = rng.normal(size=(len(vocab), d))\npos_emb = rng.normal(size=(block_size, d)) * 0.1\nids = np.array(encode(\"hello\"))\nx = tok_emb[ids] + pos_emb[:len(ids)]                          # (T, d): the residual stream\n\ndef init_block(rng, d):\n    \"\"\"One block's weights in a dict (a real model learns these).\"\"\"\n    s = 1 / np.sqrt(d)\n    return {\"ln1_g\": np.ones(d), \"ln1_b\": np.zeros(d),\n            \"Wq\": rng.normal(size=(d, d)) * s, \"Wk\": rng.normal(size=(d, d)) * s,\n            \"Wv\": rng.normal(size=(d, d)) * s, \"Wo\": rng.normal(size=(d, d)) * s,\n            \"ln2_g\": np.ones(d), \"ln2_b\": np.zeros(d),\n            \"W1\": rng.normal(size=(d, 4 * d)) * s, \"b1\": np.zeros(4 * d),\n            \"W2\": rng.normal(size=(4 * d, d)) / np.sqrt(4 * d), \"b2\": np.zeros(d)}\n\n# ---- step 7: the transformer block (lesson 9.9) ----\ndef mlp(x, p):\n    \"\"\"Widen to 4d, GELU, project back to d.\"\"\"\n    return gelu(x @ p[\"W1\"] + p[\"b1\"]) @ p[\"W2\"] + p[\"b2\"]\n\ndef transformer_block(x, p, n_heads):\n    \"\"\"Pre-norm block: x + attention(LN1(x)), then x + MLP(LN2(x)). Returns (T, d).\"\"\"\n    x = x + multi_head_attention(layer_norm(x, p[\"ln1_g\"], p[\"ln1_b\"]), p[\"Wq\"], p[\"Wk\"], p[\"Wv\"], p[\"Wo\"], n_heads)\n    x = x + mlp(layer_norm(x, p[\"ln2_g\"], p[\"ln2_b\"]), p)\n    return x\n\nblocks = [init_block(rng, d) for _ in range(2)]\nlnf_g, lnf_b = np.ones(d), np.zeros(d)\nW_out = rng.normal(size=(d, len(vocab))) / np.sqrt(d)      # (d, V): the final linear layer\n\n# ---- step 8: logits and generation (this lesson) ----\ndef gpt_logits(ids):\n    \"\"\"ids: 1-D array of token ids. Returns (T, V) logits for the last block_size tokens.\"\"\"\n    ids = np.asarray(ids)[-block_size:]                    # crop to the context window\n    x = tok_emb[ids] + pos_emb[:len(ids)]\n    # TODO 1: run x through every block in `blocks`\n    # TODO 2: final layer norm (lnf_g, lnf_b), then @ W_out\n    pass\n\ndef generate(ids, n_new, temperature=1.0, top_k=None, rng=None):\n    \"\"\"Append n_new tokens to the list ids and return it.\n    temperature == 0 means greedy; otherwise divide the last row of logits by temperature,\n    keep only the top_k largest (others -inf) if top_k is given, softmax, and sample with rng.choice.\"\"\"\n    ids = list(ids)\n    # TODO 3: the loop\n    return ids\n",
+   "tests": [
+    {
+     "name": "logits shape",
+     "code": "L = gpt_logits(np.array(encode('hello')))\nassert L is not None and L.shape == (5, len(vocab)), f'expected (T, V) = (5, {len(vocab)}), got {None if L is None else L.shape}'"
+    },
+    {
+     "name": "cropped to the context window",
+     "code": "L = gpt_logits(np.array(encode('hello world') * 2))\nassert L.shape == (block_size, len(vocab)), f'22 tokens should be cropped to block_size = {block_size}, got {L.shape}'"
+    },
+    {
+     "name": "greedy generation",
+     "code": "out = generate(encode('hel'), 5, temperature=0)\nassert len(out) == 8, f'3 prompt tokens + 5 new = 8, got {len(out)}'\nassert out[3] == int(np.argmax(gpt_logits(np.array(encode('hel')))[-1])), 'greedy should take the argmax of the last row of logits'\nassert out == generate(encode('hel'), 5, temperature=0), 'greedy decoding is deterministic'"
+    },
+    {
+     "name": "top_k = 1 is greedy",
+     "code": "g = generate(encode('wor'), 6, temperature=0)\ns = generate(encode('wor'), 6, temperature=1.0, top_k=1, rng=np.random.default_rng(5))\nassert g == s, f'keeping only the best token makes sampling greedy: {g} vs {s}'"
+    },
+    {
+     "name": "sampling is valid and reproducible",
+     "code": "a = generate(encode('he'), 20, temperature=1.0, rng=np.random.default_rng(1))\nb = generate(encode('he'), 20, temperature=1.0, rng=np.random.default_rng(1))\nassert a == b, 'the same seed should give the same sample'\nassert len(a) == 22 and all(isinstance(t, int) and 0 <= t < len(vocab) for t in a), f'tokens must be ints in range(V), got {a}'"
+    }
+   ],
+   "hints": [
+    "for p in blocks:\n    x = transformer_block(x, p, n_heads)\nreturn layer_norm(x, lnf_g, lnf_b) @ W_out",
+    "for _ in range(n_new):\n    logits = gpt_logits(np.array(ids))[-1]",
+    "Sampling branch: logits = logits / temperature; top-k with np.sort(logits)[-top_k] and np.where; nxt = int(rng.choice(len(logits), p=softmax(logits))); ids.append(nxt)"
+   ],
+   "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef causal_mask(T):\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef attend(Q, K, V):\n    T, dk = Q.shape\n    return softmax(Q @ K.T / np.sqrt(dk) + causal_mask(T)) @ V\n\ndef multi_head_attention(x, Wq, Wk, Wv, Wo, n_heads):          # lesson 9.7\n    Q, K, V = x @ Wq, x @ Wk, x @ Wv\n    dh = Q.shape[1] // n_heads\n    outs = [attend(Q[:, k*dh:(k+1)*dh], K[:, k*dh:(k+1)*dh], V[:, k*dh:(k+1)*dh]) for k in range(n_heads)]\n    return np.concatenate(outs, axis=1) @ Wo\n\ndef layer_norm(x, gamma, beta, eps=1e-5):                       # this lesson, problem 2\n    mean = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    return (x - mean) / np.sqrt(var + eps) * gamma + beta\n\ndef gelu(x):\n    \"\"\"The smooth ReLU used in GPT-2 (tanh approximation).\"\"\"\n    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * x**3)))\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.8) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, n_heads, block_size = 8, 2, 16\ntok_emb = rng.normal(size=(len(vocab), d))\npos_emb = rng.normal(size=(block_size, d)) * 0.1\nids = np.array(encode(\"hello\"))\nx = tok_emb[ids] + pos_emb[:len(ids)]                          # (T, d): the residual stream\n\ndef init_block(rng, d):\n    \"\"\"One block's weights in a dict (a real model learns these).\"\"\"\n    s = 1 / np.sqrt(d)\n    return {\"ln1_g\": np.ones(d), \"ln1_b\": np.zeros(d),\n            \"Wq\": rng.normal(size=(d, d)) * s, \"Wk\": rng.normal(size=(d, d)) * s,\n            \"Wv\": rng.normal(size=(d, d)) * s, \"Wo\": rng.normal(size=(d, d)) * s,\n            \"ln2_g\": np.ones(d), \"ln2_b\": np.zeros(d),\n            \"W1\": rng.normal(size=(d, 4 * d)) * s, \"b1\": np.zeros(4 * d),\n            \"W2\": rng.normal(size=(4 * d, d)) / np.sqrt(4 * d), \"b2\": np.zeros(d)}\n\n# ---- step 7: the transformer block (lesson 9.9) ----\ndef mlp(x, p):\n    \"\"\"Widen to 4d, GELU, project back to d.\"\"\"\n    return gelu(x @ p[\"W1\"] + p[\"b1\"]) @ p[\"W2\"] + p[\"b2\"]\n\ndef transformer_block(x, p, n_heads):\n    \"\"\"Pre-norm block: x + attention(LN1(x)), then x + MLP(LN2(x)). Returns (T, d).\"\"\"\n    x = x + multi_head_attention(layer_norm(x, p[\"ln1_g\"], p[\"ln1_b\"]), p[\"Wq\"], p[\"Wk\"], p[\"Wv\"], p[\"Wo\"], n_heads)\n    x = x + mlp(layer_norm(x, p[\"ln2_g\"], p[\"ln2_b\"]), p)\n    return x\n\nblocks = [init_block(rng, d) for _ in range(2)]\nlnf_g, lnf_b = np.ones(d), np.zeros(d)\nW_out = rng.normal(size=(d, len(vocab))) / np.sqrt(d)      # (d, V): the final linear layer\n\n# ---- step 8: logits and generation (this lesson) ----\ndef gpt_logits(ids):\n    \"\"\"ids: 1-D array of token ids. Returns (T, V) logits for the last block_size tokens.\"\"\"\n    ids = np.asarray(ids)[-block_size:]                    # crop to the context window\n    x = tok_emb[ids] + pos_emb[:len(ids)]\n    for p in blocks:\n        x = transformer_block(x, p, n_heads)\n    return layer_norm(x, lnf_g, lnf_b) @ W_out\n\ndef generate(ids, n_new, temperature=1.0, top_k=None, rng=None):\n    \"\"\"Append n_new tokens to the list ids and return it.\"\"\"\n    ids = list(ids)\n    for _ in range(n_new):\n        logits = gpt_logits(np.array(ids))[-1]\n        if temperature == 0:\n            nxt = int(np.argmax(logits))\n        else:\n            logits = logits / temperature\n            if top_k is not None:\n                kth = np.sort(logits)[-top_k]\n                logits = np.where(logits < kth, -np.inf, logits)\n            nxt = int(rng.choice(len(logits), p=softmax(logits)))\n        ids.append(nxt)\n    return ids\n"
+  }
+ ],
+ "poster": "videos/9.10-sampling.jpg"
+}
