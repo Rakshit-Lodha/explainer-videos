@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.note{position:absolute;font-size:44px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+.title{position:absolute;width:1920px;left:0;text-align:center;font-size:96px;opacity:0;visibility:hidden}
+.m2{position:absolute}
+.m2 .br{position:absolute;top:0;width:20px;border:4px solid var(--ink)}
+.m2 .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.m2 .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.m2 .cell{position:absolute;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="122.2" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="122.2" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 2.6 Taylor series</div>
+  <div class="layer" id="STAGE"></div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="14.861"></div>
+  <div class="clip scene" id="S2" data-start="14.861" data-duration="19.498"></div>
+  <div class="clip scene" id="S3" data-start="34.359" data-duration="15.033"></div>
+  <div class="clip scene" id="S4" data-start="49.392" data-duration="18.902"></div>
+  <div class="clip scene" id="S5" data-start="68.294" data-duration="18.01"></div>
+  <div class="clip scene" id="S6" data-start="86.304" data-duration="17.117"></div>
+  <div class="clip scene" id="S7" data-start="103.421" data-duration="18.779"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":14.861,"s3":34.359,"s4":49.392,"s5":68.294,"s6":86.304,"s7":103.421},"total":122.2,"cues":{"s1":[["the",0.0],["derivative",0.209],["says",0.783],["that",1.044],["a",1.305],["smooth",1.41],["curve",1.775],["seen",2.141],["up",2.402],["close",2.558],["looks",2.924],["like",3.237],["a",3.498],["straight",3.603],["line",4.073],["taylor",4.386],["series",4.751],["turn",5.117],["that",5.378],["observation",5.639],["into",6.266],["a",6.527],["tool",6.631],["approximate",6.944],["a",7.571],["complicated",7.675],["function",8.302],["near",8.772],["a",9.033],["point",9.137],["with",9.451],["simple",9.712],["polynomials",10.077],["and",10.756],["keep",10.965],["adding",11.226],["terms",11.591],["until",11.905],["the",12.218],["approximation",12.427],["is",13.158],["as",13.315],["good",13.471],["as",13.732],["you",13.889],["need",14.098]],"s2":[["the",0.0],["first",0.231],["approximation",0.577],["is",1.385],["the",1.558],["tangent",1.789],["line",2.251],["itself",2.54],["near",3.002],["a",3.29],["point",3.406],["a",3.752],["the",3.925],["value",4.156],["of",4.502],["f",4.675],["at",4.791],["x",4.964],["is",5.079],["close",5.253],["to",5.599],["the",5.772],["value",6.003],["at",6.349],["a",6.522],["plus",6.696],["the",6.984],["slope",7.215],["times",7.561],["the",7.908],["distance",8.139],["from",8.658],["a",8.947],["for",9.12],["the",9.351],["exponential",9.582],["function",10.274],["near",10.794],["zero",11.082],["that",11.429],["gives",11.717],["one",12.064],["plus",12.295],["x",12.583],["which",12.756],["is",13.103],["excellent",13.276],["for",13.853],["small",14.084],["x",14.43],["but",14.546],["drifts",14.777],["away",15.181],["as",15.469],["you",15.642],["move",15.873],["further",16.162],["out",16.624],["because",16.912],["a",17.374],["straight",17.49],["line",18.009],["cannot",18.298],["bend",18.702]],"s3":[["to",0.0],["capture",0.159],["the",0.581],["bending",0.793],["add",1.268],["a",1.479],["term",1.585],["in",1.849],["the",2.008],["square",2.219],["of",2.589],["the",2.748],["distance",2.959],["scaled",3.487],["by",3.857],["half",4.016],["the",4.28],["second",4.491],["derivative",4.861],["which",5.495],["measures",5.812],["how",6.288],["fast",6.499],["the",6.763],["slope",6.974],["itself",7.292],["is",7.661],["changing",7.82],["the",8.348],["tangent",8.56],["line",8.982],["becomes",9.246],["a",9.669],["parabola",9.775],["that",10.25],["hugs",10.515],["the",10.779],["curve",10.99],["over",11.307],["a",11.571],["wider",11.677],["stretch",11.994],["curving",12.47],["the",12.892],["same",13.104],["way",13.368],["the",13.579],["function",13.79],["does",14.266]],"s4":[["each",0.0],["further",0.284],["term",0.738],["matches",1.022],["one",1.476],["more",1.703],["derivative",1.987],["at",2.612],["the",2.782],["point",3.009],["and",3.407],["the",3.634],["term",3.861],["with",4.145],["the",4.428],["n-th",4.656],["power",4.939],["is",5.28],["divided",5.45],["by",5.905],["n",6.075],["factorial",6.189],["for",6.813],["the",7.04],["exponential",7.267],["every",8.005],["derivative",8.346],["at",8.971],["zero",9.141],["equals",9.425],["one",9.822],["so",10.106],["the",10.276],["series",10.503],["is",10.901],["one",11.071],["plus",11.298],["x",11.582],["plus",11.753],["x",12.036],["squared",12.15],["over",12.604],["two",12.888],["plus",13.172],["x",13.456],["cubed",13.569],["over",13.91],["six",14.194],["and",14.478],["so",14.705],["on",14.875],["and",15.102],["with",15.329],["enough",15.613],["terms",16.011],["it",16.351],["reproduces",16.522],["e",17.146],["to",17.26],["the",17.43],["x",17.657],["everywhere",17.771]],"s5":[["the",0.0],["sine",0.217],["function",0.488],["makes",0.976],["a",1.301],["good",1.409],["show",1.68],["its",2.005],["series",2.222],["has",2.601],["only",2.818],["odd",3.089],["powers",3.306],["and",3.74],["you",3.956],["can",4.173],["watch",4.39],["the",4.715],["polynomials",4.932],["wrap",5.582],["themselves",5.853],["around",6.45],["more",6.829],["and",7.1],["more",7.317],["of",7.588],["its",7.75],["waves",7.967],["before",8.292],["peeling",8.672],["away",9.105],["close",9.43],["to",9.756],["the",9.918],["point",10.135],["a",10.514],["few",10.623],["terms",10.84],["are",11.165],["plenty",11.381],["far",11.815],["away",12.032],["you",12.303],["need",12.52],["many",12.791],["and",13.116],["for",13.333],["some",13.549],["functions",13.82],["the",14.362],["series",14.579],["never",14.959],["reaches",15.284],["beyond",15.717],["a",16.097],["certain",16.205],["distance",16.639],["at",17.126],["all",17.289]],"s6":[["optimisers",0.0],["live",0.562],["on",0.818],["the",0.971],["first",1.176],["two",1.483],["terms",1.687],["gradient",2.045],["descent",2.505],["trusts",2.914],["the",3.272],["linear",3.477],["term",3.834],["which",4.141],["is",4.448],["only",4.601],["accurate",4.857],["near",5.317],["the",5.573],["current",5.777],["point",6.186],["and",6.544],["that",6.749],["is",7.004],["why",7.158],["it",7.362],["takes",7.515],["small",7.822],["steps",8.129],["methods",8.487],["that",8.896],["also",9.152],["use",9.407],["the",9.612],["second",9.816],["derivative",10.174],["the",10.788],["curvature",10.992],["model",11.554],["the",11.861],["loss",12.066],["as",12.321],["a",12.475],["parabola",12.577],["and",13.037],["jump",13.242],["towards",13.497],["its",13.906],["bottom",14.111],["which",14.52],["is",14.826],["the",14.98],["idea",15.184],["behind",15.44],["newton's",15.798],["method",16.258]],"s7":[["every",0.0],["training",0.331],["step",0.828],["of",1.104],["a",1.27],["language",1.38],["model",1.877],["is",2.208],["a",2.374],["bet",2.484],["on",2.705],["the",2.871],["first",3.092],["order",3.423],["approximation",3.754],["it",4.583],["assumes",4.748],["the",5.19],["loss",5.411],["changes",5.687],["linearly",6.128],["for",6.625],["a",6.846],["small",6.957],["move",7.288],["of",7.564],["the",7.73],["weights",7.95],["a",8.447],["bet",8.558],["that",8.779],["only",9.055],["pays",9.331],["off",9.607],["if",9.828],["the",9.993],["learning",10.214],["rate",10.711],["keeps",10.987],["the",11.318],["step",11.539],["small",11.815],["that",12.202],["completes",12.478],["calculus",13.03],["next",13.582],["module",13.913],["three",14.3],["begins",14.631],["with",15.017],["random",15.293],["variables",15.68],["and",16.232],["distributions",16.453]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px;white-space:nowrap">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function sceneIn(sid){tl.to($(sid.toUpperCase()),{opacity:1,duration:.5,ease:'none'},START[sid])}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u,uy){return (x,y)=>[ox+u*x,oy-(uy||u)*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ---- helpers added for lessons 1.5-2.6 ---- */
+/* anim(init, fn): a state object driven by tweens; fn(state) redraws everything that depends on it.
+   Calls to .to() must be made in time order, like arrowTo. */
+function anim(init,fn){const a={st:{...init},fn};fn({...a.st});
+  a.to=(time,d,vals,ease)=>{const from={...a.st},o={...from},tgt={...from,...vals};
+    tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>fn(o)},time);a.st=tgt;return a};
+  return a}
+/* 2x2 matrix display with brackets; cells[r][c] are divs whose text can be rewritten */
+function mat2(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||60,cw=o.cw||150,rowH=fs*1.35,pad=fs*.25,W=cw*2+40,H=rowH*2+pad*2;
+  const box=el(parent,'m2'+(o.hidden===false?'':' hid'),'',{left:(cx-W/2)+'px',top:(cy-H/2)+'px',width:W+'px',height:H+'px'});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cols=o.colors||[C.ink,C.ink];
+  const cells=[0,1].map(r=>[0,1].map(c=>el(box,'cell',vals[r][c],{left:(20+c*cw)+'px',top:(pad+r*rowH)+'px',width:cw+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:cols[c]})));
+  return {box,cells,cx,cy,W,H,cw,rowH,pad}}
+/* SVG path through f(x) on plane P */
+function pathD(P,f,x0,x1,n){let d='';for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n,y=f(x);if(!isFinite(y))continue;const [px,py]=P(x,y);d+=(d?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)}return d}
+/* linear map {a,b,c,d}: x' = a x + b y, y' = c x + d y (columns (a,c) and (b,d)) */
+const mapv=(M,x,y)=>[M.a*x+M.b*y,M.c*x+M.d*y];
+const ptsAttr=(P,M,pts)=>pts.map(([x,y])=>P(...mapv(M,x,y)).map(v=>v.toFixed(1)).join(',')).join(' ');
+/* grid of lines -n..n that follows a linear map; returns {g,set(M)} */
+function tGrid(svg,P,n,o){o=o||{};const g=svgEl('g',{},svg);const L=[];
+  for(let k=-n;k<=n;k++){
+    L.push([svgEl('line',{stroke:k?(o.color||C.blue):C.axis,'stroke-width':k?2:3,opacity:k?(o.op||.55):.9},g),[k,-n],[k,n]]);
+    L.push([svgEl('line',{stroke:k?(o.color||C.blue):C.axis,'stroke-width':k?2:3,opacity:k?(o.op||.55):.9},g),[-n,k],[n,k]])}
+  return {g,set(M){for(const [ln,a,b] of L){const p=P(...mapv(M,...a)),q=P(...mapv(M,...b));ln.setAttribute('x1',p[0]);ln.setAttribute('y1',p[1]);ln.setAttribute('x2',q[0]);ln.setAttribute('y2',q[1])}}}}
+/* rectangular clip for an svg so a plane stays in its half of the frame */
+let _clipN=0;function clipTo(svg,x,y,w,h){const id='clp'+(_clipN++);const cp=svgEl('clipPath',{id},svg);svgEl('rect',{x,y,width:w,height:h},cp);const g=svgEl('g',{'clip-path':`url(#${id})`},svg);return g}
+
+const panel=(S,html,top,o)=>el(S,'abs hid',html,Object.assign({left:'1180px',top:top+'px',width:'700px',textAlign:'center'},o||{}));
+const fact=n=>n<2?1:n*fact(n-1);
+/* Taylor polynomial of degree d (fractional d blends in the next term) */
+const taylor=(coef,x,d)=>{let s=0;const D=Math.floor(d);for(let n=0;n<=D;n++)s+=coef(n)*Math.pow(x,n);if(d>D)s+=(d-D)*coef(D+1)*Math.pow(x,D+1);return s};
+const cExp=n=>1/fact(n);
+const cSin=n=>n%2===0?0:((n-1)/2%2===0?1:-1)/fact(n);
+function axes(svg,P,x0,x1,y0,y1){const g=svgEl('g',{},svg);
+  for(let x=Math.ceil(x0);x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.5,opacity:.35},g)}
+  for(let y=Math.ceil(y0);y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.5,opacity:.35},g)}
+  svgEl('line',{x1:P(x0,0)[0],y1:P(x0,0)[1],x2:P(x1,0)[0],y2:P(x1,0)[1],stroke:C.axis,'stroke-width':3},g);
+  svgEl('line',{x1:P(0,y0)[0],y1:P(0,y0)[1],x2:P(0,y1)[0],y2:P(0,y1)[1],stroke:C.axis,'stroke-width':3},g);return g}
+
+/* ============ persistent stage s1-s4: e^x and its Taylor polynomials at 0 ============ */
+const STAGE=$('STAGE');const P=plane(600,800,150,78);
+const ssvg=layerSvg(STAGE);const cg=clipTo(ssvg,60,110,1060,860);
+axes(cg,P,-3.4,3.4,-1,8.5);
+const ex=svgEl('path',{d:pathD(P,Math.exp,-3.4,2.2,160),fill:'none',stroke:C.blue,'stroke-width':6},cg);
+const exl=el(STAGE,'lbl',tex('e^x',50),{color:C.blue});exl.style.opacity=1;exl.style.visibility='inherit';place(exl,P(1.9,6.9)[0]-50,P(1.9,6.9)[1]);
+const ap=svgEl('path',{fill:'none',stroke:C.yellow,'stroke-width':5,style:'opacity:0;visibility:hidden'},cg);
+const gap=svgEl('line',{stroke:C.red,'stroke-width':5,style:'opacity:0;visibility:hidden'},cg);
+const a0=svgEl('circle',{cx:P(0,1)[0],cy:P(0,1)[1],r:10,fill:C.ink,style:'opacity:0;visibility:hidden'},cg);
+const dl=el(STAGE,'abs hid mono','',{left:'120px',top:'130px',width:'400px',fontSize:'34px',color:C.yellow});
+const D=anim({d:1},o=>{ap.setAttribute('d',pathD(P,x=>taylor(cExp,x,o.d),-3.4,3.4,200));dl.textContent=`degree ${Math.floor(o.d+1e-9)}`;
+  const y1=taylor(cExp,1.6,o.d),a=P(1.6,Math.exp(1.6)),b=P(1.6,y1);gap.setAttribute('x1',a[0]);gap.setAttribute('y1',a[1]);gap.setAttribute('x2',b[0]);gap.setAttribute('y2',b[1])});
+tl.to(STAGE,{autoAlpha:1,duration:.8},.3);tl.to(STAGE,{autoAlpha:0,duration:.6},START.s5-.3);
+
+/* ============ S1: from the zoomed-in line to a tool ============ */
+(function(){const S=$('S1'),sid='s1';
+  fadeIn([ap,a0],cue(sid,'straight'),.6);
+  const t=panel(S,'Taylor series',300,{fontSize:'80px',color:C.yellow});show(t,cue(sid,'taylor'),.6);
+  const p=panel(S,'approximate a function near a point with simple polynomials',440,{fontSize:'40px',fontStyle:'italic'});show(p,cue(sid,'approximate'),.5);
+  const k=panel(S,'add terms until it is good enough',560,{fontSize:'40px',fontStyle:'italic',color:C.dim});show(k,cue(sid,'adding'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: the tangent line ============ */
+(function(){const S=$('S2'),sid='s2';
+  const f=panel(S,tex("f(x)\\approx f(a)+f'(a)\\,(x-a)",50),260);show(f,cue(sid,'value'),.6);
+  const e=panel(S,tex('e^x\\approx 1+x',56),400,{color:C.yellow});show(e,cue(sid,'gives'),.6);fadeIn(dl,cue(sid,'gives'),.4);
+  const g1=panel(S,'excellent near 0',500,{fontSize:'40px',fontStyle:'italic',color:C.green});show(g1,cue(sid,'excellent'),.4);
+  fadeIn(gap,cue(sid,'drifts'),.4);
+  const g2=panel(S,'drifts away: a line cannot bend',570,{fontSize:'40px',fontStyle:'italic',color:C.red});show(g2,cue(sid,'drifts'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: add the curvature term ============ */
+(function(){const S=$('S3'),sid='s3';
+  const f=panel(S,tex("+\\ \\tfrac{1}{2}f''(a)\\,(x-a)^2",52),260);show(f,cue(sid,'add'),.6);
+  const c=panel(S,"f'' : how fast the slope itself changes",370,{fontSize:'38px',fontStyle:'italic',color:C.dim});show(c,cue(sid,'measures'),.5);
+  D.to(cue(sid,'parabola')-.3,1.6,{d:2});
+  const e=panel(S,tex('e^x\\approx 1+x+\\tfrac{x^2}{2}',56),480,{color:C.yellow});show(e,cue(sid,'parabola'),.6);
+  const h=panel(S,'a parabola hugs the curve over a wider stretch',600,{fontSize:'38px',fontStyle:'italic'});show(h,cue(sid,'hugs'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: every term matches one more derivative ============ */
+(function(){const S=$('S4'),sid='s4';
+  const g=panel(S,tex('f(x)\\approx\\sum_{n}\\frac{f^{(n)}(a)}{n!}\\,(x-a)^n',50),230);show(g,cue(sid,'term',2),.6);
+  const e=panel(S,tex('e^x=1+x+\\frac{x^2}{2}+\\frac{x^3}{6}+\\cdots',50),420,{color:C.yellow});show(e,cue(sid,'series'),.6);
+  D.to(cue(sid,'cubed'),1.2,{d:3});
+  D.to(cue(sid,'enough'),3.4,{d:9},'power1.in');
+  const n=panel(S,'enough terms: e^x everywhere',560,{fontSize:'40px',fontStyle:'italic',color:C.green});show(n,cue(sid,'everywhere'),.5);
+  fadeOut(gap,cue(sid,'enough'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: sine: odd powers, wrapping around the waves ============ */
+(function(){const S=$('S5'),sid='s5';
+  sceneIn(sid);
+  const Q=plane(960,600,62,150);const svg=layerSvg(S);const g=clipTo(svg,40,280,1840,640);
+  axes(g,Q,-14.5,14.5,-1.9,1.9);
+  svgEl('path',{d:pathD(Q,Math.sin,-15,15,400),fill:'none',stroke:C.blue,'stroke-width':5},g);
+  const ap2=svgEl('path',{fill:'none',stroke:C.yellow,'stroke-width':5},g);
+  const dg=el(S,'abs hid mono','',{left:'120px',top:'860px',width:'500px',fontSize:'34px',color:C.yellow});
+  const W=anim({d:1},o=>{ap2.setAttribute('d',pathD(Q,x=>taylor(cSin,x,o.d),-15,15,500));dg.textContent=`degree ${Math.floor(o.d+1e-9)}`});
+  const f=el(S,'abs hid',tex('\\sin x=x-\\frac{x^3}{3!}+\\frac{x^5}{5!}-\\frac{x^7}{7!}+\\cdots',52),{left:'0',top:'140px',width:'1920px',textAlign:'center'});show(f,cue(sid,'odd'),.6);
+  fadeIn(dg,cue(sid,'watch'),.4);
+  W.to(cue(sid,'watch'),8,{d:25},'none');
+  const c=el(S,'abs hid','near the point a few terms suffice; far away you need many',{left:'0',top:'930px',width:'1920px',textAlign:'center',fontSize:'38px',fontStyle:'italic',color:C.dim});show(c,cue(sid,'close'),.5);fadeOut(c,cue(sid,'some')-.2,.3);
+  const nv=el(S,'abs hid','',{left:'0',top:'930px',width:'1920px',textAlign:'center',fontSize:'38px',fontStyle:'italic',color:C.pink});nv.innerHTML='some never reach far: the series of '+tex('\\tfrac{1}{1-x}',38)+' only works for |x| &lt; 1';show(nv,cue(sid,'never'),.5);
+  tl.to(S,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5);
+})();
+
+/* ============ S6: gradient descent trusts the line; Newton uses the parabola ============ */
+(function(){const S=$('S6'),sid='s6';
+  sceneIn(sid);
+  const L=w=>.25*Math.pow(w-1,4)+.6*Math.pow(w-1,2)+.4;
+  const Q=plane(560,860,150,62);const svg=layerSvg(S);const g=clipTo(svg,40,180,1060,760);
+  axes(g,Q,-2.2,3.2,0,10);
+  svgEl('path',{d:pathD(Q,L,-2.2,3.2,200),fill:'none',stroke:C.blue,'stroke-width':6},g);
+  const w0=-1,L0=L(w0),d1=(w0-1)*Math.pow(w0-1,2)*1+1.2*(w0-1),d2=3*Math.pow(w0-1,2)+1.2;
+  const lin=svgEl('path',{d:pathD(Q,w=>L0+d1*(w-w0),-2.2,.4,2),fill:'none',stroke:C.yellow,'stroke-width':4,'stroke-dasharray':'12 9',style:'opacity:0;visibility:hidden'},g);
+  const quad=svgEl('path',{d:pathD(Q,w=>L0+d1*(w-w0)+.5*d2*(w-w0)*(w-w0),-2.2,1.2,80),fill:'none',stroke:C.pink,'stroke-width':4,'stroke-dasharray':'12 9',style:'opacity:0;visibility:hidden'},g);
+  const dot=svgEl('circle',{cx:Q(w0,L0)[0],cy:Q(w0,L0)[1],r:11,fill:C.ink},g);
+  const wg=w0-.02*d1,wn=w0-d1/d2;
+  const gd=svgEl('circle',{cx:Q(wg,L(wg))[0],cy:Q(wg,L(wg))[1],r:11,fill:C.yellow,style:'opacity:0;visibility:hidden'},g);
+  const nw=svgEl('circle',{cx:Q(wn,L(wn))[0],cy:Q(wn,L(wn))[1],r:11,fill:C.pink,style:'opacity:0;visibility:hidden'},g);
+  fadeIn(lin,cue(sid,'linear'),.5);fadeIn(gd,cue(sid,'small'),.4);
+  const a=panel(S,'gradient descent: trusts the line, takes small steps',260,{fontSize:'38px',fontStyle:'italic',color:C.yellow});show(a,cue(sid,'linear'),.5);
+  fadeIn(quad,cue(sid,'parabola'),.5);fadeIn(nw,cue(sid,'jump'),.4);
+  const b=panel(S,'curvature: model a parabola, jump to its bottom',380,{fontSize:'38px',fontStyle:'italic',color:C.pink});show(b,cue(sid,'curvature'),.5);
+  const c=panel(S,tex("w\\leftarrow w-\\frac{L'(w)}{L''(w)}",54),500,{color:C.pink});show(c,cue(sid,'newton\'s'),.6);
+  const n=panel(S,"Newton's method",640,{fontSize:'48px'});show(n,cue(sid,'method'),.4);
+  tl.to(S,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5);
+})();
+
+/* ============ S7: every training step bets on the first-order term ============ */
+(function(){const S=$('S7'),sid='s7';
+  sceneIn(sid);
+  const f=el(S,'abs hid',tex('L(w+\\Delta w)\\approx L(w)+\\nabla L\\cdot\\Delta w',62),{left:'0',top:'250px',width:'1920px',textAlign:'center'});show(f,cue(sid,'first'),.6);
+  const a=el(S,'abs hid','a bet that pays off only for a small step: keep the learning rate small',{left:'0',top:'420px',width:'1920px',textAlign:'center',fontSize:'42px',fontStyle:'italic',color:C.yellow});show(a,cue(sid,'pays'),.5);
+  const done=el(S,'abs hid','calculus: complete',{left:'0',top:'600px',width:'1920px',textAlign:'center',fontSize:'44px',fontStyle:'italic',color:C.green});show(done,cue(sid,'completes'),.5);
+  const next=el(S,'cap','next &nbsp;·&nbsp; 3.1 &nbsp;random variables and distributions',{top:'900px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(next,cue(sid,'next'),.7);
+})();
+
+/* KaTeX stacks accents and fraction parts as overlapping spans by design */
+document.querySelectorAll('.katex, .katex *').forEach(e=>e.setAttribute('data-layout-allow-overlap',''));
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
