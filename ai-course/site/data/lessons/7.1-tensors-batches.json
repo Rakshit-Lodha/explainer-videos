@@ -1,0 +1,177 @@
+{
+ "id": "7.1-tensors-batches",
+ "module": 7,
+ "title": "Tensors and batches",
+ "summary": "A tensor is an array with any number of axes, and its shape lists the axis lengths from the outside in. Batching stacks examples along a new first axis so one matrix multiplication handles them all: (B, d_in) @ (d_in, d_out) gives (B, d_out). Broadcasting lines shapes up from the right and stretches length-1 or missing axes; it adds a bias to every row, but it can also silently turn (B,1) − (B,) into a (B, B) grid. Reductions remove axes, and keepdims keeps them as length 1 so results broadcast back.",
+ "video": "videos/7.1-tensors-batches.mp4",
+ "llm_link": "A training batch for a language model is a (B, T) array of token ids. The embedding lookup turns it into (B, T, d), and every transformer layer after that keeps the shape (B, T, d) until the final projection to (B, T, vocab).",
+ "key_ideas": [
+  "Shape = the list of axis lengths, read from the outside in: a scalar has shape (), a vector (n,), a matrix (r, c), a stack of matrices (k, r, c).",
+  "Batching: stack examples along a new axis 0. (B, d_in) @ (d_in, d_out) → (B, d_out): inner lengths must match and disappear, outer lengths survive.",
+  "Broadcasting: align shapes from the right; two lengths are compatible if equal, if one is 1, or if one shape has run out of axes. Compatible short axes are stretched without copying.",
+  "The silent bug: (B, 1) − (B,) broadcasts to (B, B). Print shapes when a result looks too big.",
+  "Reductions: sum over axis 0 leaves one value per feature; over axis −1, one per example. keepdims=True keeps a length-1 axis so the result broadcasts back."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: X has shape (32, 10) and W has shape (10, 4). What is the shape of X @ W?",
+   "options": [
+    "(32, 10)",
+    "(10, 4)",
+    "(32, 4)",
+    "It raises an error"
+   ],
+   "answer": 2,
+   "explain": "The inner lengths (10 and 10) match and disappear; the outer lengths 32 and 4 survive."
+  },
+  {
+   "q": "Predict the result: a has shape (5, 1) and b has shape (5,). What is the shape of a − b?",
+   "options": [
+    "(5,)",
+    "(5, 1)",
+    "(5, 5)",
+    "It raises an error"
+   ],
+   "answer": 2,
+   "explain": "Aligned from the right, (5, 1) and (5,) become (5, 1) and (1, 5) after padding; both length-1 axes stretch, giving a 5 by 5 grid. This is the silent bug from the video."
+  },
+  {
+   "q": "X has shape (B, d). Which expression gives one total per example?",
+   "options": [
+    "X.sum(axis=0)",
+    "X.sum(axis=1)",
+    "X.sum()",
+    "X.T.sum(axis=1)"
+   ],
+   "answer": 1,
+   "explain": "Axis 1 is the feature axis; summing over it collapses the features and leaves B values, one per example. X.T.sum(axis=1) gives one per feature."
+  },
+  {
+   "q": "Which pair of shapes can NOT be broadcast together?",
+   "options": [
+    "(4, 3) and (3,)",
+    "(4, 3) and (4, 1)",
+    "(4, 3) and (4,)",
+    "(4, 3) and (1, 3)"
+   ],
+   "answer": 2,
+   "explain": "Aligned from the right, 3 meets 4: they are neither equal nor 1. (4,) would need to be reshaped to (4, 1) first."
+  },
+  {
+   "q": "A language model receives token ids of shape (B, T) and an embedding table of shape (vocab, d). What shape comes out of the embedding lookup?",
+   "options": [
+    "(B, d)",
+    "(T, d)",
+    "(B, T, d)",
+    "(B, T, vocab)"
+   ],
+   "answer": 2,
+   "explain": "Each of the B×T ids is replaced by its row of d numbers, adding a new last axis of length d."
+  }
+ ],
+ "problems": [
+  {
+   "id": "shapes",
+   "title": "Predict the shapes",
+   "prompt": "<p>Shape-prediction drill. Without running anything, fill in each answer as a tuple, or the string <code>'error'</code> if NumPy would refuse. Then run the tests.</p><pre>A = np.zeros((32, 10))\nW = np.zeros((10, 4))\nb = np.zeros(4)\ny = np.zeros((32, 1))\nt = np.zeros(32)\nE = np.zeros((8, 16, 64))</pre><ul><li><code>q1</code>: <code>(A @ W).shape</code></li><li><code>q2</code>: <code>(A @ W + b).shape</code></li><li><code>q3</code>: <code>(y - t).shape</code></li><li><code>q4</code>: <code>A.sum(axis=0).shape</code></li><li><code>q5</code>: <code>E.mean(axis=-1, keepdims=True).shape</code></li><li><code>q6</code>: shape of <code>A + b</code></li></ul>",
+   "starter": "# Fill in each answer as a tuple, e.g. (3, 4), or the string 'error'.\nq1 = None  # (A @ W).shape\nq2 = None  # (A @ W + b).shape\nq3 = None  # (y - t).shape\nq4 = None  # A.sum(axis=0).shape\nq5 = None  # E.mean(axis=-1, keepdims=True).shape\nq6 = None  # A + b\n",
+   "tests": [
+    {
+     "name": "q1 matrix product",
+     "code": "assert q1 == (32, 4), f'inner 10s match and vanish, outer 32 and 4 survive; you wrote {q1}'"
+    },
+    {
+     "name": "q2 adding a bias",
+     "code": "assert q2 == (32, 4), f'b (4,) broadcasts across the 32 rows; the shape stays (32, 4). You wrote {q2}'"
+    },
+    {
+     "name": "q3 the silent bug",
+     "code": "assert q3 == (32, 32), f'(32, 1) and (32,) align from the right as (32, 1) and (1, 32), so the result is a (32, 32) grid. You wrote {q3}'"
+    },
+    {
+     "name": "q4 a reduction",
+     "code": "assert q4 == (10,), f'summing over axis 0 collapses the 32 examples, leaving one total per feature. You wrote {q4}'"
+    },
+    {
+     "name": "q5 keepdims",
+     "code": "assert q5 == (8, 16, 1), f'keepdims keeps the reduced last axis with length 1. You wrote {q5}'"
+    },
+    {
+     "name": "q6 incompatible",
+     "code": "assert q6 == 'error', f'aligned from the right, 10 meets 4: neither equal nor 1, so NumPy raises an error. You wrote {q6}'"
+    }
+   ],
+   "hints": [
+    "For a matrix product, the inner lengths must match and disappear.",
+    "For broadcasting, write the shapes right-aligned and pad the shorter one with 1s on the left: (32, 1) vs (1, 32).",
+    "A reduction removes the axis you name; with keepdims=True that axis stays with length 1."
+   ],
+   "solution": "q1 = (32, 4)\nq2 = (32, 4)\nq3 = (32, 32)\nq4 = (10,)\nq5 = (8, 16, 1)\nq6 = 'error'\n"
+  },
+  {
+   "id": "broadcast-shape",
+   "title": "Write the broadcasting rule",
+   "prompt": "<p>Write <code>broadcast_shape(s1, s2)</code> for two shape tuples, using plain Python only (no NumPy). Return the broadcast result shape, or raise <code>ValueError</code> if the shapes are incompatible.</p><p>The rule: line the shapes up from the right. At each position the two lengths are compatible if they are equal or one of them is 1, and the result takes the larger. If one shape runs out of axes, the other's length is used.</p><pre>broadcast_shape((32, 4), (4,))     # (32, 4)\nbroadcast_shape((5, 1), (5,))      # (5, 5)\nbroadcast_shape((4, 3), (4,))      # ValueError</pre><p>Raise the error with <code>raise ValueError('...')</code>, not <code>raise('...')</code>.</p>",
+   "starter": "def broadcast_shape(s1, s2):\n    # TODO: pad the shorter shape with 1s on the left so both have the same length\n    # TODO: walk the positions; equal or 1 is fine, anything else -> raise ValueError(...)\n    # TODO: the result length at each position is the larger of the two\n    return s1\n",
+   "tests": [
+    {
+     "name": "bias onto a batch",
+     "code": "assert broadcast_shape((32, 4), (4,)) == (32, 4), f'expected (32, 4), got {broadcast_shape((32, 4), (4,))}'"
+    },
+    {
+     "name": "the silent bug",
+     "code": "r = broadcast_shape((5, 1), (5,))\nassert r == (5, 5), f'(5, 1) and (5,) pad to (5, 1) and (1, 5), so the answer is (5, 5); got {r}'"
+    },
+    {
+     "name": "order does not matter",
+     "code": "assert broadcast_shape((3,), (2, 1, 3)) == (2, 1, 3), 'the shorter shape can come first'\nassert broadcast_shape((1, 4), (3, 1)) == (3, 4), 'both length-1 axes stretch'"
+    },
+    {
+     "name": "incompatible shapes raise ValueError",
+     "code": "try:\n    broadcast_shape((4, 3), (4,))\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('3 and 4 are neither equal nor 1, so this must raise ValueError')"
+    },
+    {
+     "name": "matches NumPy",
+     "code": "import numpy as np\nfor a, b in [((8, 1, 6), (7, 1)), ((2, 3, 4), (3, 1)), ((1,), (9, 9))]:\n    want = np.broadcast_shapes(a, b)\n    got = broadcast_shape(a, b)\n    assert tuple(got) == want, f'{a} with {b}: NumPy says {want}, you returned {got}'"
+    }
+   ],
+   "hints": [
+    "n = max(len(s1), len(s2)); a = (1,) * (n - len(s1)) + tuple(s1); do the same for s2.",
+    "for x, y in zip(a, b): if x != y and x != 1 and y != 1: raise ValueError(f'{s1} and {s2} do not broadcast')",
+    "Collect max(x, y) at each position and return tuple(result)."
+   ],
+   "solution": "def broadcast_shape(s1, s2):\n    n = max(len(s1), len(s2))\n    a = (1,) * (n - len(s1)) + tuple(s1)\n    b = (1,) * (n - len(s2)) + tuple(s2)\n    out = []\n    for x, y in zip(a, b):\n        if x != y and x != 1 and y != 1:\n            raise ValueError(f'{s1} and {s2} do not broadcast')\n        out.append(max(x, y))\n    return tuple(out)\n"
+  },
+  {
+   "id": "batched-layer",
+   "title": "A batched layer and row normalisation",
+   "prompt": "<p>Two NumPy functions that work on a whole batch at once.</p><ul><li><code>dense(X, W, b)</code>: X has shape (B, d_in), W (d_in, d_out), b (d_out,). Return <code>X @ W + b</code>, shape (B, d_out). Assert the inner lengths match with a helpful message.</li><li><code>row_normalise(X)</code>: divide each row by its own sum, so every row sums to 1. Use <code>keepdims=True</code>.</li></ul>",
+   "starter": "import numpy as np\n\ndef dense(X, W, b):\n    # TODO: check X.shape[1] == W.shape[0], then return X @ W + b\n    return X\n\ndef row_normalise(X):\n    # TODO: s = X.sum(axis=1, keepdims=True); return X / s\n    return X\n",
+   "tests": [
+    {
+     "name": "dense output shape",
+     "code": "import numpy as np\nX = np.ones((32, 10)); W = np.ones((10, 4)); b = np.zeros(4)\nY = dense(X, W, b)\nassert Y.shape == (32, 4), f'(32, 10) @ (10, 4) should give (32, 4), got {Y.shape}'"
+    },
+    {
+     "name": "bias added to every row",
+     "code": "import numpy as np\nX = np.zeros((3, 2)); W = np.zeros((2, 2)); b = np.array([1.0, -2.0])\nY = dense(X, W, b)\nassert np.allclose(Y, [[1, -2]] * 3), f'every row should equal b = [1, -2]; got {Y}'"
+    },
+    {
+     "name": "rows sum to one",
+     "code": "import numpy as np\nX = np.array([[1.0, 3.0], [2.0, 2.0], [5.0, 15.0]])\nY = row_normalise(X)\nassert Y.shape == X.shape, f'shape should stay {X.shape}, got {Y.shape}'\nassert np.allclose(Y.sum(axis=1), 1), f'each row should sum to 1, got {Y.sum(axis=1)}. Did you sum over axis=1 with keepdims=True?'\nassert np.allclose(Y[0], [0.25, 0.75]), f'row [1, 3] should become [0.25, 0.75], got {Y[0]}'"
+    },
+    {
+     "name": "rows, not columns",
+     "code": "import numpy as np\nX = np.array([[1.0, 1.0, 2.0], [3.0, 0.0, 1.0]])\nY = row_normalise(X)\nassert np.allclose(Y, [[0.25, 0.25, 0.5], [0.75, 0, 0.25]]), f'got {Y}; summing over axis 0 normalises columns instead'"
+    }
+   ],
+   "hints": [
+    "assert X.shape[1] == W.shape[0], f'inner lengths differ: {X.shape} @ {W.shape}'",
+    "return X @ W + b  (b broadcasts across the batch)",
+    "s = X.sum(axis=1, keepdims=True) has shape (B, 1), so X / s divides each row by its own total."
+   ],
+   "solution": "import numpy as np\n\ndef dense(X, W, b):\n    assert X.shape[1] == W.shape[0], f'inner lengths differ: {X.shape} @ {W.shape}'\n    return X @ W + b\n\ndef row_normalise(X):\n    s = X.sum(axis=1, keepdims=True)\n    return X / s\n"
+  }
+ ],
+ "poster": "videos/7.1-tensors-batches.jpg"
+}

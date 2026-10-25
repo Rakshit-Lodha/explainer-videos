@@ -289,7 +289,8 @@
    "lessons": [
     {
      "num": "7.1",
-     "title": "Tensors and batches"
+     "title": "Tensors and batches",
+     "id": "7.1-tensors-batches"
     },
     {
      "num": "7.2",
