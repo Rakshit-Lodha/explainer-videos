@@ -1,0 +1,172 @@
+{
+ "id": "9.7-multi-head",
+ "module": 9,
+ "title": "Multi-head attention",
+ "summary": "One head learns one way of looking. Multi-head attention runs h heads side by side, each with its own queries, keys and values of width d/h, concatenates their outputs back to width d, and mixes them with an output projection W_O. In code, one projection is reshaped from (T, d) to (h, T, d/h) so every head is computed in one batched matrix product.",
+ "video": "videos/9.7-multi-head.mp4",
+ "llm_link": "Every attention layer in a GPT is multi-head: GPT-2 small, for example, has 12 heads in each of its 12 layers, with d = 768 split into heads of width 64. Interpretability research studies these heads individually, because many of them specialise.",
+ "key_ideas": [
+  "Several heads run in parallel, each with its own W_Q, W_K, W_V and its own attention weights.",
+  "Head width d_head = d / h, so the total cost stays close to one wide head.",
+  "Head outputs are concatenated back to (T, d) and multiplied by a learned output projection W_O.",
+  "Reshape trick: (T, d) → (T, h, d_head) → transpose → (h, T, d_head); scores are (h, T, T).",
+  "Attention, with any number of heads, has no idea of token order; that is the next lesson."
+ ],
+ "quiz": [
+  {
+   "q": "d = 512 and h = 8. Predict the shape of the batched score tensor for a sequence of T = 10 tokens.",
+   "options": [
+    "(10, 10)",
+    "(8, 10, 10)",
+    "(8, 10, 64)",
+    "(10, 512)"
+   ],
+   "answer": 1,
+   "explain": "Each of the 8 heads has its own (T, T) = (10, 10) score table, stacked along the head axis."
+  },
+  {
+   "q": "With d = 768 and 12 heads, what is the width of each head's queries and keys?",
+   "options": [
+    "768",
+    "12",
+    "64",
+    "9216"
+   ],
+   "answer": 2,
+   "explain": "d / h = 768 / 12 = 64. This is the configuration of GPT-2 small."
+  },
+  {
+   "q": "What is the job of the output projection W_O?",
+   "options": [
+    "It masks future tokens",
+    "It mixes the concatenated head outputs so their findings combine into one update per token",
+    "It normalises the attention weights",
+    "It turns token IDs into vectors"
+   ],
+   "answer": 1,
+   "explain": "Concatenation just places the head outputs side by side. W_O lets each output dimension draw on every head."
+  },
+  {
+   "q": "Compared with one head of width d, h heads of width d/h cost…",
+   "options": [
+    "About h times more",
+    "About the same",
+    "About h times less",
+    "h² times more"
+   ],
+   "answer": 1,
+   "explain": "The projections have the same total size, and the score tables multiply narrower vectors. The total work stays close to one wide head (there are h small score tables instead of one)."
+  },
+  {
+   "q": "Why might an LLM benefit from many heads per layer?",
+   "options": [
+    "Each head can track a different relationship at once, such as the previous token or a grammatical dependency",
+    "More heads make the context window longer",
+    "Heads replace the need for training",
+    "Each head handles a different language"
+   ],
+   "answer": 0,
+   "explain": "A single softmax gives one weighting per token. Several heads give several independent weightings, which trained models use for different jobs."
+  }
+ ],
+ "problems": [
+  {
+   "id": "shapes",
+   "title": "Shape drill: reshape and transpose",
+   "prompt": "<p>Multi-head attention is mostly shape bookkeeping. Predict every shape, then print to check.</p><p>Rules: <code>reshape</code> keeps the order of the numbers and just regroups them; <code>transpose(1, 0, 2)</code> swaps the first two axes; <code>transpose(0, 2, 1)</code> swaps the last two; <code>@</code> on two 3D arrays does one matrix product per entry of the first axis.</p>",
+   "starter": "import numpy as np\n\nT, d, h = 5, 8, 2\ndh = d // h                                  # width of one head\nQ = np.zeros((T, d))\nQr = Q.reshape(T, h, dh)                     # cut each row into h slices\nQh = Qr.transpose(1, 0, 2)                   # heads first\nKh = np.zeros((h, T, dh))\nVh = np.zeros((h, T, dh))\nS = Qh @ Kh.transpose(0, 2, 1)               # @ on 3D arrays: one matrix product per head\nOh = S @ Vh\nmerged = Oh.transpose(1, 0, 2).reshape(T, d)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"Qr\": None,\n    \"Qh\": None,\n    \"Kh.transpose(0, 2, 1)\": None,\n    \"S\": None,\n    \"Oh\": None,\n    \"Oh.transpose(1, 0, 2)\": None,\n    \"merged\": None,\n}\n",
+   "tests": [
+    {
+     "name": "shape of Qr",
+     "code": "import numpy as np\ngot = answers['Qr']\nreal = np.shape(Qr)\nassert got is not None, 'fill in your prediction for Qr'\nassert tuple(got) == tuple(real), f'you predicted {got} but Qr has shape {real}. reshape keeps the T rows and cuts each row of d = 8 numbers into h = 2 slices of 4.'"
+    },
+    {
+     "name": "shape of Qh",
+     "code": "import numpy as np\ngot = answers['Qh']\nreal = np.shape(Qh)\nassert got is not None, 'fill in your prediction for Qh'\nassert tuple(got) == tuple(real), f'you predicted {got} but Qh has shape {real}. transpose(1, 0, 2) swaps the first two axes, so the heads axis comes first.'"
+    },
+    {
+     "name": "shape of Kh.transpose(0, 2, 1)",
+     "code": "import numpy as np\ngot = answers['Kh.transpose(0, 2, 1)']\nreal = np.shape(Kh.transpose(0, 2, 1))\nassert got is not None, 'fill in your prediction for Kh.transpose(0, 2, 1)'\nassert tuple(got) == tuple(real), f'you predicted {got} but Kh.transpose(0, 2, 1) has shape {real}. This keeps the head axis and swaps the last two, giving one Kᵀ of shape (dh, T) per head.'"
+    },
+    {
+     "name": "shape of S",
+     "code": "import numpy as np\ngot = answers['S']\nreal = np.shape(S)\nassert got is not None, 'fill in your prediction for S'\nassert tuple(got) == tuple(real), f'you predicted {got} but S has shape {real}. With 3D arrays, @ multiplies matching pairs along the first axis: (h, T, dh) @ (h, dh, T) gives (h, T, T), one score table per head.'"
+    },
+    {
+     "name": "shape of Oh",
+     "code": "import numpy as np\ngot = answers['Oh']\nreal = np.shape(Oh)\nassert got is not None, 'fill in your prediction for Oh'\nassert tuple(got) == tuple(real), f'you predicted {got} but Oh has shape {real}. (h, T, T) @ (h, T, dh) gives (h, T, dh): each head mixes its own values.'"
+    },
+    {
+     "name": "shape of Oh.transpose(1, 0, 2)",
+     "code": "import numpy as np\ngot = answers['Oh.transpose(1, 0, 2)']\nreal = np.shape(Oh.transpose(1, 0, 2))\nassert got is not None, 'fill in your prediction for Oh.transpose(1, 0, 2)'\nassert tuple(got) == tuple(real), f'you predicted {got} but Oh.transpose(1, 0, 2) has shape {real}. Swapping the first two axes back puts tokens first again.'"
+    },
+    {
+     "name": "shape of merged",
+     "code": "import numpy as np\ngot = answers['merged']\nreal = np.shape(merged)\nassert got is not None, 'fill in your prediction for merged'\nassert tuple(got) == tuple(real), f'you predicted {got} but merged has shape {real}. reshape(T, d) glues the h slices of each row back together, h × dh = d.'"
+    }
+   ],
+   "hints": [
+    "Write the shape next to each line as a comment before you print anything.",
+    "T = 5, h = 2, dh = 4."
+   ],
+   "solution": "import numpy as np\n\nT, d, h = 5, 8, 2\ndh = d // h                                  # width of one head\nQ = np.zeros((T, d))\nQr = Q.reshape(T, h, dh)                     # cut each row into h slices\nQh = Qr.transpose(1, 0, 2)                   # heads first\nKh = np.zeros((h, T, dh))\nVh = np.zeros((h, T, dh))\nS = Qh @ Kh.transpose(0, 2, 1)               # @ on 3D arrays: one matrix product per head\nOh = S @ Vh\nmerged = Oh.transpose(1, 0, 2).reshape(T, d)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"Qr\": (5, 2, 4),\n    \"Qh\": (2, 5, 4),\n    \"Kh.transpose(0, 2, 1)\": (2, 4, 5),\n    \"S\": (2, 5, 5),\n    \"Oh\": (2, 5, 4),\n    \"Oh.transpose(1, 0, 2)\": (5, 2, 4),\n    \"merged\": (5, 8),\n}\n"
+  },
+  {
+   "id": "split",
+   "title": "Split and merge heads",
+   "prompt": "<p>Write <code>split_heads(M, h)</code>, turning a <code>(T, d)</code> array into <code>(h, T, d // h)</code> where head <code>k</code> holds columns <code>k*dh</code> to <code>(k+1)*dh</code> of every row, and <code>merge_heads(Mh)</code>, its exact inverse.</p><p>Do it with <code>reshape</code> and <code>transpose</code> only, no loops.</p>",
+   "starter": "import numpy as np\n\ndef split_heads(M, h):\n    \"\"\"(T, d) -> (h, T, d // h): head k gets columns k*dh to (k+1)*dh of every row.\"\"\"\n    T, d = M.shape\n    # TODO: reshape to (T, h, d // h), then transpose so the heads axis comes first\n    pass\n\ndef merge_heads(Mh):\n    \"\"\"(h, T, dh) -> (T, h * dh): the exact inverse of split_heads.\"\"\"\n    h, T, dh = Mh.shape\n    # TODO: transpose back to (T, h, dh), then reshape to (T, h * dh)\n    pass\n",
+   "tests": [
+    {
+     "name": "split shape",
+     "code": "import numpy as np\nM=np.arange(40.0).reshape(5,8)\nout=split_heads(M,2)\nassert out is not None, 'split_heads returned None'\nassert out.shape==(2,5,4), f'expected (h, T, dh) = (2, 5, 4), got {out.shape}'"
+    },
+    {
+     "name": "head k holds the right columns",
+     "code": "import numpy as np\nM=np.arange(40.0).reshape(5,8)\nout=split_heads(M,2)\nassert np.array_equal(out[0],M[:,:4]), 'head 0 should be columns 0-3 of every row'\nassert np.array_equal(out[1],M[:,4:]), 'head 1 should be columns 4-7 of every row. If you reshaped straight to (h, T, dh) the numbers are grouped wrongly: reshape to (T, h, dh) first, then transpose.'"
+    },
+    {
+     "name": "merge undoes split",
+     "code": "import numpy as np\nM=np.random.default_rng(1).normal(size=(6,12))\nfor h in (1,2,3,4,6):\n    back=merge_heads(split_heads(M,h))\n    assert back is not None, 'merge_heads returned None'\n    assert np.array_equal(back,M), f'merge_heads(split_heads(M, {h})) should give M back exactly'"
+    }
+   ],
+   "hints": [
+    "M.reshape(T, h, d // h) cuts each row into h slices.",
+    ".transpose(1, 0, 2) moves the head axis to the front.",
+    "merge: Mh.transpose(1, 0, 2).reshape(T, h * dh)"
+   ],
+   "solution": "import numpy as np\n\ndef split_heads(M, h):\n    \"\"\"(T, d) -> (h, T, d // h): head k gets columns k*dh to (k+1)*dh of every row.\"\"\"\n    T, d = M.shape\n    return M.reshape(T, h, d // h).transpose(1, 0, 2)\n\ndef merge_heads(Mh):\n    \"\"\"(h, T, dh) -> (T, h * dh): the exact inverse of split_heads.\"\"\"\n    h, T, dh = Mh.shape\n    return Mh.transpose(1, 0, 2).reshape(T, h * dh)\n"
+  },
+  {
+   "id": "mha",
+   "title": "Multi-head attention (GPT, step 5)",
+   "prompt": "<p>Build multi-head attention the straightforward way, with a loop over heads. The starter has your GPT so far, plus <code>attend(Q, K, V)</code>: last lesson's scaled, causal attention working on already-projected matrices.</p><p>Write <code>multi_head_attention(X, Wq, Wk, Wv, Wo, n_heads)</code>: project once, give head <code>k</code> the columns <code>k*dh:(k+1)*dh</code> of Q, K and V, run <code>attend</code> on each, concatenate the results side by side, and multiply by <code>Wo</code>. The output has the same shape as X.</p><p>(The tests compare your loop with the batched reshape version from the drill.)</p>",
+   "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef causal_mask(T):\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef attend(Q, K, V):\n    \"\"\"Scaled, causal attention on already-projected Q, K, V (lesson 9.6).\"\"\"\n    T, dk = Q.shape\n    A = softmax(Q @ K.T / np.sqrt(dk) + causal_mask(T), axis=-1)\n    return A @ V\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.6) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, n_heads = 8, 2\nE = rng.normal(size=(len(vocab), d))\nX = E[np.array(encode(\"hello\"))]               # (T, d) = (5, 8)\nWq, Wk, Wv, Wo = (rng.normal(size=(d, d)) / np.sqrt(d) for _ in range(4))\n\n# ---- step 5: multi-head attention (this lesson) ----\ndef multi_head_attention(X, Wq, Wk, Wv, Wo, n_heads):\n    \"\"\"Project once, run each head on its own slice of columns, concatenate, project with Wo. Returns (T, d).\"\"\"\n    Q, K, V = X @ Wq, X @ Wk, X @ Wv           # each (T, d)\n    d = Q.shape[1]\n    dh = d // n_heads\n    outs = []\n    # TODO: for each head k, take columns k*dh:(k+1)*dh of Q, K and V,\n    #       run attend(...) on them and append the (T, dh) result to outs\n    # TODO: concatenate the head outputs side by side (np.concatenate(outs, axis=1)) -> (T, d)\n    # TODO: return that @ Wo\n    pass\n",
+   "tests": [
+    {
+     "name": "shape (T, d)",
+     "code": "import numpy as np\nout=multi_head_attention(X,Wq,Wk,Wv,Wo,2)\nassert out is not None, 'return the projected output'\nassert out.shape==(5,8), f'the output should have the same shape as X, (5, 8), got {np.shape(out)}'"
+    },
+    {
+     "name": "matches the batched version",
+     "code": "import numpy as np\ndef _ref(X,Wq,Wk,Wv,Wo,h):\n    T,d=X.shape;dh=d//h\n    sp=lambda M:M.reshape(T,h,dh).transpose(1,0,2)\n    Q,K,V=sp(X@Wq),sp(X@Wk),sp(X@Wv)\n    S=Q@K.transpose(0,2,1)/np.sqrt(dh)+np.triu(np.full((T,T),-np.inf),k=1)\n    e=np.exp(S-S.max(-1,keepdims=True));A=e/e.sum(-1,keepdims=True)\n    return (A@V).transpose(1,0,2).reshape(T,d)@Wo\nfor h in (1,2,4):\n    out=multi_head_attention(X,Wq,Wk,Wv,Wo,h)\n    assert np.allclose(out,_ref(X,Wq,Wk,Wv,Wo,h)), f'with {h} heads your result differs from the reshape-based reference. Check the column slices, the scaling by sqrt(dh) (inside attend) and the final @ Wo.'"
+    },
+    {
+     "name": "one head with Wo = I is plain attention",
+     "code": "import numpy as np\nI=np.eye(8)\nout=multi_head_attention(X,Wq,Wk,Wv,I,1)\nassert np.allclose(out,attend(X@Wq,X@Wk,X@Wv)), 'with one head and an identity output projection the result should equal a single attention head'"
+    },
+    {
+     "name": "still causal",
+     "code": "import numpy as np\na=multi_head_attention(X,Wq,Wk,Wv,Wo,2)\nX2=X.copy();X2[-1]+=5\nb=multi_head_attention(X2,Wq,Wk,Wv,Wo,2)\nassert np.allclose(a[:-1],b[:-1]), 'changing the last token changed earlier outputs: every head must use the causal mask'"
+    }
+   ],
+   "hints": [
+    "cols = slice(k * dh, (k + 1) * dh); Q[:, cols] is head k's queries.",
+    "outs.append(attend(Q[:, cols], K[:, cols], V[:, cols]))",
+    "return np.concatenate(outs, axis=1) @ Wo"
+   ],
+   "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef causal_mask(T):\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef attend(Q, K, V):\n    \"\"\"Scaled, causal attention on already-projected Q, K, V (lesson 9.6).\"\"\"\n    T, dk = Q.shape\n    A = softmax(Q @ K.T / np.sqrt(dk) + causal_mask(T), axis=-1)\n    return A @ V\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.6) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, n_heads = 8, 2\nE = rng.normal(size=(len(vocab), d))\nX = E[np.array(encode(\"hello\"))]               # (T, d) = (5, 8)\nWq, Wk, Wv, Wo = (rng.normal(size=(d, d)) / np.sqrt(d) for _ in range(4))\n\n# ---- step 5: multi-head attention (this lesson) ----\ndef multi_head_attention(X, Wq, Wk, Wv, Wo, n_heads):\n    \"\"\"Project once, run each head on its own slice of columns, concatenate, project with Wo. Returns (T, d).\"\"\"\n    Q, K, V = X @ Wq, X @ Wk, X @ Wv           # each (T, d)\n    d = Q.shape[1]\n    dh = d // n_heads\n    outs = []\n    for k in range(n_heads):\n        cols = slice(k * dh, (k + 1) * dh)\n        outs.append(attend(Q[:, cols], K[:, cols], V[:, cols]))\n    return np.concatenate(outs, axis=1) @ Wo\n"
+  }
+ ],
+ "poster": "videos/9.7-multi-head.jpg"
+}
