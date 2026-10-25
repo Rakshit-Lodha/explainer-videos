@@ -1,0 +1,102 @@
+{
+  "id": "10.7-evaluation",
+  "module": 10,
+  "title": "Evaluating models",
+  "summary": "A score is a procedure, not a fact. Perplexity is exp of the mean negative log-likelihood and only compares models with the same tokenizer. Multiple-choice benchmarks are often scored by option likelihood, where length normalisation matters. Code uses pass@k with an unbiased estimator. Every score has a standard error, benchmarks can leak into training data, and LLM judges have position, length and self-preference biases.",
+  "video": "videos/10.7-evaluation.mp4",
+  "llm_link": "Your own evals for RAG and agents face the same issues: define the scoring procedure exactly, report uncertainty (a 1-point gain on 200 questions is usually noise), keep test items out of prompts and fine-tuning data, and swap answer order when an LLM judges two outputs.",
+  "key_ideas": [
+    "Perplexity = exp(−(1/N)·Σ log p(true token)). A uniform guess over k tokens has perplexity k. Not comparable across tokenizers.",
+    "Multiple choice by likelihood: score each option's log-probability given the question; sum vs. per-token mean (length normalisation) can change the pick. GPT-3 used per-token normalisation for most tasks.",
+    "pass@k (Chen et al., 2021): draw n samples, c pass; unbiased estimate 1 − C(n−c, k) / C(n, k).",
+    "Standard error of an accuracy p on n items ≈ √(p(1−p)/n): about 2 points at 70% on 500 questions.",
+    "Contamination: test items seen in pretraining inflate scores; check overlap, use private or fresh test sets.",
+    "LLM-as-judge (Zheng et al., 2023, MT-Bench): GPT-4 agreement with humans was similar to human-human agreement, with position, verbosity and self-enhancement biases. Swap order and average."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: a model gives every true token probability 0.25. What is its perplexity?",
+      "options": ["0.25", "4", "1.39", "25"],
+      "answer": 1,
+      "explain": "exp(−log 0.25) = 1/0.25 = 4: as uncertain as a fair choice among 4 tokens."
+    },
+    {
+      "q": "Model A scores 71% and model B 70% on 500 questions. What is the most reasonable conclusion?",
+      "options": ["A is clearly better", "The gap is within about one standard error (≈2 points), so it may be noise", "B is better because scores are noisy", "Perplexity must be checked instead"],
+      "answer": 1,
+      "explain": "√(0.7·0.3/500) ≈ 0.02. A 1-point difference is well inside that, so more questions or a paired comparison is needed."
+    },
+    {
+      "q": "Why can't you compare the perplexity of two models with different tokenizers directly?",
+      "options": ["Perplexity is always 1 for large models", "The averages are over different units (tokens), so the models are scored on different prediction tasks", "Tokenizers change the model's weights", "Perplexity needs labelled data"],
+      "answer": 1,
+      "explain": "A tokenizer that splits text into more, smaller pieces makes each prediction easier but requires more of them. Compare per-character or per-byte measures instead."
+    },
+    {
+      "q": "A coding model passes the tests on 3 of 10 samples for a problem. What is the unbiased pass@1 estimate?",
+      "options": ["0.1", "0.3", "1.0", "0.7"],
+      "answer": 1,
+      "explain": "For k = 1 the formula 1 − C(7,1)/C(10,1) = 1 − 7/10 = 0.3, the fraction of samples that pass."
+    },
+    {
+      "q": "You ask an LLM judge which of two RAG answers is better, always listing your new system's answer first. What bias should you guard against?",
+      "options": ["Contamination", "Position bias: judges can favour the answer shown first; swap the order and average", "Tokenizer mismatch", "Perplexity bias"],
+      "answer": 1,
+      "explain": "MT-Bench documented position bias. Running both orders and keeping only consistent verdicts (or averaging) removes most of it."
+    }
+  ],
+  "problems": [
+    {
+      "id": "ppl",
+      "title": "Perplexity",
+      "prompt": "<p>Write <code>perplexity(probs)</code>: <code>probs</code> is a list of the probabilities the model gave to each <i>true</i> next token in a held-out text. Return <code>exp(-(1/N) · Σ log p)</code>.</p><pre>perplexity([0.25, 0.25, 0.25])   # 4.0\nperplexity([0.5, 0.125])          # 4.0 (geometric mean of 1/p)</pre>",
+      "starter": "import math\n\ndef perplexity(probs):\n    # TODO 1: average negative log-probability\n    # TODO 2: exponentiate it\n    pass\n",
+      "tests": [
+        {"name": "uniform over four", "code": "out = perplexity([0.25, 0.25, 0.25])\nassert out is not None, 'perplexity returned None'\nassert abs(out - 4.0) < 1e-9, f'a model that gives each true token 1/4 is as unsure as a 4-way guess: expected 4.0, got {out}'"},
+        {"name": "geometric, not arithmetic", "code": "out = perplexity([0.5, 0.125])\nassert abs(out - 4.0) < 1e-9, f'expected exp(-(log 0.5 + log 0.125)/2) = 4.0, got {out}. If you got 3.2 you averaged probabilities instead of log-probabilities.'"},
+        {"name": "perfect model", "code": "out = perplexity([1.0, 1.0])\nassert abs(out - 1.0) < 1e-12, f'certainty on every true token gives perplexity 1, got {out}'"},
+        {"name": "worse predictions, higher perplexity", "code": "assert perplexity([0.1, 0.1]) > perplexity([0.5, 0.5]), 'lower probabilities on the true tokens must give higher perplexity'"}
+      ],
+      "hints": [
+        "nll = -sum(math.log(p) for p in probs) / len(probs)",
+        "return math.exp(nll)"
+      ],
+      "solution": "import math\n\ndef perplexity(probs):\n    nll = -sum(math.log(p) for p in probs) / len(probs)\n    return math.exp(nll)\n"
+    },
+    {
+      "id": "passk",
+      "title": "Unbiased pass@k",
+      "prompt": "<p>For one problem you drew <code>n</code> programs and <code>c</code> of them passed the tests. Write <code>pass_at_k(n, c, k)</code> = <code>1 − C(n−c, k) / C(n, k)</code>, where <code>C</code> is \"n choose k\" (<code>math.comb</code>).</p><p>When there are fewer than <code>k</code> failing samples (<code>n − c &lt; k</code>), every choice of k includes a pass, so return <code>1.0</code>.</p><pre>pass_at_k(10, 3, 1)   # 0.3\npass_at_k(10, 3, 5)   # 0.9166...</pre>",
+      "starter": "import math\n\ndef pass_at_k(n, c, k):\n    # TODO 1: if n - c < k, return 1.0\n    # TODO 2: 1 - comb(n - c, k) / comb(n, k)\n    pass\n",
+      "tests": [
+        {"name": "k = 1 is the pass rate", "code": "out = pass_at_k(10, 3, 1)\nassert out is not None and abs(out - 0.3) < 1e-12, f'pass@1 should equal c/n = 0.3, got {out}'"},
+        {"name": "k = 5", "code": "out = pass_at_k(10, 3, 5)\nassert abs(out - (1 - 21/252)) < 1e-12, f'expected 1 - C(7,5)/C(10,5) = 1 - 21/252 = 0.9167, got {out}'"},
+        {"name": "no passes", "code": "assert pass_at_k(20, 0, 5) == 0.0, 'if no sample passes, pass@k must be 0'"},
+        {"name": "too few failures", "code": "out = pass_at_k(5, 3, 3)\nassert out == 1.0, f'with only 2 failing samples, any 3 chosen include a pass: expected 1.0, got {out}'"},
+        {"name": "grows with k", "code": "vals = [pass_at_k(50, 5, k) for k in (1, 5, 10)]\nassert vals[0] < vals[1] < vals[2], f'more attempts can only help: got {vals}'"}
+      ],
+      "hints": [
+        "math.comb(7, 5) is 21.",
+        "if n - c < k: return 1.0\nreturn 1 - math.comb(n - c, k) / math.comb(n, k)"
+      ],
+      "solution": "import math\n\ndef pass_at_k(n, c, k):\n    if n - c < k:\n        return 1.0\n    return 1 - math.comb(n - c, k) / math.comb(n, k)\n"
+    },
+    {
+      "id": "mc",
+      "title": "Scoring multiple choice by likelihood",
+      "prompt": "<p>For a question, each answer option has a list of per-token log-probabilities (the model's log-prob of each token of that option, given the question). Write <code>pick(option_logprobs, normalize)</code> that returns the index of the chosen option:</p><ul><li><code>normalize=False</code>: highest <b>sum</b> of log-probs</li><li><code>normalize=True</code>: highest <b>mean</b> log-prob per token</li></ul><pre>opts = [[-1.0], [-0.4, -0.4, -0.4]]\npick(opts, False)   # 0  (sum -1.0 beats -1.2)\npick(opts, True)    # 1  (mean -0.4 beats -1.0)</pre><p>The same model, the same question, two different \"answers\": this is why an evaluation must state how it scores.</p>",
+      "starter": "def pick(option_logprobs, normalize):\n    scores = []\n    for lp in option_logprobs:\n        # TODO: sum of lp, or the mean if normalize is True\n        pass\n    # TODO: return the index of the largest score\n    pass\n",
+      "tests": [
+        {"name": "sum prefers the short option", "code": "out = pick([[-1.0], [-0.4, -0.4, -0.4]], False)\nassert out == 0, f'sums are -1.0 and -1.2, so option 0 wins; got {out}'"},
+        {"name": "mean prefers the confident long option", "code": "out = pick([[-1.0], [-0.4, -0.4, -0.4]], True)\nassert out == 1, f'means are -1.0 and -0.4, so option 1 wins; got {out}'"},
+        {"name": "four options", "code": "opts = [[-2.0, -1.0], [-0.5], [-3.0], [-0.2, -0.2, -0.2, -0.2]]\nassert pick(opts, False) == 1, 'by sum: -3.0, -0.5, -3.0, -0.8, so option 1'\nassert pick(opts, True) == 3, 'by mean: -1.5, -0.5, -3.0, -0.2, so option 3'"},
+        {"name": "returns an int index", "code": "out = pick([[-1.0], [-2.0]], False)\nassert isinstance(out, int), f'return the position as an int, got {type(out).__name__}'"}
+      ],
+      "hints": [
+        "s = sum(lp); if normalize: s = s / len(lp); scores.append(s)",
+        "return scores.index(max(scores))"
+      ],
+      "solution": "def pick(option_logprobs, normalize):\n    scores = []\n    for lp in option_logprobs:\n        s = sum(lp)\n        if normalize:\n            s = s / len(lp)\n        scores.append(s)\n    return scores.index(max(scores))\n"
+    }
+  ]
+}
