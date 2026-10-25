@@ -1,0 +1,132 @@
+{
+  "id": "6.7-initialization",
+  "module": 6,
+  "title": "Initialization and vanishing gradients",
+  "summary": "Backpropagation multiplies many local factors, so gradients shrink to nothing or explode in deep networks; ten sigmoid layers cut the signal below a millionth. Starting weights must be random (to break symmetry) and scaled to the layer: variance 1/n (Xavier) or 2/n for ReLU (He) keeps signals the same size from layer to layer.",
+  "video": "videos/6.7-initialization.mp4",
+  "llm_link": "GPT-2 scales down the initial weights of the layers that write into each block's residual path by 1/√N (N = number of residual layers), so the residual stream does not grow as dozens of blocks add to it.",
+  "key_ideas": [
+    "A product of many factors below 1 vanishes; above 1 it explodes. Gradients in deep networks are such products.",
+    "Sigmoid slope ≤ ¼, so ten sigmoid layers shrink the gradient by (¼)^10 ≈ 10^-6: the vanishing gradient problem.",
+    "Summing n inputs multiplies the variance by n·Var(w), so Var(w) = 1/n keeps the signal's size steady (Xavier/Glorot 2010).",
+    "ReLU zeroes about half its inputs, so He initialisation (2015) uses Var(w) = 2/n.",
+    "Identical starting weights give identical outputs and identical gradients forever: randomness breaks the symmetry."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: a gradient passes back through 10 layers that each multiply it by 0.5. Roughly what fraction survives?",
+      "options": [
+        "About 1/2",
+        "About 1/20",
+        "About 1/1000",
+        "About 1/10"
+      ],
+      "answer": 2,
+      "explain": "0.5^10 = 1/1024, about a thousandth. Long products of factors below 1 vanish."
+    },
+    {
+      "q": "Why does a stack of sigmoid layers suffer from vanishing gradients?",
+      "options": [
+        "Sigmoid outputs can be negative",
+        "Its slope is at most 1/4, so each layer shrinks the gradient",
+        "It has no derivative",
+        "It makes the weights too large"
+      ],
+      "answer": 1,
+      "explain": "Each sigmoid multiplies the passing gradient by at most 1/4, so depth shrinks it geometrically."
+    },
+    {
+      "q": "A ReLU layer has 512 inputs. With He initialisation, what is the standard deviation of the weights?",
+      "options": [
+        "1/512",
+        "√(2/512) = 0.0625",
+        "2/512",
+        "1"
+      ],
+      "answer": 1,
+      "explain": "He initialisation sets Var(w) = 2/n, so the standard deviation is √(2/512) = √(1/256) = 1/16 = 0.0625."
+    },
+    {
+      "q": "What goes wrong if every weight in a layer starts at the same value?",
+      "options": [
+        "Training is faster",
+        "All neurons compute the same thing, get the same gradient, and stay identical",
+        "The loss becomes negative",
+        "Nothing; the bias fixes it"
+      ],
+      "answer": 1,
+      "explain": "Symmetric neurons get symmetric updates, so the layer acts like a single neuron however wide it is."
+    },
+    {
+      "q": "How does GPT-2 stop its residual stream from growing as dozens of blocks add to it?",
+      "options": [
+        "It uses sigmoid activations",
+        "It scales the initial weights of the layers writing into the residual path by 1/√N",
+        "It removes the residual path",
+        "It initialises all weights to zero"
+      ],
+      "answer": 1,
+      "explain": "N is the number of residual layers; the scaling keeps the sum of many contributions from blowing up at the start of training."
+    }
+  ],
+  "problems": [
+    {
+      "id": "vanish",
+      "title": "How fast does the gradient vanish?",
+      "prompt": "<p>Write <code>chain_factor(slopes)</code>: the product of a list of local slopes, which is what backpropagation multiplies along a path. Then <code>sigmoid_chain(zs)</code>: the product of the sigmoid's slope <code>σ(z)(1 − σ(z))</code> at each pre-activation in <code>zs</code>.</p><pre>chain_factor([0.5, 0.5, 0.5])   # 0.125\nsigmoid_chain([0] * 10)          # 0.25 ** 10, about 9.5e-07</pre>",
+      "starter": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef chain_factor(slopes):\n    # TODO: multiply all the slopes together (start from 1, not 0)\n    return 0\n\ndef sigmoid_chain(zs):\n    # TODO: chain_factor of the sigmoid slope at each z\n    return 0\n",
+      "tests": [
+        {
+          "name": "product of slopes",
+          "code": "got = chain_factor([0.5, 0.5, 0.5])\nassert abs(got - 0.125) < 1e-12, f'0.5 * 0.5 * 0.5 = 0.125, got {got}'"
+        },
+        {
+          "name": "empty path changes nothing",
+          "code": "got = chain_factor([])\nassert got == 1, f'a path with no layers multiplies by nothing: 1, got {got}. Start the product at 1'"
+        },
+        {
+          "name": "ten sigmoids at their steepest",
+          "code": "got = sigmoid_chain([0] * 10)\nassert abs(got - 0.25 ** 10) < 1e-15, f'each slope is 0.25 at z = 0, so the product is 0.25**10 = {0.25 ** 10:.3e}, got {got}'\nassert got < 1e-6, 'that is less than a millionth'"
+        },
+        {
+          "name": "saturated sigmoids are worse",
+          "code": "a = sigmoid_chain([0] * 5)\nb = sigmoid_chain([4] * 5)\nassert b < a / 1000, f'at z = 4 the slope is about 0.018, so five layers vanish far faster: got {b:.2e} vs {a:.2e}'"
+        }
+      ],
+      "hints": [
+        "p = 1\nfor s in slopes:\n    p *= s\nreturn p",
+        "sigmoid_chain: chain_factor([sigmoid(z) * (1 - sigmoid(z)) for z in zs])"
+      ],
+      "solution": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef chain_factor(slopes):\n    p = 1\n    for s in slopes:\n        p *= s\n    return p\n\ndef sigmoid_chain(zs):\n    return chain_factor([sigmoid(z) * (1 - sigmoid(z)) for z in zs])\n"
+    },
+    {
+      "id": "he-init",
+      "title": "Keep the signal alive (NumPy)",
+      "prompt": "<p>Push a batch of random inputs through 30 ReLU layers of width 256 and watch the signal's size.</p><ol><li><code>he_init(n_in, n_out, rng)</code>: weights of shape (n_out, n_in) from a normal distribution with standard deviation √(2 / n_in).</li><li><code>signal_sizes(std_fn, depth, width, rng)</code>: start with <code>X = rng.normal(size=(width, 64))</code> (64 examples as columns); for each layer draw <code>W = rng.normal(size=(width, width)) * std_fn(width)</code>, set <code>X = np.maximum(0, W @ X)</code>, and record <code>X.std()</code>. Return the list of stds.</li></ol><p>The tests compare He scaling with a fixed small spread of 0.01.</p>",
+      "starter": "import numpy as np\n\ndef he_init(n_in, n_out, rng):\n    # TODO: rng.normal(size=(n_out, n_in)) scaled by sqrt(2 / n_in)\n    return np.zeros((n_out, n_in))\n\ndef signal_sizes(std_fn, depth, width, rng):\n    X = rng.normal(size=(width, 64))\n    sizes = []\n    # TODO: for each of `depth` layers, multiply by a random W * std_fn(width), apply ReLU, record X.std()\n    return sizes\n",
+      "tests": [
+        {
+          "name": "He init has the right shape and spread",
+          "code": "import numpy as np\nW = he_init(512, 300, np.random.default_rng(0))\nassert W.shape == (300, 512), f'shape should be (n_out, n_in) = (300, 512), got {W.shape}'\nassert abs(W.std() - np.sqrt(2 / 512)) < 0.003, f'std should be close to sqrt(2/512) = 0.0625, got {W.std():.4f}'"
+        },
+        {
+          "name": "records one size per layer",
+          "code": "import numpy as np\ns = signal_sizes(lambda n: np.sqrt(2 / n), 5, 64, np.random.default_rng(0))\nassert len(s) == 5, f'5 layers should give 5 recorded sizes, got {len(s)}'"
+        },
+        {
+          "name": "He scaling keeps the signal alive",
+          "code": "import numpy as np\ns = signal_sizes(lambda n: np.sqrt(2 / n), 30, 256, np.random.default_rng(0))\nassert 0.2 < s[-1] < 5, f'with std sqrt(2/n) the signal should stay roughly the same size after 30 layers, got {s[-1]:.3g}'"
+        },
+        {
+          "name": "a fixed small spread kills it",
+          "code": "import numpy as np\ns = signal_sizes(lambda n: 0.01, 30, 256, np.random.default_rng(0))\nassert s[-1] < 1e-10, f'with std 0.01 each layer shrinks the signal, so after 30 layers it should be essentially 0; got {s[-1]:.3g}'"
+        }
+      ],
+      "hints": [
+        "he_init: return rng.normal(size=(n_out, n_in)) * np.sqrt(2 / n_in)",
+        "for _ in range(depth):\n    W = rng.normal(size=(width, width)) * std_fn(width)\n    X = np.maximum(0, W @ X)\n    sizes.append(X.std())"
+      ],
+      "solution": "import numpy as np\n\ndef he_init(n_in, n_out, rng):\n    return rng.normal(size=(n_out, n_in)) * np.sqrt(2 / n_in)\n\ndef signal_sizes(std_fn, depth, width, rng):\n    X = rng.normal(size=(width, 64))\n    sizes = []\n    for _ in range(depth):\n        W = rng.normal(size=(width, width)) * std_fn(width)\n        X = np.maximum(0, W @ X)\n        sizes.append(X.std())\n    return sizes\n"
+    }
+  ]
+}
