@@ -1,0 +1,153 @@
+{
+ "id": "8.2-pooling",
+ "module": 8,
+ "title": "Pooling and feature hierarchies",
+ "summary": "Pooling summarises each small window of a feature map: max pooling keeps the largest value, average pooling the mean. With 2×2 windows and stride 2 it halves width and height, keeps a quarter of the numbers, and makes the output tolerant of one-pixel shifts. More importantly it widens each later neuron's receptive field, so stacked layers build a hierarchy from edges to textures to parts and whole objects.",
+ "video": "videos/8.2-pooling.mp4",
+ "llm_link": "Language models have no pooling between layers, but probing studies suggest a similar layering: earlier layers capture more about individual words and syntax, later layers more abstract meaning.",
+ "key_ideas": [
+  "Max pooling: keep the largest value in each window (usually 2×2, stride 2); average pooling keeps the mean.",
+  "2×2, stride 2 halves height and width: (H, W, C) → (H/2, W/2, C). Channels are pooled separately.",
+  "A shift that stays inside the same window does not change the max: a little robustness to small shifts.",
+  "Receptive field: the patch of the input a neuron can see. It grows with each layer, faster after pooling or striding.",
+  "Features form a hierarchy: edges and colour blobs, then textures and simple shapes, then parts and whole objects. Modern nets often use stride-2 convolutions and end with global average pooling."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: max-pool the 2×2 window [[1, 3], [2, 0]]. What comes out?",
+   "options": [
+    "1.5",
+    "3",
+    "0",
+    "6"
+   ],
+   "answer": 1,
+   "explain": "Max pooling keeps the largest value in the window, 3. Average pooling would give 1.5."
+  },
+  {
+   "q": "A feature map has shape (32, 32, 16). After 2×2 max pooling with stride 2, what is its shape?",
+   "options": [
+    "(16, 16, 8)",
+    "(16, 16, 16)",
+    "(32, 32, 4)",
+    "(8, 8, 16)"
+   ],
+   "answer": 1,
+   "explain": "Height and width halve; each of the 16 channels is pooled on its own, so the channel count stays."
+  },
+  {
+   "q": "Why can a 3×3 kernel after a pooling layer respond to a larger part of the original image than the first 3×3 kernel?",
+   "options": [
+    "It has more weights",
+    "Each pooled value already summarises a region, so its receptive field is wider",
+    "Pooling adds new pixels",
+    "It uses a larger learning rate"
+   ],
+   "answer": 1,
+   "explain": "Every input to the later kernel covers several original pixels, so the patch it sees on the image grows."
+  },
+  {
+   "q": "Visualisations of trained image networks typically find which progression from early to deep layers?",
+   "options": [
+    "Objects, then parts, then edges",
+    "Edges and colour blobs, then textures and shapes, then parts and objects",
+    "The same features in every layer",
+    "Random noise everywhere"
+   ],
+   "answer": 1,
+   "explain": "Each layer combines the patterns of the layer below into larger and more meaningful ones."
+  },
+  {
+   "q": "What do probing studies suggest about the layers of language models?",
+   "options": [
+    "All layers store the same information",
+    "Earlier layers capture more about words and syntax, later ones more abstract meaning",
+    "Only the last layer matters",
+    "Language models pool between layers"
+   ],
+   "answer": 1,
+   "explain": "There is no pooling, but a similar hierarchy appears as information flows up the stack."
+  }
+ ],
+ "problems": [
+  {
+   "id": "pool-lists",
+   "title": "Max and average pooling",
+   "prompt": "<p>Write <code>max_pool(fm)</code> and <code>avg_pool(fm)</code> for a feature map given as a list of lists with even height and width. Use 2×2 windows with stride 2, so the output is half as tall and half as wide.</p><pre>max_pool([[1, 3, 0, 2],\n          [2, 0, 1, 1],\n          [4, 1, 0, 0],\n          [0, 2, 5, 1]])   # [[3, 2], [4, 5]]</pre>",
+   "starter": "def max_pool(fm):\n    out = []\n    # TODO: for i in range(0, len(fm), 2) and j in range(0, len(fm[0]), 2): max of the 4 values\n    return out\n\ndef avg_pool(fm):\n    out = []\n    # TODO: the same with the mean of the 4 values\n    return out\n",
+   "tests": [
+    {
+     "name": "the example",
+     "code": "fm = [[1, 3, 0, 2], [2, 0, 1, 1], [4, 1, 0, 0], [0, 2, 5, 1]]\nassert max_pool(fm) == [[3, 2], [4, 5]], f'expected [[3, 2], [4, 5]], got {max_pool(fm)}'"
+    },
+    {
+     "name": "average pooling",
+     "code": "fm = [[1, 3, 0, 2], [2, 0, 1, 1], [4, 1, 0, 0], [0, 2, 5, 1]]\nassert avg_pool(fm) == [[1.5, 1.0], [1.75, 1.5]], f'expected [[1.5, 1.0], [1.75, 1.5]], got {avg_pool(fm)}'"
+    },
+    {
+     "name": "one-pixel shift inside a window",
+     "code": "a = [[9, 0], [0, 0]]; b = [[0, 9], [0, 0]]\nassert max_pool(a) == max_pool(b) == [[9]], 'a feature that moves within the same window gives the same max'"
+    }
+   ],
+   "hints": [
+    "for i in range(0, len(fm), 2):\n    row = []\n    for j in range(0, len(fm[0]), 2): ...",
+    "w = [fm[i][j], fm[i][j + 1], fm[i + 1][j], fm[i + 1][j + 1]]",
+    "row.append(max(w)) or row.append(sum(w) / 4)"
+   ],
+   "solution": "def max_pool(fm):\n    out = []\n    for i in range(0, len(fm), 2):\n        row = []\n        for j in range(0, len(fm[0]), 2):\n            row.append(max(fm[i][j], fm[i][j + 1], fm[i + 1][j], fm[i + 1][j + 1]))\n        out.append(row)\n    return out\n\ndef avg_pool(fm):\n    out = []\n    for i in range(0, len(fm), 2):\n        row = []\n        for j in range(0, len(fm[0]), 2):\n            row.append((fm[i][j] + fm[i][j + 1] + fm[i + 1][j] + fm[i + 1][j + 1]) / 4)\n        out.append(row)\n    return out\n"
+  },
+  {
+   "id": "pool-numpy",
+   "title": "Pooling channels with NumPy",
+   "prompt": "<p>Feature maps here have shape <b>(C, H, W)</b>: C channels.</p><ul><li><code>max_pool_np(X)</code>: 2×2, stride 2, each channel separately, returning (C, H/2, W/2). Hint: <code>X.reshape(C, H//2, 2, W//2, 2)</code> puts each window on axes 2 and 4.</li><li><code>global_avg_pool(X)</code>: the mean of each channel, returning shape (C,).</li></ul>",
+   "starter": "import numpy as np\n\ndef max_pool_np(X):\n    # TODO: reshape so each 2x2 window has its own axes, then max over them\n    return X\n\ndef global_avg_pool(X):\n    # TODO: mean over the H and W axes\n    return X\n",
+   "tests": [
+    {
+     "name": "shape",
+     "code": "import numpy as np\nY = max_pool_np(np.zeros((16, 32, 32)))\nassert Y.shape == (16, 16, 16), f'(16, 32, 32) should become (16, 16, 16), got {Y.shape}'"
+    },
+    {
+     "name": "values match the loops",
+     "code": "import numpy as np\nX = np.random.default_rng(0).normal(size=(3, 4, 6))\nY = max_pool_np(X)\nwant = np.array([[[X[c, i:i+2, j:j+2].max() for j in range(0, 6, 2)] for i in range(0, 4, 2)] for c in range(3)])\nassert np.allclose(Y, want), 'each output should be the max of one 2×2 window of its own channel'"
+    },
+    {
+     "name": "global average",
+     "code": "import numpy as np\nX = np.stack([np.full((5, 5), 2.0), np.arange(25.0).reshape(5, 5)])\ng = global_avg_pool(X)\nassert g.shape == (2,), f'one number per channel: expected shape (2,), got {g.shape}'\nassert np.allclose(g, [2.0, 12.0]), f'expected [2, 12], got {g}'"
+    }
+   ],
+   "hints": [
+    "C, H, W = X.shape",
+    "return X.reshape(C, H // 2, 2, W // 2, 2).max(axis=(2, 4))",
+    "return X.mean(axis=(1, 2))"
+   ],
+   "solution": "import numpy as np\n\ndef max_pool_np(X):\n    C, H, W = X.shape\n    return X.reshape(C, H // 2, 2, W // 2, 2).max(axis=(2, 4))\n\ndef global_avg_pool(X):\n    return X.mean(axis=(1, 2))\n"
+  },
+  {
+   "id": "receptive-field",
+   "title": "How far can a neuron see?",
+   "prompt": "<p>Write <code>receptive_field(layers)</code>, where <code>layers</code> is a list of <code>(kernel, stride)</code> pairs from the input upwards. Track two numbers: the receptive field <code>r</code> (start 1) and the jump <code>j</code>, the distance in input pixels between neighbouring outputs (start 1). For each layer: <code>r += (kernel - 1) * j</code>, then <code>j *= stride</code>. Return <code>r</code>.</p><pre>receptive_field([(3, 1)])                     # 3\nreceptive_field([(3, 1), (2, 2), (3, 1)])     # 8</pre>",
+   "starter": "def receptive_field(layers):\n    r, j = 1, 1\n    # TODO: for kernel, stride in layers: grow r, then multiply j\n    return r\n",
+   "tests": [
+    {
+     "name": "one 3×3 conv",
+     "code": "assert receptive_field([(3, 1)]) == 3, f'a 3×3 kernel sees 3 pixels across, got {receptive_field([(3, 1)])}'"
+    },
+    {
+     "name": "conv, pool, conv",
+     "code": "r = receptive_field([(3, 1), (2, 2), (3, 1)])\nassert r == 8, f'3, then the pool adds 1 and doubles the jump, then 3×3 adds 2 × 2 = 4: expected 8, got {r}'"
+    },
+    {
+     "name": "pooling makes it grow faster",
+     "code": "a = receptive_field([(3, 1)] * 4)\nb = receptive_field([(3, 1), (2, 2), (3, 1), (2, 2), (3, 1), (3, 1)])\nassert a == 9 and b > a, f'four 3×3 convs see 9 pixels; with pooling in between it should be larger. Got {a} and {b}'"
+    }
+   ],
+   "hints": [
+    "for kernel, stride in layers:",
+    "    r += (kernel - 1) * j",
+    "    j *= stride"
+   ],
+   "solution": "def receptive_field(layers):\n    r, j = 1, 1\n    for kernel, stride in layers:\n        r += (kernel - 1) * j\n        j *= stride\n    return r\n"
+  }
+ ],
+ "poster": "videos/8.2-pooling.jpg"
+}
