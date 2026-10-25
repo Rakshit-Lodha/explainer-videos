@@ -1,0 +1,164 @@
+{
+  "id": "1.2-span-basis",
+  "module": 1,
+  "title": "Linear combinations, span and basis",
+  "summary": "A linear combination is a recipe of scaled arrows, a·v + b·w. The span is every point some recipe can reach: the whole plane for two arrows on different lines, a single line for two arrows on the same line. A basis is a set of arrows with no redundancy that still spans the space, and the same point gets different coordinates in different bases.",
+  "video": "videos/1.2-span-basis.mp4",
+  "llm_link": "Each number a layer computes is a weighted sum of its inputs: a linear combination with learned weights as the recipe. Seen as a whole, the layer's output vector is a combination of the columns of its weight matrix, so it can only land inside their span.",
+  "key_ideas": [
+    "î = [1, 0] and ĵ = [0, 1]. The vector [3, 1] means 3·î + 1·ĵ: the entries say how much of each basis arrow to use.",
+    "A linear combination of v and w is a·v + b·w for any numbers a and b (the recipe).",
+    "The span of v and w is the set of all their linear combinations. Two arrows that are not on the same line span the whole plane.",
+    "If w is a stretched copy of v, they are linearly dependent and their span collapses to a line through the origin.",
+    "A basis spans the space with no redundancy. Every basis of the plane has exactly two vectors (dimension 2). In the basis b₁ = [1, 1], b₂ = [1, −1] the point [3, 1] has coordinates [2, 1]."
+  ],
+  "quiz": [
+    {
+      "q": "What does the vector [3, 1] mean in terms of î and ĵ?",
+      "options": [
+        "3·ĵ + 1·î",
+        "3·î + 1·ĵ",
+        "î + ĵ, three times over",
+        "3·î − 1·ĵ"
+      ],
+      "answer": 1,
+      "explain": "The first entry says how much of î (the rightward unit arrow), the second how much of ĵ (the upward unit arrow): stretch î by 3, stretch ĵ by 1, add."
+    },
+    {
+      "q": "Predict the result: 2·[1, 1] + 1·[1, −1]",
+      "options": [
+        "[3, 1]",
+        "[2, 0]",
+        "[3, 3]",
+        "[1, 3]"
+      ],
+      "answer": 0,
+      "explain": "Scale then add matching entries: [2, 2] + [1, −1] = [3, 1]. That is why [3, 1] has coordinates [2, 1] in the diagonal basis from the video."
+    },
+    {
+      "q": "What is the span of v = [1, 2] and w = [2, 4]?",
+      "options": [
+        "The whole plane",
+        "A single line through the origin",
+        "Just the two points v and w",
+        "Nothing: they cancel out"
+      ],
+      "answer": 1,
+      "explain": "w = 2·v, so every recipe a·v + b·w equals (a + 2b)·v: always a multiple of v. The vectors are linearly dependent and only reach the line through v."
+    },
+    {
+      "q": "Can three vectors in the plane form a basis of the plane?",
+      "options": [
+        "Yes, more vectors always make a better basis",
+        "No: any third vector is already a combination of the other two (if those two span the plane), so the set is redundant",
+        "Only if they are all the same length",
+        "Only if one of them is the zero vector"
+      ],
+      "answer": 1,
+      "explain": "Every basis of the plane has exactly two vectors; that count is the dimension. A third vector adds nothing new, so the set is linearly dependent."
+    },
+    {
+      "q": "A layer computes its output as x₁·a₁ + x₂·a₂ + x₃·a₃, where a₁, a₂, a₃ are the columns of its weight matrix and x is its input. What can you say about the output?",
+      "options": [
+        "It can be any vector at all",
+        "It always lies in the span of the columns a₁, a₂, a₃",
+        "It is always one of the columns",
+        "It is always longer than the input"
+      ],
+      "answer": 1,
+      "explain": "The output is a linear combination of the columns, with the input entries as the recipe, so it can only land inside their span. This is the bridge to the next lesson: a matrix is a list of columns, and multiplying by it builds a combination of them."
+    }
+  ],
+  "problems": [
+    {
+      "id": "lincomb",
+      "title": "A linear combination",
+      "prompt": "<p>Write <code>lin_comb(a, v, b, w)</code> that returns the list a·v + b·w, for vectors (plain lists) of any equal length.</p><pre>lin_comb(3, [1, 0], 1, [0, 1])     # [3, 1]\nlin_comb(2, [1, 1], 1, [1, -1])    # [3, 1]</pre><p>The helpers from lesson 1.1 are included so you can build on them.</p>",
+      "starter": "def add_vectors(a, b):\n    if len(a) != len(b):\n        raise ValueError(\"vectors must have the same length\")\n    return [x + y for x, y in zip(a, b)]\n\n\ndef scale_vector(c, v):\n    return [c * x for x in v]\n\n\ndef lin_comb(a, v, b, w):\n    # TODO: scale v by a, scale w by b, add the results\n    pass\n",
+      "tests": [
+        {
+          "name": "i-hat and j-hat recipe",
+          "code": "out = lin_comb(3, [1, 0], 1, [0, 1])\nassert out == [3, 1], f'3 of i-hat plus 1 of j-hat is [3, 1], got {out}'"
+        },
+        {
+          "name": "the diagonal basis",
+          "code": "out = lin_comb(2, [1, 1], 1, [1, -1])\nassert out == [3, 1], f'[2, 2] + [1, -1] = [3, 1], got {out}'"
+        },
+        {
+          "name": "negative and fractional amounts",
+          "code": "out = lin_comb(-1, [2, 4], 0.5, [4, 2])\nassert out == [0, -3], f'[-2, -4] + [2, 1] = [0, -3], got {out}'"
+        },
+        {
+          "name": "any length",
+          "code": "out = lin_comb(1, [1, 2, 3], 2, [1, 1, 1])\nassert out == [3, 4, 5], f'expected [3, 4, 5], got {out}'"
+        }
+      ],
+      "hints": [
+        "return add_vectors(scale_vector(a, v), scale_vector(b, w))"
+      ],
+      "solution": "def add_vectors(a, b):\n    if len(a) != len(b):\n        raise ValueError(\"vectors must have the same length\")\n    return [x + y for x, y in zip(a, b)]\n\n\ndef scale_vector(c, v):\n    return [c * x for x in v]\n\n\ndef lin_comb(a, v, b, w):\n    return add_vectors(scale_vector(a, v), scale_vector(b, w))\n"
+    },
+    {
+      "id": "dependent",
+      "title": "Same line or not?",
+      "prompt": "<p>Two 2D vectors v and w lie on the same line through the origin exactly when <code>v[0]*w[1] - v[1]*w[0]</code> is zero. (If w = c·v, the two products are both c·v[0]·v[1], so they cancel. You will meet this number again as the <i>determinant</i> in lesson 1.5.)</p><p>Write <code>is_dependent(v, w)</code> returning <code>True</code> when their span is only a line (or a point), <code>False</code> when they span the whole plane. Because of floating-point rounding, treat anything with absolute value below <code>1e-9</code> as zero.</p><pre>is_dependent([2, 1], [-1, -0.5])   # True  (w = -0.5 v)\nis_dependent([2, 1], [-1, 1])      # False</pre>",
+      "starter": "def is_dependent(v, w):\n    # TODO: compute v[0]*w[1] - v[1]*w[0] and compare its size with 1e-9\n    return False\n",
+      "tests": [
+        {
+          "name": "stretched copy is dependent",
+          "code": "assert is_dependent([2, 1], [-1, -0.5]) is True, 'w = -0.5 * v lies on the same line, so the pair is dependent'"
+        },
+        {
+          "name": "crooked pair spans the plane",
+          "code": "assert is_dependent([2, 1], [-1, 1]) is False, 'these point along different lines, so they span the plane'"
+        },
+        {
+          "name": "i-hat and j-hat",
+          "code": "assert is_dependent([1, 0], [0, 1]) is False, 'i-hat and j-hat span the whole plane'"
+        },
+        {
+          "name": "zero vector is dependent",
+          "code": "assert is_dependent([3, 4], [0, 0]) is True, 'the zero vector adds nothing: the span is just the line through [3, 4]'"
+        },
+        {
+          "name": "uses a tolerance",
+          "code": "assert is_dependent([0.1, 0.3], [0.2, 0.6000000000000001]) is True, 'w = 2v, but floating-point rounding leaves a tiny non-zero value; compare abs(...) < 1e-9 instead of == 0'"
+        }
+      ],
+      "hints": [
+        "d = v[0] * w[1] - v[1] * w[0]",
+        "return abs(d) < 1e-9"
+      ],
+      "solution": "def is_dependent(v, w):\n    d = v[0] * w[1] - v[1] * w[0]\n    return abs(d) < 1e-9\n"
+    },
+    {
+      "id": "coords",
+      "title": "Coordinates in another basis",
+      "prompt": "<p>Given a point p and a basis b1, b2 of the plane, find the recipe (a, b) with a·b1 + b·b2 = p.</p><p>For 2D the answer has a closed form. With <code>d = b1[0]*b2[1] - b1[1]*b2[0]</code>:</p><pre>a = (p[0]*b2[1] - p[1]*b2[0]) / d\nb = (b1[0]*p[1] - b1[1]*p[0]) / d</pre><p>Write <code>coords(p, b1, b2)</code> returning the tuple <code>(a, b)</code>. If <code>d</code> is zero (below 1e-9 in size), b1 and b2 are not a basis, so raise a <code>ValueError</code>.</p><pre>coords([3, 1], [1, 1], [1, -1])   # (2.0, 1.0)\ncoords([3, 1], [1, 0], [0, 1])    # (3.0, 1.0)</pre>",
+      "starter": "def coords(p, b1, b2):\n    d = b1[0] * b2[1] - b1[1] * b2[0]\n    # TODO 1: if abs(d) < 1e-9, raise ValueError (not a basis)\n\n    # TODO 2: compute a and b with the formulas above and return (a, b)\n    pass\n",
+      "tests": [
+        {
+          "name": "the diagonal basis from the video",
+          "code": "out = coords([3, 1], [1, 1], [1, -1])\nassert out is not None, 'coords returned None'\na, b = out\nassert abs(a - 2) < 1e-9 and abs(b - 1) < 1e-9, f'[3, 1] = 2*[1, 1] + 1*[1, -1], so expected (2, 1), got {out}'"
+        },
+        {
+          "name": "the standard basis gives the entries back",
+          "code": "a, b = coords([3, 1], [1, 0], [0, 1])\nassert abs(a - 3) < 1e-9 and abs(b - 1) < 1e-9, f'in the i-hat, j-hat basis the coordinates are the entries themselves; got {(a, b)}'"
+        },
+        {
+          "name": "the recipe rebuilds the point",
+          "code": "p, b1, b2 = [-2, 5], [2, 1], [-1, 1]\na, b = coords(p, b1, b2)\nq = [a * b1[0] + b * b2[0], a * b1[1] + b * b2[1]]\nassert abs(q[0] - p[0]) < 1e-9 and abs(q[1] - p[1]) < 1e-9, f'a*b1 + b*b2 should give back {p}, got {q}'"
+        },
+        {
+          "name": "rejects a dependent pair",
+          "code": "try:\n    coords([1, 1], [2, 1], [4, 2])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('[2, 1] and [4, 2] lie on one line, so they are not a basis; expected a ValueError')"
+        }
+      ],
+      "hints": [
+        "if abs(d) < 1e-9: raise ValueError(\"b1 and b2 do not form a basis\")",
+        "Copy the two formulas from the prompt, then return (a, b)."
+      ],
+      "solution": "def coords(p, b1, b2):\n    d = b1[0] * b2[1] - b1[1] * b2[0]\n    if abs(d) < 1e-9:\n        raise ValueError(\"b1 and b2 do not form a basis\")\n    a = (p[0] * b2[1] - p[1] * b2[0]) / d\n    b = (b1[0] * p[1] - b1[1] * p[0]) / d\n    return (a, b)\n"
+    }
+  ]
+}

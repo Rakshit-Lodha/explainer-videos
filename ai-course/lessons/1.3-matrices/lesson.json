@@ -1,0 +1,164 @@
+{
+  "id": "1.3-matrices",
+  "module": 1,
+  "title": "Matrices as transformations of space",
+  "summary": "A linear transformation moves every point of the plane while keeping grid lines straight, parallel and evenly spaced, with the origin fixed. Because of that, where î and ĵ land decides everything, and a matrix is just those two landing spots written as columns. Multiplying a matrix by [x, y] means taking x copies of the first column plus y copies of the second.",
+  "video": "videos/1.3-matrices.mp4",
+  "llm_link": "A layer of a language model holds a weight matrix W. Multiplying an embedding x by W moves it to a new place in a (possibly different-sized) space; column j of W is where input direction j is sent. Training is a search for matrices that move token vectors to useful places.",
+  "key_ideas": [
+    "Linear transformation: grid lines stay straight, parallel and evenly spaced, and the origin stays put.",
+    "So if v = x·î + y·ĵ, then T(v) = x·T(î) + y·T(ĵ): the recipe survives the move.",
+    "The matrix lists where î lands as its first column and where ĵ lands as its second column.",
+    "Matrix times vector, column picture: [[a, b], [c, d]] · [x, y] = x·[a, c] + y·[b, d]. The row-by-row rule gives the same numbers.",
+    "Examples: [[0, −1], [1, 0]] turns the plane a quarter circle; [[1, 1], [0, 1]] is a shear; columns on one line flatten the plane onto that line (their span)."
+  ],
+  "quiz": [
+    {
+      "q": "A transformation sends î to (3, 1) and ĵ to (0, 2). What is its matrix?",
+      "options": [
+        "[[3, 1], [0, 2]]",
+        "[[3, 0], [1, 2]]",
+        "[[0, 2], [3, 1]]",
+        "[[1, 3], [2, 0]]"
+      ],
+      "answer": 1,
+      "explain": "Columns are landing spots: first column (3, 1), second column (0, 2). Written as rows, that is [[3, 0], [1, 2]]."
+    },
+    {
+      "q": "Predict the result: [[2, −1], [1, 1]] · [1, 2]",
+      "options": [
+        "[0, 3]",
+        "[4, 1]",
+        "[2, 3]",
+        "[3, 0]"
+      ],
+      "answer": 0,
+      "explain": "Column picture: 1·(2, 1) + 2·(−1, 1) = (2 − 2, 1 + 2) = (0, 3). Row by row gives the same: 2·1 + (−1)·2 = 0 and 1·1 + 1·2 = 3."
+    },
+    {
+      "q": "Which matrix turns the plane a quarter circle counter-clockwise?",
+      "options": [
+        "[[0, 1], [1, 0]]",
+        "[[0, −1], [1, 0]]",
+        "[[−1, 0], [0, −1]]",
+        "[[1, 1], [0, 1]]"
+      ],
+      "answer": 1,
+      "explain": "A quarter turn sends î (pointing right) to (0, 1) (up) and ĵ (up) to (−1, 0) (left). Those are the columns: [[0, −1], [1, 0]]."
+    },
+    {
+      "q": "Which of these is NOT a linear transformation?",
+      "options": [
+        "(x, y) → (2x, 2y)",
+        "(x, y) → (y, x)",
+        "(x, y) → (x + 1, y)",
+        "(x, y) → (x + y, y)"
+      ],
+      "answer": 2,
+      "explain": "Adding 1 moves the origin to (1, 0), and a linear transformation must keep the origin fixed. The others keep grid lines straight, parallel and evenly spaced with the origin in place."
+    },
+    {
+      "q": "A layer computes y = W x for an embedding x. What does column j of W tell you?",
+      "options": [
+        "The j-th word of the vocabulary",
+        "Where the j-th input direction (the j-th basis vector) is sent",
+        "The probability of token j",
+        "Nothing; only rows matter"
+      ],
+      "answer": 1,
+      "explain": "Exactly as with î and ĵ: column j is W applied to the j-th basis vector, so y is x₁·(column 1) + x₂·(column 2) + …, a combination of the columns weighted by the input."
+    }
+  ],
+  "problems": [
+    {
+      "id": "matvec",
+      "title": "Matrix times vector, by columns",
+      "prompt": "<p>A matrix is stored as a list of rows: <code>M = [[2, -1], [1, 1]]</code>. Its columns are where the basis vectors land.</p><p>Write <code>matvec(M, v)</code> using the <b>column picture</b>: start with a zero vector and add <code>v[j]</code> copies of column <code>j</code> for every j. It should work for any number of rows and columns, as long as <code>len(v)</code> equals the number of columns.</p><pre>matvec([[2, -1], [1, 1]], [2, 1])   # [3, 3]\nmatvec([[0, -1], [1, 0]], [1, 0])   # [0, 1]  (quarter turn sends i-hat up)</pre><p>If the sizes do not fit, raise a <code>ValueError</code>.</p>",
+      "starter": "def column(M, j):\n    \"\"\"Column j of M (a list of rows).\"\"\"\n    return [row[j] for row in M]\n\n\ndef matvec(M, v):\n    n_rows, n_cols = len(M), len(M[0])\n    # TODO 1: raise ValueError if len(v) != n_cols\n\n    result = [0] * n_rows\n    # TODO 2: for each j, add v[j] copies of column(M, j) to result\n\n    return result\n",
+      "tests": [
+        {
+          "name": "the example from the video",
+          "code": "out = matvec([[2, -1], [1, 1]], [2, 1])\nassert out == [3, 3], f'2*(2, 1) + 1*(-1, 1) = (3, 3), got {out}'"
+        },
+        {
+          "name": "i-hat comes out as the first column",
+          "code": "out = matvec([[2, -1], [1, 1]], [1, 0])\nassert out == [2, 1], f'M times i-hat is where i-hat lands, the first column (2, 1); got {out}. Are you taking columns, not rows?'"
+        },
+        {
+          "name": "quarter turn",
+          "code": "out = matvec([[0, -1], [1, 0]], [1, 0])\nassert out == [0, 1], f'a quarter turn sends i-hat (right) to (0, 1) (up); got {out}'"
+        },
+        {
+          "name": "non-square: 3 rows, 2 columns",
+          "code": "out = matvec([[1, 0], [0, 1], [1, 1]], [4, 5])\nassert out == [4, 5, 9], f'4*(1, 0, 1) + 5*(0, 1, 1) = (4, 5, 9), got {out}'"
+        },
+        {
+          "name": "rejects a size mismatch",
+          "code": "try:\n    matvec([[1, 2], [3, 4]], [1, 2, 3])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('a 2-column matrix needs a vector with 2 entries; expected a ValueError')"
+        }
+      ],
+      "hints": [
+        "if len(v) != n_cols: raise ValueError(\"vector length must equal the number of columns\")",
+        "for j in range(n_cols):\n    col = column(M, j)\n    for i in range(n_rows):\n        result[i] += v[j] * col[i]"
+      ],
+      "solution": "def column(M, j):\n    \"\"\"Column j of M (a list of rows).\"\"\"\n    return [row[j] for row in M]\n\n\ndef matvec(M, v):\n    n_rows, n_cols = len(M), len(M[0])\n    if len(v) != n_cols:\n        raise ValueError(\"vector length must equal the number of columns\")\n    result = [0] * n_rows\n    for j in range(n_cols):\n        col = column(M, j)\n        for i in range(n_rows):\n            result[i] += v[j] * col[i]\n    return result\n"
+    },
+    {
+      "id": "from_landings",
+      "title": "Build a matrix from where i-hat and j-hat land",
+      "prompt": "<p>Write <code>matrix_from(i_lands, j_lands)</code> that returns the 2×2 matrix (as a list of rows) whose first column is <code>i_lands</code> and second column is <code>j_lands</code>.</p><pre>matrix_from([2, 1], [-1, 1])   # [[2, -1], [1, 1]]</pre><p>Careful: the landing spots are <b>columns</b>, but the matrix is stored as <b>rows</b>.</p>",
+      "starter": "def matrix_from(i_lands, j_lands):\n    # TODO: row 0 holds the first entries of both columns, row 1 the second entries\n    return [i_lands, j_lands]\n",
+      "tests": [
+        {
+          "name": "the example from the video",
+          "code": "out = matrix_from([2, 1], [-1, 1])\nassert out == [[2, -1], [1, 1]], f'expected [[2, -1], [1, 1]], got {out}. If you got [[2, 1], [-1, 1]], you stored the landing spots as rows instead of columns.'"
+        },
+        {
+          "name": "quarter turn",
+          "code": "out = matrix_from([0, 1], [-1, 0])\nassert out == [[0, -1], [1, 0]], f'i-hat lands on (0, 1) and j-hat on (-1, 0), so the matrix is [[0, -1], [1, 0]]; got {out}'"
+        },
+        {
+          "name": "identity",
+          "code": "out = matrix_from([1, 0], [0, 1])\nassert out == [[1, 0], [0, 1]], f'if nothing moves, the matrix is the identity [[1, 0], [0, 1]]; got {out}'"
+        }
+      ],
+      "hints": [
+        "Row 0 is [i_lands[0], j_lands[0]] and row 1 is [i_lands[1], j_lands[1]]."
+      ],
+      "solution": "def matrix_from(i_lands, j_lands):\n    return [[i_lands[0], j_lands[0]], [i_lands[1], j_lands[1]]]\n"
+    },
+    {
+      "id": "cloud",
+      "title": "Transform a whole shape (NumPy)",
+      "prompt": "<p>NumPy multiplies a matrix by many points at once if you put the points side by side as <b>columns</b> of a 2×n array. Then <code>M @ pts</code> transforms every column.</p><p>Write <code>transform(M, pts)</code> where <code>M</code> is a 2×2 NumPy array and <code>pts</code> is a 2×n array; return the transformed 2×n array.</p><p>Then write <code>rotation(degrees)</code> returning the 2×2 matrix of a counter-clockwise rotation. Where does î land after turning by θ? At (cos θ, sin θ). And ĵ? At (−sin θ, cos θ). Those are the columns. (Use <code>np.radians</code>.)</p><pre>square = np.array([[0, 1, 1, 0],\n                   [0, 0, 1, 1]])   # four corners, one per column\ntransform(rotation(90), square)  # ≈ [[0, 0, -1, -1], [0, 1, 1, 0]]</pre>",
+      "starter": "import numpy as np\n\ndef transform(M, pts):\n    # TODO: one matrix product transforms every column\n    pass\n\n\ndef rotation(degrees):\n    t = np.radians(degrees)\n    # TODO: first column = where i-hat lands, second column = where j-hat lands\n    return np.eye(2)\n",
+      "tests": [
+        {
+          "name": "shape is kept",
+          "code": "import numpy as np\nout = transform(np.array([[2, -1], [1, 1]]), np.zeros((2, 5)))\nassert out is not None, 'transform returned None'\nassert out.shape == (2, 5), f'2x2 @ 2x5 gives 2x5, got {out.shape}'"
+        },
+        {
+          "name": "the example from the video",
+          "code": "import numpy as np\nM = np.array([[2, -1], [1, 1]])\nout = transform(M, np.array([[1, 0, 2], [0, 1, 1]]))\nassert np.allclose(out, [[2, -1, 3], [1, 1, 3]]), f'columns should become (2, 1), (-1, 1) and (3, 3); got {out.tolist()}'"
+        },
+        {
+          "name": "rotation(90) sends i-hat up",
+          "code": "import numpy as np\nR = rotation(90)\nassert np.allclose(R, [[0, -1], [1, 0]]), f'a quarter turn is [[0, -1], [1, 0]], got {np.round(R, 3).tolist()}'"
+        },
+        {
+          "name": "rotating the unit square",
+          "code": "import numpy as np\nsq = np.array([[0, 1, 1, 0], [0, 0, 1, 1]])\nout = transform(rotation(90), sq)\nassert np.allclose(out, [[0, 0, -1, -1], [0, 1, 1, 0]]), f'got {np.round(out, 3).tolist()}'"
+        },
+        {
+          "name": "rotation keeps lengths",
+          "code": "import numpy as np\np = np.array([[3.0], [4.0]])\nout = transform(rotation(37), p)\nassert abs(np.linalg.norm(out) - 5) < 1e-9, f'a rotation should not change the length 5, got {np.linalg.norm(out)}'"
+        }
+      ],
+      "hints": [
+        "transform is one line: return M @ pts",
+        "np.array([[np.cos(t), -np.sin(t)], [np.sin(t), np.cos(t)]]): rows here, but read it by columns: (cos t, sin t) and (-sin t, cos t)."
+      ],
+      "solution": "import numpy as np\n\ndef transform(M, pts):\n    return M @ pts\n\n\ndef rotation(degrees):\n    t = np.radians(degrees)\n    return np.array([[np.cos(t), -np.sin(t)],\n                     [np.sin(t),  np.cos(t)]])\n"
+    }
+  ]
+}
