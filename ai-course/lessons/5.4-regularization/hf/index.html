@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<title>&nbsp; 5.4 Regularisation</title>
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="209.52" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="209.52" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 5.4 Regularisation</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="30.085"></div>
+  <div class="clip scene" id="S2" data-start="30.085" data-duration="30.502"></div>
+  <div class="clip scene" id="S3" data-start="60.587" data-duration="24.785"></div>
+  <div class="clip scene" id="S4" data-start="85.372" data-duration="33.403"></div>
+  <div class="clip scene" id="S5" data-start="118.775" data-duration="35.273"></div>
+  <div class="clip scene" id="S6" data-start="154.048" data-duration="30.331"></div>
+  <div class="clip scene" id="S7" data-start="184.379" data-duration="25.141"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":30.085,"s3":60.587,"s4":85.372,"s5":118.775,"s6":154.048,"s7":184.379},"total":209.52,"cues":{"s1":[["look",0.0],["closely",0.323],["at",0.84],["the",1.034],["wild",1.293],["curve",1.616],["from",2.004],["the",2.327],["last",2.586],["lesson",2.909],["the",3.699],["one",3.978],["that",4.258],["threaded",4.607],["every",5.235],["noisy",5.653],["point",6.072],["its",6.781],["coefficients",7.054],["are",7.94],["enormous",8.213],["some",9.099],["large",9.365],["and",9.684],["positive",9.896],["others",10.831],["large",11.24],["and",11.591],["negative",11.825],["cancelling",12.689],["each",13.426],["other",13.761],["almost",14.163],["perfectly",14.632],["at",15.301],["the",15.502],["data",15.77],["points",16.105],["and",16.574],["swinging",16.842],["apart",17.445],["everywhere",17.847],["in",18.584],["between",18.785],["that",19.599],["suggests",19.916],["a",20.486],["remedy",20.612],["keep",21.471],["the",21.743],["flexible",21.961],["model",22.451],["but",23.207],["make",23.466],["large",23.789],["weights",24.178],["expensive",24.695],["so",25.723],["the",25.905],["model",26.148],["only",26.513],["uses",26.818],["them",27.122],["when",27.426],["the",27.73],["data",27.973],["truly",28.278],["demands",28.643],["it",29.129]],"s2":[["the",0.0],["most",0.247],["common",0.555],["version",0.987],["is",1.48],["called",1.665],["l2",2.097],["regularisation",2.282],["or",3.485],["ridge",3.684],["we",4.44],["add",4.626],["to",4.874],["the",5.061],["loss",5.309],["a",5.619],["penalty",5.744],["lambda",6.625],["times",7.039],["the",7.394],["sum",7.631],["of",7.867],["the",8.045],["squared",8.281],["weights",8.755],["picture",9.513],["every",9.978],["weight",10.326],["tied",10.733],["to",11.023],["zero",11.197],["by",11.488],["a",11.662],["rubber",11.778],["band",12.184],["the",12.929],["further",13.201],["it",13.745],["strays",13.949],["the",14.656],["harder",14.875],["the",15.259],["band",15.478],["pulls",15.753],["back",16.082],["in",16.769],["gradient",16.94],["descent",17.454],["this",17.91],["pull",18.195],["shows",18.481],["up",18.823],["as",18.994],["an",19.165],["extra",19.336],["term",19.678],["proportional",19.964],["to",20.705],["the",20.876],["weight",21.104],["itself",21.504],["so",21.96],["at",22.131],["every",22.302],["step",22.645],["each",22.93],["weight",23.215],["shrinks",23.614],["by",24.071],["a",24.242],["small",24.356],["fraction",24.698],["before",25.211],["the",25.611],["data",25.839],["pushes",26.124],["it",26.523],["which",26.941],["is",27.306],["why",27.488],["this",27.731],["is",28.034],["also",28.217],["called",28.52],["weight",28.945],["decay",29.371]],"s3":[["lambda",0.0],["is",0.468],["a",0.668],["dial",0.802],["at",1.791],["zero",1.956],["there",2.23],["is",2.558],["no",2.723],["penalty",2.887],["and",3.325],["we",3.544],["are",3.709],["back",3.928],["to",4.202],["the",4.366],["wild",4.586],["overfit",4.859],["curve",5.298],["turn",5.954],["it",6.237],["up",6.406],["and",6.576],["the",6.802],["curve",7.028],["calms",7.367],["down",7.707],["bending",8.526],["only",8.999],["where",9.295],["the",9.65],["data",9.886],["insists",10.182],["turn",11.151],["it",11.426],["up",11.591],["too",11.756],["far",11.976],["and",12.196],["the",12.416],["bands",12.636],["win",12.966],["completely",13.186],["flattening",14.498],["the",15.083],["weights",15.296],["so",15.721],["much",15.881],["that",16.146],["the",16.412],["model",16.625],["underfits",16.944],["somewhere",17.79],["in",18.427],["between",18.618],["sits",19.128],["the",19.446],["best",19.701],["setting",20.019],["and",20.843],["we",21.106],["find",21.304],["it",21.634],["by",21.832],["checking",22.03],["error",22.624],["on",23.019],["held-out",23.217],["data",23.811]],"s4":[["a",0.0],["second",0.123],["penalty",0.555],["uses",1.048],["absolute",1.356],["values",1.91],["instead",2.342],["of",2.835],["squares",3.019],["lambda",4.146],["times",4.626],["the",5.037],["sum",5.312],["of",5.586],["the",5.792],["sizes",6.066],["of",6.478],["the",6.684],["weights",6.958],["called",7.771],["l1",8.217],["regularisation",8.408],["or",9.426],["the",9.617],["lasso",9.872],["its",10.706],["pull",10.951],["toward",11.258],["zero",11.687],["has",11.994],["the",12.24],["same",12.485],["strength",12.792],["no",13.344],["matter",13.528],["how",13.958],["small",14.203],["the",14.571],["weight",14.817],["already",15.246],["is",15.737],["rather",16.306],["than",16.716],["fading",17.008],["as",17.418],["the",17.593],["weight",17.828],["shrinks",18.237],["so",18.987],["small",19.23],["unhelpful",20.409],["weights",21.056],["are",21.573],["pushed",21.832],["all",22.285],["the",22.544],["way",22.803],["to",23.061],["exactly",23.256],["zero",23.773],["and",24.642],["the",24.879],["model",25.116],["quietly",25.472],["switches",25.946],["those",26.48],["features",26.835],["off",27.369],["which",28.071],["makes",28.49],["l1",28.91],["a",29.12],["tool",29.259],["for",29.609],["picking",29.889],["out",30.448],["the",30.728],["few",31.008],["features",31.288],["that",31.917],["matter",32.267]],"s5":[["the",0.0],["geometry",0.25],["shows",0.812],["why",1.187],["think",2.046],["of",2.386],["the",2.556],["penalty",2.783],["as",3.236],["a",3.406],["budget",3.52],["the",4.347],["weights",4.594],["must",5.089],["stay",5.398],["inside",5.707],["a",6.14],["region",6.264],["around",6.697],["the",7.13],["origin",7.377],["for",8.463],["l2",8.562],["that",8.635],["region",8.758],["is",8.929],["a",9.003],["circle",9.052],["for",9.569],["l1",9.889],["it",10.128],["is",10.368],["a",10.607],["diamond",10.767],["with",11.406],["sharp",11.805],["corners",12.284],["on",12.923],["the",13.162],["axes",13.482],["the",14.113],["loss",14.397],["forms",14.751],["oval",15.176],["contours",15.531],["around",16.169],["its",16.665],["unconstrained",16.949],["best",17.942],["point",18.296],["and",18.793],["the",19.076],["solution",19.36],["is",19.998],["where",20.211],["the",20.636],["smallest",20.92],["oval",21.558],["first",21.912],["touches",22.338],["the",22.905],["region",23.189],["a",24.059],["circle",24.179],["is",24.601],["usually",24.782],["touched",25.264],["at",25.747],["a",25.928],["smooth",26.048],["point",26.47],["where",26.832],["both",27.194],["weights",27.495],["are",27.978],["nonzero",28.219],["while",28.939],["a",29.3],["diamond",29.421],["is",29.903],["very",30.084],["often",30.386],["touched",30.748],["at",31.23],["a",31.411],["corner",31.531],["where",32.465],["one",32.881],["weight",33.158],["is",33.644],["exactly",33.852],["zero",34.407]],"s6":[["for",0.0],["linear",0.245],["regression",0.675],["ridge",1.723],["even",2.041],["keeps",2.307],["a",2.625],["closed",2.731],["form",3.103],["the",3.746],["normal",3.962],["equations",4.339],["gain",4.878],["one",5.147],["extra",5.363],["term",5.686],["lambda",6.441],["times",6.856],["the",7.212],["identity",7.449],["matrix",7.982],["added",8.785],["to",9.19],["x",9.393],["transpose",9.528],["x",10.204],["that",11.068],["small",11.322],["addition",11.626],["has",12.083],["a",12.286],["second",12.387],["benefit",12.743],["it",13.56],["makes",13.731],["the",14.074],["matrix",14.303],["safely",14.704],["invertible",15.104],["even",15.733],["when",16.019],["features",16.305],["are",16.82],["nearly",17.049],["copies",17.449],["of",17.85],["each",18.021],["other",18.307],["one",19.071],["detail",19.239],["matters",19.533],["in",19.869],["practice",19.995],["the",20.546],["intercept",20.821],["is",21.51],["usually",21.716],["left",22.267],["out",22.611],["of",22.886],["the",23.092],["penalty",23.368],["because",24.362],["shifting",24.824],["the",25.343],["whole",25.573],["curve",25.919],["up",26.266],["or",26.439],["down",26.612],["is",26.9],["not",27.073],["the",27.304],["kind",27.534],["of",27.823],["complexity",27.996],["we",28.63],["want",28.803],["to",29.092],["punish",29.265]],"s7":[["weight",0.0],["decay",0.444],["is",0.824],["part",1.015],["of",1.332],["how",1.522],["language",1.775],["models",2.346],["are",2.79],["trained",3.044],["today",3.551],["the",4.522],["optimiser",4.835],["most",5.617],["commonly",6.009],["used",6.712],["for",7.104],["them",7.416],["called",8.123],["adam",8.526],["w",8.814],["applies",9.472],["decay",9.949],["directly",10.307],["to",10.844],["the",11.023],["weights",11.262],["separately",12.224],["from",12.816],["the",13.086],["gradient",13.301],["step",13.786],["to",14.506],["keep",14.683],["them",14.979],["from",15.274],["growing",15.569],["without",16.042],["need",16.515],["next",17.177],["we",17.898],["look",18.108],["at",18.459],["how",18.669],["to",18.949],["split",19.159],["data",19.58],["so",19.93],["that",20.14],["we",20.491],["can",20.701],["choose",20.981],["settings",21.472],["like",22.103],["lambda",22.453],["honestly",22.944]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers for plots, equations and code panels (module 5 and 7 lessons) ---- */
+/* axes: plain x/y axes for a plot region, with optional axis captions */
+function axes(svg,P,x0,x1,y0,y1,o){o=o||{};const g=svgEl('g',{},svg);
+  if(o.grid){for(let x=Math.ceil(x0);x<=x1;x+=(o.step||1)){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.4,opacity:.45},g)}
+    for(let y=Math.ceil(y0);y<=y1;y+=(o.step||1)){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.4,opacity:.45},g)}}
+  const ya=o.yAxisAt??y0,xa=o.xAxisAt??x0;const a=P(x0,ya),b=P(x1,ya),c=P(xa,y0),d=P(xa,y1);
+  svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  svgEl('line',{x1:c[0],y1:c[1],x2:d[0],y2:d[1],stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  return g}
+/* fnPath: SVG path data for y=f(x) sampled on [a,b] */
+function fnPath(P,f,a,b,n){n=n||120;let s='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,[px,py]=P(x,f(x));s+=(i?'L':'M')+px.toFixed(1)+','+py.toFixed(1)}return s}
+function polyPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function mkPath(svg,d,color,w,extra){return svgEl('path',Object.assign({d,fill:'none',stroke:color,'stroke-width':w||5,'stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+/* drawOn: reveal a stroke from start to end */
+function drawOn(p,time,d){p.setAttribute('pathLength','1');tl.set(p,{attr:{'stroke-dasharray':'1 1','stroke-dashoffset':1}},0);
+  tl.to(p,{autoAlpha:1,duration:.15},time);tl.to(p,{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut'},time)}
+/* morphFn: a path that follows f(x; s) as the proxy s moves; returns a stepper */
+function morphFn(p,P,f,a,b,s0,n){const o={s:s0};const upd=()=>p.setAttribute('d',fnPath(P,x=>f(x,o.s),a,b,n));upd();
+  return (time,d,s,ease)=>tl.to(o,{s,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:upd},time)}
+/* a proxy-driven updater: o is tweened, fn(o) redraws everything that depends on it */
+function driver(o,fn){fn(o);return (time,d,to,ease)=>tl.to(o,{...to,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>fn(o)},time)}
+function dot(svg,x,y,r,color,hidden){return svgEl('circle',{cx:x,cy:y,r:r||9,fill:color||C.blue,style:hidden===false?'':'opacity:0;visibility:hidden'},svg)}
+/* texLbl: a hidden KaTeX label centred at (x,y) */
+function texLbl(parent,s,x,y,size,color){const d=el(parent,'lbl',tex(s,size||56),{color:color||C.ink});place(d,x,y);return d}
+function txt(parent,s,x,y,o){o=o||{};const d=el(parent,'lbl',s,Object.assign({color:C.ink,fontSize:'40px'},o));place(d,x,y);return d}
+/* codeBox: a monospace panel; lines may contain <span> colouring */
+function codeBox(parent,lines,x,y,w,fs){fs=fs||34;const b=el(parent,'abs hid','',{left:x+'px',top:y+'px',width:w+'px',padding:'26px 34px',borderRadius:'18px',background:'#161c25',border:'2px solid #2b3644',fontFamily:"'JetBrains Mono',monospace",fontSize:fs+'px',lineHeight:'1.55',color:C.ink,whiteSpace:'pre'});
+  const rows=lines.map(l=>el(b,'',l,{position:'relative'}));return {box:b,rows}}
+const kw=s=>`<span style="color:#e77fb3">${s}</span>`,cm=s=>`<span style="color:#7f8b99">${s}</span>`,nm=s=>`<span style="color:#f5cf4a">${s}</span>`,fnc=s=>`<span style="color:#58c4dd">${s}</span>`;
+function sceneIn(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid])}
+
+const root=$('root');
+/* ridge polynomial fit on x in [0,1] (t = 2x - 1); the intercept w0 is not penalised */
+function ridgefit(xs,ys,deg,lam){const m=deg+1,A=[],b=[];for(let i=0;i<m;i++){A.push(new Array(m).fill(0));b.push(0)}
+  xs.forEach((x,k)=>{const t=2*x-1,pw=[];for(let i=0;i<m;i++)pw.push(Math.pow(t,i));for(let i=0;i<m;i++){b[i]+=pw[i]*ys[k];for(let j=0;j<m;j++)A[i][j]+=pw[i]*pw[j]}});
+  for(let i=1;i<m;i++)A[i][i]+=lam;
+  for(let c=0;c<m;c++){let p=c;for(let r=c+1;r<m;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;[A[c],A[p]]=[A[p],A[c]];[b[c],b[p]]=[b[p],b[c]];
+    for(let r=c+1;r<m;r++){const f=A[r][c]/A[c][c];for(let j=c;j<m;j++)A[r][j]-=f*A[c][j];b[r]-=f*b[c]}}
+  const w=new Array(m).fill(0);for(let i=m-1;i>=0;i--){let s=b[i];for(let j=i+1;j<m;j++)s-=A[i][j]*w[j];w[i]=s/A[i][i]}return w}
+const pv=(w,x)=>{const t=2*x-1;let s=0;for(let i=w.length-1;i>=0;i--)s=s*t+w[i];return s};
+const truth=x=>Math.sin(2*Math.PI*x);
+function sample(seed,n){const r=seedRand(seed),xs=[],ys=[];for(let i=0;i<n;i++){const x=(i+.5)/n+(r()-.5)*.6/n;xs.push(x);let g=0;for(let k=0;k<6;k++)g+=r();ys.push(truth(x)+(g-3)*.42)}return [xs,ys]}
+const [XS,YS]=sample(4,10);
+function plotFrame(S,ox,oy,wd,ht,id){const P=(x,y)=>[ox+wd*x,oy-ht/3.4*y];const svg=layerSvg(S);
+  svgEl('rect',{x:ox,y:oy-ht/2,width:wd,height:ht,fill:'none',stroke:C.grid,'stroke-width':2,opacity:.8},svg);
+  const cp=svgEl('clipPath',{id},svg);svgEl('rect',{x:ox,y:oy-ht/2,width:wd,height:ht},cp);
+  const g=svgEl('g',{'clip-path':`url(#${id})`},svg);return {P,svg,g}}
+/* coefficient bars: signed log-ish height so huge and tiny weights both show */
+function coefBars(S,x0,y0,n,gap,col){const svg=layerSvg(S);svgEl('line',{x1:x0-20,y1:y0,x2:x0+gap*(n-1)+20,y2:y0,stroke:C.axis,'stroke-width':2},svg);
+  const bars=[];for(let i=0;i<n;i++)bars.push(svgEl('rect',{x:x0+i*gap-gap*.3,width:gap*.6,y:y0,height:0,fill:col,rx:3},svg));
+  const set=w=>w.forEach((v,i)=>{if(i>=n)return;const h=Math.sign(v)*Math.min(230,40*Math.log10(1+Math.abs(v)*10));bars[i].setAttribute('y',h>0?y0-h:y0);bars[i].setAttribute('height',Math.abs(h));bars[i].setAttribute('fill',v>=0?C.blue:C.pink)});
+  return {svg,set}}
+
+/* ===== S1: the wild curve has enormous weights ===== */
+(function(){const S=$('S1'),sid='s1';
+  const {P,svg,g}=plotFrame(S,160,560,880,600,'c1');
+  mkPath(g,fnPath(P,truth,0,1),C.dim,4,{'stroke-dasharray':'12 10',style:''});
+  XS.forEach((x,i)=>dot(g,...P(x,YS[i]),10,C.blue,false));
+  const w9=ridgefit(XS,YS,9,0);
+  const c=mkPath(g,fnPath(P,x=>pv(w9,x),0,1,300),C.pink,5);
+  tl.fromTo(svg,{autoAlpha:0},{autoAlpha:1,duration:.6,immediateRender:false},at(sid,.01));drawOn(c,cue(sid,'threaded'),1.4);
+  const cb=coefBars(S,1230,560,10,62,C.blue);cb.set(w9);
+  tl.fromTo(cb.svg,{autoAlpha:0},{autoAlpha:1,duration:.6,immediateRender:false},cue(sid,'coefficients'));
+  const t=txt(S,'its ten coefficients',1510,240,{color:C.ink,fontSize:'40px',fontStyle:'italic'});show(t,cue(sid,'coefficients'),.5);
+  const vals=w9.map(v=>(v>=0?'+':'−')+Math.abs(v).toFixed(0)).slice(1,6).join('  ');
+  const t2=el(S,'lbl mono',vals+' …',{color:C.dim,fontSize:'30px'});place(t2,1510,880);show(t2,cue(sid,'enormous'),.5);
+  const t3=txt(S,'cancel at the points, swing between them',1510,950,{color:C.pink,fontSize:'34px',fontStyle:'italic'});show(t3,cue(sid,'cancelling'),.5);
+  const r=el(S,'cap','make large weights <span style="color:#f5cf4a">expensive</span>',{top:'140px',fontSize:'50px',fontStyle:'italic'});show(r,cue(sid,'expensive'),.6);
+  tl.to([t,t2,t3],{autoAlpha:0,duration:.4},cue(sid,'expensive')-.2);
+  sceneInOut(sid);
+})();
+
+/* ===== S2: L2 penalty, rubber bands, weight decay ===== */
+(function(){const S=$('S2'),sid='s2';
+  const eq=texLbl(S,'L = \\sum_i (y_i-\\hat y_i)^2 \\;+\\; \\lambda \\sum_j w_j^2',960,200,62,C.ink);show(eq,cue(sid,'penalty'),.7);
+  const hl=el(S,'hl','',{left:'1062px',top:'145px',width:'372px',height:'112px',borderColor:C.yellow});fadeIn(hl,cue(sid,'squared'),.4);
+  const svg=layerSvg(S);const X0=960,u=110,Y=i=>350+i*62;
+  const W0=[-4.6,-2.4,-1.1,1.6,3.2,5.1];
+  svgEl('line',{x1:X0,y1:Y(0)-40,x2:X0,y2:Y(5)+40,stroke:C.axis,'stroke-width':4},svg);
+  const zl=txt(S,'0',X0,Y(5)+75,{color:C.dim,fontSize:'34px',fontFamily:"'JetBrains Mono',monospace"});gsap.set(zl,{autoAlpha:1});
+  const rows=W0.map((w,i)=>{svgEl('line',{x1:X0-6*u,y1:Y(i),x2:X0+6*u,y2:Y(i),stroke:C.grid,'stroke-width':1.5,opacity:.6},svg);
+    const band=svgEl('path',{fill:'none',stroke:C.teal,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);const d=dot(svg,0,0,12,C.yellow);return {band,d}});
+  const st={k:1};
+  const upd=o=>W0.forEach((w,i)=>{const x=X0+w*o.k*u,y=Y(i),r=rows[i];r.d.setAttribute('cx',x);r.d.setAttribute('cy',y);
+    const n=12;let p=`M${X0},${y}`;for(let j=1;j<n;j++){p+=`L${X0+(x-X0)*j/n},${y+(j%2?-12:12)}`}p+=`L${x},${y}`;r.band.setAttribute('d',p)});
+  const go=driver(st,upd);
+  fadeIn(rows.map(r=>r.d),cue(sid,'weight'),.5);
+  fadeIn(rows.map(r=>r.band),cue(sid,'rubber'),.6);
+  go(cue(sid,'pulls'),1.4,{k:.7});
+  const gr=texLbl(S,'\\nabla_{w}\\big(\\lambda w^2\\big) = 2\\lambda w',960,790,52,C.teal);show(gr,cue(sid,'proportional'),.6);
+  go(cue(sid,'shrinks'),1.2,{k:.55});
+  const wd=texLbl(S,'w \\leftarrow (1-2\\eta\\lambda)\\,w \\;-\\; \\eta\\,\\nabla_w \\text{data loss}',960,910,52,C.ink);show(wd,cue(sid,'fraction'),.6);
+  const wdl=txt(S,'weight decay',960,995,{color:C.yellow,fontSize:'44px',fontStyle:'italic'});show(wdl,cue(sid,'decay'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S3: the lambda dial ===== */
+(function(){const S=$('S3'),sid='s3';
+  const {P,svg,g}=plotFrame(S,160,560,880,600,'c3');
+  mkPath(g,fnPath(P,truth,0,1),C.dim,4,{'stroke-dasharray':'12 10',style:''});
+  XS.forEach((x,i)=>dot(g,...P(x,YS[i]),10,C.blue,false));
+  tl.fromTo(svg,{autoAlpha:0},{autoAlpha:1,duration:.5,immediateRender:false},at(sid,.01));
+  const fit=mkPath(g,'',C.yellow,6);gsap.set(fit,{autoAlpha:1});
+  const cb=coefBars(S,1230,620,10,62,C.blue);
+  tl.fromTo(cb.svg,{autoAlpha:0},{autoAlpha:1,duration:.5,immediateRender:false},at(sid,.01));
+  const ro=el(S,'lbl mono','',{color:C.yellow,fontSize:'52px'});place(ro,1510,230);gsap.set(ro,{autoAlpha:1});
+  const st={u:-9};
+  const go=driver(st,o=>{const lam=o.u<=-8.9?0:Math.pow(10,o.u);const w=ridgefit(XS,YS,9,lam);fit.setAttribute('d',fnPath(P,x=>pv(w,x),0,1,240));cb.set(w);
+    ro.textContent=lam===0?'λ = 0':(lam<.01?`λ = ${lam.toExponential(0)}`:`λ = ${lam<10?lam.toFixed(2):lam.toFixed(0)}`)});
+  tl.fromTo(ro,{autoAlpha:0},{autoAlpha:1,duration:.4,immediateRender:false},at(sid,.01));
+  const notes=[['no penalty: wild','zero'],['calmer: bends where data insists','calms'],['bands win: underfits','far']].map(([t,w])=>{const d=txt(S,t,1510,330,{color:C.ink,fontSize:'38px',fontStyle:'italic'});return [d,w]});
+  notes.forEach(([d,w],i)=>{show(d,cue(sid,w),.4);if(i<2)fadeOut(d,cue(sid,notes[i+1][1])-.3,.3)});
+  go(cue(sid,'calms')-.6,2.2,{u:-2.3});go(cue(sid,'far'),2,{u:1.6});go(cue(sid,'between'),2,{u:-2.3});
+  const best=txt(S,'best λ: checked on held-out data',1510,330,{color:C.yellow,fontSize:'38px',fontStyle:'italic'});show(best,cue(sid,'held-out'),.5);
+  fadeOut(notes[2][0],cue(sid,'between')-.3,.3);
+  sceneInOut(sid);
+})();
+
+/* ===== S4: L1 pushes small weights to exactly zero ===== */
+(function(){const S=$('S4'),sid='s4';
+  const eq=texLbl(S,'L1:\\quad \\lambda \\sum_j |w_j|',960,190,62,C.ink);show(eq,cue(sid,'absolute'),.6);
+  const W=[2.6,-1.8,.9,-.5,.35,1.4,-.25,.6];const n=W.length;
+  const mk=(x0,title,col)=>{const svg=layerSvg(S);const y0=600;svgEl('line',{x1:x0-30,y1:y0,x2:x0+70*(n-1)+30,y2:y0,stroke:C.axis,'stroke-width':2},svg);
+    const bars=W.map((w,i)=>svgEl('rect',{x:x0+i*70-22,width:44,rx:3,fill:w>0?C.blue:C.pink},svg));const zs=W.map((w,i)=>{const t=el(S,'lbl mono','0',{color:C.yellow,fontSize:'28px'});place(t,x0+i*70,y0+40);return t});
+    const tt=txt(S,title,x0+35*(n-1),340,{color:col,fontSize:'40px'});return {svg,bars,zs,tt,y0}};
+  const A=mk(220,'L2: shrink by a fraction',C.teal),B=mk(1160,'L1: subtract, stop at zero',C.yellow);
+  const st={t:0};
+  const go=driver(st,o=>{W.forEach((w,i)=>{const a=w/(1+1.2*o.t),b=Math.sign(w)*Math.max(Math.abs(w)-.75*o.t,0);
+    [[A,a],[B,b]].forEach(([P,v])=>{const h=v*90;P.bars[i].setAttribute('y',h>0?P.y0-h:P.y0);P.bars[i].setAttribute('height',Math.abs(h))})})});
+  tl.fromTo([A.svg,B.svg],{autoAlpha:0},{autoAlpha:1,duration:.5,immediateRender:false},at(sid,.02));
+  show(B.tt,cue(sid,'lasso'),.5);show(A.tt,cue(sid,'lasso'),.5);
+  go(cue(sid,'pull'),3.5,{t:1},'power1.inOut');
+  W.forEach((w,i)=>{if(Math.abs(w)<=.75){show(B.zs[i],cue(sid,'exactly'),.4)}});
+  const off=txt(S,'features switched off',1405,740,{color:C.yellow,fontSize:'38px',fontStyle:'italic'});show(off,cue(sid,'off'),.5);
+  const sel=txt(S,'L1 picks out the features that matter',960,880,{color:C.ink,fontSize:'44px',fontStyle:'italic'});show(sel,cue(sid,'matter'),.6);
+  sceneInOut(sid);
+})();
+
+/* ===== S5: circle vs diamond ===== */
+(function(){const S=$('S5'),sid='s5';
+  const c=[2.0,1.0],th=-60*Math.PI/180,ea=1.5,eb=.7,T=1.25;
+  const Q=w=>{const dx=w[0]-c[0],dy=w[1]-c[1],x=Math.cos(th)*dx+Math.sin(th)*dy,y=-Math.sin(th)*dx+Math.cos(th)*dy;return (x/ea)**2+(y/eb)**2};
+  const panel=(ox,kind,title)=>{const P=(x,y)=>[ox+125*x,600-125*y];const svg=layerSvg(S);
+    axes(svg,P,-1.8,3.4,-1.6,2.6,{xAxisAt:0,yAxisAt:0});
+    let best=null,bq=1e9;for(let k=0;k<4000;k++){const a=k/4000*2*Math.PI;let w;if(kind==='l2')w=[T*Math.cos(a),T*Math.sin(a)];else{const cs=Math.cos(a),sn=Math.sin(a),s=T/(Math.abs(cs)+Math.abs(sn));w=[s*cs,s*sn]}const q=Q(w);if(q<bq){bq=q;best=w}}
+    const reg=kind==='l2'?svgEl('circle',{cx:P(0,0)[0],cy:P(0,0)[1],r:125*T,fill:C.teal,'fill-opacity':.15,stroke:C.teal,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg)
+      :svgEl('polygon',{points:[[T,0],[0,T],[-T,0],[0,-T]].map(p=>P(...p).join(',')).join(' '),fill:C.yellow,'fill-opacity':.15,stroke:C.yellow,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);
+    const [cx,cy]=P(...c);const cen=dot(svg,cx,cy,9,C.pink);
+    const ells=[.25,.5,1].map(f=>svgEl('ellipse',{cx,cy,rx:125*ea*Math.sqrt(bq*f),ry:125*eb*Math.sqrt(bq*f),transform:`rotate(${60} ${cx} ${cy})`,fill:'none',stroke:C.pink,'stroke-width':f===1?4:2.5,opacity:f===1?1:.6,style:'opacity:0;visibility:hidden'},svg));
+    const hit=dot(svg,...P(...best),13,C.ink);
+    const tt=txt(S,title,ox+150*.8,150,{color:kind==='l2'?C.teal:C.yellow,fontSize:'42px'});
+    return {reg,cen,ells,hit,tt,best}};
+  const A=panel(380,'l2','L2: a circle'),B=panel(1240,'l1','L1: a diamond');
+  show([A.tt,B.tt],at(sid,.02),.5);
+  fadeIn([A.reg],cue(sid,'circle'),.5);fadeIn([B.reg],cue(sid,'diamond'),.5);
+  fadeIn([A.cen,B.cen],cue(sid,'oval'),.4);
+  [A,B].forEach(o=>o.ells.forEach((e,k)=>fadeIn(e,cue(sid,'contours')+k*.5,.4)));
+  fadeIn([A.hit],cue(sid,'smooth'),.4);fadeIn([B.hit],cue(sid,'corner'),.4);
+  const la=txt(S,'both weights nonzero',380+150*.8,950,{color:C.teal,fontSize:'36px',fontStyle:'italic'}),lb=txt(S,`w₁ = 0`,1240+150*.8,950,{color:C.yellow,fontSize:'36px',fontStyle:'italic'});
+  if(Math.abs(B.best[0])<.02)lb.textContent='w₁ = 0 exactly';else if(Math.abs(B.best[1])<.02)lb.textContent='w₂ = 0 exactly';
+  show(la,cue(sid,'nonzero'),.5);show(lb,cue(sid,'zero'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S6: ridge closed form ===== */
+(function(){const S=$('S6'),sid='s6';
+  const e1=texLbl(S,'X^{\\top}X\\,\\mathbf{w} = X^{\\top}\\mathbf{y}',960,260,64,C.dim);show(e1,cue(sid,'normal'),.6);
+  const e2=el(S,'abs hid','',{left:'460px',top:'380px',width:'1000px',textAlign:'center',padding:'26px',borderRadius:'18px',border:'3px solid '+C.yellow});
+  e2.innerHTML=tex('\\mathbf{w} = (X^{\\top}X + {\\color{#f5cf4a}\\lambda I})^{-1} X^{\\top}\\mathbf{y}',70);show(e2,cue(sid,'identity'),.7);
+  const inv=txt(S,'safely invertible, even with near-duplicate columns',960,620,{color:C.teal,fontSize:'40px',fontStyle:'italic'});show(inv,cue(sid,'invertible'),.5);
+  const ic=el(S,'abs hid','',{left:'560px',top:'720px',width:'800px',textAlign:'center',fontSize:'40px',fontStyle:'italic',color:C.ink});
+  ic.innerHTML='the intercept '+tex('b',40)+' is left out of the penalty';show(ic,cue(sid,'intercept'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S7: AdamW ===== */
+(function(){const S=$('S7'),sid='s7';
+  const t=txt(S,'AdamW',960,250,{color:C.yellow,fontSize:'64px'});show(t,cue(sid,'adam'),.6);
+  const e=texLbl(S,'\\theta \\leftarrow \\theta - \\eta\\Big(\\underbrace{\\tfrac{\\hat m}{\\sqrt{\\hat v}+\\epsilon}}_{\\text{gradient step}} + \\underbrace{\\lambda\\,\\theta}_{\\text{decay}}\\Big)',960,480,60,C.ink);
+  show(e,cue(sid,'decay',2),.7);
+  const s=txt(S,'decay acts on the weights directly, separate from the gradient step',960,680,{color:C.dim,fontSize:'36px',fontStyle:'italic'});show(s,cue(sid,'separately'),.5);
+  const next=el(S,'cap','next &nbsp;·&nbsp; 5.5 &nbsp;train, validation and test splits',{top:'920px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
+  show(next,cue(sid,'next'),.7);
+  sceneIn(sid);
+})();
+
+/* KaTeX stacks accents and fractions on purpose; tell the layout checker */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','');e.setAttribute('data-layout-allow-occlusion','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
