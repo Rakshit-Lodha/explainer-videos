@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.note{position:absolute;font-size:44px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+.code{position:absolute;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:38px;line-height:1.55;white-space:pre;color:var(--ink);
+  background:#11161dcc;border:2px solid #2a3442;border-radius:16px;padding:26px 34px;opacity:0;visibility:hidden}
+.panel{position:absolute;background:#0e1116e6;border-radius:20px}
+.kw{color:#c792ea}.fn{color:#58c4dd}.nm{color:#f5cf4a}.cm{color:#7f8b99;font-style:italic}
+
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="217.03" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="217.03" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 0.3 Reading math notation</div>
+
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="23.864"></div>
+  <div class="clip scene" id="S2" data-start="23.864" data-duration="32.208"></div>
+  <div class="clip scene" id="S3" data-start="56.072" data-duration="24.614"></div>
+  <div class="clip scene" id="S4" data-start="80.686" data-duration="30.136"></div>
+  <div class="clip scene" id="S5" data-start="110.822" data-duration="17.858"></div>
+  <div class="clip scene" id="S6" data-start="128.68" data-duration="38.183"></div>
+  <div class="clip scene" id="S7" data-start="166.863" data-duration="24.187"></div>
+  <div class="clip scene" id="S8" data-start="191.05" data-duration="25.98"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":23.864,"s3":56.072,"s4":80.686,"s5":110.822,"s6":128.68,"s7":166.863,"s8":191.05},"total":217.03,"cues":{"s1":[["mathematical",0.0],["notation",0.801],["looks",1.355],["like",1.725],["a",2.033],["secret",2.156],["code",2.587],["but",3.39],["it",3.626],["is",3.804],["really",3.981],["shorthand",4.394],["written",5.364],["by",5.875],["people",6.066],["who",6.513],["got",6.769],["tired",7.024],["of",7.407],["saying",7.598],["the",8.045],["same",8.301],["long",8.62],["sentence",8.939],["over",9.513],["and",9.833],["over",10.088],["every",10.732],["formula",11.1],["in",11.592],["this",11.776],["course",12.083],["is",12.513],["a",12.697],["set",12.82],["of",13.066],["instructions",13.25],["that",14.048],["you",14.355],["could",14.601],["type",14.97],["as",15.277],["a",15.461],["few",15.584],["lines",15.829],["of",16.198],["python",16.382],["so",17.299],["in",17.515],["this",17.732],["lesson",18.093],["we",18.598],["learn",18.814],["to",19.247],["read",19.464],["the",19.824],["pieces",20.113],["of",20.618],["shorthand",20.835],["that",21.556],["appear",21.917],["most",22.422],["often",22.783]],"s2":[["start",0.0],["with",0.379],["a",0.695],["list",0.821],["of",1.137],["numbers",1.327],["called",1.832],["x",2.274],["rather",2.745],["than",3.305],["giving",3.706],["each",4.267],["entry",4.667],["its",5.148],["own",5.468],["name",5.789],["we",6.419],["write",6.564],["x",6.853],["with",6.949],["a",7.191],["small",7.287],["number",7.576],["hanging",7.914],["below",8.3],["it",8.589],["called",9.073],["a",9.425],["subscript",9.525],["which",10.583],["works",11.037],["exactly",11.491],["like",12.096],["a",12.474],["house",12.626],["number",13.079],["on",13.609],["a",13.836],["street",13.987],["x",14.886],["sub",15.025],["one",15.303],["is",15.581],["the",15.789],["first",16.067],["house",16.484],["x",17.131],["sub",17.265],["two",17.534],["is",17.802],["the",18.004],["second",18.273],["and",18.96],["x",19.208],["sub",19.332],["i",19.58],["means",19.704],["whichever",20.076],["house",20.696],["you",21.068],["happen",21.316],["to",21.75],["be",21.936],["standing",22.122],["at",22.68],["in",23.197],["python",23.425],["that",23.959],["is",24.34],["simply",24.568],["x",25.102],["in",25.254],["square",25.483],["brackets",26.017],["with",27.014],["one",27.314],["caveat",27.554],["which",28.614],["is",28.992],["that",29.18],["python",29.495],["counts",29.935],["its",30.375],["houses",30.627],["from",31.067],["zero",31.381]],"s3":[["when",0.0],["a",0.273],["whole",0.382],["list",0.71],["is",0.982],["treated",1.146],["as",1.583],["a",1.747],["single",1.856],["object",2.238],["it",3.148],["is",3.327],["usually",3.505],["printed",3.98],["as",4.456],["a",4.634],["bold",4.753],["letter",5.05],["or",6.011],["as",6.173],["a",6.335],["letter",6.444],["with",6.823],["a",7.093],["small",7.201],["arrow",7.526],["on",7.851],["top",8.013],["and",8.711],["its",8.951],["entries",9.191],["are",9.671],["the",9.911],["same",10.151],["letter",10.45],["in",10.87],["plain",11.05],["type",11.41],["with",11.71],["subscripts",12.009],["so",13.015],["bold",13.269],["x",13.691],["is",13.86],["the",14.113],["vector",14.451],["the",15.386],["whole",15.601],["street",15.925],["while",16.487],["x",17.01],["sub",17.184],["i",17.533],["is",17.707],["a",17.969],["single",18.143],["house",18.753],["on",19.276],["it",19.538],["keeping",20.116],["those",20.576],["two",20.922],["apart",21.152],["is",21.498],["half",21.671],["the",21.959],["battle",22.189],["when",22.593],["you",22.881],["read",23.111],["a",23.399],["formula",23.514]],"s4":[["now",0.0],["the",0.293],["sigma",0.586],["sign",1.025],["a",1.623],["capital",1.752],["greek",2.267],["s",2.654],["that",2.783],["stands",3.105],["for",3.556],["sum",3.814],["read",4.396],["it",4.656],["as",4.812],["a",4.968],["loop",5.072],["written",5.331],["vertically",5.747],["underneath",6.725],["it",7.884],["you",8.201],["find",8.622],["where",9.149],["the",9.782],["counter",10.204],["starts",11.047],["above",12.195],["it",12.546],["you",12.722],["find",12.956],["where",13.249],["the",13.6],["counter",13.834],["stops",14.302],["and",14.712],["to",14.946],["its",15.121],["right",15.355],["is",15.706],["the",15.882],["thing",16.116],["you",16.467],["add",16.701],["on",16.935],["each",17.111],["pass",17.404],["so",17.876],["the",18.099],["sum",18.397],["from",18.694],["i",19.066],["equals",19.214],["one",19.734],["to",20.032],["n",20.255],["of",20.403],["x",20.626],["sub",20.775],["i",21.072],["says",21.221],["let",21.818],["i",22.108],["walk",22.252],["from",22.615],["the",22.977],["first",23.266],["house",23.701],["to",24.136],["the",24.353],["last",24.643],["pick",25.572],["up",25.884],["the",26.072],["value",26.322],["at",26.697],["each",26.885],["house",27.198],["and",28.006],["keep",28.246],["a",28.545],["running",28.665],["total",29.144]],"s5":[["in",0.0],["python",0.236],["that",1.008],["sentence",1.339],["becomes",1.935],["a",2.464],["running",2.597],["total",3.126],["that",3.524],["starts",3.855],["at",4.318],["zero",4.517],["a",5.169],["for",5.285],["loop",5.516],["over",5.806],["the",6.095],["positions",6.326],["and",7.102],["one",7.229],["line",7.356],["that",7.515],["adds",7.673],["the",7.832],["current",7.959],["entry",8.213],["to",8.404],["the",8.499],["total",8.626],["the",8.982],["loop",9.327],["counter",9.759],["plays",10.45],["the",10.968],["part",11.314],["of",11.746],["the",12.005],["subscript",12.35],["and",13.751],["the",13.949],["body",14.147],["of",14.395],["the",14.543],["loop",14.741],["is",14.989],["whatever",15.137],["stands",15.583],["to",15.929],["the",16.078],["right",16.276],["of",16.573],["the",16.721],["sigma",16.919]],"s6":[["the",0.0],["most",0.193],["important",0.435],["case",0.919],["for",1.16],["this",1.354],["course",1.595],["has",1.934],["two",2.127],["lists",2.321],["under",2.611],["one",2.901],["sigma",3.094],["as",3.816],["in",4.003],["the",4.191],["sum",4.441],["of",4.691],["x",4.879],["sub",5.004],["i",5.254],["times",5.379],["y",5.754],["sub",5.879],["i",6.129],["notice",6.611],["that",7.068],["there",7.394],["is",7.786],["only",7.982],["one",8.309],["counter",8.57],["i",9.491],["and",10.73],["it",10.793],["appears",10.841],["in",10.968],["both",11.015],["places",11.095],["so",11.547],["both",11.826],["lists",12.291],["are",12.849],["read",13.221],["at",13.686],["the",13.965],["same",14.337],["house",14.802],["at",15.36],["the",15.639],["same",16.011],["time",16.476],["first",17.386],["entry",17.585],["with",17.784],["first",17.95],["entry",18.149],["second",18.683],["with",19.157],["second",19.496],["it",20.038],["is",20.241],["a",20.444],["single",20.58],["walk",21.054],["down",21.393],["two",21.732],["parallel",22.003],["streets",22.612],["which",23.222],["in",23.629],["python",23.832],["is",24.306],["one",24.509],["loop",24.78],["over",25.119],["zip",25.458],["of",25.729],["x",25.932],["and",26.068],["y",26.339],["not",26.705],["a",26.879],["loop",26.967],["inside",27.185],["a",27.49],["loop",27.578],["a",28.154],["nested",28.282],["loop",28.728],["would",29.046],["pair",29.428],["every",29.747],["house",30.129],["with",30.511],["every",30.83],["other",31.212],["house",31.594],["and",32.486],["that",32.681],["is",32.924],["a",33.071],["different",33.168],["formula",33.655],["with",34.662],["two",34.697],["counters",34.725],["usually",34.939],["called",35.821],["i",36.592],["and",36.812],["j",37.253]],"s7":[["you",0.0],["have",0.305],["already",0.686],["met",1.295],["this",1.6],["exact",1.981],["formula",2.438],["under",3.048],["another",3.505],["name",4.115],["the",4.747],["sum",5.026],["of",5.305],["x",5.514],["sub",5.654],["i",5.933],["times",6.072],["y",6.491],["sub",6.63],["i",6.909],["is",7.049],["the",7.258],["dot",7.537],["product",7.816],["of",8.374],["the",8.583],["vectors",8.862],["x",9.42],["and",9.56],["y",9.839],["inside",10.279],["a",10.729],["language",10.857],["model",11.435],["that",12.407],["one",12.805],["line",13.124],["runs",13.523],["an",13.921],["enormous",14.161],["number",14.878],["of",15.436],["times",15.675],["whenever",16.805],["the",17.403],["model",17.668],["checks",18.067],["how",18.532],["well",18.797],["two",19.129],["words",19.395],["match",19.793],["so",20.678],["reading",20.851],["it",21.313],["fluently",21.486],["will",22.006],["pay",22.294],["off",22.525],["again",22.756],["and",23.102],["again",23.333]],"s8":[["so",0.0],["a",0.229],["subscript",0.382],["picks",1.145],["out",1.603],["one",1.908],["entry",2.214],["a",2.938],["bold",3.057],["letter",3.354],["names",3.771],["the",4.127],["whole",4.365],["list",4.722],["and",5.562],["a",5.819],["sigma",5.947],["is",6.332],["a",6.525],["loop",6.653],["whose",6.974],["counter",7.359],["is",7.873],["the",8.065],["subscript",8.322],["with",9.384],["that",9.702],["alphabet",10.02],["in",10.592],["hand",10.783],["the",11.54],["mathematics",11.798],["can",12.572],["begin",12.83],["properly",13.217],["and",14.205],["it",14.573],["begins",14.849],["where",15.493],["every",16.045],["language",16.598],["model",17.426],["begins",17.978],["with",18.858],["vectors",19.345],["which",20.529],["are",20.952],["arrows",21.234],["and",21.728],["lists",22.01],["of",22.434],["numbers",22.645],["at",23.21],["the",23.421],["same",23.704],["time",24.056]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,keepEnd){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!keepEnd)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+/* generic seek-safe tween of plain numbers: from/to objects, apply(o) redraws */
+function anim(time,d,from,to,apply,ease){const o={...from};tl.to(o,{...to,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>apply(o)},time)}
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+/* 2x2 matrix with brackets; cols[j][i] are cells, colours per column */
+function mat2(parent,cx,cy,m,o){o=o||{};const fs=o.fs||60,cw=o.cw||110,rowH=fs*1.35,pad=fs*.3,W=cw*2+44,H=rowH*2+pad*2;
+  const box=el(parent,'colv hid','',{left:(cx-W/2)+'px',top:(cy-H/2)+'px',width:W+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cols=[0,1].map(j=>[0,1].map(i=>el(box,'cell',m[i][j],{left:(22+j*cw)+'px',top:(pad+i*rowH)+'px',width:cw+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:(o.colColors||[C.ink,C.ink])[j]})));
+  return {box,cols,cx,cy,W,H,cw,rowH,pad}}
+function colHL(parent,m,j,color){return el(parent,'hl','',{left:(m.cx-m.W/2+22+j*m.cw+6)+'px',top:(m.cy-m.H/2+m.pad-6)+'px',width:(m.cw-12)+'px',height:(m.rowH*2+12)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+
+/* transformable grid: lines in grid units, redrawn through a 2x2 matrix [a b; c d] (columns = images of i-hat, j-hat) */
+function tgrid(svg,P,n,o){o=o||{};const g=svgEl('g',{},svg);const lines=[];
+  for(let k=-n;k<=n;k++){
+    lines.push({p:[k,-n],q:[k,n],e:svgEl('line',{stroke:k===0?C.axis:(o.color||C.blue),'stroke-width':k===0?3:2,opacity:k===0?.95:(o.op||.7)},g)});
+    lines.push({p:[-n,k],q:[n,k],e:svgEl('line',{stroke:k===0?C.axis:(o.color||C.blue),'stroke-width':k===0?3:2,opacity:k===0?.95:(o.op||.7)},g)})}
+  const T={g,lines,P,m:{a:1,b:0,c:0,d:1}};
+  T.apply=(m)=>{T.m={a:m.a,b:m.b,c:m.c,d:m.d};for(const L of lines){const A=P(m.a*L.p[0]+m.b*L.p[1],m.c*L.p[0]+m.d*L.p[1]),B=P(m.a*L.q[0]+m.b*L.q[1],m.c*L.q[0]+m.d*L.q[1]);
+    L.e.setAttribute('x1',A[0]);L.e.setAttribute('y1',A[1]);L.e.setAttribute('x2',B[0]);L.e.setAttribute('y2',B[1])}};
+  T.apply(T.m);return T}
+/* the whole picture (grid + arrows defined in source coordinates) moves under one matrix tween */
+function mkScene(P){const S={P,grids:[],arrows:[],dots:[],m:{a:1,b:0,c:0,d:1},extra:[]};
+  S.apply=(m)=>{S.m={a:m.a,b:m.b,c:m.c,d:m.d};S.grids.forEach(g=>g.apply(m));
+    S.arrows.forEach(([ar,x,y])=>geom(ar,0,0,m.a*x+m.b*y,m.c*x+m.d*y));
+    S.dots.forEach(([e,x,y])=>{const p=P(m.a*x+m.b*y,m.c*x+m.d*y);e.setAttribute('cx',p[0]);e.setAttribute('cy',p[1])});
+    S.extra.forEach(f=>f(m))};
+  S.to=(time,d,m,ease)=>{anim(time,d,S.m,m,S.apply,ease||'power2.inOut');S.m={...m}};
+  return S}
+
+/* a street of houses: one box per entry, subscript labels underneath */
+function street(parent,x0,y,vals,color,name,o){o=o||{};const gap=o.gap||150,w=o.w||116,h=o.h||104;const S={boxes:[],labs:[],cx:[],y,w,h};
+  vals.forEach((v,i)=>{const cx=x0+i*gap;S.cx.push(cx);
+    const b=el(parent,'abs mono hid',String(v),{left:(cx-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',border:`3px solid ${color}`,borderRadius:'14px',background:'#141a22',textAlign:'center',lineHeight:(h-6)+'px',fontSize:(o.fs||50)+'px'});
+    S.boxes.push(b);
+    if(name){const l=el(parent,'abs hid',tex(name+'_{'+(i+1)+'}',o.ls||40),{left:(cx-60)+'px',top:(y+h/2+8)+'px',width:'120px',textAlign:'center',color})
+      ;S.labs.push(l)}});
+  return S}
+function pointer(parent,color,label){const p=el(parent,'abs hid','',{left:'0',top:'0',width:'0',height:'0'});
+  el(p,'abs','',{left:'-16px',top:'0',width:'0',height:'0',borderLeft:'16px solid transparent',borderRight:'16px solid transparent',borderTop:`24px solid ${color}`});
+  if(label)el(p,'abs',label,{left:'-60px',top:'-56px',width:'120px',textAlign:'center',color});return p}
+const X=[3,1,4,1,5],Y=[2,0,1,3,1];
+
+/* ============ S1: notation is shorthand ============ */
+(function(){const S=$('S1');const sid='s1';
+  const f=el(S,'abs hid',tex('\\hat{y}=\\sum_{i=1}^{n} w_i\\, x_i',110),{left:'0',top:'250px',width:'1920px',textAlign:'center'});
+  show(f,cue(sid,'mathematical'),.8);[f,...f.querySelectorAll('*')].forEach(e=>e.setAttribute('data-layout-allow-overlap',''));
+  const sc=el(S,'cap','a secret code?',{top:'520px',fontSize:'48px',fontStyle:'italic',color:C.dim});
+  show(sc,cue(sid,'secret'),.5);fadeOut(sc,cue(sid,'shorthand')-.1,.3);
+  const longS=el(S,'abs hid','“take the first weight times the first input, add the second weight times the second input, add the third weight times the third input, and keep going until you run out of inputs …”',{left:'260px',top:'500px',width:'1400px',textAlign:'center',fontSize:'40px',fontStyle:'italic',lineHeight:'1.4',color:C.dim});
+  show(longS,cue(sid,'shorthand'),.6);
+  tl.to(longS,{autoAlpha:0,duration:.5},cue(sid,'every'));
+  tl.to(f,{x:-420,scale:.75,duration:1,ease:'power2.inOut'},cue(sid,'every'));
+  const code=el(S,'code','<span class="nm">total</span> = 0\n<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n):\n    total += w[i] * x[i]',{left:'1000px',top:'230px'});
+  show(code,cue(sid,'python'),.6);
+  const arr=el(S,'abs hid','→',{left:'880px',top:'270px',width:'100px',textAlign:'center',fontSize:'80px',color:C.yellow});
+  show(arr,cue(sid,'python')-.2,.5);
+  const cap=el(S,'cap','every formula is a few lines of code',{top:'640px',fontSize:'50px',fontStyle:'italic'});
+  show(cap,cue(sid,'instructions'),.6);
+  const pieces=[['x_i','subscripts',C.green],['\\mathbf{x}','vectors',C.blue],['\\sum','sigma',C.yellow]].map(([t,w,c],i)=>{
+    const d=el(S,'abs hid',`${tex(t,60)}<div style="font-size:34px;font-style:italic;color:${c}">${w}</div>`,{left:(560+i*300)+'px',top:'780px',width:'200px',textAlign:'center'});return d});
+  show(pieces,cue(sid,'pieces'),.6,{stagger:.25});
+  sceneInOut(sid);
+})();
+
+/* ============ S2: subscripts are house numbers ============ */
+(function(){const S=$('S2');const sid='s2';
+  const lst=el(S,'abs mono hid','x = [3, 1, 4, 1, 5]',{left:'0',top:'170px',width:'1920px',textAlign:'center',fontSize:'56px',color:C.ink});
+  show(lst,cue(sid,'list'),.6);
+  const st=street(S,660,470,X,C.green,'x');
+  show(st.boxes,cue(sid,'subscript')-.6,.5,{stagger:.12});
+  const sub=el(S,'abs hid',tex('x_{\\color{#83c167}1}',90),{left:'1460px',top:'150px',width:'300px',textAlign:'center'});
+  show(sub,cue(sid,'subscript'),.5);
+  fadeIn(st.labs,cue(sid,'house'),.5,.12);
+  const h1=el(S,'hl','',{left:(st.cx[0]-70)+'px',top:'405px',width:'140px',height:'190px',borderColor:C.yellow,boxShadow:`0 0 24px ${C.yellow}66`});
+  fadeIn(h1,cue(sid,'one'),.3);
+  tl.to(h1,{x:150,duration:.6,ease:'power2.inOut'},cue(sid,'second'));
+  tl.to(h1,{x:450,duration:.8,ease:'power2.inOut'},cue(sid,'whichever'));
+  const xi=el(S,'abs hid',tex('x_i',56),{left:(st.cx[3]-60)+'px',top:'330px',width:'120px',textAlign:'center',color:C.yellow});
+  show(xi,cue(sid,'whichever'),.5);
+  fadeOut([h1,xi],cue(sid,'python')-.2,.4);
+  const py=X.map((v,i)=>{const d=el(S,'abs mono hid',`x[${i}]`,{left:(st.cx[i]-70)+'px',top:'640px',width:'140px',textAlign:'center',fontSize:'34px',color:C.teal});return d});
+  show(py,cue(sid,'brackets'),.5,{stagger:.1});
+  const cav=el(S,'abs hid','',{left:'360px',top:'760px',width:'1200px',textAlign:'center',fontSize:'46px',fontStyle:'italic'});
+  cav.innerHTML=`${tex('x_1',46)} &nbsp;is&nbsp; <span class="mono" style="color:#5cd0b3">x[0]</span>: Python counts from zero`;
+  show(cav,cue(sid,'zero'),.6);
+  const hl0=el(S,'hl','',{left:(st.cx[0]-74)+'px',top:'405px',width:'148px',height:'290px',borderColor:C.teal,boxShadow:`0 0 24px ${C.teal}66`});
+  fadeIn(hl0,cue(sid,'zero'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: bold x is the whole street ============ */
+(function(){const S=$('S3');const sid='s3';
+  const st=street(S,660,560,X,C.green,'x');
+  fadeIn(st.boxes.concat(st.labs),at(sid,.01),.5);
+  const bx=el(S,'abs hid',tex('\\mathbf{x}',110),{left:'560px',top:'150px',width:'240px',textAlign:'center',color:C.blue});
+  const vx=el(S,'abs hid',tex('\\vec{x}',110),{left:'1120px',top:'150px',width:'240px',textAlign:'center',color:C.blue});
+  const orr=el(S,'abs hid','or',{left:'860px',top:'190px',width:'200px',textAlign:'center',fontSize:'48px',fontStyle:'italic',color:C.dim});
+  show(bx,cue(sid,'bold'),.6);show([orr,vx],cue(sid,'arrow'),.6);
+  fadeIn(st.labs.map(l=>l),cue(sid,'entries'),.4);
+  tl.to(st.labs,{scale:1.25,duration:.3,yoyo:true,repeat:1,stagger:.08},cue(sid,'entries'));
+  const br=el(S,'abs hid','',{left:'570px',top:'480px',width:'780px',height:'230px',border:`4px solid ${C.blue}`,borderRadius:'24px',boxShadow:`0 0 30px ${C.blue}55`});
+  show(br,cue(sid,'street'),.6);
+  const bl=el(S,'abs hid',`${tex('\\mathbf{x}',52)} <span style="font-size:40px;font-style:italic">= the whole street</span>`,{left:'570px',top:'740px',width:'780px',textAlign:'center',color:C.blue});
+  show(bl,cue(sid,'street'),.6);
+  const one=el(S,'hl','',{left:(st.cx[2]-68)+'px',top:'495px',width:'136px',height:'200px',borderColor:C.yellow,boxShadow:`0 0 24px ${C.yellow}66`});
+  fadeIn(one,cue(sid,'single'),.4);
+  const ol=el(S,'abs hid',`${tex('x_i',52)} <span style="font-size:40px;font-style:italic">= one house</span>`,{left:'570px',top:'820px',width:'780px',textAlign:'center',color:C.yellow});
+  show(ol,cue(sid,'single'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: sigma is a loop written vertically ============ */
+(function(){const S=$('S4');const sid='s4';
+  const sg=el(S,'abs hid',tex('\\sum_{i=1}^{n} x_i',150),{left:'250px',top:'140px',width:'640px',textAlign:'center'});
+  show(sg,cue(sid,'sigma'),.8);
+  const sl=el(S,'abs hid','Σ = capital S, for <em style="color:#f5cf4a">sum</em>',{left:'960px',top:'180px',width:'800px',fontSize:'46px',fontStyle:'italic'});
+  show(sl,cue(sid,'capital'),.6);fadeOut(sl,cue(sid,'loop')-.45,.35);
+  const lp=el(S,'abs hid','a loop, written vertically',{left:'960px',top:'180px',width:'800px',fontSize:'46px',fontStyle:'italic',color:C.dim});
+  show(lp,cue(sid,'loop'),.5);fadeOut(lp,cue(sid,'underneath')-.3,.3);
+  const a1=el(S,'note','start here: i = 1',{left:'960px',top:'330px',color:C.green});
+  const a2=el(S,'note','stop at n',{left:'960px',top:'170px',color:C.red});
+  const a3=el(S,'note','add this on each pass',{left:'960px',top:'250px',color:C.yellow});
+  const svg=layerSvg(S);
+  const l1=svgEl('line',{x1:950,y1:360,x2:560,y2:420,stroke:C.green,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);
+  const l2=svgEl('line',{x1:950,y1:200,x2:570,y2:170,stroke:C.red,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);
+  const l3=svgEl('line',{x1:950,y1:282,x2:790,y2:290,stroke:C.yellow,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);
+  show(a1,cue(sid,'underneath'),.5);fadeIn(l1,cue(sid,'underneath'),.5);
+  show(a2,cue(sid,'above'),.5);fadeIn(l2,cue(sid,'above'),.5);
+  show(a3,cue(sid,'right'),.5);fadeIn(l3,cue(sid,'right'),.5);
+  // the walk with a running total
+  const st=street(S,560,700,X,C.green,'x');
+  fadeIn(st.boxes.concat(st.labs),cue(sid,'walk')-.8,.5);
+  const ptr=pointer(S,C.yellow,tex('i',40));gsap.set(ptr,{x:st.cx[0],y:610});
+  fadeIn(ptr,cue(sid,'walk'),.3);
+  const tot=el(S,'abs mono hid','total = 0',{left:'1300px',top:'660px',width:'560px',fontSize:'50px',color:C.pink});
+  fadeIn(tot,cue(sid,'running')-1.2,.4);
+  const t0=cue(sid,'walk')+.3,t1=cue(sid,'total')+.6,dt=(t1-t0)/5;let run=0;
+  X.forEach((v,i)=>{run+=v;const r=run,tt=t0+i*dt;
+    if(i)tl.to(ptr,{x:st.cx[i],duration:dt*.4,ease:'power2.inOut'},tt);
+    tl.fromTo(st.boxes[i],{backgroundColor:'#141a22'},{backgroundColor:'#3a3320',duration:.25,immediateRender:false},tt+dt*.4);
+  });
+  const cum=[0];X.forEach(v=>cum.push(cum[cum.length-1]+v));
+  anim(t0,t1-t0,{k:0},{k:5},o=>{const n=Math.max(0,Math.min(5,Math.floor(o.k-.45)+1));tot.textContent='total = '+cum[n]},'none');
+  sceneInOut(sid);
+})();
+
+/* ============ S5: the same sentence in Python ============ */
+(function(){const S=$('S5');const sid='s5';
+  const sg=el(S,'abs hid',tex('\\sum_{{\\color{#83c167}i}=1}^{n} {\\color{#f5cf4a}x_{\\color{#83c167}i}}',150),{left:'250px',top:'260px',width:'640px',textAlign:'center'});
+  fadeIn(sg,at(sid,.01),.5);
+  const code=el(S,'code','',{left:'1000px',top:'270px',fontSize:'46px'});
+  const lines=['<span class="nm">total</span> = 0','<span class="kw">for</span> <span style="color:#83c167">i</span> <span class="kw">in</span> <span class="fn">range</span>(n):','    total += <span style="color:#f5cf4a">x[<span style="color:#83c167">i</span>]</span>'];
+  code.innerHTML=lines.map(l=>`<div class="ln" style="opacity:0;visibility:hidden">${l}</div>`).join('');
+  fadeIn(code,cue(sid,'python'),.4);
+  const L=code.querySelectorAll('.ln');
+  show(L[0],cue(sid,'running'),.5);show(L[1],cue(sid,'loop'),.5);show(L[2],cue(sid,'adds'),.5);
+  const c1=el(S,'note','the counter is the subscript',{left:'0',top:'640px',width:'1920px',textAlign:'center',color:C.green});
+  show(c1,cue(sid,'counter'),.5);
+  const c2=el(S,'note','the loop body is what stands right of the Σ',{left:'0',top:'720px',width:'1920px',textAlign:'center',color:C.yellow});
+  show(c2,cue(sid,'body'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: two lists, one counter (zip, not a nested loop) ============ */
+(function(){const S=$('S6');const sid='s6';
+  const f=el(S,'abs hid',tex('\\sum_{i=1}^{n} x_{\\color{#f5cf4a}i}\\, y_{\\color{#f5cf4a}i}',96),{left:'120px',top:'110px',width:'900px',textAlign:'center'});
+  show(f,cue(sid,'two'),.7);
+  const sx=street(S,230,450,X,C.green,'x',{gap:170,w:110,h:96,fs:46,ls:34});
+  const sy=street(S,230,690,Y,C.red,'y',{gap:170,w:110,h:96,fs:46,ls:34});
+  show(sx.boxes.concat(sy.boxes),cue(sid,'lists')-.2,.5,{stagger:.05});fadeIn(sx.labs.concat(sy.labs),cue(sid,'lists')+.2,.5);
+  const one=el(S,'abs hid','only one counter',{left:'120px',top:'290px',width:'900px',textAlign:'center',fontSize:'40px',fontStyle:'italic',color:C.yellow});
+  show(one,cue(sid,'counter'),.5);fadeOut(one,cue(sid,'single')-.3,.4);
+  // one pointer that spans both streets
+  const bar=el(S,'abs hid','',{left:(sx.cx[0]-70)+'px',top:'390px',width:'140px',height:'360px',border:`4px solid ${C.yellow}`,borderRadius:'18px',boxShadow:`0 0 26px ${C.yellow}55`});
+  const il=el(bar,'abs',tex('i',44),{left:'0',top:'-62px',width:'140px',textAlign:'center',color:C.yellow});
+  fadeIn(bar,cue(sid,'both'),.4);
+  const t0=cue(sid,'first'),t1=cue(sid,'zip')-.2,dt=(t1-t0)/5;
+  for(let i=1;i<5;i++)tl.to(bar,{x:sx.cx[i]-sx.cx[0],duration:dt*.5,ease:'power2.inOut'},t0+i*dt);
+  const prods=X.map((v,i)=>{const d=el(S,'abs mono hid',`${v}·${Y[i]}`,{left:(sx.cx[i]-70)+'px',top:'800px',width:'140px',textAlign:'center',fontSize:'36px',color:C.pink});show(d,t0+i*dt+dt*.5,.3);return d});
+  // the code: zip
+  const code=el(S,'code','<span class="nm">total</span> = 0\n<span class="kw">for</span> a, b <span class="kw">in</span> <span class="fn">zip</span>(x, y):\n    total += a * b',{left:'1120px',top:'360px',fontSize:'38px',borderColor:C.teal});
+  show(code,cue(sid,'zip'),.6);
+  const ok=el(S,'abs hid','✓ one walk, two streets',{left:'1120px',top:'600px',width:'700px',fontSize:'40px',fontStyle:'italic',color:C.teal});
+  show(ok,cue(sid,'zip')+.4,.5);
+  // the nested loop: every pair
+  tl.to([bar].concat(prods),{autoAlpha:0,duration:.4},cue(sid,'nested'));
+  const svg=layerSvg(S);const pairs=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  sx.cx.forEach(a=>sy.cx.forEach(b=>svgEl('line',{x1:a,y1:550,x2:b,y2:638,stroke:C.red,'stroke-width':2,opacity:.7},pairs)));
+  fadeIn(pairs,cue(sid,'every'),.6);
+  const nest=el(S,'code','<span class="kw">for</span> a <span class="kw">in</span> x:\n    <span class="kw">for</span> b <span class="kw">in</span> y:\n        total += a * b',{left:'1120px',top:'690px',fontSize:'34px',borderColor:C.red});
+  show(nest,cue(sid,'nested'),.6);
+  const diff=el(S,'abs hid',`${tex('\\sum_i\\sum_j x_i\\,y_j',46)} <span style="font-size:36px;font-style:italic"> a different formula</span>`,{left:'1120px',top:'930px',width:'760px',color:C.red});
+  show(diff,cue(sid,'different'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: you have met it before: the dot product ============ */
+(function(){const S=$('S7');const sid='s7';
+  const f=el(S,'abs hid',tex('\\sum_{i=1}^{n} x_i\\, y_i',100),{left:'260px',top:'190px',width:'640px',textAlign:'center'});
+  fadeIn(f,at(sid,.01),.5);
+  const eq=el(S,'abs hid',tex('=\\; \\mathbf{x}\\cdot\\mathbf{y}',100),{left:'900px',top:'200px',width:'700px',textAlign:'left',color:C.blue});
+  show(eq,cue(sid,'dot'),.7);
+  const dp=el(S,'note','the dot product',{left:'1000px',top:'390px',color:C.blue});
+  show(dp,cue(sid,'dot')+.3,.5);
+  // words as arrows, their match measured by the dot product
+  const P=plane(560,800,90);const svg=layerSvg(S);
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  svgEl('line',{x1:P(-.5,0)[0],y1:P(0,0)[1],x2:P(5,0)[0],y2:P(0,0)[1],stroke:C.axis,'stroke-width':2,opacity:.6},g);
+  svgEl('line',{x1:P(0,0)[0],y1:P(0,-.5)[1],x2:P(0,0)[0],y2:P(0,3.2)[1],stroke:C.axis,'stroke-width':2,opacity:.6},g);
+  fadeIn(g,cue(sid,'language'),.5);
+  const a=mkArrow(svg,P,C.blue,7,'<span style="font-size:38px;font-style:italic">cat</span>',40,-10,S);setArrow(a,{x0:0,y0:0,x1:0,y1:0});
+  const b=mkArrow(svg,P,C.yellow,7,'<span style="font-size:38px;font-style:italic">kitten</span>',40,-30,S);setArrow(b,{x0:0,y0:0,x1:0,y1:0});
+  const c=mkArrow(svg,P,C.dim,7,'<span style="font-size:38px;font-style:italic">truck</span>',60,0,S);setArrow(c,{x0:0,y0:0,x1:0,y1:0});
+  grow(a,cue(sid,'language')+.3,.8,4,1.4);grow(b,cue(sid,'language')+.6,.8,3.6,2.2);grow(c,cue(sid,'match')-.6,.8,4.4,-.3);
+  const m1=el(S,'abs hid','cat · kitten: large → good match',{left:'1050px',top:'620px',width:'800px',fontSize:'40px',fontStyle:'italic',color:C.yellow});
+  const m2=el(S,'abs hid','cat · truck: smaller → weaker match',{left:'1050px',top:'700px',width:'800px',fontSize:'40px',fontStyle:'italic',color:C.dim});
+  show(m1,cue(sid,'match'),.5);show(m2,cue(sid,'match')+.6,.5);
+  const ag=el(S,'abs hid','one line, run an enormous number of times',{left:'1050px',top:'820px',width:'800px',fontSize:'40px',fontStyle:'italic'});
+  show(ag,cue(sid,'fluently'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S8: the alphabet, and what comes next ============ */
+(function(){const S=$('S8');const sid='s8';
+  const rows=[['x_i','picks out one entry',C.green,'subscript'],['\\mathbf{x}','names the whole list',C.blue,'bold'],['\\sum_i','a loop whose counter is the subscript',C.yellow,'sigma']];
+  rows.forEach(([t,w,col,cw],i)=>{const d=el(S,'abs hid',`<span style="display:inline-block;width:220px;text-align:center">${tex(t,72)}</span><span style="font-size:50px;font-style:italic;color:${col}">${w}</span>`,{left:'420px',top:(230+i*170)+'px',width:'1300px'});
+    show(d,cue(sid,cw),.6)});
+  const next=el(S,'cap','next &nbsp;·&nbsp; 1.1 &nbsp;vectors: arrows and lists of numbers',{top:'900px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
+  show(next,cue(sid,'vectors'),.7);
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
