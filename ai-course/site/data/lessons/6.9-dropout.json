@@ -1,0 +1,133 @@
+{
+ "id": "6.9-dropout",
+ "module": 6,
+ "title": "Dropout and generalization",
+ "summary": "Large networks can memorise their training data. Dropout switches each neuron off with probability p at every training step, so no neuron can rely on particular partners. Inverted dropout divides survivors by 1 − p to keep the expected total; at test time dropout is off. It acts like training a huge family of thinned networks that share weights.",
+ "video": "videos/6.9-dropout.mp4",
+ "llm_link": "The original transformer and the first GPT used dropout with p = 0.1. Some of the largest language models, trained on so much text that they rarely see an example twice, use little or none in pre-training; it stays common when fine-tuning on small datasets.",
+ "key_ideas": [
+  "Overfitting: training error keeps falling while error on new data rises.",
+  "Dropout: during training, zero each neuron's output with probability p, with a fresh random mask every step.",
+  "Inverted dropout: multiply survivors by 1/(1 − p) so the expected sum is unchanged; at test time use every neuron with no scaling.",
+  "Each mask is a thinned network; the full network at test time roughly averages the whole family.",
+  "Dropout raises training loss a little but narrows the train/validation gap. Other regularisers: weight decay, early stopping, more data."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: inverted dropout with p = 0.5 keeps an activation of 3.0. What value is passed on during training?",
+   "options": [
+    "1.5",
+    "3.0",
+    "6.0",
+    "0"
+   ],
+   "answer": 2,
+   "explain": "Survivors are divided by the keep probability 1 − p = 0.5, so 3.0 becomes 6.0. The expected value stays 3.0."
+  },
+  {
+   "q": "What happens to dropout at test time (with inverted dropout)?",
+   "options": [
+    "It uses the same random mask as the last training step",
+    "It is switched off: every neuron is used and nothing is rescaled",
+    "Every output is multiplied by p",
+    "Half the neurons are removed permanently"
+   ],
+   "answer": 1,
+   "explain": "Because the rescaling already happened during training, inference simply uses the full network."
+  },
+  {
+   "q": "Why does dropout reduce overfitting?",
+   "options": [
+    "It deletes training examples",
+    "No neuron can rely on particular partners, so knowledge is spread out, much like averaging many thinned networks",
+    "It increases the learning rate",
+    "It makes the network smaller at test time"
+   ],
+   "answer": 1,
+   "explain": "Random absences break fragile co-adaptations, and the full network behaves roughly like an ensemble average."
+  },
+  {
+   "q": "With dropout switched on, what usually happens to the training loss compared with no dropout?",
+   "options": [
+    "It is a little higher",
+    "It is exactly zero",
+    "It becomes negative",
+    "It is unchanged"
+   ],
+   "answer": 0,
+   "explain": "The network always works with a handicap during training, but the gap to validation loss narrows."
+  },
+  {
+   "q": "Why do some of the largest language models use little or no dropout during pre-training?",
+   "options": [
+    "Dropout does not work with attention",
+    "With so much data they rarely see an example twice, so memorisation is less of a threat",
+    "Dropout is too slow on GPUs",
+    "They have no neurons"
+   ],
+   "answer": 1,
+   "explain": "Regularisation fights memorisation; with enormous datasets there is less to fight. Fine-tuning on small datasets still often uses it."
+  }
+ ],
+ "problems": [
+  {
+   "id": "dropout-list",
+   "title": "Inverted dropout by hand",
+   "prompt": "<p>Write <code>dropout(x, p, mask)</code> for plain lists. <code>mask</code> is a list of 0s and 1s (1 = keep) that the caller drew at random; your function is deterministic. Kept entries are divided by <code>1 - p</code>; dropped entries become 0.</p><pre>dropout([1.0, 2.0, 3.0, 4.0], 0.5, [1, 0, 1, 0])   # [2.0, 0.0, 6.0, 0.0]</pre><p>Then write <code>dropout_eval(x)</code>, the test-time version: it returns a copy of x unchanged.</p>",
+   "starter": "def dropout(x, p, mask):\n    # TODO: kept -> value / (1 - p), dropped -> 0.0\n    return x\n\ndef dropout_eval(x):\n    # TODO: at test time dropout does nothing (return a new list)\n    return None\n",
+   "tests": [
+    {
+     "name": "the example",
+     "code": "out = dropout([1.0, 2.0, 3.0, 4.0], 0.5, [1, 0, 1, 0])\nassert out == [2.0, 0.0, 6.0, 0.0], f'kept values are divided by 1 - p = 0.5: expected [2.0, 0.0, 6.0, 0.0], got {out}'"
+    },
+    {
+     "name": "p = 0.1 scales by 1/0.9",
+     "code": "out = dropout([0.9, 0.9], 0.1, [1, 1])\nassert all(abs(v - 1.0) < 1e-9 for v in out), f'0.9 / 0.9 = 1.0, got {out}'"
+    },
+    {
+     "name": "expected total is kept",
+     "code": "x = [1.0] * 10\nmask = [1, 1, 1, 1, 1, 1, 0, 1, 1, 1]\nout = dropout(x, 0.1, mask)\nassert abs(sum(out) - 10.0) < 1e-9, f'one of ten dropped and the rest scaled by 1/0.9: total should be 10, got {sum(out)}'"
+    },
+    {
+     "name": "test time changes nothing",
+     "code": "x = [1.0, -2.0, 3.0]\nout = dropout_eval(x)\nassert out == x, f'at test time the output equals the input, got {out}'\nassert out is not x, 'return a new list, not the same object'"
+    }
+   ],
+   "hints": [
+    "[v / (1 - p) if m else 0.0 for v, m in zip(x, mask)]",
+    "dropout_eval: return list(x)"
+   ],
+   "solution": "def dropout(x, p, mask):\n    return [v / (1 - p) if m else 0.0 for v, m in zip(x, mask)]\n\ndef dropout_eval(x):\n    return list(x)\n"
+  },
+  {
+   "id": "dropout-numpy",
+   "title": "A dropout layer (NumPy)",
+   "prompt": "<p>Write <code>dropout_layer(X, p, rng, training=True)</code> for an array of any shape. In training mode draw <code>mask = rng.random(X.shape) &gt;= p</code> (True means keep), zero the dropped entries and divide the rest by <code>1 - p</code>. With <code>training=False</code> return X unchanged.</p><p>The tests check the statistics: about a fraction p of entries become zero, and the mean is preserved.</p>",
+   "starter": "import numpy as np\n\ndef dropout_layer(X, p, rng, training=True):\n    # TODO: if not training, return X\n    # TODO: mask = rng.random(X.shape) >= p ; return X * mask / (1 - p)\n    return X\n",
+   "tests": [
+    {
+     "name": "about p of the entries are zeroed",
+     "code": "import numpy as np\nX = np.ones((200, 500))\nY = dropout_layer(X, 0.3, np.random.default_rng(0))\nfrac = (Y == 0).mean()\nassert abs(frac - 0.3) < 0.01, f'with p = 0.3 about 30% of entries should be 0, got {frac:.3f}'"
+    },
+    {
+     "name": "survivors are scaled up",
+     "code": "import numpy as np\nX = np.ones((50, 50))\nY = dropout_layer(X, 0.2, np.random.default_rng(1))\nkept = Y[Y != 0]\nassert np.allclose(kept, 1 / 0.8), f'kept entries should be 1 / (1 - p) = 1.25, got values like {kept[:3]}'"
+    },
+    {
+     "name": "the mean is preserved",
+     "code": "import numpy as np\nX = np.random.default_rng(2).normal(3, 1, size=(300, 300))\nY = dropout_layer(X, 0.5, np.random.default_rng(3))\nassert abs(Y.mean() - X.mean()) < 0.05, f'inverted dropout keeps the expected value: input mean {X.mean():.3f}, output mean {Y.mean():.3f}'"
+    },
+    {
+     "name": "evaluation mode is the identity",
+     "code": "import numpy as np\nX = np.arange(12.0).reshape(3, 4)\nY = dropout_layer(X, 0.5, np.random.default_rng(0), training=False)\nassert np.array_equal(Y, X), 'with training=False the layer must return X unchanged'"
+    }
+   ],
+   "hints": [
+    "if not training:\n    return X",
+    "mask = rng.random(X.shape) >= p\nreturn X * mask / (1 - p)"
+   ],
+   "solution": "import numpy as np\n\ndef dropout_layer(X, p, rng, training=True):\n    if not training:\n        return X\n    mask = rng.random(X.shape) >= p\n    return X * mask / (1 - p)\n"
+  }
+ ],
+ "poster": "videos/6.9-dropout.jpg"
+}

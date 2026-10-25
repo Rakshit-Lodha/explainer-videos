@@ -278,7 +278,8 @@
     },
     {
      "num": "6.9",
-     "title": "Dropout and generalization"
+     "title": "Dropout and generalization",
+     "id": "6.9-dropout"
     }
    ]
   },
