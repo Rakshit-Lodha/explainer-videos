@@ -1,0 +1,104 @@
+{
+  "id": "10.2-fine-tuning",
+  "module": 10,
+  "title": "Fine-tuning and instruction tuning",
+  "summary": "Fine-tuning keeps training a pretrained model with the same next-token loss, but on a small, curated set of examples and with a small learning rate. Instruction tuning formats each example as a conversation and counts the loss only on the assistant's tokens. LoRA makes it cheap by freezing the weights and learning a low-rank correction B·A.",
+  "video": "videos/10.2-fine-tuning.mp4",
+  "llm_link": "The chat models you call are base models after instruction tuning (and usually preference tuning, next lesson). The chat template your API wraps around messages is exactly the text format they were fine-tuned on, and hosted 'fine-tuning' products commonly use LoRA-style adapters on a shared base model.",
+  "key_ideas": [
+    "Fine-tuning = same network, same next-token cross-entropy, different (smaller, curated) data, small learning rate.",
+    "Large updates can overwrite general abilities learned in pretraining (catastrophic forgetting).",
+    "Instruction tuning: a conversation is serialised with special tokens; a 0/1 loss mask keeps only the assistant's tokens in the average.",
+    "FLAN (Wei et al., 2021): tuning on many tasks phrased as instructions improved zero-shot performance on unseen task types.",
+    "InstructGPT's supervised step used about 13k prompts with human-written demonstrations, tiny next to pretraining.",
+    "LoRA (Hu et al., 2021): freeze W, learn ΔW = B·A with rank r. Trainable parameters drop from d_out·d_in to r·(d_in + d_out). B starts at zero, so training starts exactly at the pretrained model."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: per-token losses are [2.0, 2.0, 1.0, 3.0] and the loss mask is [0, 0, 1, 1]. What is the masked average loss?",
+      "options": ["2.0", "1.0", "4.0", "0.5"],
+      "answer": 0,
+      "explain": "Only the masked-in tokens count: (1.0 + 3.0) / 2 = 2.0. You divide by the number of ones in the mask, not by the total number of tokens."
+    },
+    {
+      "q": "Why is the loss usually masked to the assistant's tokens during instruction tuning?",
+      "options": ["To make training faster", "So the model is graded on producing answers, not on predicting the user's questions", "Because the user's tokens are not fed into the model", "Because special tokens have no embeddings"],
+      "answer": 1,
+      "explain": "The model still reads the user's turn as context; the mask only removes those positions from the loss, so gradients come from predicting the answer."
+    },
+    {
+      "q": "Predict the result: a 1000 × 1000 weight matrix gets a LoRA correction of rank 4. How many trainable numbers does the correction have?",
+      "options": ["4,000", "8,000", "1,000,000", "16"],
+      "answer": 1,
+      "explain": "A is 4 × 1000 and B is 1000 × 4: 4,000 + 4,000 = 8,000, compared with 1,000,000 for the full matrix."
+    },
+    {
+      "q": "In LoRA, B is initialised to zero. What does that guarantee?",
+      "options": ["The correction can never change", "At the start of fine-tuning the model behaves exactly like the pretrained model", "The gradients for A are always zero forever", "The rank is zero after training"],
+      "answer": 1,
+      "explain": "B·A = 0 at initialisation, so W + B·A = W. Training then moves B away from zero (A gets gradients once B is non-zero)."
+    },
+    {
+      "q": "You send a raw pretrained (base) model the text 'What is the capital of France?' and it replies with 'What is the capital of Spain?'. Why?",
+      "options": ["It does not know the answer", "It is continuing the most likely text, and lists of questions are common; it was never tuned to answer", "Its context window is too short", "The tokenizer is broken"],
+      "answer": 1,
+      "explain": "A base model only completes text. Instruction tuning teaches the conversational format in which the next thing after a question is an answer."
+    }
+  ],
+  "problems": [
+    {
+      "id": "masked",
+      "title": "Masked loss",
+      "prompt": "<p>Write <code>masked_loss(token_losses, mask)</code>. Both are lists of the same length. Return the average of <code>token_losses</code> over the positions where <code>mask</code> is 1. In symbols:</p><p><code>sum(loss_i * mask_i) / sum(mask_i)</code></p><pre>masked_loss([2.0, 2.0, 1.0, 3.0], [0, 0, 1, 1])   # 2.0</pre><p>If the mask is all zeros there is nothing to average; raise a <code>ValueError</code>.</p>",
+      "starter": "def masked_loss(token_losses, mask):\n    # TODO 1: if sum(mask) == 0, raise ValueError(\"mask selects no tokens\")\n    # TODO 2: add up loss * m for each pair (zip them!)\n    # TODO 3: divide by the number of ones in the mask\n    pass\n",
+      "tests": [
+        {"name": "example from the prompt", "code": "out = masked_loss([2.0, 2.0, 1.0, 3.0], [0, 0, 1, 1])\nassert out is not None, 'masked_loss returned None'\nassert abs(out - 2.0) < 1e-9, f'expected 2.0, got {out}. If you got 1.0 you divided by len(mask) instead of sum(mask).'"},
+        {"name": "full mask is the plain mean", "code": "out = masked_loss([1.0, 2.0, 3.0], [1, 1, 1])\nassert abs(out - 2.0) < 1e-9, f'with every token counted this is the ordinary mean 2.0, got {out}'"},
+        {"name": "masked-out tokens do not count", "code": "out = masked_loss([100.0, 1.0], [0, 1])\nassert abs(out - 1.0) < 1e-9, f'the 100.0 is a user token (mask 0) and must not affect the result; expected 1.0, got {out}'"},
+        {"name": "empty mask raises", "code": "try:\n    masked_loss([1.0, 2.0], [0, 0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError when the mask selects nothing (dividing by zero would be meaningless)')"}
+      ],
+      "hints": [
+        "zip(token_losses, mask) gives pairs (loss, m).",
+        "total = sum(l * m for l, m in zip(token_losses, mask))",
+        "return total / sum(mask)"
+      ],
+      "solution": "def masked_loss(token_losses, mask):\n    if sum(mask) == 0:\n        raise ValueError(\"mask selects no tokens\")\n    total = sum(l * m for l, m in zip(token_losses, mask))\n    return total / sum(mask)\n"
+    },
+    {
+      "id": "chatmask",
+      "title": "Build the mask from a chat",
+      "prompt": "<p>A conversation has been tokenised into a list of strings with three special tokens: <code>&lt;user&gt;</code> and <code>&lt;assistant&gt;</code> start a turn, and <code>&lt;end&gt;</code> ends it.</p><pre>['&lt;user&gt;', 'hi', '&lt;end&gt;', '&lt;assistant&gt;', 'hello', '!', '&lt;end&gt;']\n# mask:\n[ 0,        0,     0,       0,              1,       1,   1 ]</pre><p>Write <code>assistant_mask(tokens)</code> that returns 1 for every token <i>inside</i> an assistant turn, including its closing <code>&lt;end&gt;</code> (the model must learn to stop), and 0 everywhere else, including the <code>&lt;assistant&gt;</code> marker itself (the template supplies it).</p>",
+      "starter": "def assistant_mask(tokens):\n    mask = []\n    inside = False   # are we currently inside an assistant turn?\n    for t in tokens:\n        # TODO: update `inside` when you see '<assistant>' or '<end>',\n        #       and append 1 or 0 for this token\n        pass\n    return mask\n",
+      "tests": [
+        {"name": "single exchange", "code": "toks = ['<user>', 'hi', '<end>', '<assistant>', 'hello', '!', '<end>']\nout = assistant_mask(toks)\nassert out == [0, 0, 0, 0, 1, 1, 1], f'expected [0, 0, 0, 0, 1, 1, 1], got {out}'"},
+        {"name": "same length as the tokens", "code": "toks = ['<user>', 'a', 'b', '<end>']\nout = assistant_mask(toks)\nassert len(out) == len(toks), f'the mask needs one entry per token: expected length {len(toks)}, got {len(out)}'"},
+        {"name": "user tokens are never trained on", "code": "toks = ['<user>', 'hi', '<end>']\nassert assistant_mask(toks) == [0, 0, 0], 'a conversation with only a user turn should have an all-zero mask'"},
+        {"name": "two turns", "code": "toks = ['<user>','q1','<end>','<assistant>','a1','<end>','<user>','q2','<end>','<assistant>','a2','<end>']\nout = assistant_mask(toks)\nexp = [0,0,0,0,1,1,0,0,0,0,1,1]\nassert out == exp, f'expected {exp}, got {out}. After an assistant <end>, the next user turn must be 0 again.'"}
+      ],
+      "hints": [
+        "When t == '<assistant>': append 0 and set inside = True.",
+        "When t == '<end>' and inside: append 1 (the end of an answer is trained), then set inside = False.",
+        "Otherwise append 1 if inside else 0."
+      ],
+      "solution": "def assistant_mask(tokens):\n    mask = []\n    inside = False\n    for t in tokens:\n        if t == '<assistant>':\n            mask.append(0)\n            inside = True\n        elif t == '<end>':\n            mask.append(1 if inside else 0)\n            inside = False\n        else:\n            mask.append(1 if inside else 0)\n    return mask\n"
+    },
+    {
+      "id": "lora",
+      "title": "A LoRA layer (NumPy)",
+      "prompt": "<p>A frozen weight matrix <code>W</code> has shape <code>(d_out, d_in)</code>. LoRA adds <code>B @ A</code> with <code>A</code> of shape <code>(r, d_in)</code> and <code>B</code> of shape <code>(d_out, r)</code>, scaled by <code>alpha / r</code>:</p><p><code>y = W @ x + (alpha / r) * B @ (A @ x)</code></p><p>Write <code>lora_forward(W, A, B, x, alpha)</code> (read <code>r</code> from <code>A.shape[0]</code>) and <code>lora_params(d_out, d_in, r)</code>, the number of trainable numbers in A and B.</p><p>Compute <code>A @ x</code> first: multiplying by the thin matrices one after the other never builds the big <code>d_out × d_in</code> correction.</p>",
+      "starter": "import numpy as np\n\ndef lora_forward(W, A, B, x, alpha):\n    r = A.shape[0]\n    # TODO: frozen path W @ x plus the scaled low-rank path\n    pass\n\ndef lora_params(d_out, d_in, r):\n    # TODO: entries in A (r x d_in) plus entries in B (d_out x r)\n    pass\n",
+      "tests": [
+        {"name": "B = 0 gives the pretrained output", "code": "import numpy as np\nrng = np.random.default_rng(0)\nW = rng.normal(size=(5, 3)); A = rng.normal(size=(2, 3)); B = np.zeros((5, 2)); x = rng.normal(size=3)\nout = lora_forward(W, A, B, x, 16)\nassert out is not None, 'lora_forward returned None'\nassert np.allclose(out, W @ x), 'with B all zeros the correction must vanish and the output must equal W @ x'"},
+        {"name": "matches the merged weight", "code": "import numpy as np\nrng = np.random.default_rng(1)\nW = rng.normal(size=(4, 6)); A = rng.normal(size=(2, 6)); B = rng.normal(size=(4, 2)); x = rng.normal(size=6)\nout = lora_forward(W, A, B, x, 4)\nexp = (W + (4 / 2) * B @ A) @ x\nassert out.shape == (4,), f'expected output shape (4,), got {out.shape}'\nassert np.allclose(out, exp), 'output should equal (W + (alpha/r) * B @ A) @ x. Check the alpha / r scale and the order B @ (A @ x).'"},
+        {"name": "parameter count", "code": "out = lora_params(4096, 4096, 8)\nassert out == 65536, f'A has 8*4096 and B has 4096*8 entries, 65536 in total; got {out}'"},
+        {"name": "rectangular count", "code": "out = lora_params(1000, 300, 4)\nassert out == 4 * 300 + 1000 * 4, f'expected r*d_in + d_out*r = 5200, got {out}'"}
+      ],
+      "hints": [
+        "Shapes: A @ x has shape (r,), B @ (A @ x) has shape (d_out,), the same as W @ x.",
+        "return W @ x + (alpha / r) * (B @ (A @ x))",
+        "lora_params is r * d_in + d_out * r"
+      ],
+      "solution": "import numpy as np\n\ndef lora_forward(W, A, B, x, alpha):\n    r = A.shape[0]\n    return W @ x + (alpha / r) * (B @ (A @ x))\n\ndef lora_params(d_out, d_in, r):\n    return r * d_in + d_out * r\n"
+    }
+  ]
+}
