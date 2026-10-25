@@ -304,7 +304,8 @@
     },
     {
      "num": "7.4",
-     "title": "Debugging a model that won't learn"
+     "title": "Debugging a model that won't learn",
+     "id": "7.4-debugging"
     }
    ]
   },
