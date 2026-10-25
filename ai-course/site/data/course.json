@@ -315,7 +315,8 @@
    "lessons": [
     {
      "num": "8.1",
-     "title": "Convolution: a sliding pattern detector"
+     "title": "Convolution: a sliding pattern detector",
+     "id": "8.1-convolution"
     },
     {
      "num": "8.2",

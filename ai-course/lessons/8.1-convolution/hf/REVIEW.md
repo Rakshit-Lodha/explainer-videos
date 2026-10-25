@@ -1,0 +1,7 @@
+# Review: 8.1 Convolution: a sliding pattern detector
+
+- Creative call: the WIP snapshot had narration and an empty scaffold, so the composition and `lesson.json` were written new. The video goes from an 8×8 image as numbers, three colour grids and the flattened vector fanning into one neuron, to a pattern "learned here, meaningless there", a numbered kernel sliding over a 6×6 image while a 4×4 feature map fills in, a [−1 0 1] kernel lighting up a vertical edge, an object and its response moving together, output-size arithmetic with padding and stride, many learned kernels into channels, and shared FFNs and ViT patches. The problems are convolution with nested lists, then padding and stride in NumPy.
+- Measured: checker OK; Hyperframes check passed with 0 errors and 0 warnings; contrast 91/91; the delivery master is 1920x1080 at 30 fps and 203.3 seconds. Audio was measured and normalized, not listened to.
+- Looked at: fifteen composition snapshots, re-snapshots after repairs, and three frames sampled from the master. One feature-map value (position 2,1 = 4) was checked by hand against the kernel.
+- Repairs: the first check failed because hidden output digits used a transparent text colour, so they now fade in on their own span. The 1-4 position counters now fade before the zero padding takes their row. The S5 formula lines no longer overlap, and the S6 kernels were moved up to clear the backpropagation label.
+- Kept warnings: none.

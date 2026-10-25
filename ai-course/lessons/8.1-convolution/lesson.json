@@ -1,0 +1,130 @@
+{
+ "id": "8.1-convolution",
+ "module": 8,
+ "title": "Convolution: a sliding pattern detector",
+ "summary": "A convolution slides a small grid of weights, the kernel, across an image. At each position it takes the dot product of the kernel with the patch beneath it, and the results form a feature map. The kernel's weights decide what it detects (negative left, positive right finds vertical edges), and because the same weights are used everywhere, the layer finds its pattern anywhere with very few parameters. Output size is n − k + 1, or ⌊(n + 2p − k)/s⌋ + 1 with padding p and stride s.",
+ "video": "videos/8.1-convolution.mp4",
+ "llm_link": "Language models rarely use convolutions, but they share weights across positions in the same spirit: one feed-forward network is applied to every token. Vision transformers begin by cutting an image into patches with a strided convolution.",
+ "key_ideas": [
+  "Kernel (filter): a small grid of weights, typically 3×3. Output at each position = dot product of kernel and patch.",
+  "Sliding the kernel across the image produces a feature map; the weights decide the pattern (e.g. [−1 0 1] columns detect vertical edges).",
+  "Weight sharing: the same 9 weights at every position, so a pattern is found anywhere and parameters do not grow with image size.",
+  "Output size: n − k + 1 without padding; in general ⌊(n + 2p − k)/s⌋ + 1 with padding p and stride s.",
+  "A conv layer has many kernels, each giving one channel; the kernels are learned by backpropagation. Libraries compute cross-correlation (no kernel flip)."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: a 28×28 image, a 5×5 kernel, no padding, stride 1. What size is the feature map?",
+   "options": [
+    "28×28",
+    "24×24",
+    "23×23",
+    "5×5"
+   ],
+   "answer": 1,
+   "explain": "n − k + 1 = 28 − 5 + 1 = 24 positions in each direction."
+  },
+  {
+   "q": "Kernel columns are [−1, 0, +1] in every row. What does it output over a perfectly flat (constant) region?",
+   "options": [
+    "A large positive number",
+    "Zero",
+    "A large negative number",
+    "It depends on the image size"
+   ],
+   "answer": 1,
+   "explain": "The left and right columns see equal brightness, so the negative and positive weights cancel."
+  },
+  {
+   "q": "How many weights does a single 3×3 kernel on a greyscale image have, for a 1000×1000 image?",
+   "options": [
+    "9",
+    "1,000",
+    "1,000,000",
+    "9,000,000"
+   ],
+   "answer": 0,
+   "explain": "Weight sharing: the same 9 weights slide over every position, whatever the image size."
+  },
+  {
+   "q": "A 32×32 input, a 3×3 kernel, padding 1, stride 1. Output size?",
+   "options": [
+    "30×30",
+    "32×32",
+    "34×34",
+    "16×16"
+   ],
+   "answer": 1,
+   "explain": "(32 + 2 − 3)/1 + 1 = 32: one ring of zero padding keeps the size unchanged."
+  },
+  {
+   "q": "How do vision transformers turn an image into tokens?",
+   "options": [
+    "One token per pixel",
+    "By cutting it into patches with a strided convolution",
+    "By running an RNN over rows",
+    "By hashing the image"
+   ],
+   "answer": 1,
+   "explain": "A convolution whose stride equals its kernel size maps each non-overlapping patch to one embedding vector, a token."
+  }
+ ],
+ "problems": [
+  {
+   "id": "conv-lists",
+   "title": "Convolution by hand",
+   "prompt": "<p>Write <code>conv2d(img, k)</code> for plain nested lists: no padding, stride 1. If <code>img</code> is n×m and <code>k</code> is a×b, the output is (n − a + 1)×(m − b + 1), and</p><pre>out[i][j] = sum of img[i + u][j + v] * k[u][v]   over u < a, v < b</pre><p>This is what libraries call convolution (strictly, cross-correlation: no flip).</p>",
+   "starter": "def conv2d(img, k):\n    n, m = len(img), len(img[0])\n    a, b = len(k), len(k[0])\n    out = []\n    # TODO: for each output row i and column j, add up img[i + u][j + v] * k[u][v]\n    return out\n",
+   "tests": [
+    {
+     "name": "output size",
+     "code": "img = [[0] * 6 for _ in range(6)]\nk = [[1] * 3 for _ in range(3)]\nout = conv2d(img, k)\nassert len(out) == 4 and all(len(r) == 4 for r in out), f'6×6 image with a 3×3 kernel gives 4×4; got {len(out)} rows'"
+    },
+    {
+     "name": "a vertical edge",
+     "code": "img = [[0, 0, 0, 9, 9, 9] for _ in range(5)]\nk = [[-1, 0, 1]] * 3\nout = conv2d(img, k)\nassert out[0] == [0, 27, 27, 0], f'flat regions give 0 and the edge gives 3 × 9 = 27; first row should be [0, 27, 27, 0], got {out[0] if out else out}'"
+    },
+    {
+     "name": "general positions",
+     "code": "img = [[r * 4 + c for c in range(4)] for r in range(4)]\nk = [[1, 2], [3, 4]]\nout = conv2d(img, k)\nwant = [[sum(img[i + u][j + v] * k[u][v] for u in range(2) for v in range(2)) for j in range(3)] for i in range(3)]\nassert out == want, f'expected {want}, got {out}'"
+    }
+   ],
+   "hints": [
+    "for i in range(n - a + 1):\n    row = []\n    for j in range(m - b + 1): ...",
+    "s = 0\nfor u in range(a):\n    for v in range(b):\n        s += img[i + u][j + v] * k[u][v]",
+    "append s to row, then append row to out"
+   ],
+   "solution": "def conv2d(img, k):\n    n, m = len(img), len(img[0])\n    a, b = len(k), len(k[0])\n    out = []\n    for i in range(n - a + 1):\n        row = []\n        for j in range(m - b + 1):\n            s = 0\n            for u in range(a):\n                for v in range(b):\n                    s += img[i + u][j + v] * k[u][v]\n            row.append(s)\n        out.append(row)\n    return out\n"
+  },
+  {
+   "id": "conv-numpy",
+   "title": "Padding and stride (NumPy)",
+   "prompt": "<p>Two functions.</p><ul><li><code>out_size(n, k, pad=0, stride=1)</code>: <code>(n + 2*pad - k) // stride + 1</code>.</li><li><code>conv2d_np(X, K, pad=0, stride=1)</code> for a 2-D array X and square kernel K: pad X with zeros using <code>np.pad(X, pad)</code>, then for each output position (i, j) take the patch starting at <code>(i*stride, j*stride)</code> and compute <code>(patch * K).sum()</code>.</li></ul>",
+   "starter": "import numpy as np\n\ndef out_size(n, k, pad=0, stride=1):\n    # TODO\n    return n\n\ndef conv2d_np(X, K, pad=0, stride=1):\n    # TODO: Xp = np.pad(X, pad); size from out_size; fill the output with (patch * K).sum()\n    return X\n",
+   "tests": [
+    {
+     "name": "output sizes",
+     "code": "assert out_size(6, 3) == 4, 'no padding: 6 - 3 + 1 = 4'\nassert out_size(32, 3, pad=1) == 32, 'padding 1 keeps a 3×3 conv the same size'\nassert out_size(224, 16, stride=16) == 14, 'a 16×16 patch embedding over 224 pixels gives 14'"
+    },
+    {
+     "name": "matches the definition",
+     "code": "import numpy as np\nr = np.random.default_rng(0)\nX = r.integers(0, 5, (6, 6)).astype(float); K = r.integers(-1, 2, (3, 3)).astype(float)\nY = conv2d_np(X, K)\nwant = np.array([[(X[i:i+3, j:j+3] * K).sum() for j in range(4)] for i in range(4)])\nassert Y.shape == (4, 4), f'expected shape (4, 4), got {Y.shape}'\nassert np.allclose(Y, want), f'values differ from the patch-by-patch dot product'"
+    },
+    {
+     "name": "padding keeps the size",
+     "code": "import numpy as np\nX = np.ones((5, 5)); K = np.ones((3, 3))\nY = conv2d_np(X, K, pad=1)\nassert Y.shape == (5, 5), f'padding 1 should keep 5×5, got {Y.shape}'\nassert Y[0, 0] == 4 and Y[2, 2] == 9, f'a corner sees 4 real pixels and the centre 9; got {Y[0, 0]} and {Y[2, 2]}'"
+    },
+    {
+     "name": "stride",
+     "code": "import numpy as np\nX = np.arange(16.0).reshape(4, 4); K = np.ones((2, 2))\nY = conv2d_np(X, K, stride=2)\nassert Y.shape == (2, 2), f'stride 2 over 4×4 with a 2×2 kernel gives 2×2, got {Y.shape}'\nassert np.allclose(Y, [[10, 18], [42, 50]]), f'each output sums one non-overlapping 2×2 patch; got {Y}'"
+    }
+   ],
+   "hints": [
+    "return (n + 2 * pad - k) // stride + 1",
+    "Xp = np.pad(X, pad); k = K.shape[0]; o = out_size(X.shape[0], k, pad, stride); Y = np.zeros((o, o))",
+    "Y[i, j] = (Xp[i*stride:i*stride+k, j*stride:j*stride+k] * K).sum()"
+   ],
+   "solution": "import numpy as np\n\ndef out_size(n, k, pad=0, stride=1):\n    return (n + 2 * pad - k) // stride + 1\n\ndef conv2d_np(X, K, pad=0, stride=1):\n    Xp = np.pad(X, pad)\n    k = K.shape[0]\n    o = out_size(X.shape[0], k, pad, stride)\n    Y = np.zeros((o, o))\n    for i in range(o):\n        for j in range(o):\n            Y[i, j] = (Xp[i*stride:i*stride+k, j*stride:j*stride+k] * K).sum()\n    return Y\n"
+  }
+ ]
+}
