@@ -1,0 +1,153 @@
+{
+  "id": "6.4-depth",
+  "module": 6,
+  "title": "Why depth helps",
+  "summary": "One wide hidden layer can approximate any continuous function, but it pays for every wiggle with its own neurons. Depth reuses work: a two-neuron tent folds the interval, and composing it L times gives 2^L straight pieces, which a single layer would need about 2^L neurons to match.",
+  "video": "videos/6.4-depth.mp4",
+  "llm_link": "A language model is a deep stack of blocks, each refining every token's vector a little further, building on what earlier blocks computed rather than starting from scratch.",
+  "key_ideas": [
+    "Universal approximation: one hidden layer with enough neurons can approximate any continuous function on a bounded region.",
+    "With one input, n ReLU neurons in one layer make at most n + 1 straight pieces: one corner per neuron.",
+    "The tent t(x) = 2·ReLU(x) − 4·ReLU(x − ½) folds [0, 1] in half onto itself.",
+    "Composing the tent L times gives 2^L pieces with only 2L neurons; a single layer needs about 2^L neurons for the same function.",
+    "Depth lets features build on features (edges → parts → objects), at the price of signals that must pass through every layer."
+  ],
+  "quiz": [
+    {
+      "q": "What does the universal approximation theorem promise?",
+      "options": [
+        "Any network will train successfully",
+        "One hidden layer with enough neurons can approximate any continuous function on a bounded region",
+        "Deeper networks are always better",
+        "A single neuron can approximate any function"
+      ],
+      "answer": 1,
+      "explain": "It is an existence result about width: it says nothing about how many neurons you need or how to find their weights."
+    },
+    {
+      "q": "Predict the result: with t(x) = 2x for x ≤ ½ and 2 − 2x for x > ½, what is t(t(0.3))?",
+      "options": [
+        "0.6",
+        "0.8",
+        "0.4",
+        "1.2"
+      ],
+      "answer": 1,
+      "explain": "t(0.3) = 0.6, and since 0.6 > ½, t(0.6) = 2 − 1.2 = 0.8."
+    },
+    {
+      "q": "How many straight pieces does the tent applied four times have on [0, 1]?",
+      "options": [
+        "4",
+        "8",
+        "16",
+        "5"
+      ],
+      "answer": 2,
+      "explain": "Each application doubles the pieces: 2, 4, 8, 16."
+    },
+    {
+      "q": "A single hidden layer of 50 ReLU neurons reads one input. At most how many straight pieces can its output have?",
+      "options": [
+        "50",
+        "51",
+        "100",
+        "2⁵⁰"
+      ],
+      "answer": 1,
+      "explain": "Each neuron adds at most one corner, so 50 corners split the line into at most 51 pieces."
+    },
+    {
+      "q": "Why do language models stack dozens of blocks instead of using one enormous block?",
+      "options": [
+        "Wide layers cannot be trained on GPUs",
+        "Each block can build on what earlier blocks computed, reusing work instead of paying for every pattern separately",
+        "Depth reduces the number of parameters to zero",
+        "The theorem forbids wide layers"
+      ],
+      "answer": 1,
+      "explain": "Like the folds in this lesson, later blocks refine representations earlier ones already built."
+    }
+  ],
+  "problems": [
+    {
+      "id": "fold",
+      "title": "The tent and its folds",
+      "prompt": "<p>Write <code>tent(x)</code> using only <code>relu</code> (two neurons): it should be 2x on [0, ½] and 2 − 2x on [½, 1]. Then write <code>fold(x, k)</code> that applies the tent k times, like a network k layers deep.</p><pre>tent(0.25) == 0.5, tent(0.75) == 0.5\nfold(0.3, 2) == 0.8</pre>",
+      "starter": "def relu(z):\n    return max(0, z)\n\ndef tent(x):\n    # TODO: 2 * relu(x) minus something that turns the slope from +2 to -2 at x = 0.5\n    return 0\n\ndef fold(x, k):\n    # TODO: apply tent k times\n    return x\n",
+      "tests": [
+        {
+          "name": "tent values",
+          "code": "for x, want in [(0, 0), (0.25, 0.5), (0.5, 1), (0.75, 0.5), (1, 0)]:\n    got = tent(x)\n    assert abs(got - want) < 1e-9, f'tent({x}) should be {want}, got {got}'"
+        },
+        {
+          "name": "fold twice",
+          "code": "got = fold(0.3, 2)\nassert abs(got - 0.8) < 1e-9, f'tent(0.3) = 0.6 and tent(0.6) = 0.8, got {got}'"
+        },
+        {
+          "name": "fold zero times is the identity",
+          "code": "assert fold(0.37, 0) == 0.37, 'applying the tent zero times should return x unchanged'"
+        },
+        {
+          "name": "folds stay inside [0, 1]",
+          "code": "vals = [fold(i / 97, 5) for i in range(98)]\nassert all(-1e-9 <= v <= 1 + 1e-9 for v in vals), 'the tent maps [0, 1] onto [0, 1], so every fold should stay inside it'"
+        }
+      ],
+      "hints": [
+        "The slope must change by -4 at x = 0.5: subtract 4 * relu(x - 0.5).",
+        "fold: for _ in range(k): x = tent(x)"
+      ],
+      "solution": "def relu(z):\n    return max(0, z)\n\ndef tent(x):\n    \"\"\"Two ReLU neurons: 2x up to 1/2, then 2 - 2x.\"\"\"\n    return 2 * relu(x) - 4 * relu(x - 0.5)\n\ndef fold(x, k):\n    \"\"\"Apply the tent k times: a network k layers deep, 2 neurons wide.\"\"\"\n    for _ in range(k):\n        x = tent(x)\n    return x\n"
+    },
+    {
+      "id": "pieces",
+      "title": "Count the straight pieces",
+      "prompt": "<p>Write <code>count_pieces(f, n=4096)</code>: sample f at x = i/n for i = 0..n, compute the slope between neighbouring samples, and count how many straight pieces there are (one more than the number of times the slope changes).</p><p>Then check the claim from the video: <code>count_pieces(lambda x: fold(x, k))</code> should be 2<sup>k</sup>. The starter includes <code>tent</code> and <code>fold</code>.</p>",
+      "starter": "def relu(z):\n    return max(0, z)\n\ndef tent(x):\n    \"\"\"Two ReLU neurons: 2x up to 1/2, then 2 - 2x.\"\"\"\n    return 2 * relu(x) - 4 * relu(x - 0.5)\n\ndef fold(x, k):\n    \"\"\"Apply the tent k times: a network k layers deep, 2 neurons wide.\"\"\"\n    for _ in range(k):\n        x = tent(x)\n    return x\n\ndef count_pieces(f, n=4096):\n    ys = [f(i / n) for i in range(n + 1)]\n    # TODO 1: slopes between neighbours: (ys[i+1] - ys[i]) * n\n    # TODO 2: count changes where two neighbouring slopes differ by more than 1e-6\n    # TODO 3: pieces = changes + 1\n    return 0\n",
+      "tests": [
+        {
+          "name": "a straight line is one piece",
+          "code": "got = count_pieces(lambda x: 3 * x + 1)\nassert got == 1, f'a straight line has 1 piece, got {got}'"
+        },
+        {
+          "name": "one tent is two pieces",
+          "code": "got = count_pieces(tent)\nassert got == 2, f'the tent goes up then down: 2 pieces, got {got}'"
+        },
+        {
+          "name": "pieces double with each fold",
+          "code": "for k in range(1, 7):\n    got = count_pieces(lambda x: fold(x, k))\n    assert got == 2 ** k, f'{k} folds should give {2 ** k} pieces, got {got}'"
+        }
+      ],
+      "hints": [
+        "slopes = [(ys[i + 1] - ys[i]) * n for i in range(n)]",
+        "changes = sum(1 for a, b in zip(slopes, slopes[1:]) if abs(a - b) > 1e-6)"
+      ],
+      "solution": "def relu(z):\n    return max(0, z)\n\ndef tent(x):\n    \"\"\"Two ReLU neurons: 2x up to 1/2, then 2 - 2x.\"\"\"\n    return 2 * relu(x) - 4 * relu(x - 0.5)\n\ndef fold(x, k):\n    \"\"\"Apply the tent k times: a network k layers deep, 2 neurons wide.\"\"\"\n    for _ in range(k):\n        x = tent(x)\n    return x\n\ndef count_pieces(f, n=4096):\n    ys = [f(i / n) for i in range(n + 1)]\n    slopes = [(ys[i + 1] - ys[i]) * n for i in range(n)]\n    changes = sum(1 for a, b in zip(slopes, slopes[1:]) if abs(a - b) > 1e-6)\n    return changes + 1\n"
+    },
+    {
+      "id": "budget",
+      "title": "Neuron budget: deep versus wide",
+      "prompt": "<p>Write <code>neurons_needed(pieces)</code>, returning two numbers for a target number of straight pieces that is a power of two:</p><ul><li><code>deep</code>: neurons used by stacking tents (2 per layer, and L layers give 2<sup>L</sup> pieces)</li><li><code>wide</code>: the fewest neurons a single hidden layer needs (n neurons give at most n + 1 pieces)</li></ul><pre>neurons_needed(1024)   # (20, 1023)</pre>",
+      "starter": "import math\n\ndef neurons_needed(pieces):\n    # TODO: L = log2(pieces); deep = 2 * L; wide = pieces - 1\n    deep = 0\n    wide = 0\n    return deep, wide\n",
+      "tests": [
+        {
+          "name": "ten layers",
+          "code": "got = neurons_needed(1024)\nassert tuple(got) == (20, 1023), f'1024 = 2**10: 10 layers x 2 = 20 deep neurons, and 1023 wide ones; got {got}'"
+        },
+        {
+          "name": "one tent",
+          "code": "got = neurons_needed(2)\nassert tuple(got) == (2, 1), f'2 pieces: one tent (2 neurons) or a single ReLU (1 neuron); got {got}'"
+        },
+        {
+          "name": "deep grows slowly",
+          "code": "d20, w20 = neurons_needed(2 ** 20)\nassert d20 == 40 and w20 == 2 ** 20 - 1, f'20 layers: 40 deep neurons vs {2 ** 20 - 1} wide ones; got {(d20, w20)}'\nassert isinstance(d20, int), f'return whole numbers, not {type(d20).__name__} (round the log, or use bit_length)'"
+        }
+      ],
+      "hints": [
+        "L = round(math.log2(pieces)), or pieces.bit_length() - 1 for an exact power of two.",
+        "deep = 2 * L, wide = pieces - 1"
+      ],
+      "solution": "import math\n\ndef neurons_needed(pieces):\n    L = pieces.bit_length() - 1\n    deep = 2 * L\n    wide = pieces - 1\n    return deep, wide\n"
+    }
+  ]
+}
