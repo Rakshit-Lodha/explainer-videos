@@ -1,0 +1,50 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Every large language model you have used was pre-trained by making one number smaller, step after step, across trillions of tokens of text. That number is the cross-entropy. To see why it is the right choice, we combine the surprise from the last lesson with two distributions at once: the truth, and the model's guess."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Call the true distribution p and the model's distribution q. Cross-entropy is the average surprise you feel when outcomes are drawn from p, but you measure each surprise using q. Think of packing for a trip using a weather forecast: the weather follows reality, your preparation follows the forecast, and every time the forecast underrated what actually happened, you pay for it."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Cross-entropy can never be smaller than the entropy of p itself. It equals that entropy exactly when q matches p, and it grows whenever q gives too little probability to something that p makes likely. So the best a model can ever do is to be exactly as uncertain as the truth, and no less."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The gap between the two is the Kullback-Leibler divergence, usually shortened to K L. It is the extra surprise you pay, on average, for using the wrong distribution. It is zero only when the two distributions agree, it is never negative, and it is not symmetric, because q failing to expect something common is penalised very differently from q expecting something that never happens."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Now the language model. At each position in a training text, the truth is the token that actually comes next, so p puts its entire probability on that one token and nothing anywhere else. Such a distribution has zero entropy, and the sum in the cross-entropy collapses to a single term: minus the logarithm of the probability the model gave to the correct token. Minimising cross-entropy here is the same as minimising the K L divergence, and the same as the maximum likelihood principle from lesson three point five."
+ },
+ {
+  "id": "s6",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Read the loss as surprise. If the model gave the correct token a probability of one half, its loss at that position is about zero point seven, measured with natural logarithms. A model that spread its guess evenly over a vocabulary of fifty thousand tokens would score close to eleven, which is roughly where an untrained network begins."
+ },
+ {
+  "id": "s7",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "During training, this loss is averaged over every position in a batch of text, and its gradient raises the probability of each correct token while lowering the probabilities of all the others. Raising e to the power of the average loss gives the perplexity, which you can read as the number of tokens the model is effectively choosing between, so a perplexity of twenty means it is as uncertain as a fair choice among twenty."
+ },
+ {
+  "id": "s8",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "So the loss behind every language model is the average surprise of the true next token under the model's distribution, and lowering it closes the gap that K L divergence measures. Next, in lesson four point one, we picture that loss as a landscape and start to think about how to walk downhill."
+ }
+]
