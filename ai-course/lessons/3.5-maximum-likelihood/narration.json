@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "You have a handful of measurements and a family of possible distributions, say every Gaussian with any mean and any width. Which member of the family should you believe produced your data? Maximum likelihood gives a simple answer: choose the one under which the data you actually observed would have been most probable."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "For one candidate setting of the parameters, the likelihood is the probability, or density, of all the observed data, found by multiplying the values for each point, since the points are assumed independent. Slide a Gaussian along the line and watch. When it sits far from the data, the points land in its thin tails and the product is tiny; when it sits right on top of them, every point gets a tall bar and the product is large."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Multiplying many small numbers quickly underflows to zero on a computer, so we take the logarithm. The log turns the product into a sum, and because the logarithm only ever increases, the parameters that maximise the log likelihood are exactly the ones that maximise the likelihood. By convention we flip the sign and minimise the negative log likelihood, which turns it into a loss."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "For a Gaussian the answer can be worked out by hand. The best mean is the ordinary average of the data, and the best variance is the average squared distance from that mean. The familiar formulas you already use to summarise data turn out to be maximum likelihood estimates."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "There is a deeper consequence. If you assume your model's predictions are off by Gaussian noise of fixed width, the negative log likelihood is, apart from constants, proportional to the sum of squared errors. So least squares regression is maximum likelihood in disguise, and choosing a loss function is really a statement about what you believe the noise looks like."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "Training a language model follows exactly this principle. Its parameters are adjusted so that the text in the training set becomes as probable as possible, token by token, which means minimising the average negative log probability of each correct next token. Next, in lesson three point six, we ask what that quantity measures, starting with entropy."
+ }
+]
