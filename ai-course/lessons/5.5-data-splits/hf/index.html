@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<title>&nbsp; 5.5 Data splits</title>
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="197.58" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="197.58" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 5.5 Data splits</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="26.132"></div>
+  <div class="clip scene" id="S2" data-start="26.132" data-duration="30.673"></div>
+  <div class="clip scene" id="S3" data-start="56.805" data-duration="26.32"></div>
+  <div class="clip scene" id="S4" data-start="83.125" data-duration="31.1"></div>
+  <div class="clip scene" id="S5" data-start="114.225" data-duration="28.045"></div>
+  <div class="clip scene" id="S6" data-start="142.27" data-duration="26.833"></div>
+  <div class="clip scene" id="S7" data-start="169.103" data-duration="28.477"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":26.132,"s3":56.805,"s4":83.125,"s5":114.225,"s6":142.27,"s7":169.103},"total":197.58,"cues":{"s1":[["if",0.0],["you",0.155],["set",0.361],["your",0.567],["own",0.825],["exam",1.031],["studied",1.596],["those",2.093],["very",2.465],["questions",2.775],["and",3.858],["then",4.153],["graded",4.521],["yourself",5.037],["a",5.929],["perfect",6.032],["score",6.445],["would",6.755],["tell",7.065],["nobody",7.324],["anything",7.685],["about",8.15],["what",8.46],["you",8.718],["know",8.925],["judging",9.656],["a",10.377],["model",10.557],["on",11.098],["the",11.368],["data",11.728],["it",12.179],["learned",12.449],["from",13.17],["is",13.621],["the",13.891],["same",14.251],["mistake",14.702],["the",16.027],["fix",16.204],["is",16.38],["simple",16.513],["to",16.823],["say",16.955],["and",17.132],["surprisingly",17.309],["easy",17.884],["to",18.105],["get",18.238],["wrong",18.415],["keep",19.242],["some",19.554],["data",19.865],["aside",20.177],["that",20.551],["the",20.863],["model",21.112],["never",21.486],["learns",21.86],["from",22.296],["and",23.336],["use",23.637],["it",23.939],["only",24.165],["for",24.542],["judging",24.843]],"s2":[["the",0.0],["usual",0.226],["arrangement",0.566],["cuts",1.244],["the",1.527],["data",1.753],["into",2.036],["three",2.319],["parts",2.658],["the",3.515],["training",3.702],["set",4.12],["is",4.307],["the",4.446],["textbook",4.632],["the",5.659],["model",5.873],["fits",6.194],["its",6.461],["weights",6.675],["to",7.103],["it",7.263],["the",7.946],["validation",8.19],["set",8.864],["is",9.108],["the",9.292],["mock",9.537],["exam",9.843],["we",10.729],["use",10.901],["it",11.129],["to",11.301],["make",11.472],["choices",11.758],["the",12.215],["training",12.443],["cannot",12.958],["make",13.358],["for",13.643],["itself",13.872],["such",14.927],["as",15.223],["the",15.401],["degree",15.639],["of",16.054],["a",16.232],["polynomial",16.35],["or",17.002],["the",17.18],["strength",17.418],["of",17.951],["regularisation",18.129],["the",19.326],["test",19.564],["set",19.862],["is",20.1],["the",20.278],["final",20.516],["exam",20.874],["sealed",21.512],["in",21.932],["an",22.113],["envelope",22.293],["and",22.834],["opened",23.074],["once",23.495],["at",24.178],["the",24.355],["very",24.592],["end",24.888],["to",25.593],["give",25.776],["an",26.08],["honest",26.263],["estimate",26.69],["of",27.238],["how",27.421],["the",27.664],["finished",27.908],["model",28.456],["will",28.822],["do",29.127],["on",29.309],["new",29.492],["data",29.736]],"s3":[["why",0.0],["not",0.227],["use",0.454],["the",0.68],["test",0.907],["set",1.191],["for",1.417],["those",1.644],["choices",1.984],["as",2.438],["well",2.608],["because",3.301],["every",3.697],["time",3.994],["you",4.242],["pick",4.44],["the",4.688],["option",4.886],["with",5.233],["the",5.48],["best",5.678],["score",5.926],["a",6.465],["little",6.575],["information",6.959],["about",7.618],["that",7.948],["data",8.223],["leaks",8.497],["into",8.827],["your",9.101],["decisions",9.376],["try",10.353],["fifty",10.592],["settings",10.951],["and",11.49],["keep",11.729],["the",12.028],["winner",12.267],["and",13.016],["part",13.26],["of",13.565],["its",13.748],["score",13.992],["is",14.358],["luck",14.541],["that",14.845],["happened",15.15],["to",15.699],["suit",15.882],["those",16.187],["particular",16.553],["examples",17.224],["if",18.042],["that",18.089],["luck",18.167],["came",18.245],["from",18.323],["the",18.401],["test",18.464],["set",18.542],["the",18.756],["test",19.094],["score",19.517],["is",20.024],["now",20.278],["optimistic",20.616],["and",22.142],["the",22.357],["sealed",22.571],["envelope",22.946],["has",23.428],["quietly",23.643],["become",24.071],["just",24.447],["another",24.714],["mock",25.143],["exam",25.411]],"s4":[["how",0.0],["you",0.27],["cut",0.54],["matters",0.811],["too",1.351],["data",2.314],["often",2.67],["arrives",3.097],["in",3.667],["some",3.88],["order",4.236],["sorted",5.185],["by",5.645],["date",5.842],["or",6.17],["grouped",6.367],["by",6.892],["label",7.089],["and",7.997],["slicing",8.227],["off",8.688],["the",8.918],["last",9.149],["part",9.437],["would",9.725],["give",10.071],["the",10.359],["test",10.589],["set",10.877],["a",11.108],["different",11.223],["kind",11.799],["of",12.087],["example",12.26],["from",12.721],["the",13.009],["training",13.239],["set",13.758],["so",14.707],["we",14.898],["shuffle",15.089],["first",15.599],["with",16.492],["a",16.791],["fixed",16.911],["random",17.27],["seed",17.689],["so",17.988],["the",18.167],["split",18.406],["can",18.765],["be",19.005],["repeated",19.184],["time",20.11],["is",20.398],["the",20.571],["exception",20.801],["when",21.716],["predicting",21.959],["the",22.493],["future",22.687],["train",23.519],["on",23.91],["the",24.106],["past",24.366],["and",24.692],["test",24.953],["on",25.279],["later",25.474],["data",25.865],["because",26.607],["shuffling",27.161],["would",27.853],["let",28.269],["the",28.546],["model",28.823],["peek",29.238],["at",29.584],["tomorrow",29.792]],"s5":[["when",0.0],["data",0.31],["is",0.621],["scarce",0.807],["setting",1.303],["a",1.8],["large",1.924],["validation",2.296],["set",2.979],["aside",3.227],["hurts",3.599],["cross-validation",4.457],["shares",5.408],["the",5.8],["burden",6.024],["split",6.869],["the",7.438],["training",7.817],["data",8.67],["into",9.144],["say",10.05],["five",10.405],["folds",10.76],["train",11.257],["on",11.683],["four",11.897],["and",12.252],["validate",12.536],["on",13.175],["the",13.388],["fifth",13.672],["then",14.169],["rotate",14.525],["until",15.022],["every",15.448],["fold",15.874],["has",16.229],["served",16.513],["once",17.011],["as",17.366],["the",17.579],["validation",17.863],["set",18.644],["and",19.254],["average",19.335],["the",19.497],["scores",19.579],["every",20.233],["example",20.773],["gets",21.493],["used",21.942],["for",22.392],["both",22.752],["learning",23.202],["and",24.012],["judging",24.372],["just",25.46],["never",25.816],["in",26.243],["the",26.457],["same",26.741],["round",27.097]],"s6":[["one",0.0],["subtle",0.23],["leak",0.631],["catches",0.918],["experienced",1.378],["people",2.067],["preprocessing",3.188],["has",4.102],["parameters",4.364],["too",5.082],["if",5.409],["you",5.605],["standardise",5.866],["features",6.65],["using",7.238],["the",7.631],["mean",7.892],["and",8.219],["spread",8.48],["of",8.937],["the",9.133],["whole",9.395],["dataset",9.787],["before",10.309],["splitting",10.767],["the",11.615],["test",11.974],["set",12.423],["has",12.781],["already",13.14],["shaped",13.858],["your",14.486],["training",14.935],["data",15.742],["compute",16.468],["those",16.797],["statistics",17.045],["on",17.498],["the",17.622],["training",17.786],["set",18.157],["alone",18.322],["then",19.056],["apply",19.409],["the",19.833],["very",20.115],["same",20.468],["numbers",20.821],["to",21.386],["validation",21.597],["and",22.374],["test",22.656],["as",23.551],["if",23.763],["the",23.974],["test",24.256],["data",24.609],["arrived",24.962],["tomorrow",25.526]],"s7":[["language",0.0],["models",0.73],["face",1.297],["this",1.702],["problem",2.108],["at",2.756],["enormous",2.999],["scale",3.729],["because",4.557],["they",4.982],["are",5.247],["trained",5.46],["on",5.885],["huge",6.044],["scrapes",6.31],["of",6.735],["the",6.894],["web",7.106],["the",7.918],["questions",8.221],["of",8.978],["a",9.205],["public",9.357],["benchmark",9.887],["can",10.644],["end",10.947],["up",11.25],["in",11.477],["the",11.704],["training",12.007],["text",12.689],["which",13.626],["researchers",14.112],["call",15.082],["contamination",15.487],["and",16.883],["a",17.069],["model",17.161],["may",17.439],["then",17.625],["appear",17.857],["to",18.181],["reason",18.32],["when",18.644],["it",18.876],["is",19.015],["partly",19.154],["remembering",19.478],["next",20.266],["we",21.729],["meet",21.938],["a",22.285],["method",22.425],["that",22.911],["does",23.259],["no",23.607],["training",23.816],["at",24.442],["all",24.65],["k",25.4],["nearest",25.543],["neighbours",26.116]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers for plots, equations and code panels (module 5 and 7 lessons) ---- */
+/* axes: plain x/y axes for a plot region, with optional axis captions */
+function axes(svg,P,x0,x1,y0,y1,o){o=o||{};const g=svgEl('g',{},svg);
+  if(o.grid){for(let x=Math.ceil(x0);x<=x1;x+=(o.step||1)){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.4,opacity:.45},g)}
+    for(let y=Math.ceil(y0);y<=y1;y+=(o.step||1)){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.4,opacity:.45},g)}}
+  const ya=o.yAxisAt??y0,xa=o.xAxisAt??x0;const a=P(x0,ya),b=P(x1,ya),c=P(xa,y0),d=P(xa,y1);
+  svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  svgEl('line',{x1:c[0],y1:c[1],x2:d[0],y2:d[1],stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  return g}
+/* fnPath: SVG path data for y=f(x) sampled on [a,b] */
+function fnPath(P,f,a,b,n){n=n||120;let s='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,[px,py]=P(x,f(x));s+=(i?'L':'M')+px.toFixed(1)+','+py.toFixed(1)}return s}
+function polyPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function mkPath(svg,d,color,w,extra){return svgEl('path',Object.assign({d,fill:'none',stroke:color,'stroke-width':w||5,'stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+/* drawOn: reveal a stroke from start to end */
+function drawOn(p,time,d){p.setAttribute('pathLength','1');tl.set(p,{attr:{'stroke-dasharray':'1 1','stroke-dashoffset':1}},0);
+  tl.to(p,{autoAlpha:1,duration:.15},time);tl.to(p,{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut'},time)}
+/* morphFn: a path that follows f(x; s) as the proxy s moves; returns a stepper */
+function morphFn(p,P,f,a,b,s0,n){const o={s:s0};const upd=()=>p.setAttribute('d',fnPath(P,x=>f(x,o.s),a,b,n));upd();
+  return (time,d,s,ease)=>tl.to(o,{s,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:upd},time)}
+/* a proxy-driven updater: o is tweened, fn(o) redraws everything that depends on it */
+function driver(o,fn){fn(o);return (time,d,to,ease)=>tl.to(o,{...to,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>fn(o)},time)}
+function dot(svg,x,y,r,color,hidden){return svgEl('circle',{cx:x,cy:y,r:r||9,fill:color||C.blue,style:hidden===false?'':'opacity:0;visibility:hidden'},svg)}
+/* texLbl: a hidden KaTeX label centred at (x,y) */
+function texLbl(parent,s,x,y,size,color){const d=el(parent,'lbl',tex(s,size||56),{color:color||C.ink});place(d,x,y);return d}
+function txt(parent,s,x,y,o){o=o||{};const d=el(parent,'lbl',s,Object.assign({color:C.ink,fontSize:'40px'},o));place(d,x,y);return d}
+/* codeBox: a monospace panel; lines may contain <span> colouring */
+function codeBox(parent,lines,x,y,w,fs){fs=fs||34;const b=el(parent,'abs hid','',{left:x+'px',top:y+'px',width:w+'px',padding:'26px 34px',borderRadius:'18px',background:'#161c25',border:'2px solid #2b3644',fontFamily:"'JetBrains Mono',monospace",fontSize:fs+'px',lineHeight:'1.55',color:C.ink,whiteSpace:'pre'});
+  const rows=lines.map(l=>el(b,'',l,{position:'relative'}));return {box:b,rows}}
+const kw=s=>`<span style="color:#e77fb3">${s}</span>`,cm=s=>`<span style="color:#7f8b99">${s}</span>`,nm=s=>`<span style="color:#f5cf4a">${s}</span>`,fnc=s=>`<span style="color:#58c4dd">${s}</span>`;
+function sceneIn(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid])}
+
+const root=$('root');
+const N=40,SZ=34,GP=8,X0=960-(N*SZ+(N-1)*GP)/2;
+const sx=i=>X0+i*(SZ+GP);
+function row(S,y,colorOf){const svg=layerSvg(S);const sq=[];for(let i=0;i<N;i++)sq.push(svgEl('rect',{x:sx(i),y:y,width:SZ,height:SZ,rx:6,fill:colorOf(i)},svg));return {svg,sq}}
+function envelope(svg,x,y,col){const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  svgEl('rect',{x:x-60,y:y-40,width:120,height:80,rx:8,fill:'#141a22',stroke:col,'stroke-width':4},g);
+  const flap=svgEl('polyline',{points:`${x-60},${y-40} ${x},${y+5} ${x+60},${y-40}`,fill:'none',stroke:col,'stroke-width':4},g);
+  const seal=svgEl('circle',{cx:x,cy:y+5,r:11,fill:C.red},g);return {g,flap,seal}}
+
+/* ===== S1: grading your own exam ===== */
+(function(){const S=$('S1'),sid='s1';
+  const R=row(S,520,i=>C.blue);
+  tl.fromTo(R.svg,{autoAlpha:0},{autoAlpha:1,duration:.6,immediateRender:false},at(sid,.02));
+  const svg=layerSvg(S);
+  const a1=mkArrow(svg,(x,y)=>[x,y],C.ink,5,'<span style="font-size:40px;font-style:italic">learn from</span>',0,-150,S);
+  const a2=mkArrow(svg,(x,y)=>[x,y],C.red,5,'<span style="font-size:40px;font-style:italic">judge on</span>',0,175,S);
+  setArrow(a1,{x0:760,y0:400,x1:760,y1:400});setArrow(a2,{x0:1180,y0:700,x1:1180,y1:700});
+  showArrow(a1,cue(sid,'studied'),.2);arrowTo(a1,cue(sid,'studied'),.7,{y1:505});
+  showArrow(a2,cue(sid,'graded'),.2);arrowTo(a2,cue(sid,'graded'),.7,{y1:568});
+  const p=txt(S,'100% … tells nobody anything',960,860,{color:C.red,fontSize:'44px',fontStyle:'italic'});show(p,cue(sid,'perfect'),.5);
+  fadeOut([a1.g,a1.label,a2.g,a2.label,p],cue(sid,'fix'),.5);
+  // set some aside
+  const k0=32;
+  R.sq.forEach((r,i)=>{if(i>=k0){tl.to(r,{attr:{fill:C.pink},duration:.5},cue(sid,'aside'));tl.to(r,{x:60,duration:.8,ease:'power2.inOut'},cue(sid,'aside'))}});
+  const held=txt(S,'kept aside: only for judging',sx(36)+60,640,{color:C.pink,fontSize:'38px',fontStyle:'italic'});show(held,cue(sid,'judging'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S2-S3: three parts ===== */
+const SPL=el(root,'layer','');SPL.id='SPL';
+const tr=24,va=32;// indices: 0..23 train, 24..31 validation, 32..39 test
+const segCol=i=>i<tr?C.blue:(i<va?C.yellow:C.pink);
+const R2=row(SPL,300,segCol);
+const lab=(t,i0,i1,col)=>{const d=txt(SPL,t,(sx(i0)+sx(i1)+SZ)/2,262,{color:col,fontSize:'38px'});return d};
+const Ltr=lab('training',0,tr-1,C.blue),Lva=lab('validation',tr,va-1,C.yellow),Lte=lab('test',va,N-1,C.pink);
+const esvg=layerSvg(SPL);
+const ENV=envelope(esvg,(sx(va)+sx(N-1)+SZ)/2,470,C.pink);
+tl.to(SPL,{autoAlpha:1,duration:.6},START.s2);tl.to(SPL,{autoAlpha:0,duration:.5},START.s4-.4);
+(function(){const S=$('S2'),sid='s2';
+  show(Ltr,cue(sid,'training'),.5);show(Lva,cue(sid,'validation'),.5);show(Lte,cue(sid,'test'),.5);
+  const book=txt(S,'the textbook: fit the weights',(sx(0)+sx(tr-1)+SZ)/2,470,{color:C.blue,fontSize:'38px',fontStyle:'italic'});show(book,cue(sid,'textbook'),.5);
+  const mock=txt(S,'the mock exam',(sx(tr)+sx(va-1)+SZ)/2,450,{color:C.yellow,fontSize:'38px',fontStyle:'italic'});show(mock,cue(sid,'mock'),.5);
+  const ch=['degree?','λ?'].map((t,i)=>{const d=el(S,'chip',t,{left:(sx(tr)+20)+'px',top:(540+i*90)+'px',borderColor:C.yellow,fontSize:'34px'});return d});
+  show(ch,cue(sid,'choices'),.5,{stagger:.2});
+  fadeIn(ENV.g,cue(sid,'final'),.5);
+  const once=txt(S,'opened once, at the end',(sx(va)+sx(N-1)+SZ)/2,580,{color:C.pink,fontSize:'36px',fontStyle:'italic'});show(once,cue(sid,'once'),.5);
+  const hon=txt(S,'an honest estimate on new data',960,880,{color:C.ink,fontSize:'44px',fontStyle:'italic'});show(hon,cue(sid,'honest'),.5);
+  sceneInOut(sid);
+})();
+(function(){const S=$('S3'),sid='s3';
+  // fifty settings, all equally good in truth; pick the best-looking one
+  const rnd=seedRand(21);const sc=[];for(let i=0;i<50;i++){let g=0;for(let k=0;k<6;k++)g+=rnd();sc.push(.8+(g-3)*.035)}
+  const best=sc.indexOf(Math.max(...sc));
+  const svg=layerSvg(S);const bx=i=>300+i*26,base=930,H=v=>(v-.6)*900;
+  svgEl('line',{x1:280,y1:base,x2:bx(49)+30,y2:base,stroke:C.axis,'stroke-width':2},svg);
+  const bars=sc.map((v,i)=>svgEl('rect',{x:bx(i),y:base-H(v),width:18,height:H(v),fill:C.yellow,'fill-opacity':.6},svg));
+  tl.fromTo(bars,{autoAlpha:0},{autoAlpha:1,duration:.2,stagger:.03,immediateRender:false},cue(sid,'fifty'));
+  const win=svgEl('rect',{x:bx(best)-4,y:base-H(sc[best])-4,width:26,height:H(sc[best])+8,fill:'none',stroke:C.ink,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(win,cue(sid,'winner'),.4);
+  const wl=el(S,'lbl mono',`best score ${(sc[best]*100).toFixed(0)}%`,{color:C.ink,fontSize:'32px'});place(wl,bx(best)+10,base-H(sc[best])-40);show(wl,cue(sid,'winner'),.4);
+  const tr80=svgEl('line',{x1:280,y1:base-H(.8),x2:bx(49)+30,y2:base-H(.8),stroke:C.teal,'stroke-width':3,'stroke-dasharray':'10 8',style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(tr80,cue(sid,'luck'),.5);
+  const tl80=txt(S,'dashed line: the true skill of every setting, 80%',960,985,{color:C.teal,fontSize:'32px',fontStyle:'italic'});show(tl80,cue(sid,'luck'),.5);
+  const opt=txt(S,'the winner looks better than it is',800,560,{color:C.red,fontSize:'40px',fontStyle:'italic'});show(opt,cue(sid,'optimistic'),.5);
+  // the envelope becomes another mock exam
+  tl.to(ENV.flap,{attr:{points:`${(sx(va)+sx(N-1)+SZ)/2-60},${430} ${(sx(va)+sx(N-1)+SZ)/2},${380} ${(sx(va)+sx(N-1)+SZ)/2+60},${430}`},duration:.6},cue(sid,'envelope'));
+  tl.to(ENV.seal,{autoAlpha:0,duration:.3},cue(sid,'envelope'));
+  R2.sq.forEach((r,i)=>{if(i>=va)tl.to(r,{attr:{fill:C.yellow},duration:.6},cue(sid,'mock'))});
+  tl.to(Lte,{autoAlpha:0,duration:.3},cue(sid,'mock'));
+  const lm=txt(S,'just another mock exam',(sx(va)+sx(N-1)+SZ)/2,262,{color:C.yellow,fontSize:'36px',fontStyle:'italic'});show(lm,cue(sid,'mock')+.2,.4);
+  sceneInOut(sid);
+})();
+
+/* ===== S4: shuffle before cutting; time is the exception ===== */
+(function(){const S=$('S4'),sid='s4';
+  const lab=i=>i<24?C.blue:C.pink;// sorted by label
+  const R=row(S,330,lab);
+  tl.fromTo(R.svg,{autoAlpha:0},{autoAlpha:1,duration:.5,immediateRender:false},at(sid,.02));
+  const sorted=txt(S,'sorted by label',960,280,{color:C.dim,fontSize:'36px',fontStyle:'italic'});show(sorted,cue(sid,'sorted'),.4);
+  const svg=layerSvg(S);
+  const cut=svgEl('line',{x1:sx(32)-GP/2,y1:300,x2:sx(32)-GP/2,y2:400,stroke:C.ink,'stroke-width':4,'stroke-dasharray':'8 6',style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(cut,cue(sid,'slicing'),.4);
+  const bad=txt(S,'test set: all one kind',(sx(32)+sx(39)+SZ)/2,450,{color:C.red,fontSize:'34px',fontStyle:'italic'});show(bad,cue(sid,'different'),.4);
+  // seeded shuffle
+  const rnd=seedRand(42);const perm=[...Array(N).keys()];for(let i=N-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[perm[i],perm[j]]=[perm[j],perm[i]]}
+  fadeOut(bad,cue(sid,'shuffle')-.2,.3);
+  R.sq.forEach((r,i)=>{const to=perm.indexOf(i);tl.to(r,{x:sx(to)-sx(i),duration:1.2,ease:'power2.inOut'},cue(sid,'shuffle')+(i%7)*.03)});
+  const seed=el(S,'lbl mono','rng = np.random.default_rng(42)',{color:C.yellow,fontSize:'32px'});place(seed,960,470);show(seed,cue(sid,'seed'),.5);
+  const mix=txt(S,'every part gets a fair mix',960,540,{color:C.teal,fontSize:'36px',fontStyle:'italic'});show(mix,cue(sid,'repeated'),.4);
+  // time
+  const tsvg=layerSvg(S);const tg=svgEl('g',{style:'opacity:0;visibility:hidden'},tsvg);
+  const ta=mkArrow(tsvg,(x,y)=>[x,y],C.axis,4);setArrow(ta,{x0:300,y0:760,x1:1640,y1:760});
+  svgEl('rect',{x:300,y:700,width:950,height:40,rx:6,fill:C.blue,'fill-opacity':.7},tg);svgEl('rect',{x:1270,y:700,width:340,height:40,rx:6,fill:C.pink,'fill-opacity':.7},tg);
+  const tp=txt(S,'past → train',775,810,{color:C.blue,fontSize:'36px',fontStyle:'italic'}),tf=txt(S,'later → test',1440,810,{color:C.pink,fontSize:'36px',fontStyle:'italic'}),tt=txt(S,'time',1700,760,{color:C.dim,fontSize:'34px',fontStyle:'italic'});
+  fadeIn(tg,cue(sid,'time'),.5);showArrow(ta,cue(sid,'time'),.5);show(tt,cue(sid,'time'),.4);show(tp,cue(sid,'past'),.4);show(tf,cue(sid,'later'),.4);
+  const pk=txt(S,'no peeking at tomorrow',960,900,{color:C.ink,fontSize:'40px',fontStyle:'italic'});show(pk,cue(sid,'tomorrow'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S5: k-fold cross-validation ===== */
+(function(){const S=$('S5'),sid='s5';
+  const svg=layerSvg(S);const K=5,W=180,H=64,x0=520,y0=280;
+  const cells=[];for(let r=0;r<K;r++){const rowc=[];for(let c=0;c<K;c++){rowc.push(svgEl('rect',{x:x0+c*(W+10),y:y0+r*(H+22),width:W,height:H,rx:8,fill:c===r?C.yellow:C.blue,'fill-opacity':c===r?.85:.55,style:'opacity:0;visibility:hidden'},svg))}cells.push(rowc)}
+  const tt=txt(S,'five folds',x0+2*(W+10)+W/2,215,{color:C.ink,fontSize:'40px'});show(tt,cue(sid,'folds'),.5);
+  fadeIn(cells[0],cue(sid,'folds'),.5);
+  const rl=[];const scores=['0.81','0.78','0.84','0.80','0.79'];
+  for(let r=0;r<K;r++){const t=r===0?cue(sid,'train'):cue(sid,'rotate')+(r-1)*.8;if(r>0)fadeIn(cells[r],t,.4);
+    const s=el(S,'lbl mono',scores[r],{color:C.yellow,fontSize:'38px'});place(s,x0+K*(W+10)+90,y0+r*(H+22)+H/2);show(s,t+.4,.3);rl.push(s)}
+  const lt=txt(S,'train',x0-110,y0+H/2,{color:C.blue,fontSize:'34px',fontStyle:'italic'}),lv=txt(S,'validate',x0-110,y0+H/2+40,{color:C.yellow,fontSize:'34px',fontStyle:'italic'});
+  show([lt,lv],cue(sid,'train'),.4);
+  const avg=el(S,'lbl','',{color:C.ink,fontSize:'46px'});avg.innerHTML='average '+tex('\\approx 0.80',46);place(avg,960,780);show(avg,cue(sid,'average'),.5);
+  const both=txt(S,'every example: learned from and judged, never in the same round',960,880,{color:C.dim,fontSize:'36px',fontStyle:'italic'});show(both,cue(sid,'never'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S6: preprocessing leak ===== */
+(function(){const S=$('S6'),sid='s6';
+  const box=(x,y,w,t,col)=>{const d=el(S,'abs hid',t,{left:x+'px',top:y+'px',width:w+'px',padding:'22px 0',textAlign:'center',border:'3px solid '+col,borderRadius:'16px',fontSize:'38px',color:col});return d};
+  const wrong=box(260,250,640,'mean, spread of <b>all</b> data',C.red);
+  const wx=txt(S,'✗ the test set has shaped training',580,400,{color:C.red,fontSize:'34px',fontStyle:'italic'});
+  show(wrong,cue(sid,'whole'),.5);show(wx,cue(sid,'shaped'),.5);
+  const fit=box(1020,250,640,'mean, spread of <b>training</b> data',C.teal);show(fit,cue(sid,'alone'),.5);
+  const f=texLbl(S,"x' = \\dfrac{x - \\mu_{\\text{train}}}{\\sigma_{\\text{train}}}",1340,470,56,C.teal);show(f,cue(sid,'alone'),.6);
+  const svg=layerSvg(S);
+  const tgt=[['training',C.blue,1000],['validation',C.yellow,1340],['test',C.pink,1680]].map(([t,c,x])=>{const a=mkArrow(svg,(x,y)=>[x,y],c,5);setArrow(a,{x0:1340,y0:570,x1:1340,y1:570});const l=txt(S,t,x,720,{color:c,fontSize:'38px'});return {a,l,x}});
+  tgt.forEach((o,k)=>{showArrow(o.a,cue(sid,'apply')+k*.2,.2);arrowTo(o.a,cue(sid,'apply')+k*.2,.6,{x1:o.x,y1:680});show(o.l,cue(sid,'apply')+k*.2+.3,.4)});
+  const same=txt(S,'the very same numbers for all three',1340,800,{color:C.ink,fontSize:'38px',fontStyle:'italic'});show(same,cue(sid,'same'),.5);
+  const tm=txt(S,'as if the test data arrived tomorrow',960,930,{color:C.dim,fontSize:'38px',fontStyle:'italic'});show(tm,cue(sid,'tomorrow'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S7: benchmark contamination ===== */
+(function(){const S=$('S7'),sid='s7';
+  const svg=layerSvg(S);const rnd=seedRand(8);const docs=[];
+  for(let r=0;r<5;r++)for(let c=0;c<8;c++){const x=200+c*110,y=230+r*120;const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+    svgEl('rect',{x,y,width:84,height:100,rx:6,fill:'#141a22',stroke:C.grid,'stroke-width':2},g);
+    for(let k=0;k<5;k++)svgEl('line',{x1:x+12,y1:y+18+k*16,x2:x+12+50*(.5+rnd()*.5),y2:y+18+k*16,stroke:C.dim,'stroke-width':3},g);docs.push(g)}
+  tl.to(docs,{autoAlpha:1,duration:.2,stagger:.02},cue(sid,'scrapes'));
+  const wl=txt(S,'web scrape → training text',640,190,{color:C.dim,fontSize:'36px',fontStyle:'italic'});show(wl,cue(sid,'scrapes'),.4);
+  const hit=svgEl('rect',{x:200+5*110-6,y:230+2*120-6,width:96,height:112,rx:8,fill:'none',stroke:C.red,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);
+  const q=el(S,'abs hid','',{left:'1180px',top:'360px',width:'620px',padding:'24px 30px',borderRadius:'16px',border:'2px solid '+C.pink,background:'#141a22',fontSize:'34px',lineHeight:'1.4'});
+  q.innerHTML='<span style="color:#e77fb3">benchmark question 17</span><br><span style="font-style:italic">“If a train leaves at …”</span><br><span class="mono" style="color:#83c167;font-size:30px">answer: 42 km</span>';
+  show(q,cue(sid,'benchmark'),.5);fadeIn(hit,cue(sid,'end'),.5);
+  const a=mkArrow(svg,(x,y)=>[x,y],C.red,5);setArrow(a,{x0:1170,y0:470,x1:1170,y1:470});showArrow(a,cue(sid,'end'),.2);arrowTo(a,cue(sid,'end'),.7,{x1:200+5*110+100,y1:230+2*120+50});
+  const cl=txt(S,'contamination',1490,620,{color:C.red,fontSize:'48px'});show(cl,cue(sid,'contamination'),.5);
+  const rm=txt(S,'remembering can pass for reasoning',1490,700,{color:C.ink,fontSize:'36px',fontStyle:'italic'});show(rm,cue(sid,'remembering'),.5);
+  const next=el(S,'cap','next &nbsp;·&nbsp; 5.6 &nbsp;k-nearest neighbours',{top:'920px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
+  show(next,cue(sid,'next'),.7);
+  sceneIn(sid);
+})();
+
+/* KaTeX stacks accents and fractions on purpose; tell the layout checker */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','');e.setAttribute('data-layout-allow-occlusion','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
