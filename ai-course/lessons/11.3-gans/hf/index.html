@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="183.92" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="183.92" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 11.3 GANs</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="18.931"></div>
+  <div class="clip scene" id="S2" data-start="18.931" data-duration="27.43"></div>
+  <div class="clip scene" id="S3" data-start="46.361" data-duration="37.087"></div>
+  <div class="clip scene" id="S4" data-start="83.448" data-duration="25.382"></div>
+  <div class="clip scene" id="S5" data-start="108.83" data-duration="28.061"></div>
+  <div class="clip scene" id="S6" data-start="136.891" data-duration="33.162"></div>
+  <div class="clip scene" id="S7" data-start="170.053" data-duration="13.867"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":18.931,"s3":46.361,"s4":83.448,"s5":108.83,"s6":136.891,"s7":170.053},"total":183.92,"cues":{"s1":[["imagine",0.0],["a",0.502],["forger",0.628],["learning",1.068],["to",1.633],["paint",1.822],["banknotes",2.198],["and",2.827],["a",3.078],["bank",3.203],["inspector",3.517],["learning",4.146],["to",4.711],["catch",4.899],["fakes",5.276],["each",6.441],["improves",6.727],["by",7.241],["studying",7.413],["the",7.928],["other's",8.157],["mistakes",8.614],["and",9.482],["if",9.662],["they",9.796],["keep",10.021],["at",10.246],["it",10.381],["the",11.031],["forgeries",11.227],["become",11.717],["hard",12.061],["to",12.306],["tell",12.453],["from",12.699],["the",12.944],["real",13.14],["thing",13.385],["that",14.338],["contest",14.629],["is",15.095],["the",15.27],["whole",15.503],["idea",15.853],["of",16.144],["a",16.319],["generative",16.436],["adversarial",17.077],["network",17.776]],"s2":[["ian",0.0],["goodfellow",0.25],["and",0.937],["colleagues",1.186],["introduced",1.873],["gans",2.56],["in",2.872],["twenty",3.059],["fourteen",3.497],["the",4.364],["generator",4.614],["takes",5.238],["random",5.613],["noise",6.05],["and",6.424],["turns",6.674],["it",7.049],["into",7.236],["a",7.548],["sample",7.673],["such",8.296],["as",8.572],["an",8.738],["image",8.903],["the",9.927],["discriminator",10.152],["takes",10.936],["either",11.272],["a",11.664],["real",11.776],["example",12.056],["or",12.504],["a",12.672],["generated",12.784],["one",13.345],["and",14.164],["outputs",14.396],["the",14.858],["probability",15.089],["that",15.782],["it",16.071],["is",16.245],["real",16.418],["the",17.029],["generator",17.24],["never",17.77],["sees",18.087],["a",18.352],["written-down",18.458],["target",19.146],["for",19.517],["what",19.729],["a",19.993],["good",20.099],["image",20.364],["looks",20.682],["like",20.999],["its",21.743],["only",21.969],["signal",22.252],["is",22.648],["the",22.817],["discriminator's",23.043],["judgement",23.948],["passed",25.057],["back",25.45],["to",25.732],["it",25.9],["as",26.069],["gradients",26.238]],"s3":[["training",0.0],["is",0.481],["a",0.641],["game",0.748],["played",1.015],["over",1.389],["a",1.656],["single",1.763],["value",2.137],["the",2.824],["discriminator",3.101],["tries",4.07],["to",4.485],["maximise",4.693],["the",5.316],["log-probability",5.593],["it",6.701],["gives",6.909],["to",7.324],["the",7.532],["right",7.809],["answer",8.224],["on",8.709],["real",8.917],["and",9.263],["on",9.54],["generated",9.747],["examples",10.44],["and",11.494],["the",11.749],["generator",12.003],["tries",12.64],["to",13.022],["minimise",13.213],["that",13.785],["same",14.104],["value",14.422],["the",15.136],["paper",15.36],["showed",15.695],["that",16.086],["for",16.365],["a",16.588],["fixed",16.7],["generator",17.035],["the",18.006],["best",18.245],["discriminator",18.544],["outputs",19.381],["the",19.86],["data",20.099],["density",20.398],["divided",20.876],["by",21.355],["the",21.534],["sum",21.773],["of",22.013],["the",22.192],["data",22.431],["and",22.73],["generator",22.97],["densities",23.568],["and",24.575],["that",24.801],["against",25.084],["this",25.536],["best",25.819],["discriminator",26.102],["the",27.304],["generator",27.533],["is",28.104],["minimising",28.276],["the",28.905],["jensen-shannon",29.133],["divergence",29.991],["between",30.62],["its",31.077],["distribution",31.306],["and",32.049],["the",32.278],["data's",32.506],["the",33.332],["game",33.597],["is",33.927],["won",34.126],["when",34.39],["the",34.72],["two",34.985],["distributions",35.249],["match",36.175]],"s4":[["in",0.0],["practice",0.144],["there",0.576],["is",0.864],["a",1.008],["snag",1.104],["early",1.77],["in",2.085],["training",2.242],["the",2.713],["discriminator",2.923],["rejects",3.657],["fakes",4.076],["easily",4.39],["and",5.049],["the",5.301],["generator's",5.552],["original",6.307],["loss",6.873],["then",7.187],["gives",7.501],["it",7.879],["almost",8.067],["no",8.507],["gradient",8.696],["the",9.598],["same",9.854],["paper",10.174],["suggested",10.558],["the",11.198],["fix",11.454],["that",11.71],["became",12.031],["standard",12.479],["train",13.75],["the",14.146],["generator",14.41],["to",15.071],["maximise",15.269],["the",15.863],["log-probability",16.128],["that",17.184],["the",17.514],["discriminator",17.779],["calls",18.703],["its",19.099],["samples",19.364],["real",19.892],["which",20.677],["pushes",21.11],["hardest",21.615],["exactly",22.192],["when",22.769],["the",23.129],["generator",23.418],["is",24.139],["losing",24.355]],"s5":[["gans",0.0],["became",0.323],["famous",0.775],["both",1.228],["for",1.551],["sharp",1.809],["images",2.197],["and",2.649],["for",2.908],["being",3.166],["temperamental",3.554],["the",4.812],["two",5.018],["players",5.224],["can",5.637],["circle",5.843],["each",6.204],["other",6.461],["instead",6.771],["of",7.183],["settling",7.338],["and",8.236],["the",8.438],["generator",8.641],["can",9.146],["fall",9.349],["into",9.601],["mode",9.854],["collapse",10.107],["producing",10.94],["a",11.788],["few",11.957],["convincing",12.296],["outputs",13.229],["over",13.907],["and",14.331],["over",14.67],["instead",15.094],["of",15.772],["the",16.026],["full",16.365],["variety",16.789],["of",17.467],["the",17.721],["data",18.06],["like",18.708],["a",18.941],["forger",19.034],["who",19.36],["only",19.546],["ever",19.779],["paints",20.012],["one",20.338],["banknote",20.524],["a",21.192],["long",21.324],["line",21.655],["of",21.986],["later",22.184],["work",22.581],["from",22.978],["careful",23.309],["architectures",23.838],["to",24.764],["new",24.962],["losses",25.227],["set",26.098],["out",26.343],["to",26.589],["tame",26.772],["this",27.079]],"s6":[["compared",0.0],["with",0.41],["the",0.638],["models",0.82],["of",1.139],["the",1.275],["last",1.458],["two",1.685],["lessons",1.867],["a",2.555],["gan",2.675],["generates",2.917],["in",3.52],["a",3.701],["single",3.821],["pass",4.243],["which",4.915],["makes",5.267],["it",5.618],["fast",5.794],["but",6.405],["it",6.678],["has",6.882],["no",7.154],["likelihood",7.358],["and",8.107],["no",8.379],["reconstruction",8.583],["loss",9.604],["to",9.944],["keep",10.149],["it",10.489],["honest",10.693],["diffusion",11.494],["models",12.086],["are",12.5],["slower",12.737],["yet",13.615],["they",13.836],["train",14.111],["with",14.442],["a",14.717],["stable",14.828],["regression",15.214],["objective",15.82],["and",16.371],["cover",16.591],["the",16.922],["variety",17.143],["of",17.583],["the",17.749],["data",17.969],["better",18.245],["which",18.938],["is",19.349],["part",19.555],["of",19.898],["why",20.103],["they",20.377],["overtook",20.72],["gans",21.337],["for",21.68],["many",21.954],["image",22.296],["tasks",22.708],["the",23.36],["adversarial",23.612],["idea",24.371],["survives",24.687],["though",25.319],["for",26.151],["example",26.388],["as",26.863],["an",27.041],["extra",27.219],["loss",27.575],["that",27.871],["sharpens",28.168],["the",28.701],["decoders",28.939],["of",29.472],["the",29.65],["image",29.888],["autoencoders",30.243],["used",31.014],["in",31.311],["latent",31.489],["diffusion",31.904]],"s7":[["that",0.0],["completes",0.285],["our",0.856],["tour",1.084],["of",1.37],["generative",1.541],["models",2.169],["the",3.068],["next",3.319],["module",3.633],["turns",4.072],["to",4.449],["learning",4.638],["from",5.203],["rewards",5.517],["rather",6.019],["than",6.458],["from",6.772],["examples",7.086],["beginning",8.078],["with",8.618],["agents",8.889],["rewards",9.747],["and",10.284],["markov",10.552],["decision",11.022],["processes",11.625]]}}/*END*/;
+const IDS=['s1', 's2', 's3', 's4', 's5', 's6', 's7'];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov||/\\(bar|hat|underbrace|tilde)/.test(t)){d.setAttribute('data-layout-allow-overlap','');d.querySelectorAll('span').forEach(s=>s.setAttribute('data-layout-allow-overlap',''))}return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+function note(parent,cx,cy,w,color,o){o=o||{};const d=el(parent,'abs','<div style="position:absolute;left:50%;top:50%;translate:-50% -50%;width:70px;height:70px;border-radius:50%;border:3px solid '+color+'"></div>',{left:(cx-w/2)+'px',top:(cy-w*.28)+'px',width:w+'px',height:(w*.56)+'px',border:'3px solid '+color,borderRadius:'10px',background:color+'22',opacity:0,visibility:'hidden'});return d}
+
+/* ============ S1: forger and inspector ============ */
+(function(){const S=$('S1');const sid='s1';
+  const f=box(S,420,300,420,110,'forger',C.pink,{fs:44}),i=box(S,1500,300,420,110,'inspector',C.blue,{fs:44});
+  show(f,cue(sid,'forger'),.4);show(i,cue(sid,'inspector'),.4);
+  const svg=layerSvg(S);
+  const n1=note(S,720,600,300,C.dim),n2=note(S,1200,600,300,C.yellow);
+  show(n1,cue(sid,'paint'),.4);show(n2,cue(sid,'catch'),.4);
+  const a=pxArrow(svg,C.pink,4,560,380,700,500),b=pxArrow(svg,C.blue,4,1380,380,1240,500);growPx(a,cue(sid,'banknotes'),.4);growPx(b,cue(sid,'fakes'),.4);
+  const lb1=txt(S,'fake?',720,800,{fs:34,it:true,color:C.dim}),lb2=txt(S,'real',1200,800,{fs:34,it:true,color:C.yellow});show([lb1,lb2],cue(sid,'fakes'),.4);
+  tl.to(n1,{borderColor:C.yellow,background:'#f5cf4a22',duration:2},cue(sid,'forgeries'));
+  tl.to(lb1,{color:C.yellow,duration:2},cue(sid,'forgeries'));
+  const cap=el(S,'cap','a <em>generative adversarial network</em>',{top:'900px',fontSize:'52px',fontStyle:'italic'});show(cap,cue(sid,'generative'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: generator and discriminator ============ */
+(function(){const S=$('S2');const sid='s2';
+  const head=el(S,'cap','Goodfellow et al., 2014',{top:'110px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(head,cue(sid,'goodfellow'),.5);
+  const svg=layerSvg(S);const rnd=seedRand(2);
+  const z=[];for(let k=0;k<6;k++)z.push(cellAt(S,180,300+k*70,90,56,(rnd()*2-1).toFixed(1),C.grid,{fs:24}));
+  show(z,cue(sid,'noise'),.3,{stagger:.05});const zl=txt(S,'noise z',180,760,{fs:32,it:true,color:C.dim});show(zl,cue(sid,'noise'),.3);
+  const G=box(S,520,475,300,150,'generator G',C.pink,{fs:40});show(G,cue(sid,'generator'),.4);
+  const a1=pxArrow(svg,C.dim,4,240,475,360,475);growPx(a1,cue(sid,'turns'),.4);
+  const fake=note(S,900,330,240,C.pink);show(fake,cue(sid,'sample'),.4);
+  const real=note(S,900,640,240,C.yellow);show(real,cue(sid,'real'),.4);
+  const fl=txt(S,'generated',900,440,{fs:30,it:true,color:C.pink}),rl=txt(S,'real',900,750,{fs:30,it:true,color:C.yellow});show(fl,cue(sid,'sample'),.3);show(rl,cue(sid,'real'),.3);
+  const a2=pxArrow(svg,C.dim,4,670,450,770,360);growPx(a2,cue(sid,'sample'),.4);
+  const D=box(S,1320,475,340,150,'discriminator D',C.blue,{fs:40});show(D,cue(sid,'discriminator'),.4);
+  const a3=pxArrow(svg,C.dim,4,1030,340,1145,440),a4=pxArrow(svg,C.dim,4,1030,630,1145,520);growPx(a3,cue(sid,'either'),.4);growPx(a4,cue(sid,'either'),.4);
+  const p=box(S,1700,475,260,100,'P(real)',C.green,{fs:38});show(p,cue(sid,'probability'),.4);
+  const a5=pxArrow(svg,C.dim,4,1495,475,1565,475);growPx(a5,cue(sid,'outputs'),.4);
+  const back=pth(svg,'M1320 560 Q 1320 860 900 860 Q 520 860 520 560',C.pink,4,{dash:'10 8'});drawOn(back,cue(sid,'passed'),1.0);
+  const gl=txt(S,'gradients: the only signal G gets',920,920,{fs:34,it:true,color:C.pink});show(gl,cue(sid,'gradients'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: the minimax game, D* and JS ============ */
+(function(){const S=$('S3');const sid='s3';
+  const v=eqn(S,'\\min_G \\max_D \\; V(D,G) = \\mathbb{E}_{x\\sim p_{data}}[\\log D(x)] + \\mathbb{E}_{z}[\\log(1 - D(G(z)))]',960,200,48);show(v,cue(sid,'value'),.6);
+  const dm=txt(S,'D maximises',700,300,{fs:32,it:true,color:C.blue}),gm=txt(S,'G minimises',1220,300,{fs:32,it:true,color:C.pink});show(dm,cue(sid,'maximise'),.4);show(gm,cue(sid,'minimise'),.4);
+  const svg=layerSvg(S);
+  const P=(x,y)=>[160+x*900,880-y*380];
+  const ax=ln(svg,160,880,1060,880,C.axis,3);fadeIn(ax,cue(sid,'fixed'),.4);
+  const g=(x,m,s)=>Math.exp(-((x-m)**2)/(2*s*s));
+  const pd=x=>g(x,.35,.08)+.6*g(x,.65,.07),pg=x=>.9*g(x,.55,.12);
+  const cd=pth(svg,polyD(P,pts2d(pd,0,1,80)),C.yellow,4),cg=pth(svg,polyD(P,pts2d(pg,0,1,80)),C.pink,4);
+  drawOn(cd,cue(sid,'fixed'),.8);drawOn(cg,cue(sid,'fixed'),.8);
+  const dl=txt(S,'p_data',P(.25,0)[0],P(0,1.1)[1],{fs:30,color:C.yellow}),gl=txt(S,'p_g',P(.78,0)[0],P(0,.85)[1],{fs:30,color:C.pink});show([dl,gl],cue(sid,'fixed'),.4);
+  const ds=pth(svg,polyD(P,pts2d(x=>pd(x)/(pd(x)+pg(x)+1e-6),0.02,.98,120)),C.blue,4,{dash:'10 6'});drawOn(ds,cue(sid,'best'),1.2);
+  const dsl=txt(S,'D*(x)',P(.08,0)[0],P(0,1)[1]-40,{fs:30,color:C.blue});show(dsl,cue(sid,'best'),.4);
+  const e1=eqn(S,'D^*(x) = \\frac{p_{data}(x)}{p_{data}(x) + p_g(x)}',1440,470,46);show(e1,cue(sid,'divided'),.6);
+  const e2=eqn(S,'V(D^*,G) = -\\log 4 + 2\\,\\mathrm{JS}(p_{data}\\,\\|\\,p_g)',1440,640,40);show(e2,cue(sid,'jensen-shannon'),.6);
+  // distributions match
+  tl.to([cd,cg,ds],{autoAlpha:0,duration:.4},cue(sid,'won')-.2);
+  const m1=pth(svg,polyD(P,pts2d(pd,0,1,80)),C.yellow,4),m2=pth(svg,polyD(P,pts2d(pd,0,1,80)),C.pink,4,{dash:'12 8'});
+  fadeIn([m1,m2],cue(sid,'won'),.5);
+  const half=pth(svg,polyD(P,[[0,.5],[1,.5]]),C.blue,4,{dash:'10 6'});fadeIn(half,cue(sid,'match'),.4);
+  const w=txt(S,'p_g = p_data → D* = ½ everywhere',1440,780,{fs:34,color:C.green});show(w,cue(sid,'match'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: the non-saturating fix ============ */
+(function(){const S=$('S4');const sid='s4';
+  const svg=layerSvg(S);
+  const P=(d,v)=>[260+d*900,560-v*90];
+  const ax=ln(svg,260,560,1160,560,C.axis,3),ay=ln(svg,260,180,260,960,C.axis,3);fadeIn([ax,ay],cue(sid,'snag'),.4);
+  const xl=txt(S,'D(G(z)) →',1160,600,{fs:30,it:true,color:C.dim});show(xl,cue(sid,'snag'),.4);
+  const mm=pth(svg,polyD(P,pts2d(d=>Math.log(1-d),0.005,.95,80)),C.dim,5);
+  drawOn(mm,cue(sid,'original'),1.0);
+  const ml=txt(S,'log(1 − D): flat where D rejects fakes',820,470,{fs:30,color:C.dim});show(ml,cue(sid,'gradient'),.4);
+  const zone=el(S,'abs','',{left:'260px',top:'180px',width:'120px',height:'780px',background:'#fc625518',borderLeft:'3px solid #fc6255',opacity:0,visibility:'hidden'});
+  zone.setAttribute('data-layout-allow-overlap','');
+  fadeIn(zone,cue(sid,'early'),.4);
+  const zl=txt(S,'early training',320,150,{fs:30,it:true,color:C.red});show(zl,cue(sid,'easily'),.4);
+  const ns=pth(svg,polyD(P,pts2d(d=>Math.log(d)+0.0,0.012,.95,80)),C.pink,5);drawOn(ns,cue(sid,'fix'),1.0);
+  const nl=txt(S,'log D: steep exactly where G is losing',820,900,{fs:30,color:C.pink});show(nl,cue(sid,'hardest'),.4);
+  const e=eqn(S,'\\text{G: } \\max\\; \\log D(G(z))',1520,360,52,{color:C.pink});show(e,cue(sid,'maximise'),.6);
+  const s=txt(S,'non-saturating loss: now standard',1520,460,{fs:34,it:true,color:C.ink});show(s,cue(sid,'standard'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: instability and mode collapse ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);
+  const sp=pth(svg,polyD((x,y)=>[x,y],pts2d(t=>0,0,1,1).map((_,i)=>[0,0])),C.dim,2);
+  const spiral=[];for(let i=0;i<=120;i++){const t=i/120*6*Math.PI,r=180-i*.6;spiral.push([520+r*Math.cos(t),500+r*.8*Math.sin(t)])}
+  const sd='M'+spiral.map(p=>p[0].toFixed(0)+' '+p[1].toFixed(0)).join(' L');
+  const osc=pth(svg,sd,C.blue,4);drawOn(osc,cue(sid,'circle'),2.0);
+  const ol=txt(S,'the players circle instead of settling',520,780,{fs:32,it:true,color:C.blue});show(ol,cue(sid,'circle'),.4);
+  const modes=[[1180,330],[1420,330],[1660,330],[1180,560],[1420,560],[1660,560]];
+  const dcols=[C.yellow,C.green,C.blue,C.pink,C.teal,C.red];
+  const md=modes.map(([x,y],i)=>{const c=svgEl('circle',{cx:x,cy:y,r:60,fill:dcols[i]+'33',stroke:dcols[i],'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);return c});
+  fadeIn(md,cue(sid,'variety'),.4);
+  const dl=txt(S,'the variety in the data',1420,200,{fs:32,it:true,color:C.dim});show(dl,cue(sid,'variety'),.4);
+  const rnd=seedRand(6);const gs=[];for(let i=0;i<14;i++){gs.push(svgEl('circle',{cx:1180+(rnd()-.5)*50,cy:330+(rnd()-.5)*50,r:8,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg))}
+  tl.to(gs,{autoAlpha:1,duration:.2,stagger:.06},cue(sid,'collapse'));
+  const cl=txt(S,'mode collapse: every sample in one mode',1420,700,{fs:34,color:C.yellow});show(cl,cue(sid,'convincing'),.4);
+  const fl=txt(S,'a forger who paints one banknote',1420,770,{fs:30,it:true,color:C.dim});show(fl,cue(sid,'banknote'),.4);
+  const lw=el(S,'cap','later work: architectures and losses to tame it',{top:'920px',fontSize:'42px',fontStyle:'italic'});show(lw,cue(sid,'later'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: compared with VAEs and diffusion ============ */
+(function(){const S=$('S6');const sid='s6';
+  const cols=[['GAN',C.pink,['one pass: fast','no likelihood','unstable training']],['diffusion',C.blue,['many steps: slower','stable regression loss','covers the data better']]];
+  cols.forEach(([n,c,items],j)=>{const x=560+j*800;const h=box(S,x,260,420,100,n,c,{fs:44});show(h,j?cue(sid,'diffusion'):cue(sid,'gan'),.4);
+    const ts=j?[cue(sid,'slower'),cue(sid,'regression'),cue(sid,'cover')]:[cue(sid,'single'),cue(sid,'likelihood'),cue(sid,'honest')];
+    items.forEach((t,i)=>{const d=txt(S,t,x,390+i*70,{fs:36,color:C.ink});show(d,ts[i],.4)})});
+  const ov=el(S,'cap','diffusion overtook GANs for many image tasks',{top:'640px',fontSize:'44px',fontStyle:'italic',color:C.yellow});show(ov,cue(sid,'overtook'),.5);
+  const sv=box(S,960,840,1100,100,'the adversarial idea survives: a loss that sharpens latent-diffusion decoders',C.green,{fs:32});show(sv,cue(sid,'survives'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: end of module; next ============ */
+(function(){const S=$('S7');const sid='s7';
+  const items=[['11.1 autoencoders &amp; VAEs',C.blue],['11.2 diffusion',C.yellow],['11.3 GANs',C.pink]];
+  items.forEach(([t,c],i)=>{const b=box(S,480+i*480,420,420,100,t,c,{fs:36});show(b,cue(sid,'tour')+i*.2,.4)});
+  const rw=txt(S,'next module: learning from rewards',960,620,{fs:40,it:true,color:C.green});show(rw,cue(sid,'rewards'),.4);
+  nextUp(S,sid,'markov',1,'12.1 &nbsp;agents, rewards and Markov decision processes');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

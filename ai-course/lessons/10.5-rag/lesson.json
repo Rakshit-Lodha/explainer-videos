@@ -1,0 +1,102 @@
+{
+  "id": "10.5-rag",
+  "module": 10,
+  "title": "Retrieval-augmented generation",
+  "summary": "RAG adds a non-parametric memory (a searchable index of text) to a model whose own knowledge is frozen in its weights. A bi-encoder embeds chunks once, so retrieval is a nearest-neighbour search by cosine similarity, made fast by approximate indexes such as HNSW; a cross-encoder can rerank the top few. Retrieved chunks are just tokens in the context that attention reads, so retrieval quality, and even position, decide what the model can use.",
+  "video": "videos/10.5-rag.mp4",
+  "llm_link": "Your RAG apps are this pipeline. When a RAG answer is wrong, check recall@k first: if the right chunk was not retrieved the model never saw it, and if a wrong chunk was retrieved the model reads it as faithfully as a right one.",
+  "key_ideas": [
+    "Parametric memory (weights): fixed at training, hard to update or cite. Non-parametric memory (an index of documents): updated by editing text. Lewis et al. (2020) combined both.",
+    "Bi-encoder retrieval: query and chunks are embedded separately, so chunk vectors are precomputed. With unit-length vectors, cosine similarity is a dot product, and top-k is a matrix-vector product plus a sort.",
+    "Approximate nearest neighbour (e.g. HNSW, layered neighbour graphs searched greedily) trades a small recall loss for large speed-ups.",
+    "Cross-encoders read query and chunk together: more accurate, too slow for the whole corpus, so they rerank a shortlist. Hybrid search adds keyword scores (BM25) for exact names and codes.",
+    "Inside the model, retrieved text is ordinary context that attention reads. Liu et al. (Lost in the Middle) found models often use information at the start or end of a long context better than in the middle.",
+    "Evaluate in two parts: retrieval (recall@k) and generation (faithfulness to the retrieved text)."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: unit vectors q = [0.6, 0.8] and c = [0.8, 0.6]. What is their cosine similarity?",
+      "options": ["0.48", "0.96", "1.4", "0.0"],
+      "answer": 1,
+      "explain": "For unit vectors cosine similarity is the dot product: 0.6·0.8 + 0.8·0.6 = 0.96."
+    },
+    {
+      "q": "Why can a bi-encoder's chunk embeddings be computed once and stored, while a cross-encoder's scores cannot?",
+      "options": ["Bi-encoders are smaller", "The bi-encoder encodes each chunk without seeing the query; a cross-encoder must read query and chunk together", "Cross-encoders do not use vectors", "Stored embeddings are compressed"],
+      "answer": 1,
+      "explain": "Because the chunk side never depends on the query, its vector is reusable. A cross-encoder's score depends on the pair, so it has to be recomputed for every query."
+    },
+    {
+      "q": "Your RAG system answers wrongly. Retrieval logs show the correct passage was ranked 40th and you pass the top 5 to the model. What should you fix first?",
+      "options": ["The prompt wording", "Retrieval: recall@5 failed, so the model never saw the answer", "The model's temperature", "The answer length"],
+      "answer": 1,
+      "explain": "The model cannot use a passage that is not in its context. Improve retrieval (better embeddings, hybrid search, reranking, more candidates) before touching generation."
+    },
+    {
+      "q": "What did the Lost in the Middle study observe?",
+      "options": ["Models ignore retrieved text entirely", "Models often used relevant information best at the start or end of a long context and worse in the middle", "Longer contexts always improve accuracy", "Only the last token of the context matters"],
+      "answer": 1,
+      "explain": "Performance often followed a U shape over the position of the relevant passage, which is one reason rerankers put the best chunks first."
+    },
+    {
+      "q": "In the transformer, what happens to retrieved chunks pasted into the prompt?",
+      "options": ["They update the weights temporarily", "They become ordinary tokens in the context that attention can read when generating", "They are stored in a separate memory module", "They are converted to a single vector"],
+      "answer": 1,
+      "explain": "Nothing special: they are tokens, with keys and values in the KV cache like any other text, and attention draws on them."
+    }
+  ],
+  "problems": [
+    {
+      "id": "topk",
+      "title": "Cosine top-k (NumPy)",
+      "prompt": "<p>Write <code>top_k(query, chunks, k)</code>. <code>query</code> has shape <code>(d,)</code> and <code>chunks</code> has shape <code>(n, d)</code>, one row per chunk. Return the indices of the <code>k</code> chunks with the highest cosine similarity, best first.</p><p>Plan: scale every row of <code>chunks</code> and the query to unit length, then one matrix-vector product gives all the cosine similarities at once.</p><pre>chunks = np.array([[1, 0], [0, 1], [1, 1]], dtype=float)\ntop_k(np.array([1.0, 0.2]), chunks, 2)   # [0, 2]</pre>",
+      "starter": "import numpy as np\n\ndef top_k(query, chunks, k):\n    # TODO 1: unit-length rows: chunks / np.linalg.norm(chunks, axis=1, keepdims=True)\n    # TODO 2: unit-length query\n    # TODO 3: sims = C @ q   (shape (n,))\n    # TODO 4: indices sorted by sims, highest first; keep k of them\n    pass\n",
+      "tests": [
+        {"name": "example", "code": "import numpy as np\nchunks = np.array([[1, 0], [0, 1], [1, 1]], dtype=float)\nout = top_k(np.array([1.0, 0.2]), chunks, 2)\nassert out is not None, 'top_k returned None'\nassert list(out) == [0, 2], f'expected [0, 2], got {list(out)}. Check the order: best (largest similarity) first.'"},
+        {"name": "length does not matter, direction does", "code": "import numpy as np\nchunks = np.array([[10.0, 0.0], [0.6, 0.8]])\nout = top_k(np.array([0.6, 0.8]), chunks, 1)\nassert list(out) == [1], f'chunk 0 is long but points elsewhere; cosine similarity ignores length. Expected [1], got {list(out)}. Did you normalise the rows?'"},
+        {"name": "returns exactly k", "code": "import numpy as np\nrng = np.random.default_rng(0); C = rng.normal(size=(50, 8)); q = rng.normal(size=8)\nout = top_k(q, C, 5)\nassert len(out) == 5, f'expected 5 indices, got {len(out)}'"},
+        {"name": "matches brute force", "code": "import numpy as np\nrng = np.random.default_rng(1); C = rng.normal(size=(30, 6)); q = rng.normal(size=6)\nsims = [c @ q / (np.linalg.norm(c) * np.linalg.norm(q)) for c in C]\nexp = sorted(range(30), key=lambda i: -sims[i])[:4]\nassert list(out := top_k(q, C, 4)) == exp, f'expected {exp}, got {list(out)}'"}
+      ],
+      "hints": [
+        "C = chunks / np.linalg.norm(chunks, axis=1, keepdims=True); keepdims keeps the shape (n, 1) so the division broadcasts over each row.",
+        "np.argsort(sims) sorts ascending. Reverse it with [::-1], then take [:k].",
+        "return np.argsort(C @ q)[::-1][:k]"
+      ],
+      "solution": "import numpy as np\n\ndef top_k(query, chunks, k):\n    C = chunks / np.linalg.norm(chunks, axis=1, keepdims=True)\n    q = query / np.linalg.norm(query)\n    sims = C @ q\n    return np.argsort(sims)[::-1][:k]\n"
+    },
+    {
+      "id": "recall",
+      "title": "Recall at k",
+      "prompt": "<p>For each test question you have the retriever's ranked list of chunk ids and the set of ids that actually contain the answer. Write <code>recall_at_k(retrieved, relevant, k)</code>: the fraction of questions for which <b>at least one</b> relevant id appears in the first <code>k</code> retrieved.</p><pre>retrieved = [[3, 1, 7], [2, 9, 4], [5, 6, 0]]\nrelevant  = [{1},       {4},       {8}]\nrecall_at_k(retrieved, relevant, 2)   # 1/3: only question 0 has a hit in its top 2</pre>",
+      "starter": "def recall_at_k(retrieved, relevant, k):\n    hits = 0\n    for ranked, good in zip(retrieved, relevant):\n        # TODO: does any id in ranked[:k] belong to good?\n        pass\n    return hits / len(retrieved)\n",
+      "tests": [
+        {"name": "example", "code": "out = recall_at_k([[3, 1, 7], [2, 9, 4], [5, 6, 0]], [{1}, {4}, {8}], 2)\nassert abs(out - 1/3) < 1e-9, f'expected 1/3 (only the first question has a relevant id in its top 2), got {out}'"},
+        {"name": "larger k can only help", "code": "out = recall_at_k([[3, 1, 7], [2, 9, 4], [5, 6, 0]], [{1}, {4}, {8}], 3)\nassert abs(out - 2/3) < 1e-9, f'with k=3 question 1 also hits (id 4 is third), so 2/3; got {out}'"},
+        {"name": "one hit is enough", "code": "out = recall_at_k([[1, 2]], [{1, 2}], 2)\nassert out == 1.0, f'a question counts once even if several relevant ids are retrieved; expected 1.0, got {out}'"},
+        {"name": "k = 1", "code": "out = recall_at_k([[5, 1], [4, 2]], [{1}, {4}], 1)\nassert out == 0.5, f'only the top result counts when k=1: question 1 hits, question 0 misses; got {out}'"}
+      ],
+      "hints": [
+        "any(i in good for i in ranked[:k]) is True when there is at least one hit.",
+        "if that is True: hits += 1"
+      ],
+      "solution": "def recall_at_k(retrieved, relevant, k):\n    hits = 0\n    for ranked, good in zip(retrieved, relevant):\n        if any(i in good for i in ranked[:k]):\n            hits += 1\n    return hits / len(retrieved)\n"
+    },
+    {
+      "id": "rrf",
+      "title": "Blend dense and keyword search",
+      "prompt": "<p>Reciprocal rank fusion (Cormack et al., 2009) merges several ranked lists without needing their scores to be comparable. Each list gives a document <code>1 / (c + rank)</code>, with rank starting at 1 and the constant <code>c = 60</code>; a document's fused score is the sum over the lists it appears in.</p><p>Write <code>rrf(rankings, c=60)</code> that returns all documents sorted by fused score, best first (break ties by document id, smallest first, so the answer is deterministic).</p><pre>dense   = ['a', 'b', 'c']\nkeyword = ['c', 'a', 'd']\nrrf([dense, keyword])   # ['a', 'c', 'b', 'd']</pre>",
+      "starter": "def rrf(rankings, c=60):\n    scores = {}\n    for ranking in rankings:\n        for rank, doc in enumerate(ranking, start=1):\n            # TODO: add 1 / (c + rank) to this doc's score\n            pass\n    # TODO: sort the docs by (-score, doc) and return the list of docs\n    pass\n",
+      "tests": [
+        {"name": "example", "code": "out = rrf([['a', 'b', 'c'], ['c', 'a', 'd']])\nassert out == ['a', 'c', 'b', 'd'], f\"expected ['a', 'c', 'b', 'd'], got {out}. 'a' is 1st and 2nd, 'c' is 3rd and 1st: 1/61+1/62 > 1/63+1/61.\""},
+        {"name": "single list keeps its order", "code": "out = rrf([['x', 'y', 'z']])\nassert out == ['x', 'y', 'z'], f'one ranking fused with nothing should keep its order, got {out}'"},
+        {"name": "agreement wins", "code": "out = rrf([['p', 'q'], ['q', 'p'], ['q', 'r']])\nassert out[0] == 'q', f'q is near the top of every list and should come first, got {out}'"},
+        {"name": "every document appears once", "code": "out = rrf([['a', 'b'], ['b', 'c'], ['d']])\nassert sorted(out) == ['a', 'b', 'c', 'd'] and len(out) == 4, f'each document should appear exactly once, got {out}'"}
+      ],
+      "hints": [
+        "scores[doc] = scores.get(doc, 0) + 1 / (c + rank)",
+        "sorted(scores, key=lambda d: (-scores[d], d)) sorts by score descending, then by id."
+      ],
+      "solution": "def rrf(rankings, c=60):\n    scores = {}\n    for ranking in rankings:\n        for rank, doc in enumerate(ranking, start=1):\n            scores[doc] = scores.get(doc, 0) + 1 / (c + rank)\n    return sorted(scores, key=lambda d: (-scores[d], d))\n"
+    }
+  ]
+}
