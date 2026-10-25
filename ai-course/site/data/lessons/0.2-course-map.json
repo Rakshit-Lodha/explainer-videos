@@ -1,0 +1,158 @@
+{
+ "id": "0.2-course-map",
+ "module": 0,
+ "title": "The map of this course: math, then models, then transformers",
+ "summary": "The route from a two-knob line to a language model: linear algebra, calculus and probability first, then optimization and classical models, then neural networks and backpropagation, and finally tokens, attention and a small GPT you build yourself.",
+ "video": "videos/0.2-course-map.mp4",
+ "llm_link": "A language model runs the whole map in one pass: text becomes tokens, tokens become vectors (linear algebra), attention and layers transform them (matrices and bends), the output is a probability for every next token (probability), and training nudges the weights downhill (calculus and optimization).",
+ "key_ideas": [
+  "Linear algebra: lists of numbers are arrows, and matrices are machines that move arrows. Words inside a model are arrows; layers are mostly matrices.",
+  "Calculus: the derivative tells each knob which way is downhill for the loss.",
+  "Probability: a model hands out a share of belief to every possible next word, and the loss scores those beliefs.",
+  "Optimization and classical ML come before neural networks because the big ideas (descent, overfitting) are visible there on a single plot.",
+  "Every lesson = one idea + a quiz + a code problem, and the code builds up into an autograd engine, a NumPy network and a small GPT."
+ ],
+ "quiz": [
+  {
+   "q": "Why does the course start with linear algebra?",
+   "options": [
+    "Because it is the easiest branch of mathematics",
+    "Because words inside a model are vectors and layers are mostly matrices acting on them",
+    "Because language models store a dictionary of words",
+    "Because calculus needs no vectors"
+   ],
+   "answer": 1,
+   "explain": "Every token becomes a vector, and most of what a layer does is multiply vectors by matrices. Linear algebra is the language the rest of the course is written in."
+  },
+  {
+   "q": "What job does calculus do in training?",
+   "options": [
+    "It stores the training data",
+    "It tells each knob which direction lowers the loss",
+    "It turns text into tokens",
+    "It picks the next word at random"
+   ],
+   "answer": 1,
+   "explain": "The derivative of the loss with respect to a knob says how the loss changes if you nudge that knob, so you know which way is downhill."
+  },
+  {
+   "q": "Predict the result: f(x) = x + 1 and g(x) = 2 · x. You apply f first and then g to the number 3. What comes out?",
+   "options": [
+    "7",
+    "8",
+    "6",
+    "9"
+   ],
+   "answer": 1,
+   "explain": "f(3) = 4, then g(4) = 8. Stacking layers in a network works the same way: each layer's output is the next layer's input, and the order matters (g first and then f would give 7)."
+  },
+  {
+   "q": "Why does a course about language models need probability?",
+   "options": [
+    "Because a model outputs a share of belief for every possible next token, and we need a fair way to score it",
+    "Because training data is random noise",
+    "Because probability replaces the need for calculus",
+    "It doesn't; probability is only used in statistics"
+   ],
+   "answer": 0,
+   "explain": "The model's output is a probability distribution over the vocabulary. The loss used to train LLMs (cross-entropy, lesson 3.7) scores how much belief the model put on the token that actually came next."
+  },
+  {
+   "q": "Which order matches what happens inside a language model when it reads a prompt?",
+   "options": [
+    "attention → tokens → vectors → probabilities",
+    "tokens → vectors → attention and layers → probabilities for the next token",
+    "probabilities → tokens → vectors → attention",
+    "vectors → tokens → probabilities → attention"
+   ],
+   "answer": 1,
+   "explain": "Text is cut into tokens, each token becomes a vector, the vectors pass through attention and layer blocks, and the end of the stack produces a probability for every possible next token."
+  }
+ ],
+ "problems": [
+  {
+   "id": "mean",
+   "title": "Average, with a proper error",
+   "prompt": "<p>Write <code>mean(xs)</code> that returns the average of a list of numbers.</p><p>An empty list has no average, so in that case raise a <code>ValueError</code> with a helpful message. Raising an error in Python looks like <code>raise ValueError(\"message\")</code>: <code>ValueError</code> is a class you call, not a string.</p><pre>mean([2, 4, 9])   # 5.0\nmean([])          # ValueError</pre>",
+   "starter": "def mean(xs):\n    # TODO 1: if xs is empty, raise a ValueError\n\n    # TODO 2: return the sum divided by the number of entries\n    pass\n",
+   "tests": [
+    {
+     "name": "averages a list",
+     "code": "out = mean([2, 4, 9])\nassert out is not None, 'mean returned None; did you forget to return?'\nassert abs(out - 5) < 1e-9, f'(2 + 4 + 9) / 3 = 5, got {out}'"
+    },
+    {
+     "name": "works with negatives and floats",
+     "code": "out = mean([-1.5, 1.5, 3])\nassert abs(out - 1) < 1e-9, f'(-1.5 + 1.5 + 3) / 3 = 1, got {out}'"
+    },
+    {
+     "name": "raises ValueError on an empty list",
+     "code": "try:\n    mean([])\nexcept ValueError:\n    pass\nexcept TypeError as e:\n    raise AssertionError(f'got TypeError ({e}). raise(\"text\") raises a string, which Python rejects; write raise ValueError(\"text\")')\nexcept ZeroDivisionError:\n    raise AssertionError('got ZeroDivisionError: check for the empty list before dividing by len(xs)')\nelse:\n    raise AssertionError('expected a ValueError for an empty list, but nothing was raised')"
+    }
+   ],
+   "hints": [
+    "if len(xs) == 0: raise ValueError(\"mean of an empty list\")",
+    "sum(xs) / len(xs) gives the average."
+   ],
+   "solution": "def mean(xs):\n    if len(xs) == 0:\n        raise ValueError(\"mean of an empty list\")\n    return sum(xs) / len(xs)\n"
+  },
+  {
+   "id": "stack",
+   "title": "Stack functions like layers",
+   "prompt": "<p>A network is a stack of layers: each one is a function, and each layer's output becomes the next layer's input.</p><p>Write <code>run_stack(layers, x)</code> that feeds <code>x</code> through a list of functions in order and returns the final output.</p><pre>double = lambda v: 2 * v\nadd_one = lambda v: v + 1\nrun_stack([add_one, double], 3)   # double(add_one(3)) = 8\nrun_stack([double, add_one], 3)   # add_one(double(3)) = 7\nrun_stack([], 3)                  # 3 (no layers, nothing changes)</pre>",
+   "starter": "def run_stack(layers, x):\n    # TODO: pass x through each layer in order, keeping the latest output\n    return x\n",
+   "tests": [
+    {
+     "name": "applies layers in order",
+     "code": "out = run_stack([lambda v: v + 1, lambda v: 2 * v], 3)\nassert out == 8, f'add one first (3 -> 4), then double (4 -> 8); got {out}'"
+    },
+    {
+     "name": "order matters",
+     "code": "out = run_stack([lambda v: 2 * v, lambda v: v + 1], 3)\nassert out == 7, f'double first (3 -> 6), then add one (6 -> 7); got {out}. Are you applying the layers in list order?'"
+    },
+    {
+     "name": "no layers changes nothing",
+     "code": "assert run_stack([], 5) == 5, 'with an empty stack the input should come back unchanged'"
+    },
+    {
+     "name": "many layers",
+     "code": "out = run_stack([lambda v: v + 1] * 10, 0)\nassert out == 10, f'ten add-one layers on 0 should give 10, got {out}. Each layer must receive the previous output, not the original x.'"
+    }
+   ],
+   "hints": [
+    "for layer in layers: x = layer(x)",
+    "Return x after the loop."
+   ],
+   "solution": "def run_stack(layers, x):\n    for layer in layers:\n        x = layer(x)\n    return x\n"
+  },
+  {
+   "id": "tokens",
+   "title": "Text to numbers (a first tokenizer)",
+   "prompt": "<p>Before a model can do any arithmetic, text has to become numbers. The simplest tokenizer gives every character an id.</p><p>Write <code>build_vocab(text)</code> that returns a dict mapping each <b>distinct</b> character of <code>text</code> to an id, with ids 0, 1, 2, ... assigned in <b>sorted</b> character order. Then write <code>encode(text, vocab)</code> that returns the list of ids for the characters of <code>text</code>.</p><pre>vocab = build_vocab(\"banana\")   # {'a': 0, 'b': 1, 'n': 2}\nencode(\"nab\", vocab)            # [2, 0, 1]</pre>",
+   "starter": "def build_vocab(text):\n    # TODO: sorted(set(text)) gives the distinct characters in order;\n    #       give the first id 0, the next id 1, and so on\n    vocab = {}\n    return vocab\n\n\ndef encode(text, vocab):\n    # TODO: look up each character's id\n    return []\n",
+   "tests": [
+    {
+     "name": "vocab of banana",
+     "code": "v = build_vocab('banana')\nassert v == {'a': 0, 'b': 1, 'n': 2}, f\"expected {{'a': 0, 'b': 1, 'n': 2}} (distinct characters, sorted), got {v}\""
+    },
+    {
+     "name": "ids are 0..n-1",
+     "code": "v = build_vocab('hello world')\nassert sorted(v.values()) == list(range(len(v))), f'ids should be 0, 1, ..., {len(v)-1} with no gaps, got {sorted(v.values())}'\nassert v[' '] == 0, 'the space sorts before letters, so it should get id 0'"
+    },
+    {
+     "name": "encode",
+     "code": "v = build_vocab('banana')\nout = encode('nab', v)\nassert out == [2, 0, 1], f'n -> 2, a -> 0, b -> 1, so expected [2, 0, 1], got {out}'"
+    },
+    {
+     "name": "encode keeps length",
+     "code": "v = build_vocab('abc')\nout = encode('cabbage'[:4], v)\nassert len(out) == 4, f'one id per character: expected 4 ids, got {len(out)}'"
+    }
+   ],
+   "hints": [
+    "for i, ch in enumerate(sorted(set(text))): vocab[ch] = i",
+    "encode is one line: [vocab[ch] for ch in text]"
+   ],
+   "solution": "def build_vocab(text):\n    return {ch: i for i, ch in enumerate(sorted(set(text)))}\n\n\ndef encode(text, vocab):\n    return [vocab[ch] for ch in text]\n"
+  }
+ ],
+ "poster": "videos/0.2-course-map.jpg"
+}

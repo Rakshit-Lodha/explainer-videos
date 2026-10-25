@@ -7,11 +7,13 @@
    "lessons": [
     {
      "num": "0.1",
-     "title": "What it means for a machine to \"learn\": fitting a function to data"
+     "title": "What it means for a machine to \"learn\": fitting a function to data",
+     "id": "0.1-learning"
     },
     {
      "num": "0.2",
-     "title": "The map of this course: math, then models, then transformers"
+     "title": "The map of this course: math, then models, then transformers",
+     "id": "0.2-course-map"
     },
     {
      "num": "0.3",
@@ -42,7 +44,8 @@
     },
     {
      "num": "1.5",
-     "title": "Determinant: how much area gets stretched"
+     "title": "Determinant: how much area gets stretched",
+     "id": "1.5-determinant"
     },
     {
      "num": "1.6",
@@ -94,7 +97,8 @@
    "lessons": [
     {
      "num": "3.1",
-     "title": "Random variables and distributions"
+     "title": "Random variables and distributions",
+     "id": "3.1-random-variables"
     },
     {
      "num": "3.2",
@@ -158,7 +162,8 @@
    "lessons": [
     {
      "num": "5.1",
-     "title": "Linear regression as projection"
+     "title": "Linear regression as projection",
+     "id": "5.1-linear-regression"
     },
     {
      "num": "5.2",
@@ -286,7 +291,8 @@
    "lessons": [
     {
      "num": "9.1",
-     "title": "Tokens: turning text into numbers"
+     "title": "Tokens: turning text into numbers",
+     "id": "9.1-tokens"
     },
     {
      "num": "9.2",
@@ -332,7 +338,8 @@
    "lessons": [
     {
      "num": "10.1",
-     "title": "Pretraining and scaling laws"
+     "title": "Pretraining and scaling laws",
+     "id": "10.1-scaling-laws"
     },
     {
      "num": "10.2",

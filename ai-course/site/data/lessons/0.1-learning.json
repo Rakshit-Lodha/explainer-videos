@@ -1,0 +1,147 @@
+{
+ "id": "0.1-learning",
+ "module": 0,
+ "title": "What it means for a machine to \"learn\": fitting a function to data",
+ "summary": "A model is a function with knobs. A loss measures how wrong it is on known examples, and learning means nudging the knobs until the loss stops falling. The test of learning is a sensible answer for an input the model has never seen.",
+ "video": "videos/0.1-learning.mp4",
+ "llm_link": "A language model is a function from the text so far to a guess about the next token. Instead of two knobs it has billions of parameters, and training is the same loop: measure the loss on real text, nudge every parameter to lower it, repeat.",
+ "key_ideas": [
+  "A function takes an input and returns exactly one output. A model is a function with adjustable numbers (parameters, or knobs).",
+  "A straight line price = m · size + b has two knobs: the slope m and the height b where it crosses the vertical axis.",
+  "The loss (here the mean squared error) averages the squared gaps between predictions and true values. Squaring makes misses above and below both count.",
+  "Learning = start the knobs anywhere, nudge them in whichever direction lowers the loss, repeat until no nudge helps.",
+  "A model has learned when it gives sensible outputs for inputs it never saw, not when it memorises the examples."
+ ],
+ "quiz": [
+  {
+   "q": "In this lesson, what does it mean for a machine to \"learn\"?",
+   "options": [
+    "It stores every example so it can look them up later",
+    "It adjusts its parameters so that its loss on the examples goes down",
+    "A programmer writes the exact rule into the code",
+    "It picks the line that passes through the first two points"
+   ],
+   "answer": 1,
+   "explain": "Nobody types the final rule. The knobs start anywhere and are nudged in the direction that lowers the loss, so the rule is found by search."
+  },
+  {
+   "q": "Predict the result: the line is guess = 2 · x + 1. The data is (x=1, y=4) and (x=2, y=5). What is the mean squared error?",
+   "options": [
+    "0.5",
+    "1",
+    "0",
+    "2.5"
+   ],
+   "answer": 0,
+   "explain": "Guesses are 3 and 5. Gaps are 3 − 4 = −1 and 5 − 5 = 0. Squared: 1 and 0. The average of 1 and 0 is 0.5."
+  },
+  {
+   "q": "Why do we square each gap before averaging?",
+   "options": [
+    "To make the numbers smaller",
+    "So that a miss above and a miss below cannot cancel each other out",
+    "Because prices are always positive",
+    "Squaring is optional and changes nothing"
+   ],
+   "answer": 1,
+   "explain": "Without squaring, a gap of +3 and a gap of −3 would average to 0, and a terrible line would look perfect. Squares are never negative, so every miss counts against the line (and big misses count a lot)."
+  },
+  {
+   "q": "Two models have the same loss on the flats they were trained on. Which one has learned better?",
+   "options": [
+    "The one with more knobs",
+    "The one that gives more sensible prices for flats that were not in the record",
+    "The one that was trained for longer",
+    "They are equally good by definition"
+   ],
+   "answer": 1,
+   "explain": "Fitting the old examples is the means, not the goal. What we care about is the next input, so we judge a model on data it has not seen."
+  },
+  {
+   "q": "In a large language model, what plays the role of the slope and height knobs?",
+   "options": [
+    "The words in the prompt",
+    "Billions of numeric parameters (weights) that training nudges to lower the loss",
+    "The temperature setting",
+    "A list of rules written by engineers"
+   ],
+   "answer": 1,
+   "explain": "The prompt is the input, like the size of the flat. The weights are the knobs, and training nudges them to lower the loss on predicting the next token."
+  }
+ ],
+ "problems": [
+  {
+   "id": "loss",
+   "title": "Predict and measure the loss",
+   "prompt": "<p>A line is described by two knobs, <code>m</code> (slope) and <code>b</code> (height). Write:</p><ul><li><code>predict(m, b, x)</code>: the line's guess for input <code>x</code>.</li><li><code>mse(m, b, xs, ys)</code>: the <b>mean squared error</b> of the line on the data, i.e. the average over all points of (guess − true value)².</li></ul><pre>predict(2, 1, 3)                 # 7\nmse(2, 1, [1, 2], [4, 5])        # 0.5</pre><p><code>xs</code> and <code>ys</code> are plain Python lists of the same length; <code>ys[i]</code> is the true value for <code>xs[i]</code>.</p>",
+   "starter": "def predict(m, b, x):\n    # TODO: the line's guess for x\n    pass\n\n\ndef mse(m, b, xs, ys):\n    # TODO 1: for each pair (x, y), compute the gap predict(m, b, x) - y\n    # TODO 2: square each gap and add it to a running total\n    # TODO 3: divide the total by the number of points\n    total = 0\n\n    return total\n",
+   "tests": [
+    {
+     "name": "predict on a simple line",
+     "code": "out = predict(2, 1, 3)\nassert out == 7, f'predict(2, 1, 3) should be 2*3 + 1 = 7, got {out}'"
+    },
+    {
+     "name": "predict with a negative slope",
+     "code": "out = predict(-0.5, 4, 2)\nassert abs(out - 3) < 1e-9, f'predict(-0.5, 4, 2) should be -0.5*2 + 4 = 3, got {out}'"
+    },
+    {
+     "name": "mse of the quiz example",
+     "code": "out = mse(2, 1, [1, 2], [4, 5])\nassert out is not None, 'mse returned None; did you forget to return the result?'\nassert abs(out - 0.5) < 1e-9, f'guesses are 3 and 5, gaps -1 and 0, squares 1 and 0, average 0.5; got {out}'"
+    },
+    {
+     "name": "a perfect line has zero loss",
+     "code": "out = mse(3, -1, [0, 1, 2, 5], [-1, 2, 5, 14])\nassert abs(out) < 1e-9, f'every point lies on y = 3x - 1, so the loss should be 0, got {out}'"
+    },
+    {
+     "name": "misses above and below do not cancel",
+     "code": "out = mse(0, 0, [1, 2], [3, -3])\nassert abs(out - 9) < 1e-9, f'gaps are -3 and +3; squared they are 9 and 9, average 9. Got {out}. If you got 0, you forgot to square.'"
+    },
+    {
+     "name": "it is an average, not a sum",
+     "code": "out = mse(0, 0, [1, 2, 3, 4], [1, 1, 1, 1])\nassert abs(out - 1) < 1e-9, f'four gaps of 1 should average to 1, got {out}. Did you divide by len(xs)?'"
+    }
+   ],
+   "hints": [
+    "predict is one line: return m * x + b",
+    "Walk both lists together: for x, y in zip(xs, ys): gap = predict(m, b, x) - y",
+    "Add gap ** 2 to total inside the loop, then return total / len(xs) after it."
+   ],
+   "solution": "def predict(m, b, x):\n    return m * x + b\n\n\ndef mse(m, b, xs, ys):\n    total = 0\n    for x, y in zip(xs, ys):\n        gap = predict(m, b, x) - y\n        total += gap ** 2\n    return total / len(xs)\n"
+  },
+  {
+   "id": "nudge",
+   "title": "Learn by nudging the knobs",
+   "prompt": "<p>Now make the machine learn, exactly as in the video: try a small nudge to each knob and keep whichever setting lowers the loss.</p><p>Write <code>nudge(m, b, xs, ys, step)</code>. Consider the five settings <code>(m, b)</code>, <code>(m+step, b)</code>, <code>(m-step, b)</code>, <code>(m, b+step)</code>, <code>(m, b-step)</code> and return the one with the <b>lowest</b> mse as a tuple <code>(m, b)</code>. If no nudge helps, the current setting wins.</p><p>Then write <code>fit(xs, ys, steps, step)</code> that starts at <code>m = 0, b = 0</code>, calls <code>nudge</code> <code>steps</code> times and returns the final <code>(m, b)</code>.</p><p><code>predict</code> and <code>mse</code> from the previous problem are already included.</p>",
+   "starter": "def predict(m, b, x):\n    return m * x + b\n\n\ndef mse(m, b, xs, ys):\n    return sum((predict(m, b, x) - y) ** 2 for x, y in zip(xs, ys)) / len(xs)\n\n\ndef nudge(m, b, xs, ys, step):\n    candidates = [(m, b), (m + step, b), (m - step, b), (m, b + step), (m, b - step)]\n    # TODO: return the candidate (a tuple) with the smallest mse\n    return (m, b)\n\n\ndef fit(xs, ys, steps, step):\n    m, b = 0, 0\n    # TODO: call nudge `steps` times, each time replacing m, b with its result\n    return (m, b)\n",
+   "tests": [
+    {
+     "name": "nudge moves towards the data",
+     "code": "m, b = nudge(0, 0, [1, 2, 3], [2, 4, 6], 0.5)\nassert (m, b) == (0.5, 0), f'from (0, 0) the best single nudge for y = 2x is m + 0.5, giving (0.5, 0); got {(m, b)}'"
+    },
+    {
+     "name": "nudge stays put when nothing helps",
+     "code": "m, b = nudge(2, 0, [1, 2, 3], [2, 4, 6], 0.1)\nassert (m, b) == (2, 0), f'(2, 0) already fits y = 2x perfectly, so every nudge makes the loss worse; got {(m, b)}'"
+    },
+    {
+     "name": "nudge returns a tuple",
+     "code": "out = nudge(0, 0, [1], [1], 0.1)\nassert isinstance(out, tuple) and len(out) == 2, f'nudge should return a tuple (m, b), got {out!r}'"
+    },
+    {
+     "name": "fit lowers the loss a lot",
+     "code": "xs = [1, 2, 3, 4, 5]; ys = [3.1, 4.9, 7.2, 8.8, 11.1]\nm, b = fit(xs, ys, 400, 0.05)\nassert mse(m, b, xs, ys) < 0.1, f'after 400 nudges the loss should be under 0.1 (start was {mse(0, 0, xs, ys):.1f}); got {mse(m, b, xs, ys):.3f} with m={m:.2f}, b={b:.2f}. Is fit calling nudge in a loop and keeping its result?'"
+    },
+    {
+     "name": "fit finds the trend",
+     "code": "xs = [1, 2, 3, 4, 5]; ys = [3.1, 4.9, 7.2, 8.8, 11.1]\nm, b = fit(xs, ys, 400, 0.05)\nassert abs(m - 2) < 0.3 and abs(b - 1) < 0.6, f'the data roughly follows y = 2x + 1; got m={m:.2f}, b={b:.2f}'"
+    }
+   ],
+   "hints": [
+    "Keep the best candidate seen so far: best = candidates[0], then loop and replace best whenever mse(*c, xs, ys) < mse(*best, xs, ys).",
+    "Python can do it in one line: min(candidates, key=lambda c: mse(c[0], c[1], xs, ys))",
+    "In fit: for _ in range(steps): m, b = nudge(m, b, xs, ys, step)"
+   ],
+   "solution": "def predict(m, b, x):\n    return m * x + b\n\n\ndef mse(m, b, xs, ys):\n    return sum((predict(m, b, x) - y) ** 2 for x, y in zip(xs, ys)) / len(xs)\n\n\ndef nudge(m, b, xs, ys, step):\n    candidates = [(m, b), (m + step, b), (m - step, b), (m, b + step), (m, b - step)]\n    return min(candidates, key=lambda c: mse(c[0], c[1], xs, ys))\n\n\ndef fit(xs, ys, steps, step):\n    m, b = 0, 0\n    for _ in range(steps):\n        m, b = nudge(m, b, xs, ys, step)\n    return (m, b)\n"
+  }
+ ],
+ "poster": "videos/0.1-learning.jpg"
+}

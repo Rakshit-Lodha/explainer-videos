@@ -1,0 +1,180 @@
+{
+ "id": "9.1-tokens",
+ "module": 9,
+ "title": "Tokens: turning text into numbers",
+ "summary": "A model only does arithmetic, so text is first cut into tokens and each token gets an integer ID. Characters give a tiny vocabulary but long sequences; whole words give short sequences but a huge vocabulary and unknown words. Byte pair encoding sits in between: start from characters (or bytes) and repeatedly merge the most frequent neighbouring pair.",
+ "video": "videos/9.1-tokens.mp4",
+ "llm_link": "Every prompt you send to an LLM is first split into tokens by a BPE-style tokenizer, and the model's output is a choice among those same token IDs. Context limits and API prices are counted in tokens, not words, which is why a rare word or another language can cost more.",
+ "key_ideas": [
+  "A tokenizer has two halves: encode (text to a list of integer IDs) and decode (IDs back to text).",
+  "Character tokens: tiny vocabulary, long sequences, nothing is ever unknown.",
+  "Word tokens: short sequences, huge vocabulary, and unseen words collapse to an <unk> placeholder.",
+  "Byte pair encoding: count neighbouring pairs, merge the most frequent pair into a new token, repeat. Common words become one token; rare words become a few familiar pieces.",
+  "A token ID is a name tag, not a quantity. The model turns each ID into a vector (next lesson)."
+ ],
+ "quiz": [
+  {
+   "q": "Character-level tokenization of a text whose distinct characters are ' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w' (sorted, IDs 0-7). Predict the result of encoding \"hold\".",
+   "options": [
+    "[3, 5, 4, 1]",
+    "[3, 4, 5, 1]",
+    "[4, 6, 5, 2]",
+    "[1, 4, 5, 3]"
+   ],
+   "answer": 0,
+   "explain": "Each character's ID is its position in the sorted vocabulary: h is 3, o is 5, l is 4, d is 1."
+  },
+  {
+   "q": "Why does a word-level tokenizer struggle with a word it never saw during training?",
+   "options": [
+    "It splits the word into characters automatically",
+    "The word has no ID, so it becomes a generic <unk> token and its meaning is lost",
+    "It gives the word the ID of the most similar word",
+    "It makes the sequence longer"
+   ],
+   "answer": 1,
+   "explain": "A word vocabulary is fixed after training. Anything outside it can only be mapped to a placeholder, which carries no information about the actual word."
+  },
+  {
+   "q": "One BPE step on the token list [a, b, a, b, c, a, b]: which pair is merged first?",
+   "options": [
+    "(b, a)",
+    "(b, c)",
+    "(a, b)",
+    "(c, a)"
+   ],
+   "answer": 2,
+   "explain": "Counting neighbouring pairs: (a,b) appears 3 times, (b,a) once, (b,c) once, (c,a) once. BPE merges the most frequent pair."
+  },
+  {
+   "q": "Why do modern tokenizers like GPT-2's start BPE from bytes rather than characters?",
+   "options": [
+    "Bytes are faster to type",
+    "With 256 starting byte tokens, any text in any script can be encoded, so nothing is unknown",
+    "Bytes carry more meaning than characters",
+    "It makes the vocabulary smaller than a character vocabulary"
+   ],
+   "answer": 1,
+   "explain": "UTF-8 writes every character, accent or emoji as one to four bytes. If all 256 byte values are in the starting vocabulary, every possible string can be encoded."
+  },
+  {
+   "q": "An LLM API bills you by tokens. Which text is likely to use the most tokens for the same number of characters?",
+   "options": [
+    "Common English words",
+    "A random string of rare names and symbols",
+    "Repeated copies of the word \"the\"",
+    "They all use the same number"
+   ],
+   "answer": 1,
+   "explain": "Common words were merged into single tokens during BPE training. Rare strings fall back to small pieces, so they need more tokens per character."
+  }
+ ],
+ "problems": [
+  {
+   "id": "chars",
+   "title": "A character tokenizer",
+   "prompt": "<p>Build the simplest tokenizer from the video.</p><ul><li><code>build_vocab(text)</code> returns the <b>sorted</b> list of distinct characters in <code>text</code>.</li><li><code>encode(s, vocab)</code> returns the list of IDs, where a character's ID is its position in <code>vocab</code>.</li><li><code>decode(ids, vocab)</code> turns IDs back into a string.</li></ul><pre>vocab = build_vocab(\"hello world\")   # [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w']\nencode(\"hello\", vocab)              # [3, 2, 4, 4, 5]\ndecode([3, 2, 4, 4, 5], vocab)       # 'hello'</pre>",
+   "starter": "def build_vocab(text):\n    # TODO: the distinct characters of text, sorted (hint: set, then sorted)\n    pass\n\ndef encode(s, vocab):\n    # TODO: build a dict from character to index once, then look each character up\n    pass\n\ndef decode(ids, vocab):\n    # TODO: look up each id in vocab and join the characters into one string\n    pass\n",
+   "tests": [
+    {
+     "name": "vocabulary is sorted and distinct",
+     "code": "v = build_vocab('hello world')\nassert v == [' ', 'd', 'e', 'h', 'l', 'o', 'r', 'w'], f'expected the 8 distinct characters in sorted order, got {v}. A set removes duplicates; sorted() orders it and returns a list.'"
+    },
+    {
+     "name": "encodes hello",
+     "code": "v = build_vocab('hello world')\nout = encode('hello', v)\nassert out == [3, 2, 4, 4, 5], f'expected [3, 2, 4, 4, 5], got {out}. Each ID is the position of the character in the sorted vocabulary.'"
+    },
+    {
+     "name": "decodes back",
+     "code": "v = build_vocab('hello world')\nout = decode([3, 2, 4, 4, 5], v)\nassert out == 'hello', f'expected the string hello, got {out!r}. decode should return a str, not a list: use \"\".join(...).'"
+    },
+    {
+     "name": "round trip on any text",
+     "code": "t = 'the cat sat on the mat'\nv = build_vocab(t)\nassert decode(encode(t, v), v) == t, 'decode(encode(t)) should give back exactly the original text'"
+    },
+    {
+     "name": "spaces count as characters",
+     "code": "v = build_vocab('a b')\nassert v == [' ', 'a', 'b'], f'the space is a character too and sorts first, got {v}'"
+    }
+   ],
+   "hints": [
+    "sorted(set(text)) gives a sorted list of the distinct characters.",
+    "stoi = {ch: i for i, ch in enumerate(vocab)} maps each character to its ID. Then [stoi[ch] for ch in s].",
+    "''.join(vocab[i] for i in ids)"
+   ],
+   "solution": "def build_vocab(text):\n    return sorted(set(text))\n\ndef encode(s, vocab):\n    stoi = {ch: i for i, ch in enumerate(vocab)}\n    return [stoi[ch] for ch in s]\n\ndef decode(ids, vocab):\n    return ''.join(vocab[i] for i in ids)\n"
+  },
+  {
+   "id": "pairs",
+   "title": "Count neighbouring pairs",
+   "prompt": "<p>BPE starts by counting how often each pair of <b>neighbouring</b> tokens appears. Write <code>count_pairs(ids)</code> that returns a dict mapping each pair (a tuple) to its count.</p><pre>count_pairs([1, 2, 3, 1, 2])   # {(1, 2): 2, (2, 3): 1, (3, 1): 1}</pre><p>Neighbours are positions <code>i</code> and <code>i + 1</code>. A clean way to walk over them is <code>zip(ids, ids[1:])</code>, which pairs each element with the one after it.</p>",
+   "starter": "def count_pairs(ids):\n    counts = {}\n    # TODO: for each neighbouring pair (a, b), add 1 to counts[(a, b)]\n    return counts\n",
+   "tests": [
+    {
+     "name": "small example",
+     "code": "out = count_pairs([1, 2, 3, 1, 2])\nassert out == {(1, 2): 2, (2, 3): 1, (3, 1): 1}, f'expected {{(1, 2): 2, (2, 3): 1, (3, 1): 1}}, got {out}'"
+    },
+    {
+     "name": "only neighbours count",
+     "code": "out = count_pairs([1, 2, 3])\nassert (1, 3) not in out, 'only neighbouring tokens form a pair: 1 and 3 are not next to each other'\nassert out == {(1, 2): 1, (2, 3): 1}, f'got {out}'"
+    },
+    {
+     "name": "repeated tokens overlap",
+     "code": "out = count_pairs([7, 7, 7])\nassert out == {(7, 7): 2}, f'[7, 7, 7] has two neighbouring pairs (positions 0-1 and 1-2), got {out}'"
+    },
+    {
+     "name": "short lists have no pairs",
+     "code": "assert count_pairs([5]) == {}, 'a single token has no neighbour, so the result should be an empty dict'\nassert count_pairs([]) == {}, 'an empty list has no pairs'"
+    },
+    {
+     "name": "finds the most frequent pair in the video's text",
+     "code": "t = list('the this that then')\nc = count_pairs(t)\nbest = max(c, key=c.get)\nassert best == ('t', 'h') and c[best] == 4, f'in the video t followed by h appears 4 times and wins; you found {best} with count {c.get(best)}'"
+    }
+   ],
+   "hints": [
+    "for a, b in zip(ids, ids[1:]): ...",
+    "counts[(a, b)] = counts.get((a, b), 0) + 1"
+   ],
+   "solution": "def count_pairs(ids):\n    counts = {}\n    for a, b in zip(ids, ids[1:]):\n        counts[(a, b)] = counts.get((a, b), 0) + 1\n    return counts\n"
+  },
+  {
+   "id": "merge",
+   "title": "Merge a pair, then train a tiny BPE",
+   "prompt": "<p>Write <code>merge(ids, pair, new_id)</code>: walk left to right, and wherever <code>pair[0]</code> is immediately followed by <code>pair[1]</code>, emit <code>new_id</code> and skip both; otherwise copy the token.</p><pre>merge([1, 2, 3, 1, 2], (1, 2), 99)   # [99, 3, 99]\nmerge([7, 7, 7], (7, 7), 8)          # [8, 7]   (left to right, no overlaps)</pre><p><code>count_pairs</code> from the previous problem is included, and <code>train_bpe</code> already uses your <code>merge</code>: once it passes, run it on some text and watch common pairs turn into tokens.</p>",
+   "starter": "def count_pairs(ids):\n    counts = {}\n    for a, b in zip(ids, ids[1:]):\n        counts[(a, b)] = counts.get((a, b), 0) + 1\n    return counts\n\ndef merge(ids, pair, new_id):\n    out = []\n    i = 0\n    # TODO: while i < len(ids):\n    #   if ids[i], ids[i+1] equal the pair (check i + 1 is in range!): append new_id, i += 2\n    #   else: append ids[i], i += 1\n    return out\n\ndef train_bpe(text, n_merges):\n    \"\"\"Byte-level BPE: start from the UTF-8 bytes (0-255), new tokens get 256, 257, ...\"\"\"\n    ids = list(text.encode('utf-8'))\n    merges = {}\n    for k in range(n_merges):\n        counts = count_pairs(ids)\n        if not counts:\n            break\n        best = max(counts, key=counts.get)\n        ids = merge(ids, best, 256 + k)\n        merges[best] = 256 + k\n    return ids, merges\n",
+   "tests": [
+    {
+     "name": "merges every occurrence",
+     "code": "out = merge([1, 2, 3, 1, 2], (1, 2), 99)\nassert out == [99, 3, 99], f'expected [99, 3, 99], got {out}'"
+    },
+    {
+     "name": "left to right, no overlaps",
+     "code": "out = merge([7, 7, 7], (7, 7), 8)\nassert out == [8, 7], f'after merging positions 0-1 the scan continues at position 2, so the result is [8, 7]; got {out}'"
+    },
+    {
+     "name": "pair at the very end",
+     "code": "out = merge([5, 1, 2], (1, 2), 9)\nassert out == [5, 9], f'expected [5, 9], got {out}'"
+    },
+    {
+     "name": "last token is kept",
+     "code": "out = merge([1, 2, 1], (1, 2), 9)\nassert out == [9, 1], f'a lone final token must still be copied (careful with i + 1 going out of range); got {out}'"
+    },
+    {
+     "name": "does not change the input",
+     "code": "a = [1, 2, 1, 2]\nmerge(a, (1, 2), 9)\nassert a == [1, 2, 1, 2], 'merge should build a new list, not modify ids'"
+    },
+    {
+     "name": "BPE shortens text",
+     "code": "text = 'the this that then ' * 5\nids, merges = train_bpe(text, 5)\nassert len(merges) == 5, f'expected 5 merges, got {len(merges)}'\nassert len(ids) < len(text.encode()), 'after merging, the token list should be shorter than the byte list'\nassert (ord('t'), ord('h')) in merges, 't followed by h is the most frequent pair in this text, so it should be among the first merges'"
+    }
+   ],
+   "hints": [
+    "Use a while loop, because you sometimes step by 2 and sometimes by 1.",
+    "if i + 1 < len(ids) and ids[i] == pair[0] and ids[i + 1] == pair[1]:",
+    "Try: ids, merges = train_bpe('the cat sat on the mat. the cat ate.', 10), then print(len(ids), merges)."
+   ],
+   "solution": "def count_pairs(ids):\n    counts = {}\n    for a, b in zip(ids, ids[1:]):\n        counts[(a, b)] = counts.get((a, b), 0) + 1\n    return counts\n\ndef merge(ids, pair, new_id):\n    out = []\n    i = 0\n    while i < len(ids):\n        if i + 1 < len(ids) and ids[i] == pair[0] and ids[i + 1] == pair[1]:\n            out.append(new_id)\n            i += 2\n        else:\n            out.append(ids[i])\n            i += 1\n    return out\n\ndef train_bpe(text, n_merges):\n    \"\"\"Byte-level BPE: start from the UTF-8 bytes (0-255), new tokens get 256, 257, ...\"\"\"\n    ids = list(text.encode('utf-8'))\n    merges = {}\n    for k in range(n_merges):\n        counts = count_pairs(ids)\n        if not counts:\n            break\n        best = max(counts, key=counts.get)\n        ids = merge(ids, best, 256 + k)\n        merges[best] = 256 + k\n    return ids, merges\n"
+  }
+ ],
+ "poster": "videos/9.1-tokens.jpg"
+}

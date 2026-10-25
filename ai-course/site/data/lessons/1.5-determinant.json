@@ -1,0 +1,178 @@
+{
+ "id": "1.5-determinant",
+ "module": 1,
+ "title": "Determinant: how much area gets stretched",
+ "summary": "The determinant of a matrix is the factor by which it scales every area. Its size is the stretch, its sign says whether the plane was flipped, and a determinant of zero means the plane was crushed onto a line, which cannot be undone.",
+ "video": "videos/1.5-determinant.mp4",
+ "llm_link": "A weight matrix with determinant near zero crushes some direction almost flat, so information along it is lost. LoRA fine-tuning builds such flattened (low-rank) updates on purpose, betting that a new task only needs a few directions.",
+ "key_ideas": [
+  "A matrix carries the unit square (between î and ĵ) to the parallelogram spanned by its two columns; the determinant is that parallelogram's area.",
+  "Because grid lines stay parallel and evenly spaced, every shape's area is multiplied by the same factor.",
+  "For [[a, b], [c, d]] the determinant is ad − bc. A shear has determinant 1: base and height do not change.",
+  "Determinant 0: the columns lie on one line, the plane collapses, and the matrix has no inverse.",
+  "Negative determinant: the plane is flipped over (orientation reversed). det(BA) = det(B) · det(A)."
+ ],
+ "quiz": [
+  {
+   "q": "A matrix has determinant 3. A circle of area 2 is transformed by it. What is the area of the resulting shape?",
+   "options": [
+    "2",
+    "3",
+    "5",
+    "6"
+   ],
+   "answer": 3,
+   "explain": "Every area is multiplied by the same factor, the determinant, whatever the shape: 2 × 3 = 6. The circle becomes an ellipse, but its area is still scaled by 3."
+  },
+  {
+   "q": "Predict the result: the determinant of [[2, 1], [4, 2]].",
+   "options": [
+    "8",
+    "0",
+    "4",
+    "−4"
+   ],
+   "answer": 1,
+   "explain": "ad − bc = 2·2 − 1·4 = 0. The columns (2, 4) and (1, 2) point along the same line, so the unit square is flattened into a segment with no area."
+  },
+  {
+   "q": "The shear [[1, 1], [0, 1]] makes the square lean over. What is its determinant, and why?",
+   "options": [
+    "2, because the shape got longer",
+    "1, because base and height are unchanged",
+    "0, because it is no longer a square",
+    "−1, because it leans to the right"
+   ],
+   "answer": 1,
+   "explain": "ad − bc = 1·1 − 1·0 = 1. A parallelogram's area is base × height, and a shear slides the top sideways without changing either."
+  },
+  {
+   "q": "A matrix has determinant −2. What does it do to the plane?",
+   "options": [
+    "Shrinks every area to half",
+    "Doubles every area and flips the orientation",
+    "Rotates the plane by 180°",
+    "Crushes it onto a line"
+   ],
+   "answer": 1,
+   "explain": "The size, 2, is the area factor; the minus sign means the plane is flipped over, like a page turned face down, so ĵ ends up clockwise from î."
+  },
+  {
+   "q": "LoRA fine-tunes a language model by adding an update ΔW = B·A to a 4096 × 4096 weight matrix, where A is 8 × 4096 and B is 4096 × 8. What is det(ΔW)?",
+   "options": [
+    "Exactly 0",
+    "Exactly 1",
+    "Large, because the matrix is large",
+    "It depends on the learning rate"
+   ],
+   "answer": 0,
+   "explain": "ΔW sends every input through only 8 numbers in the middle, so its outputs lie in an 8-dimensional slice of a 4096-dimensional space. Most directions are crushed flat, so the determinant is 0. That is deliberate: the update only changes a few directions."
+  }
+ ],
+ "problems": [
+  {
+   "id": "det2",
+   "title": "Determinant of a 2×2 matrix",
+   "prompt": "<p>A 2×2 matrix is stored as a list of rows: <code>[[a, b], [c, d]]</code>. Its columns are <code>(a, c)</code> (where î lands) and <code>(b, d)</code> (where ĵ lands).</p><p>Write <code>det2(m)</code> that returns <code>ad − bc</code>, the signed area of the parallelogram spanned by the columns.</p><pre>det2([[3, 0], [0, 2]])   # 6  (stretch)\ndet2([[1, 1], [0, 1]])   # 1  (shear)\ndet2([[2, 1], [4, 2]])   # 0  (columns on one line)\ndet2([[0, 1], [1, 0]])   # -1 (swap: a flip)</pre>",
+   "starter": "def det2(m):\n    # TODO 1: unpack the four entries. m[0] is the top row, m[1] the bottom row.\n    #         (a, b), (c, d) = m   unpacks both rows at once\n\n    # TODO 2: return a*d - b*c\n    pass\n",
+   "tests": [
+    {
+     "name": "identity has determinant 1",
+     "code": "out = det2([[1, 0], [0, 1]])\nassert out == 1, f'expected 1 for the identity (it changes nothing, so area stays 1), got {out}'"
+    },
+    {
+     "name": "stretch along the axes",
+     "code": "out = det2([[3, 0], [0, 2]])\nassert out == 6, f'expected 6: 3 wide times 2 tall, got {out}'"
+    },
+    {
+     "name": "a shear keeps area 1",
+     "code": "out = det2([[1, 1], [0, 1]])\nassert out == 1, f'expected 1: a shear keeps base and height, got {out}. Check you subtract b*c, not add it'"
+    },
+    {
+     "name": "columns on one line give 0",
+     "code": "out = det2([[2, 1], [4, 2]])\nassert out == 0, f'expected 0: the columns (2,4) and (1,2) are on one line, got {out}. Did you use the diagonal a*d and the anti-diagonal b*c?'"
+    },
+    {
+     "name": "a flip is negative",
+     "code": "out = det2([[0, 1], [1, 0]])\nassert out == -1, f'expected -1: swapping î and ĵ flips the plane, got {out}. The sign matters, so do not take abs()'"
+    },
+    {
+     "name": "general matrix",
+     "code": "out = det2([[3, 1], [1, 2]])\nassert out == 5, f'expected 3*2 - 1*1 = 5, got {out}'"
+    }
+   ],
+   "hints": [
+    "a = m[0][0], b = m[0][1], c = m[1][0], d = m[1][1].",
+    "return a * d - b * c"
+   ],
+   "solution": "def det2(m):\n    (a, b), (c, d) = m\n    return a * d - b * c\n"
+  },
+  {
+   "id": "area",
+   "title": "Watch the area scale",
+   "prompt": "<p>Check the video's claim numerically: transform a shape with a matrix and compare areas.</p><p><code>shoelace(pts)</code> is given: it returns the <b>signed</b> area of a polygon whose corners are listed anticlockwise (negative if the order is clockwise).</p><p>1. Write <code>apply(m, p)</code>: the matrix <code>[[a, b], [c, d]]</code> sends the point <code>(x, y)</code> to <code>(a·x + b·y, c·x + d·y)</code>. Return a tuple.</p><p>2. Write <code>area_factor(m, pts)</code>: transform every corner, then return <code>shoelace(new) / shoelace(pts)</code>.</p><p>For any shape, the factor should equal <code>ad − bc</code>, sign included.</p>",
+   "starter": "def shoelace(pts):\n    # signed area of a polygon (anticlockwise corners give a positive area)\n    s = 0\n    for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]):\n        s += x1 * y2 - x2 * y1\n    return s / 2\n\ndef apply(m, p):\n    # TODO: return (a*x + b*y, c*x + d*y) as a tuple\n    pass\n\ndef area_factor(m, pts):\n    # TODO 1: new = [apply(m, p) for p in pts]\n    # TODO 2: return shoelace(new) / shoelace(pts)\n    pass\n",
+   "tests": [
+    {
+     "name": "apply moves a point",
+     "code": "out = apply([[2, 1], [0.5, 1.5]], (1, 0))\nassert out is not None, 'apply returned None. Did you forget return?'\nassert tuple(out) == (2, 0.5), f'(1, 0) is î, so it should land on the first column (2, 0.5); got {out}'"
+    },
+    {
+     "name": "apply uses both coordinates",
+     "code": "out = apply([[1, 1], [0, 1]], (2, 3))\nassert tuple(out) == (5, 3), f'expected (1*2 + 1*3, 0*2 + 1*3) = (5, 3), got {out}. Row 1 of the matrix makes the new x, row 2 the new y'"
+    },
+    {
+     "name": "unit square scales by det",
+     "code": "sq = [(0, 0), (1, 0), (1, 1), (0, 1)]\nout = area_factor([[3, 0], [0, 2]], sq)\nassert out is not None, 'area_factor returned None'\nassert abs(out - 6) < 1e-9, f'expected the factor 6 for diag(3, 2), got {out}'"
+    },
+    {
+     "name": "any shape scales by the same factor",
+     "code": "tri = [(0, 0), (4, 1), (1, 3)]\nout = area_factor([[3, 1], [1, 2]], tri)\nassert abs(out - 5) < 1e-9, f'expected 5 (= 3*2 - 1*1) for a triangle too, got {out}. Every shape scales by the determinant'"
+    },
+    {
+     "name": "a flip gives a negative factor",
+     "code": "sq = [(0, 0), (1, 0), (1, 1), (0, 1)]\nout = area_factor([[2, 1], [1, -0.5]], sq)\nassert abs(out - (-2)) < 1e-9, f'expected -2: the corners come out clockwise because the plane flipped; got {out}'"
+    }
+   ],
+   "hints": [
+    "(a, b), (c, d) = m and x, y = p, then return (a * x + b * y, c * x + d * y).",
+    "new = [apply(m, p) for p in pts]; return shoelace(new) / shoelace(pts)"
+   ],
+   "solution": "def shoelace(pts):\n    s = 0\n    for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]):\n        s += x1 * y2 - x2 * y1\n    return s / 2\n\ndef apply(m, p):\n    (a, b), (c, d) = m\n    x, y = p\n    return (a * x + b * y, c * x + d * y)\n\ndef area_factor(m, pts):\n    new = [apply(m, p) for p in pts]\n    return shoelace(new) / shoelace(pts)\n"
+  },
+  {
+   "id": "invertible",
+   "title": "Can it be undone? (NumPy)",
+   "prompt": "<p>NumPy computes determinants of any square matrix with <code>np.linalg.det</code>. Because it works in floating point, a crushed matrix often gives something like <code>1e-17</code> instead of exactly 0.</p><p>Write <code>is_invertible(M, tol=1e-9)</code> that returns <code>True</code> when <code>abs(det(M)) &gt; tol</code> and <code>False</code> otherwise. Return a plain Python <code>bool</code>.</p><pre>is_invertible(np.array([[2., 1.], [1., .5]]))   # False: columns on one line\nis_invertible(np.eye(3))                       # True</pre>",
+   "starter": "import numpy as np\n\ndef is_invertible(M, tol=1e-9):\n    # TODO: compute d = np.linalg.det(M), then compare abs(d) with tol\n    #       (never compare a float with == 0)\n    pass\n",
+   "tests": [
+    {
+     "name": "collinear columns are not invertible",
+     "code": "import numpy as np\nout = is_invertible(np.array([[2., 1.], [1., .5]]))\nassert out is False, f'expected False: the columns (2,1) and (1,0.5) lie on one line, so det is 0; got {out!r}'"
+    },
+    {
+     "name": "identity is invertible",
+     "code": "import numpy as np\nout = is_invertible(np.eye(3))\nassert out is True, f'expected True for the 3x3 identity (det 1); got {out!r}'"
+    },
+    {
+     "name": "floating-point zero counts as zero",
+     "code": "import numpy as np\nM = np.array([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])\nout = is_invertible(M)\nassert out is False, f'expected False: row 3 = 2*row 2 - row 1, so det is 0 up to rounding (NumPy gives about {np.linalg.det(M):.1e}); got {out!r}. Use a tolerance, not == 0'"
+    },
+    {
+     "name": "a flip is still invertible",
+     "code": "import numpy as np\nout = is_invertible(np.array([[0., 1.], [1., 0.]]))\nassert out is True, f'expected True: det is -1, and a flip can be undone. Did you test det > tol instead of abs(det) > tol?'"
+    },
+    {
+     "name": "returns a Python bool",
+     "code": "import numpy as np\nout = is_invertible(np.eye(2))\nassert isinstance(out, bool), f'expected a Python bool, got {type(out).__name__}. Wrap the comparison in bool(...)'"
+    }
+   ],
+   "hints": [
+    "d = np.linalg.det(M)",
+    "return bool(abs(d) > tol). A NumPy comparison returns numpy.bool_, so bool() turns it into a plain True or False."
+   ],
+   "solution": "import numpy as np\n\ndef is_invertible(M, tol=1e-9):\n    return bool(abs(np.linalg.det(M)) > tol)\n"
+  }
+ ],
+ "poster": "videos/1.5-determinant.jpg"
+}
