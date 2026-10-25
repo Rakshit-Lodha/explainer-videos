@@ -1,0 +1,164 @@
+{
+ "id": "5.6-knn",
+ "module": 5,
+ "title": "k-nearest neighbours",
+ "summary": "k-nearest neighbours stores every training example and predicts by looking at the k closest ones: a majority vote for classes, an average for numbers. Small k gives a jagged, high-variance boundary; large k a blunt, high-bias one. Distances depend on units, so standardise features first, and in very high dimensions all distances start to look alike.",
+ "video": "videos/5.6-knn.mp4",
+ "llm_link": "Retrieval-augmented generation is nearest-neighbour search: documents become embedding vectors, the question becomes a vector, and a vector database returns the closest chunks (usually by cosine similarity, with approximate search) for the language model to read.",
+ "key_ideas": [
+  "No training: kNN memorises the data. Prediction = find the k closest stored points.",
+  "Distance between feature vectors is usually the Euclidean norm ‖a − b‖.",
+  "Classification: majority vote of the k neighbours. Regression: their average.",
+  "k = 1 overfits (jagged boundary, high variance); very large k underfits (high bias). Choose k on validation data.",
+  "Standardise features so units do not decide the distance. Prediction cost grows with the data, and in high dimensions distances concentrate (the curse of dimensionality)."
+ ],
+ "quiz": [
+  {
+   "q": "What does k-nearest neighbours learn during training?",
+   "options": [
+    "A weight per feature",
+    "Nothing beyond storing the training examples",
+    "A decision tree",
+    "The mean of each class only"
+   ],
+   "answer": 1,
+   "explain": "kNN is a 'lazy' method: all the work happens at prediction time, when the query is compared with every stored example."
+  },
+  {
+   "q": "Predict the result: with k = 3, a query's nearest neighbours have labels [cat, dog, cat]. What does kNN predict?",
+   "options": [
+    "dog",
+    "cat",
+    "a tie, so no prediction",
+    "the label of the farthest point"
+   ],
+   "answer": 1,
+   "explain": "Majority vote: two cats against one dog. (Odd k avoids ties for two classes.)"
+  },
+  {
+   "q": "Features are floor area in m² (40 to 200) and bedrooms (1 to 5). Without standardising, what happens?",
+   "options": [
+    "Bedrooms dominate the distance",
+    "Area dominates the distance, so bedrooms barely matter",
+    "Both count equally",
+    "kNN refuses to run"
+   ],
+   "answer": 1,
+   "explain": "Differences in area are tens or hundreds; differences in bedrooms are a few. The squared differences in area swamp the others purely because of units."
+  },
+  {
+   "q": "You lower k from 15 to 1. What usually happens to training accuracy and to the decision boundary?",
+   "options": [
+    "Training accuracy falls; the boundary gets smoother",
+    "Training accuracy rises (to 100% with no duplicate points); the boundary becomes jagged",
+    "Nothing changes",
+    "The model becomes linear"
+   ],
+   "answer": 1,
+   "explain": "With k = 1 every training point is its own nearest neighbour, so training accuracy is perfect, but the boundary wraps around noise: high variance."
+  },
+  {
+   "q": "In a RAG system, which step is a nearest-neighbour search?",
+   "options": [
+    "Tokenising the question",
+    "Finding the stored document chunks whose embeddings are closest to the question's embedding",
+    "Sampling the next token",
+    "Fine-tuning the model"
+   ],
+   "answer": 1,
+   "explain": "The vector database returns the top-k chunks by similarity (often cosine), usually with approximate nearest-neighbour indexes for speed."
+  }
+ ],
+ "problems": [
+  {
+   "id": "distance",
+   "title": "Euclidean distance",
+   "prompt": "<p>Write <code>euclidean(a, b)</code> for two plain lists of the same length: the square root of the sum of squared differences of matching entries. Raise a <code>ValueError</code> if the lengths differ.</p><pre>euclidean([0, 0], [3, 4])   # 5.0</pre>",
+   "starter": "import math\n\ndef euclidean(a, b):\n    # TODO: check lengths, then sqrt of sum of (x - y) ** 2 over matching pairs\n    pass\n",
+   "tests": [
+    {
+     "name": "3-4-5",
+     "code": "out = euclidean([0, 0], [3, 4])\nassert out is not None, 'euclidean returned None'\nassert abs(out - 5) < 1e-12, f'expected 5, got {out}'"
+    },
+    {
+     "name": "any length",
+     "code": "out = euclidean([1, 2, 3, 4], [1, 2, 3, 6])\nassert abs(out - 2) < 1e-12, f'only the last entry differs, by 2, so the distance is 2; got {out}'"
+    },
+    {
+     "name": "order of differences does not matter",
+     "code": "assert abs(euclidean([1, 5], [4, 1]) - euclidean([4, 1], [1, 5])) < 1e-12, 'distance from a to b should equal distance from b to a'"
+    },
+    {
+     "name": "length mismatch",
+     "code": "try:\n    euclidean([1, 2], [1, 2, 3])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('different lengths should raise ValueError')"
+    }
+   ],
+   "hints": [
+    "if len(a) != len(b): raise ValueError(\"lengths differ\")",
+    "return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))"
+   ],
+   "solution": "import math\n\ndef euclidean(a, b):\n    if len(a) != len(b):\n        raise ValueError(\"lengths differ\")\n    return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n"
+  },
+  {
+   "id": "classify",
+   "title": "kNN classifier with plain Python",
+   "prompt": "<p>Write <code>knn_predict(train_X, train_y, query, k)</code>: compute the distance from <code>query</code> to every training point, take the labels of the k closest, and return the most common one. A <code>euclidean</code> function is provided.</p><p>Tip: <code>sorted(pairs)</code> on a list of <code>(distance, label)</code> tuples sorts by distance first, and <code>collections.Counter(labels).most_common(1)[0][0]</code> gives the winning label.</p>",
+   "starter": "import math\nfrom collections import Counter\n\ndef euclidean(a, b):\n    return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n\ndef knn_predict(train_X, train_y, query, k):\n    # TODO 1: pairs = list of (distance to query, label) for every training point\n    # TODO 2: keep the k pairs with the smallest distance\n    # TODO 3: return the most common label among them\n    pass\n",
+   "tests": [
+    {
+     "name": "nearest wins with k = 1",
+     "code": "X = [[0, 0], [10, 10]]; y = ['a', 'b']\nassert knn_predict(X, y, [1, 1], 1) == 'a', 'with k = 1 the single closest point decides'"
+    },
+    {
+     "name": "majority vote",
+     "code": "X = [[0, 0], [0, 1], [5, 5], [1, 0]]; y = ['red', 'red', 'blue', 'blue']\nout = knn_predict(X, y, [0.2, 0.2], 3)\nassert out == 'red', f'the 3 nearest are red, red, blue: expected red, got {out}'"
+    },
+    {
+     "name": "uses the k closest, not the first k",
+     "code": "X = [[9, 9], [8, 8], [0, 0], [0.5, 0], [0, 0.5]]; y = ['far', 'far', 'near', 'near', 'near']\nout = knn_predict(X, y, [0, 0], 3)\nassert out == 'near', f'sort by distance before taking k; got {out}'"
+    },
+    {
+     "name": "large k becomes the overall majority",
+     "code": "X = [[0, 0], [10, 0], [11, 0], [12, 0], [13, 0]]; y = ['a', 'b', 'b', 'b', 'b']\nassert knn_predict(X, y, [0, 0], 5) == 'b', 'with k = all points, the most common class overall wins (high bias)'"
+    }
+   ],
+   "hints": [
+    "pairs = [(euclidean(x, query), label) for x, label in zip(train_X, train_y)]",
+    "nearest = sorted(pairs)[:k]",
+    "return Counter(label for d, label in nearest).most_common(1)[0][0]"
+   ],
+   "solution": "import math\nfrom collections import Counter\n\ndef euclidean(a, b):\n    return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))\n\ndef knn_predict(train_X, train_y, query, k):\n    pairs = [(euclidean(x, query), label) for x, label in zip(train_X, train_y)]\n    nearest = sorted(pairs)[:k]\n    return Counter(label for d, label in nearest).most_common(1)[0][0]\n"
+  },
+  {
+   "id": "pairwise",
+   "title": "All distances at once with broadcasting (NumPy)",
+   "prompt": "<p>For many queries at once, loops get slow. Write <code>pairwise_dist(Q, X)</code> where <code>Q</code> has shape <code>(m, d)</code> and <code>X</code> has shape <code>(n, d)</code>, returning an <code>(m, n)</code> array whose entry <code>[i, j]</code> is the distance from query i to point j.</p><p>Broadcasting trick: <code>Q[:, None, :]</code> has shape <code>(m, 1, d)</code> and <code>X[None, :, :]</code> has shape <code>(1, n, d)</code>; subtracting them gives <code>(m, n, d)</code>. Square, sum over the last axis, take the square root.</p><p>Then write <code>knn_classify(Q, X, y, k)</code> for integer labels 0/1 that returns one predicted label per query (use <code>np.argsort</code> along axis 1 and a mean of the neighbours' labels &gt; 0.5).</p>",
+   "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\nX = np.vstack([rng.normal([-1, 0], 0.6, (30, 2)), rng.normal([1, 0], 0.6, (30, 2))])\ny = np.array([0] * 30 + [1] * 30)\n\ndef pairwise_dist(Q, X):\n    # TODO: (m, 1, d) - (1, n, d) -> (m, n, d) -> square -> sum over axis=-1 -> sqrt\n    pass\n\ndef knn_classify(Q, X, y, k):\n    # TODO: D = pairwise_dist(Q, X); idx = indices of the k smallest per row\n    pass\n",
+   "tests": [
+    {
+     "name": "shape",
+     "code": "D = pairwise_dist(np.zeros((4, 2)), X)\nassert D is not None, 'pairwise_dist returned None'\nassert D.shape == (4, 60), f'expected (m, n) = (4, 60), got {D.shape}. Did you sum over the last axis?'"
+    },
+    {
+     "name": "values",
+     "code": "D = pairwise_dist(np.array([[0.0, 0.0]]), np.array([[3.0, 4.0], [0.0, -2.0]]))\nassert np.allclose(D, [[5.0, 2.0]]), f'expected [[5, 2]], got {D}'"
+    },
+    {
+     "name": "classifies the two blobs",
+     "code": "pred = knn_classify(np.array([[-1.5, 0.0], [1.5, 0.2]]), X, y, 5)\nassert pred is not None, 'knn_classify returned None'\nassert list(np.asarray(pred).astype(int)) == [0, 1], f'a point deep in each blob should get that blob\\'s label, got {pred}'"
+    },
+    {
+     "name": "k = 1 on the training set is perfect",
+     "code": "pred = knn_classify(X, X, y, 1)\nassert np.mean(np.asarray(pred).astype(int) == y) == 1.0, 'with k = 1 each training point is its own nearest neighbour'"
+    }
+   ],
+   "hints": [
+    "diff = Q[:, None, :] - X[None, :, :]",
+    "return np.sqrt((diff ** 2).sum(axis=-1))",
+    "idx = np.argsort(D, axis=1)[:, :k]; return (y[idx].mean(axis=1) > 0.5).astype(int)"
+   ],
+   "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\nX = np.vstack([rng.normal([-1, 0], 0.6, (30, 2)), rng.normal([1, 0], 0.6, (30, 2))])\ny = np.array([0] * 30 + [1] * 30)\n\ndef pairwise_dist(Q, X):\n    diff = Q[:, None, :] - X[None, :, :]\n    return np.sqrt((diff ** 2).sum(axis=-1))\n\ndef knn_classify(Q, X, y, k):\n    D = pairwise_dist(Q, X)\n    idx = np.argsort(D, axis=1)[:, :k]\n    return (y[idx].mean(axis=1) > 0.5).astype(int)\n"
+  }
+ ],
+ "poster": "videos/5.6-knn.jpg"
+}

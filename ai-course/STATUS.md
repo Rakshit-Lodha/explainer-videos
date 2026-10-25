@@ -54,3 +54,7 @@ Follow `course.md` § Build pipeline. Use 1.1 (`lessons/1.1-vectors/`) as the re
   - Warm-up plus decay schedules.
   - Saddle points outnumber bad local minima in high dimensions (Dauphin et al.).
 - **Not yet recorded:** the builders for 5.x, 6.x, 9.x and 10.x-12.x had not handed in reports when this was written. Check their narration, especially 10.1 (scaling laws), 10.3 (RLHF and DPO) and 11.x (diffusion), against the original papers.
+- **5.6:**
+  - k-nearest neighbours is described as learning no weights and storing every training example, with prediction-time comparison against stored points.
+  - Distances between random points are described as becoming increasingly alike in high dimensions (the curse of dimensionality).
+  - Retrieval-augmented generation is described as nearest-neighbour search over document embeddings, usually using cosine similarity and approximate search.
