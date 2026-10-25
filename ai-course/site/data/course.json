@@ -366,7 +366,8 @@
     },
     {
      "num": "9.6",
-     "title": "Softmax and scaled dot-product attention"
+     "title": "Softmax and scaled dot-product attention",
+     "id": "9.6-scaled-attention"
     },
     {
      "num": "9.7",
