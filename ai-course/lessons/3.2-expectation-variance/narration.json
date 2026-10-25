@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Suppose a game pays you according to the roll of a loaded die. Before you play, is it worth the price of a ticket? You cannot know the next roll, but you can know what happens on average over many rolls, and that average is the first number we use to summarise a distribution."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The expectation is a weighted average: multiply each value by its probability, then add up the results. Physically, it is the balance point. If the bars of the distribution were blocks of wood resting on a ruler, the expectation is where you would put your finger so that the ruler does not tip, and heavy blocks far out on one side drag the balance point towards them."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "This also explains why the ordinary average of many samples estimates the expectation. In a long run of rolls, each value turns up roughly in proportion to its probability, so averaging the rolls performs the same weighted sum, approximately, without ever being told the probabilities. The running average wanders at first and then settles onto the balance point."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Two distributions can share a balance point and still behave very differently. One keeps its mass huddled near the centre, while the other flings it far out to both sides. Variance measures that spread: take each value's distance from the mean, square it so that left and right count alike, and average those squares using the same probabilities as before."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Squaring changes the units, so a variance of heights in centimetres is measured in square centimetres, which is hard to picture. Taking the square root brings us back to the original units, and the result, called the standard deviation, behaves like a typical distance from the mean. It is the number you quote when you describe how wide a distribution is."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "Both ideas return constantly in machine learning. The loss we minimise is an expectation over the training data, estimated by averaging over a batch of examples, and the scale of a network's starting weights is chosen so that variances neither explode nor vanish as signals pass through many layers. Next, in lesson three point three, Bayes' rule shows how to update a distribution when new evidence arrives."
+ }
+]

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.note{position:absolute;font-size:40px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+.ttl{position:absolute;font-size:46px;opacity:0;visibility:hidden;white-space:nowrap}
+svg .hid{opacity:0;visibility:hidden}
+</style>
+</head>
+
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="143.63" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="143.63" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 3.2 Expectation and variance</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="16.865"></div>
+  <div class="clip scene" id="S2" data-start="16.865" data-duration="23.334"></div>
+  <div class="clip scene" id="S3" data-start="40.199" data-duration="24.87"></div>
+  <div class="clip scene" id="S4" data-start="65.069" data-duration="26.577"></div>
+  <div class="clip scene" id="S5" data-start="91.646" data-duration="23.419"></div>
+  <div class="clip scene" id="S6" data-start="115.065" data-duration="28.565"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":16.865,"s3":40.199,"s4":65.069,"s5":91.646,"s6":115.065},"total":143.63,"cues":{"s1":[["suppose",0.0],["a",0.417],["game",0.521],["pays",0.781],["you",1.041],["according",1.25],["to",1.77],["the",1.927],["roll",2.135],["of",2.395],["a",2.551],["loaded",2.656],["die",3.02],["before",3.827],["you",4.158],["play",4.347],["is",4.948],["it",5.092],["worth",5.236],["the",5.525],["price",5.717],["of",6.006],["a",6.15],["ticket",6.247],["you",6.932],["cannot",7.127],["know",7.468],["the",7.712],["next",7.906],["roll",8.15],["but",8.863],["you",9.081],["can",9.299],["know",9.516],["what",9.789],["happens",10.061],["on",10.497],["average",10.66],["over",11.096],["many",11.368],["rolls",11.64],["and",12.361],["that",12.575],["average",12.841],["is",13.269],["the",13.429],["first",13.642],["number",13.963],["we",14.336],["use",14.496],["to",14.71],["summarise",14.87],["a",15.404],["distribution",15.511]],"s2":[["the",0.0],["expectation",0.201],["is",0.804],["a",0.954],["weighted",1.055],["average",1.507],["multiply",2.332],["each",2.835],["value",3.114],["by",3.45],["its",3.617],["probability",3.841],["then",4.875],["add",5.149],["up",5.369],["the",5.534],["results",5.753],["physically",6.537],["it",7.397],["is",7.564],["the",7.731],["balance",7.953],["point",8.398],["if",8.988],["the",9.131],["bars",9.321],["of",9.56],["the",9.703],["distribution",9.893],["were",10.513],["blocks",10.751],["of",11.085],["wood",11.228],["resting",11.466],["on",11.848],["a",11.991],["ruler",12.086],["the",12.916],["expectation",13.137],["is",13.8],["where",13.966],["you",14.298],["would",14.519],["put",14.85],["your",15.072],["finger",15.348],["so",15.735],["that",15.901],["the",16.177],["ruler",16.398],["does",16.729],["not",17.006],["tip",17.227],["and",17.849],["heavy",18.122],["blocks",18.53],["far",19.006],["out",19.278],["on",19.55],["one",19.754],["side",20.027],["drag",20.367],["the",20.707],["balance",20.979],["point",21.523],["towards",21.932],["them",22.476]],"s3":[["this",0.0],["also",0.297],["explains",0.594],["why",1.128],["the",1.365],["ordinary",1.603],["average",2.137],["of",2.612],["many",2.79],["samples",3.087],["estimates",3.561],["the",4.155],["expectation",4.392],["in",5.414],["a",5.619],["long",5.756],["run",6.097],["of",6.37],["rolls",6.575],["each",7.253],["value",7.569],["turns",7.949],["up",8.33],["roughly",8.52],["in",9.026],["proportion",9.217],["to",9.913],["its",10.103],["probability",10.357],["so",11.35],["averaging",11.541],["the",12.176],["rolls",12.43],["performs",12.811],["the",13.382],["same",13.636],["weighted",13.954],["sum",14.525],["approximately",15.133],["without",16.311],["ever",16.722],["being",16.978],["told",17.286],["the",17.543],["probabilities",17.749],["the",18.723],["running",19.008],["average",19.579],["wanders",20.15],["at",20.72],["first",20.934],["and",21.362],["then",21.648],["settles",22.004],["onto",22.575],["the",22.932],["balance",23.217],["point",23.788]],"s4":[["two",0.0],["distributions",0.234],["can",1.053],["share",1.287],["a",1.638],["balance",1.755],["point",2.224],["and",2.575],["still",2.809],["behave",3.16],["very",3.569],["differently",3.862],["one",5.252],["keeps",5.549],["its",5.995],["mass",6.292],["huddled",6.663],["near",7.257],["the",7.629],["centre",7.926],["while",9.008],["the",9.355],["other",9.587],["flings",9.935],["it",10.34],["far",10.514],["out",10.746],["to",10.978],["both",11.152],["sides",11.441],["variance",12.08],["measures",12.642],["that",13.204],["spread",13.517],["take",14.713],["each",15.011],["value's",15.309],["distance",15.786],["from",16.323],["the",16.622],["mean",16.86],["square",17.661],["it",18.195],["so",18.424],["that",18.653],["left",19.034],["and",19.416],["right",19.721],["count",20.178],["alike",20.636],["and",21.779],["average",22.035],["those",22.547],["squares",22.931],["using",23.443],["the",23.827],["same",24.083],["probabilities",24.403],["as",25.299],["before",25.491]],"s5":[["squaring",0.0],["changes",0.489],["the",0.924],["units",1.142],["so",1.951],["a",2.134],["variance",2.256],["of",2.807],["heights",2.99],["in",3.479],["centimetres",3.663],["is",4.396],["measured",4.58],["in",5.13],["square",5.313],["centimetres",5.741],["which",6.66],["is",6.935],["hard",7.072],["to",7.3],["picture",7.437],["taking",8.222],["the",8.567],["square",8.764],["root",9.109],["brings",9.356],["us",9.701],["back",9.848],["to",10.095],["the",10.243],["original",10.44],["units",10.883],["and",11.677],["the",11.885],["result",12.093],["called",13.016],["the",13.389],["standard",13.602],["deviation",14.081],["behaves",15.03],["like",15.439],["a",15.694],["typical",15.797],["distance",16.206],["from",16.666],["the",16.921],["mean",17.126],["it",17.798],["is",18.011],["the",18.223],["number",18.506],["you",19.002],["quote",19.286],["when",19.711],["you",20.065],["describe",20.348],["how",20.986],["wide",21.269],["a",21.623],["distribution",21.765],["is",22.686]],"s6":[["both",0.0],["ideas",0.302],["return",0.664],["constantly",1.087],["in",1.752],["machine",1.933],["learning",2.416],["the",3.286],["loss",3.539],["we",3.855],["minimise",4.045],["is",4.613],["an",4.803],["expectation",4.992],["over",5.75],["the",6.066],["training",6.319],["data",6.888],["estimated",7.648],["by",8.291],["averaging",8.483],["over",9.126],["a",9.447],["batch",9.575],["of",9.96],["examples",10.153],["and",11.261],["the",11.518],["scale",11.775],["of",12.161],["a",12.353],["network's",12.482],["starting",13.125],["weights",13.704],["is",14.218],["chosen",14.411],["so",14.861],["that",15.054],["variances",15.375],["neither",16.018],["explode",16.532],["nor",17.047],["vanish",17.304],["as",17.754],["signals",17.947],["pass",18.461],["through",18.783],["many",19.297],["layers",19.618],["next",20.133],["in",20.77],["lesson",20.953],["three",21.38],["point",21.747],["three",22.113],["bayes'",22.541],["rule",22.968],["shows",23.274],["how",23.64],["to",23.884],["update",24.068],["a",24.495],["distribution",24.617],["when",25.411],["new",25.717],["evidence",25.961],["arrives",26.511]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0',bg:'#0e1116'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeTo(t,time,v,d){tl.to(t,{autoAlpha:v,duration:d||.5,ease:'power1.inOut'},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,last){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!last)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+/* a text label: lbl(parent, html, x, y, css) centred on (x,y), hidden until shown */
+function lbl(parent,html,x,y,css){const d=el(parent,'lbl',html,css);place(d,x,y);return d}
+/* a hidden text block with its top-left at (x,y) */
+function note(parent,html,x,y,w,css){return el(parent,'note',html,Object.assign({left:x+'px',top:y+'px',width:w+'px'},css||{}))}
+
+/* drive(state, time, dur, target, render): tween a plain state object and redraw from it.
+   Every frame is recomputed from the tweened values, so seeking in any order lands on the same picture. */
+function drive(st,time,d,to,render,ease){const from={...st.v},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>render(o)},time);st.v=tgt}
+function state(v,render){render(v);return {v:{...v}}}
+
+/* plotting: axes(svg,{x,y,w,h,xmin,xmax,ymin,ymax}) maps data to pixels and draws the axes */
+function axes(svg,o){const X=v=>o.x+(v-o.xmin)/(o.xmax-o.xmin)*o.w,Y=v=>o.y+o.h-(v-o.ymin)/(o.ymax-o.ymin)*o.h;
+  const g=svgEl('g',{},svg);const y0=Y(Math.max(o.ymin,0)),x0=X(Math.max(o.xmin,0));
+  svgEl('line',{x1:o.x,y1:y0,x2:o.x+o.w,y2:y0,stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  if(o.yaxis!==false)svgEl('line',{x1:x0,y1:o.y,x2:x0,y2:o.y+o.h,stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  (o.xticks||[]).forEach(t=>svgEl('line',{x1:X(t),y1:y0-8,x2:X(t),y2:y0+8,stroke:C.axis,'stroke-width':2},g));
+  (o.yticks||[]).forEach(t=>svgEl('line',{x1:x0-8,y1:Y(t),x2:x0+8,y2:Y(t),stroke:C.axis,'stroke-width':2},g));
+  return {X,Y,g,o}}
+function gridLines(svg,A,xs,ys){const g=svgEl('g',{},svg);
+  xs.forEach(x=>svgEl('line',{x1:A.X(x),y1:A.o.y,x2:A.X(x),y2:A.o.y+A.o.h,stroke:C.grid,'stroke-width':1.4,opacity:.45},g));
+  ys.forEach(y=>svgEl('line',{x1:A.o.x,y1:A.Y(y),x2:A.o.x+A.o.w,y2:A.Y(y),stroke:C.grid,'stroke-width':1.4,opacity:.45},g));return g}
+function fpath(A,fn,a,b,n){n=n||160;let d='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+=(i?'L':'M')+A.X(x).toFixed(1)+','+A.Y(fn(x)).toFixed(1)}return d}
+function farea(A,fn,a,b,n,base){n=n||120;base=base||0;let d='M'+A.X(a).toFixed(1)+','+A.Y(base).toFixed(1);
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+='L'+A.X(x).toFixed(1)+','+A.Y(fn(x)).toFixed(1)}return d+'L'+A.X(b).toFixed(1)+','+A.Y(base).toFixed(1)+'Z'}
+function polyPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function rectAttr(r,x,y,w,h){r.setAttribute('x',x.toFixed(1));r.setAttribute('y',y.toFixed(1));r.setAttribute('width',Math.max(0,w).toFixed(1));r.setAttribute('height',Math.max(0,h).toFixed(1))}
+/* bar chart: bars(svg,A,xs,hs,{w,color}) returns rects and a set(hs) redraw */
+function bars(svg,A,xs,hs,o){o=o||{};const w=o.w||.7;const g=svgEl('g',{},svg);
+  const rs=xs.map(()=>svgEl('rect',{fill:o.color||C.blue,'fill-opacity':o.op==null?.85:o.op,stroke:o.stroke||'none','stroke-width':o.sw||0,rx:3},g));
+  const set=h=>rs.forEach((r,i)=>{const x0=A.X(xs[i]-w/2),x1=A.X(xs[i]+w/2),yb=A.Y(0),yt=A.Y(h[i]);rectAttr(r,x0,Math.min(yb,yt),x1-x0,Math.abs(yb-yt))});
+  set(hs);return {g,rs,set}}
+const gauss=(x,m,s)=>Math.exp(-.5*((x-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
+
+/* arrows (from lesson 1.1): geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(a.hl||30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+const PX=(x,y)=>[x,y];
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+function hl(parent,x,y,w,h,color){return el(parent,'hl','',{left:x+'px',top:y+'px',width:w+'px',height:h+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+/* closing line naming the next lesson */
+function nextUp(S,text,time){const n=el(S,'cap','next &nbsp;·&nbsp; '+text,{top:'940px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(n,time,.7);return n}
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ===================== scenes ===================== */
+const PL=[.1,.1,.1,.1,.1,.5];
+function die(svg,cx,cy,s,n,color){const g=svgEl('g',{},svg);
+  svgEl('rect',{x:cx-s/2,y:cy-s/2,width:s,height:s,rx:s*.16,fill:'#161c25',stroke:color||C.ink,'stroke-width':4},g);
+  const P={1:[[0,0]],2:[[-1,-1],[1,1]],3:[[-1,-1],[0,0],[1,1]],4:[[-1,-1],[1,-1],[-1,1],[1,1]],5:[[-1,-1],[1,-1],[0,0],[-1,1],[1,1]],6:[[-1,-1],[1,-1],[-1,0],[1,0],[-1,1],[1,1]]}[n];
+  P.forEach(([a,b])=>svgEl('circle',{cx:cx+a*s*.27,cy:cy+b*s*.27,r:s*.09,fill:color||C.ink},g));return g}
+function tickLabels(S,A,xs,dy,css){return xs.map(v=>lbl(S,`<span class="mono">${v}</span>`,A.X(v),A.Y(0)+(dy||40),Object.assign({fontSize:'34px',color:C.ink},css||{})))}
+
+/* ============ S1: a game on a loaded die ============ */
+(function(){const S=$('S1');const sid='s1';const svg=layerSvg(S);
+  const faces=[1,2,3,4,5,6].map((n,i)=>{const g=die(svg,330+i*190,330,120,n,n===6?C.pink:C.ink);g.setAttribute('style','opacity:0;visibility:hidden');return g});
+  tl.to(faces,{autoAlpha:1,duration:.4,stagger:.08},cue(sid,'game'));
+  const pays=[1,2,3,4,5,6].map((n,i)=>lbl(S,`pays <span class="mono">₹${n}</span>`,330+i*190,450,{fontSize:'34px',color:C.yellow}));
+  show(pays,cue(sid,'pays'),.4,{stagger:.08});
+  const pr=[1,2,3,4,5,6].map((n,i)=>lbl(S,`<span class="mono">p = ${PL[i].toFixed(1)}</span>`,330+i*190,505,{fontSize:'30px',color:C.dim}));
+  show(pr,cue(sid,'loaded'),.4,{stagger:.05});
+  const tk=el(S,'chip','ticket: <span class="mono">₹4</span> &nbsp;?',{left:'1460px',top:'280px',borderColor:C.teal,color:C.teal});
+  show(tk,cue(sid,'ticket'),.6);
+  const q1=note(S,'the next roll: unknowable',330,640,800,{fontSize:'44px',color:C.dim});show(q1,cue(sid,'cannot'),.5);
+  const q2=note(S,'the average over many rolls: knowable',330,720,1000,{fontSize:'44px',color:C.ink});show(q2,cue(sid,'average'),.5);
+  const q3=lbl(S,tex('\\mathbb{E}[X]',80),1560,760,{color:C.yellow});show(q3,cue(sid,'summarise'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: expectation as the balance point ============ */
+(function(){const S=$('S2');const sid='s2';const svg=layerSvg(S);
+  const A=axes(svg,{x:260,y:220,w:1000,h:520,xmin:0,xmax:7,ymin:0,ymax:.6,xticks:[],yaxis:false});
+  A.g.setAttribute('style','opacity:0');
+  const beamY=A.Y(0);
+  const tilt=svgEl('g',{},svg);
+  const beam=svgEl('rect',{x:A.X(.4),y:beamY,width:A.X(6.6)-A.X(.4),height:14,rx:4,fill:C.axis},tilt);
+  const B=bars(tilt,A,[1,2,3,4,5,6],PL,{color:C.yellow,w:.7,op:.88});
+  const nums=[1,2,3,4,5,6].map(v=>{const t=svgEl('text',{x:A.X(v),y:beamY+56,fill:C.ink,'font-size':34,'text-anchor':'middle','font-family':'JetBrains Mono'},tilt);t.textContent=v;return t});
+  tilt.setAttribute('style','opacity:0;visibility:hidden');fadeIn(tilt,at(sid,.01),.6);
+  const ful=svgEl('polygon',{fill:C.teal,style:'opacity:0;visibility:hidden'},svg);
+  const flab=el(S,'lbl','',{fontSize:'40px',color:C.teal});flab.setAttribute('data-layout-allow-overlap','');
+  const render=o=>{const fx=A.X(o.f);ful.setAttribute('points',`${fx},${beamY+14} ${fx-34},${beamY+80} ${fx+34},${beamY+80}`);
+    let tq=0;PL.forEach((p,i)=>tq+=p*(i+1-o.f));const ang=Math.max(-9,Math.min(9,tq*7));
+    tilt.setAttribute('transform',`rotate(${ang.toFixed(2)} ${fx} ${beamY+7})`);
+    gsap.set(flab,{x:fx,y:beamY+120,xPercent:-50,yPercent:-50});flab.innerHTML=`<span class="mono">${o.f.toFixed(2)}</span>`};
+  const st=state({f:2.2},render);
+  fadeIn([ful,flab],cue(sid,'finger')-.6,.4);
+  drive(st,cue(sid,'finger')-.2,1.6,{f:3.5},render);
+  drive(st,cue(sid,'tip')+.2,1.6,{f:4.5},render,'power3.out');
+  const fm=lbl(S,tex('\\mathbb{E}[X]=\\sum_x x\\,p(x)',60),1580,300,{});show(fm,cue(sid,'weighted'),.7);
+  const calc=lbl(S,tex('=0.1(1{+}2{+}3{+}4{+}5)+0.5\\cdot 6',40),1580,410,{color:C.dim});show(calc,cue(sid,'add'),.6);
+  const res=lbl(S,tex('=4.5',60),1580,500,{color:C.yellow});show(res,cue(sid,'add')+.8,.6);
+  const bp=note(S,'the balance point',1400,600,460,{fontSize:'44px',color:C.teal});show(bp,cue(sid,'balance'),.5);
+  const hv=note(S,'the heavy block at 6 drags it right',1400,680,460,{fontSize:'36px',color:C.dim});show(hv,cue(sid,'heavy'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: the running average settles onto E[X] ============ */
+(function(){const S=$('S3');const sid='s3';const svg=layerSvg(S);
+  const N=400;const A=axes(svg,{x:240,y:220,w:1180,h:560,xmin:0,xmax:N,ymin:1,ymax:6,xticks:[100,200,300,400],yticks:[2,3,4,5,6]});
+  A.g.setAttribute('style','opacity:0;visibility:hidden');fadeIn(A.g,at(sid,.01),.6);
+  const yl=[2,3,4,5,6].map(v=>lbl(S,`<span class="mono">${v}</span>`,A.X(0)-40,A.Y(v),{fontSize:'30px',color:C.dim}));
+  const xl=[100,200,300,400].map(v=>lbl(S,`<span class="mono">${v}</span>`,A.X(v),A.Y(1)+40,{fontSize:'30px',color:C.dim}));
+  fadeIn(yl.concat(xl),at(sid,.02),.5);
+  const xn=lbl(S,'number of rolls',A.X(200),A.Y(1)+90,{fontSize:'34px',fontStyle:'italic',color:C.dim});fadeIn(xn,at(sid,.02),.5);
+  const ev=svgEl('line',{x1:A.X(0),y1:A.Y(4.5),x2:A.X(N),y2:A.Y(4.5),stroke:C.yellow,'stroke-width':4,'stroke-dasharray':'14 10',style:'opacity:0;visibility:hidden'},svg);
+  const evl=lbl(S,tex('\\mathbb{E}[X]=4.5',44),A.X(N)+150,A.Y(4.5),{color:C.yellow});
+  fadeIn([ev,evl],cue(sid,'expectation'),.6);
+  const rnd=seedRand(99);const pts=[],means=[];let s=0;
+  for(let i=1;i<=N;i++){const u=rnd();let c=0,f=6;for(let j=0;j<6;j++){c+=PL[j];if(u<c){f=j+1;break}}s+=f;means.push(s/i);pts.push([A.X(i),A.Y(s/i)])}
+  const path=svgEl('path',{fill:'none',stroke:C.blue,'stroke-width':5,'stroke-linejoin':'round'},svg);
+  const dot=svgEl('circle',{r:10,fill:C.blue},svg);
+  const mlab=el(S,'abs mono','',{left:'1450px',top:'690px',fontSize:'32px',color:C.blue,whiteSpace:'nowrap'});
+  const render=o=>{const n=Math.max(1,Math.min(N,Math.round(o.n)));path.setAttribute('d',polyPath(pts.slice(0,n)));
+    dot.setAttribute('cx',pts[n-1][0]);dot.setAttribute('cy',pts[n-1][1]);mlab.textContent=`mean of ${n} rolls: ${means[n-1].toFixed(2)}`};
+  const st=state({n:1},render);
+  [path,dot,mlab].forEach(e=>gsap.set(e,{autoAlpha:0}));
+  fadeIn([path,dot,mlab],cue(sid,'ordinary'),.4);
+  drive(st,cue(sid,'ordinary'),SPAN[sid]*.75,{n:N},render,'power1.inOut');
+  const ap=note(S,'each value turns up in proportion to its probability',1460,470,420,{fontSize:'34px',color:C.dim});show(ap,cue(sid,'proportion'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: same mean, different spread: variance ============ */
+(function(){const S=$('S4');const sid='s4';const svg=layerSvg(S);
+  const narrow=[0,.1,.4,.4,.1,0],wide=[.4,.1,0,0,.1,.4];
+  const mk=(x0,ps,col)=>{const A=axes(svg,{x:x0,y:260,w:680,h:380,xmin:0,xmax:7,ymin:0,ymax:.5,xticks:[1,2,3,4,5,6],yaxis:false});
+    const B=bars(svg,A,[1,2,3,4,5,6],ps,{color:col,w:.7});const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(B.g);
+    const tk=tickLabels(S,A,[1,2,3,4,5,6],36,{fontSize:'30px'});
+    return {A,g,tk}};
+  const n=mk(160,narrow,C.blue),w=mk(1080,wide,C.pink);
+  // tick labels live in S, so wrap: fade groups and labels together via the scene opacity
+  fadeIn([n.g].concat(n.tk),cue(sid,'two'),.6);fadeIn([w.g].concat(w.tk),cue(sid,'two')+.3,.6);
+  [n,w].forEach((d,i)=>{const m=svgEl('line',{x1:d.A.X(3.5),y1:d.A.Y(0)+10,x2:d.A.X(3.5),y2:d.A.Y(.5),stroke:C.yellow,'stroke-width':4,'stroke-dasharray':'10 8',style:'opacity:0;visibility:hidden'},svg);
+    fadeIn(m,cue(sid,'balance'),.5)});
+  const ml=lbl(S,'both balance at 3.5',960,200,{fontSize:'40px',color:C.yellow,fontStyle:'italic'});show(ml,cue(sid,'balance'),.5);
+  const hl1=lbl(S,'huddled near the centre',n.A.X(3.5),730,{fontSize:'38px',fontStyle:'italic',color:C.blue});show(hl1,cue(sid,'huddled'),.5);
+  const hl2=lbl(S,'flung out to both sides',w.A.X(3.5),730,{fontSize:'38px',fontStyle:'italic',color:C.pink});show(hl2,cue(sid,'flings'),.5);
+  // distances from the mean on the wide one, then squares
+  const dists=[1,2,5,6].map(v=>{const a=mkArrow(svg,PX,C.ink,4);a.hl=16;const y=w.A.Y(wide[v-1])-26;setArrow(a,{x0:w.A.X(3.5),y0:y,x1:w.A.X(3.5),y1:y});return [a,v,y]});
+  dists.forEach(([a,v,y],k)=>{showArrow(a,cue(sid,'distance')+k*.1,.2);arrowTo(a,cue(sid,'distance')+k*.1,.7,{x1:w.A.X(v)},'power2.out')});
+  const sqs=[1,2,5,6].map(v=>{const d=Math.abs(v-3.5),side=d*30;const x=w.A.X(v)-side/2,y=w.A.Y(0)+70;
+    return svgEl('rect',{x,y,width:side,height:side,fill:C.pink,'fill-opacity':.35,stroke:C.pink,'stroke-width':2,style:'opacity:0;visibility:hidden'},svg)});
+  fadeIn(sqs,cue(sid,'square'),.5,.08);
+  hideArrow(dists[0][0],cue(sid,'average'),.3);dists.slice(1).forEach(d=>hideArrow(d[0],cue(sid,'average'),.3));
+  const fm=lbl(S,tex('\\mathrm{Var}(X)=\\sum_x (x-\\mu)^2\\,p(x)',54),960,905,{});show(fm,cue(sid,'average'),.7);
+  const v1=lbl(S,tex('\\mathrm{Var}=0.65',40),n.A.X(3.5),800,{color:C.blue}),v2=lbl(S,tex('\\mathrm{Var}=5.45',40),w.A.X(3.5),800,{color:C.pink});
+  fadeOut([hl1,hl2],cue(sid,'distance'),.3);show([v1,v2],cue(sid,'average')+.9,.5);
+  fadeOut(sqs,cue(sid,'average')+.6,.3);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: standard deviation ============ */
+(function(){const S=$('S5');const sid='s5';const svg=layerSvg(S);
+  // a square whose area is the variance shrinks to its side, the standard deviation
+  const cx=520,cy=520,side=300;
+  const sq=svgEl('rect',{x:cx-side/2,y:cy-side/2,width:side,height:side,fill:C.pink,'fill-opacity':.3,stroke:C.pink,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(sq,cue(sid,'squaring'),.6);
+  const al=lbl(S,'variance: cm²',cx,cy,{fontSize:'44px',color:C.ink});show(al,cue(sid,'square'),.5);
+  const edge=svgEl('line',{x1:cx-side/2,y1:cy+side/2+40,x2:cx+side/2,y2:cy+side/2+40,stroke:C.yellow,'stroke-width':8,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(edge,cue(sid,'root'),.5);
+  const el2=lbl(S,'standard deviation: cm',cx,cy+side/2+95,{fontSize:'44px',color:C.yellow});show(el2,cue(sid,'standard'),.5);
+  tl.to(sq,{attr:{'fill-opacity':.08},duration:.6},cue(sid,'root'));
+  const fm=lbl(S,tex('\\sigma=\\sqrt{\\mathrm{Var}(X)}',60),520,240,{});show(fm,cue(sid,'root'),.6);
+  // the wide distribution with its typical distance marked
+  const A=axes(svg,{x:1000,y:330,w:780,h:380,xmin:0,xmax:7,ymin:0,ymax:.5,xticks:[1,2,3,4,5,6],yaxis:false});
+  const wide=[.4,.1,0,0,.1,.4];const B=bars(svg,A,[1,2,3,4,5,6],wide,{color:C.pink,w:.7});
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(B.g);fadeIn(g,cue(sid,'standard'),.6);
+  const s=Math.sqrt(5.45);
+  const band=svgEl('rect',{x:A.X(3.5-s),y:A.Y(.5),width:A.X(3.5+s)-A.X(3.5-s),height:A.Y(0)-A.Y(.5),fill:C.yellow,'fill-opacity':.1,stroke:C.yellow,'stroke-width':2,'stroke-dasharray':'10 8',style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(band,cue(sid,'typical'),.6);
+  const bl=lbl(S,tex('\\mu\\pm\\sigma=3.5\\pm2.33',40),A.X(3.5),A.Y(.5)-50,{color:C.yellow});show(bl,cue(sid,'typical'),.5);
+  const q=note(S,'the number you quote for how wide it is',1000,800,780,{fontSize:'38px',color:C.dim,textAlign:'center'});show(q,cue(sid,'quote'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: where they appear in machine learning ============ */
+(function(){const S=$('S6');const sid='s6';const svg=layerSvg(S);
+  const fm=lbl(S,tex('\\mathcal{L}=\\mathbb{E}_{\\text{data}}[\\text{loss}]\\approx\\frac{1}{B}\\sum_{i=1}^{B}\\text{loss}_i',54),520,260,{});
+  show(fm,cue(sid,'loss'),.7);
+  const rnd=seedRand(3);const dots=[];for(let i=0;i<16;i++){const v=.4+rnd()*1.2;dots.push(svgEl('circle',{cx:240+i*36,cy:560-v*120,r:11,fill:C.blue,style:'opacity:0;visibility:hidden'},svg))}
+  tl.to(dots,{autoAlpha:1,duration:.2,stagger:.05},cue(sid,'batch'));
+  const mean=svgEl('line',{x1:220,y1:560-1*120,x2:820,y2:560-1*120,stroke:C.yellow,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(mean,cue(sid,'batch')+.9,.5);
+  const bl=lbl(S,'a batch of losses and their average',520,640,{fontSize:'34px',fontStyle:'italic',color:C.dim});show(bl,cue(sid,'batch')+.4,.5);
+  // signal spread through layers: one good, one exploding, one vanishing
+  const rows=[['explode',[1,1.6,2.6,4.2,6.8],C.red],['steady',[1,1,1,1,1],C.green],['vanish',[1,.6,.36,.22,.13],C.blue]];
+  rows.forEach(([name,ws,col],r)=>{const y=330+r*170;
+    const items=ws.map((wv,k)=>{const x=1100+k*150;const h=Math.min(130,40*wv);return svgEl('rect',{x:x-14,y:y-h/2,width:28,height:h,rx:5,fill:col,'fill-opacity':.8,style:'opacity:0;visibility:hidden'},svg)});
+    const t=lbl(S,name,1830,y,{fontSize:'34px',fontStyle:'italic',color:col});
+    const tm=r===0?cue(sid,'explode'):r===1?cue(sid,'weights'):cue(sid,'vanish');
+    tl.to(items,{autoAlpha:1,duration:.25,stagger:.12},tm);show(t,tm+.4,.4)});
+  const ll=lbl(S,'spread of the signal, layer by layer',1400,230,{fontSize:'34px',fontStyle:'italic',color:C.dim});show(ll,cue(sid,'weights'),.5);
+  nextUp(S,'3.3 &nbsp;Bayes\' rule: updating beliefs',cue(sid,'next'));
+  sceneInOut(sid,true);
+})();
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+{
+  "id": "3.2-expectation-variance",
+  "module": 3,
+  "title": "Expectation and variance",
+  "summary": "The expectation is the probability-weighted average of a random variable, the balance point of its distribution. The variance is the expected squared distance from that balance point, and its square root, the standard deviation, is a typical distance from the mean.",
+  "video": "videos/3.2-expectation-variance.mp4",
+  "llm_link": "Training minimises an expected loss over the data, which we estimate by averaging the loss over a batch. Weight initialisation is chosen to keep the variance of signals roughly constant from layer to layer, so they neither explode nor vanish.",
+  "key_ideas": [
+    "E[X] = Σ x·p(x): multiply each value by its probability, then add. It is the balance point of the distribution.",
+    "The average of many samples approaches E[X], because each value appears in proportion to its probability.",
+    "Var(X) = Σ (x − μ)²·p(x): the expected squared distance from the mean μ = E[X].",
+    "Standard deviation σ = √Var(X) is in the original units and describes a typical distance from the mean."
+  ],
+  "quiz": [
+    {
+      "q": "A die has p = 0.1 for faces 1-5 and p = 0.5 for face 6. Predict the result: what is E[X]?",
+      "options": [
+        "3.5",
+        "4.5",
+        "6",
+        "3.0"
+      ],
+      "answer": 1,
+      "explain": "0.1·(1+2+3+4+5) + 0.5·6 = 1.5 + 3 = 4.5. The heavy block at 6 drags the balance point to the right of the fair die's 3.5."
+    },
+    {
+      "q": "Distributions A = [0, 0.1, 0.4, 0.4, 0.1, 0] and B = [0.4, 0.1, 0, 0, 0.1, 0.4] over faces 1-6. Which statement is true?",
+      "options": [
+        "A has the larger mean",
+        "B has the larger mean",
+        "Same mean, B has the larger variance",
+        "Same mean, same variance"
+      ],
+      "answer": 2,
+      "explain": "Both are symmetric about 3.5, so both balance at 3.5. B puts its mass far from the centre, so its squared distances, and its variance, are much larger (5.45 versus 0.65)."
+    },
+    {
+      "q": "Why do we square the distances in the variance instead of just averaging x − μ?",
+      "options": [
+        "Squares are faster to compute",
+        "The plain distances x − μ always average to zero, because positive and negative cancel",
+        "To make the result smaller",
+        "Because probabilities are squared"
+      ],
+      "answer": 1,
+      "explain": "Σ (x − μ)·p(x) = E[X] − μ = 0 for every distribution. Squaring makes left and right count alike (both positive)."
+    },
+    {
+      "q": "Heights have a variance of 49 cm². What is the standard deviation?",
+      "options": [
+        "49 cm",
+        "7 cm",
+        "24.5 cm",
+        "7 cm²"
+      ],
+      "answer": 1,
+      "explain": "σ = √49 = 7, and taking the root also turns cm² back into cm."
+    },
+    {
+      "q": "In training, the true objective is the expected loss over all possible data. What do we actually compute at each step?",
+      "options": [
+        "The exact expectation over the whole internet",
+        "The average loss over a batch of examples, an estimate of that expectation",
+        "The variance of the weights",
+        "The largest loss in the dataset"
+      ],
+      "answer": 1,
+      "explain": "A sample average estimates an expectation, exactly as the running mean of die rolls settles onto E[X]. Lesson 4.4 builds on this."
+    }
+  ],
+  "problems": [
+    {
+      "id": "expect",
+      "title": "Expected value",
+      "prompt": "<p>Write <code>expectation(values, probs)</code> that returns Σ x·p(x), where <code>values[i]</code> has probability <code>probs[i]</code>.</p><p>The Σ means: one term per position i, and each term uses the <i>matching</i> value and probability. Pair them with <code>zip</code>, not with a loop inside a loop.</p><pre>expectation([1, 2, 3, 4, 5, 6], [1/6]*6)        # 3.5\nexpectation([1, 2, 3, 4, 5, 6], [0.1]*5 + [0.5])  # 4.5</pre>",
+      "starter": "def expectation(values, probs):\n    # TODO: add up value * probability for each matching pair\n    total = 0\n\n    return total\n",
+      "tests": [
+        {
+          "name": "fair die",
+          "code": "out = expectation([1, 2, 3, 4, 5, 6], [1/6]*6)\nassert abs(out - 3.5) < 1e-9, f'a fair die balances at 3.5, got {out}'"
+        },
+        {
+          "name": "loaded die",
+          "code": "out = expectation([1, 2, 3, 4, 5, 6], [0.1]*5 + [0.5])\nassert abs(out - 4.5) < 1e-9, f'0.1*(1+2+3+4+5) + 0.5*6 = 4.5, got {out}. If you got a much bigger number, you probably multiplied every value by every probability (nested loops) instead of matching pairs'"
+        },
+        {
+          "name": "certain outcome",
+          "code": "out = expectation([10, 20], [0, 1])\nassert abs(out - 20) < 1e-9, f'all the probability is on 20, so the expectation is 20, got {out}'"
+        },
+        {
+          "name": "negative values",
+          "code": "out = expectation([-1, 1], [0.5, 0.5])\nassert abs(out) < 1e-9, f'a symmetric win/lose of 1 balances at 0, got {out}'"
+        }
+      ],
+      "hints": [
+        "for x, p in zip(values, probs): total += x * p",
+        "One line: sum(x * p for x, p in zip(values, probs))"
+      ],
+      "solution": "def expectation(values, probs):\n    return sum(x * p for x, p in zip(values, probs))\n"
+    },
+    {
+      "id": "var",
+      "title": "Variance and standard deviation",
+      "prompt": "<p>Write <code>variance(values, probs)</code> = Σ (x − μ)²·p(x), where μ is the expectation, and <code>std(values, probs)</code> = √variance.</p><p><code>expectation</code> from the previous problem is already defined for you.</p><pre>variance([1, 2, 3, 4, 5, 6], [0, .1, .4, .4, .1, 0])   # 0.65\nvariance([1, 2, 3, 4, 5, 6], [.4, .1, 0, 0, .1, .4])   # 5.45</pre>",
+      "starter": "import math\n\ndef expectation(values, probs):\n    return sum(x * p for x, p in zip(values, probs))\n\ndef variance(values, probs):\n    mu = expectation(values, probs)\n    # TODO: add up (x - mu) ** 2 * p for each matching pair\n    pass\n\ndef std(values, probs):\n    # TODO: square root of the variance\n    pass\n",
+      "tests": [
+        {
+          "name": "narrow distribution",
+          "code": "out = variance([1, 2, 3, 4, 5, 6], [0, .1, .4, .4, .1, 0])\nassert out is not None, 'variance returned None'\nassert abs(out - 0.65) < 1e-9, f'expected 0.65, got {out}'"
+        },
+        {
+          "name": "wide distribution",
+          "code": "out = variance([1, 2, 3, 4, 5, 6], [.4, .1, 0, 0, .1, .4])\nassert abs(out - 5.45) < 1e-9, f'expected 5.45 (mass far from 3.5 gives big squared distances), got {out}'"
+        },
+        {
+          "name": "no spread, no variance",
+          "code": "out = variance([7], [1.0])\nassert abs(out) < 1e-12, f'a value that is certain has zero variance, got {out}'"
+        },
+        {
+          "name": "not the mean of plain distances",
+          "code": "out = variance([-1, 1], [0.5, 0.5])\nassert abs(out - 1) < 1e-9, f'expected 1. If you got 0, you averaged (x - mu) without squaring, and positive and negative distances cancelled'"
+        },
+        {
+          "name": "standard deviation",
+          "code": "out = std([-3, 3], [0.5, 0.5])\nassert out is not None, 'std returned None'\nassert abs(out - 3) < 1e-9, f'variance is 9, so the standard deviation is 3, got {out}'"
+        }
+      ],
+      "hints": [
+        "sum((x - mu) ** 2 * p for x, p in zip(values, probs))",
+        "std is math.sqrt(variance(values, probs))."
+      ],
+      "solution": "import math\n\ndef expectation(values, probs):\n    return sum(x * p for x, p in zip(values, probs))\n\ndef variance(values, probs):\n    mu = expectation(values, probs)\n    return sum((x - mu) ** 2 * p for x, p in zip(values, probs))\n\ndef std(values, probs):\n    return math.sqrt(variance(values, probs))\n"
+    },
+    {
+      "id": "samples",
+      "title": "Estimate from samples (NumPy)",
+      "prompt": "<p>When you only have samples, the expectation is estimated by the sample mean and the variance by the mean squared distance from the sample mean.</p><p>Write <code>sample_stats(x)</code> for a NumPy array <code>x</code> that returns a tuple <code>(mean, var)</code>. Use array arithmetic: <code>x - m</code> subtracts the number <code>m</code> from every entry (broadcasting), and <code>** 2</code> squares every entry.</p><pre>sample_stats(np.array([1.0, 2.0, 3.0, 6.0]))   # (3.0, 3.5)</pre>",
+      "starter": "import numpy as np\n\ndef sample_stats(x):\n    # TODO 1: m = the average of x (x.sum() / len(x), or x.mean())\n    # TODO 2: v = the average of (x - m) ** 2\n    # TODO 3: return m, v\n    pass\n",
+      "tests": [
+        {
+          "name": "small example",
+          "code": "import numpy as np\nout = sample_stats(np.array([1.0, 2.0, 3.0, 6.0]))\nassert out is not None, 'sample_stats returned None'\nm, v = out\nassert abs(m - 3.0) < 1e-9, f'mean of 1, 2, 3, 6 is 3.0, got {m}'\nassert abs(v - 3.5) < 1e-9, f'squared distances are 4, 1, 0, 9, whose average is 3.5; got {v}'"
+        },
+        {
+          "name": "matches NumPy",
+          "code": "import numpy as np\nx = np.array([2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0])\nm, v = sample_stats(x)\nassert abs(v - np.var(x)) < 1e-9, f'expected {np.var(x)}, got {v}. Divide by len(x), not len(x) - 1'"
+        },
+        {
+          "name": "samples approach the loaded die",
+          "code": "import numpy as np\nrng = np.random.default_rng(0)\nx = rng.choice(np.arange(1, 7), size=100000, p=[0.1]*5 + [0.5]).astype(float)\nm, v = sample_stats(x)\nassert abs(m - 4.5) < 0.03, f'with 100000 rolls the mean should be close to E[X] = 4.5, got {m:.3f}'\nassert abs(v - 3.25) < 0.05, f'the true variance of this die is 3.25, got {v:.3f}'"
+        }
+      ],
+      "hints": [
+        "m = x.mean()",
+        "v = ((x - m) ** 2).mean(), then return m, v"
+      ],
+      "solution": "import numpy as np\n\ndef sample_stats(x):\n    m = x.mean()\n    v = ((x - m) ** 2).mean()\n    return m, v\n"
+    }
+  ]
+}
