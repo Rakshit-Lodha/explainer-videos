@@ -1,0 +1,171 @@
+{
+ "id": "9.5-qkv",
+ "module": 9,
+ "title": "Queries, keys and values",
+ "summary": "Each token gets three vectors from three learned matrices: a query (what it is looking for), a key (what it offers to be found by) and a value (what it passes along). Scores are query · key, softmax turns them into weights, and the output mixes the values. In matrix form: Q = X W_Q, K = X W_K, V = X W_V, out = softmax(Q Kᵀ) V.",
+ "video": "videos/9.5-qkv.mp4",
+ "llm_link": "Every attention layer in a GPT is this computation, with W_Q, W_K and W_V learned during pretraining. Researchers who inspect trained models find heads with recognisable jobs, such as attending to the previous token, which emerge from training rather than being programmed.",
+ "key_ideas": [
+  "Query: what this token is looking for. Key: what it advertises. Value: what it hands over if chosen.",
+  "Q = X W_Q, K = X W_K, V = X W_V: three ordinary learned weight matrices.",
+  "Scores Q Kᵀ have shape (T, T): rows are queries, columns are keys.",
+  "Separate queries and keys remove the automatic self-match; separate values let what gets a token found differ from what it contributes.",
+  "Only rule for shapes: queries and keys must share the width d_k."
+ ],
+ "quiz": [
+  {
+   "q": "X is (6, 16), W_Q and W_K are (16, 8) and W_V is (16, 10). Predict the shape of softmax(Q Kᵀ) V.",
+   "options": [
+    "(6, 8)",
+    "(6, 10)",
+    "(6, 6)",
+    "(16, 10)"
+   ],
+   "answer": 1,
+   "explain": "Q Kᵀ is (6, 8) @ (8, 6) = (6, 6). Multiplying by V, which is (6, 10), gives (6, 10). The value width can differ from the query/key width."
+  },
+  {
+   "q": "Which pair must have the same width for attention to work?",
+   "options": [
+    "Queries and values",
+    "Keys and values",
+    "Queries and keys",
+    "Embeddings and values"
+   ],
+   "answer": 2,
+   "explain": "Each score is a dot product q · k, which needs vectors of equal length. Values are only mixed by the weights, so their width is free."
+  },
+  {
+   "q": "In the library analogy, what plays the role of the value?",
+   "options": [
+    "The request slip you write",
+    "The label on the book's spine",
+    "The content of the book you take home",
+    "The shelf the book sits on"
+   ],
+   "answer": 2,
+   "explain": "The query is your request, the key is the spine label you match against, and the value is what you actually take away once a book is chosen."
+  },
+  {
+   "q": "Why do separate W_Q and W_K matrices fix the \"everyone looks at itself\" problem of raw attention?",
+   "options": [
+    "They make every score zero",
+    "q_i · k_i is no longer a squared length, so a token is not automatically its own best match",
+    "They normalise the embeddings",
+    "They remove the diagonal of the score table"
+   ],
+   "answer": 1,
+   "explain": "With raw attention the diagonal score is x_i · x_i = |x_i|². With q_i = x_i W_Q and k_i = x_i W_K, the diagonal is just another learned score."
+  },
+  {
+   "q": "In a trained LLM, where do the query, key and value matrices of each attention layer come from?",
+   "options": [
+    "They are written by hand by engineers",
+    "They are learned by gradient descent during pretraining, like every other weight",
+    "They are copied from the embedding table",
+    "They are fixed random matrices"
+   ],
+   "answer": 1,
+   "explain": "They start random and are adjusted, together with all other parameters, to make next-token prediction more accurate."
+  }
+ ],
+ "problems": [
+  {
+   "id": "shapes",
+   "title": "Shape drill: Q, K, V and the scores",
+   "prompt": "<p>Predict every shape before printing. T = 5 tokens, d = 8, d_k = 4. The values here are all ones because only the shapes matter.</p><p>Rules: <code>(a, b) @ (b, c)</code> gives <code>(a, c)</code>; <code>.T</code> swaps axes; softmax keeps the shape.</p>",
+   "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Exponentiate, then divide by the total along one axis (you will write this yourself in 9.6).\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\nT, d, d_k = 5, 8, 4\nX  = np.ones((T, d))\nWq = np.ones((d, d_k)); Wk = np.ones((d, d_k)); Wv = np.ones((d, d_k))\nQ, K, V = X @ Wq, X @ Wk, X @ Wv\nA = softmax(Q @ K.T)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"Wq\": None,\n    \"Q\": None,\n    \"K.T\": None,\n    \"Q @ K.T\": None,\n    \"Q[2] @ K.T\": None,\n    \"V\": None,\n    \"A @ V\": None,\n}\n",
+   "tests": [
+    {
+     "name": "shape of Wq",
+     "code": "import numpy as np\ngot = answers['Wq']\nreal = np.shape(Wq)\nassert got is not None, 'fill in your prediction for Wq'\nassert tuple(got) == tuple(real), f'you predicted {got} but Wq has shape {real}. A projection maps a d-wide embedding to a d_k-wide query, so it has d rows and d_k columns.'"
+    },
+    {
+     "name": "shape of Q",
+     "code": "import numpy as np\ngot = answers['Q']\nreal = np.shape(Q)\nassert got is not None, 'fill in your prediction for Q'\nassert tuple(got) == tuple(real), f'you predicted {got} but Q has shape {real}. (T, d) @ (d, d_k) gives (T, d_k): one query per token.'"
+    },
+    {
+     "name": "shape of K.T",
+     "code": "import numpy as np\ngot = answers['K.T']\nreal = np.shape(K.T)\nassert got is not None, 'fill in your prediction for K.T'\nassert tuple(got) == tuple(real), f'you predicted {got} but K.T has shape {real}. K is (T, d_k); the transpose swaps the axes.'"
+    },
+    {
+     "name": "shape of Q @ K.T",
+     "code": "import numpy as np\ngot = answers['Q @ K.T']\nreal = np.shape(Q @ K.T)\nassert got is not None, 'fill in your prediction for Q @ K.T'\nassert tuple(got) == tuple(real), f'you predicted {got} but Q @ K.T has shape {real}. (T, d_k) @ (d_k, T) gives (T, T): one score for every (query, key) pair.'"
+    },
+    {
+     "name": "shape of Q[2] @ K.T",
+     "code": "import numpy as np\ngot = answers['Q[2] @ K.T']\nreal = np.shape(Q[2] @ K.T)\nassert got is not None, 'fill in your prediction for Q[2] @ K.T'\nassert tuple(got) == tuple(real), f'you predicted {got} but Q[2] @ K.T has shape {real}. One query (d_k,) against all keys (d_k, T) gives T scores.'"
+    },
+    {
+     "name": "shape of V",
+     "code": "import numpy as np\ngot = answers['V']\nreal = np.shape(V)\nassert got is not None, 'fill in your prediction for V'\nassert tuple(got) == tuple(real), f'you predicted {got} but V has shape {real}. (T, d) @ (d, d_k) gives one value per token.'"
+    },
+    {
+     "name": "shape of A @ V",
+     "code": "import numpy as np\ngot = answers['A @ V']\nreal = np.shape(A @ V)\nassert got is not None, 'fill in your prediction for A @ V'\nassert tuple(got) == tuple(real), f'you predicted {got} but A @ V has shape {real}. (T, T) @ (T, d_k) gives (T, d_k): one mixed value per token.'"
+    }
+   ],
+   "hints": [
+    "Q, K and V all have one row per token and d_k columns.",
+    "Q[2] is a single query of length d_k."
+   ],
+   "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Exponentiate, then divide by the total along one axis (you will write this yourself in 9.6).\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\nT, d, d_k = 5, 8, 4\nX  = np.ones((T, d))\nWq = np.ones((d, d_k)); Wk = np.ones((d, d_k)); Wv = np.ones((d, d_k))\nQ, K, V = X @ Wq, X @ Wk, X @ Wv\nA = softmax(Q @ K.T)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"Wq\": (8, 4),\n    \"Q\": (5, 4),\n    \"K.T\": (4, 5),\n    \"Q @ K.T\": (5, 5),\n    \"Q[2] @ K.T\": (5,),\n    \"V\": (5, 4),\n    \"A @ V\": (5, 4),\n}\n"
+  },
+  {
+   "id": "head",
+   "title": "One attention head (GPT, step 3)",
+   "prompt": "<p>Upgrade last lesson's raw attention to a real attention head. The starter contains your GPT so far: the tokenizer, the embedding table, and three projection matrices (random here; a trained model learns them).</p><p>Write <code>attention_head(X, Wq, Wk, Wv)</code> returning <code>(out, A)</code> with <code>Q = X @ Wq</code>, <code>K = X @ Wk</code>, <code>V = X @ Wv</code>, <code>A = softmax(Q @ K.T)</code> (each row) and <code>out = A @ V</code>.</p>",
+   "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Exponentiate, then divide by the total along one axis (you will write this yourself in 9.6).\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\n# ---- the character-level GPT so far (lessons 9.1, 9.2) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, d_k = 8, 4\nE = rng.normal(size=(len(vocab), d))           # embedding table (V, d)\nX = E[np.array(encode(\"hello\"))]               # (T, d) = (5, 8)\nWq = rng.normal(size=(d, d_k))                 # learned in a real model; random here\nWk = rng.normal(size=(d, d_k))\nWv = rng.normal(size=(d, d_k))\n\n# ---- step 3: one attention head with queries, keys and values (this lesson) ----\ndef attention_head(X, Wq, Wk, Wv):\n    \"\"\"Returns (out, A). No scaling and no mask yet: those come in lesson 9.6.\"\"\"\n    # TODO 1: Q, K, V = three projections of X                 -> each (T, d_k)\n    # TODO 2: A = softmax of each row of the (T, T) score table Q Kᵀ\n    # TODO 3: out = A @ V                                       -> (T, d_k)\n    pass\n",
+   "tests": [
+    {
+     "name": "shapes",
+     "code": "import numpy as np\nr=attention_head(X,Wq,Wk,Wv)\nassert r is not None, 'return (out, A)'\nout,A=r\nassert A.shape==(5,5), f'A should be (T, T) = (5, 5), got {A.shape}'\nassert out.shape==(5,4), f'out should be (T, d_k) = (5, 4): one mixed value per token; got {out.shape}'"
+    },
+    {
+     "name": "rows of A sum to 1",
+     "code": "import numpy as np\nout,A=attention_head(X,Wq,Wk,Wv)\nassert np.allclose(A.sum(axis=1),1), f'rows of A must sum to 1, got {A.sum(axis=1).round(3)}; softmax along the last axis'"
+    },
+    {
+     "name": "uses queries and keys, not raw X",
+     "code": "import numpy as np\nout,A=attention_head(X,Wq,Wk,Wv)\nref=softmax((X@Wq)@(X@Wk).T)\nassert np.allclose(A,ref), 'A should be softmax(Q @ K.T) with Q = X @ Wq and K = X @ Wk'"
+    },
+    {
+     "name": "mixes the values",
+     "code": "import numpy as np\nout,A=attention_head(X,Wq,Wk,Wv)\nassert np.allclose(out,A@(X@Wv)), 'out should be A @ V with V = X @ Wv (the values are mixed, not X itself)'"
+    },
+    {
+     "name": "raw attention is the special case W = I",
+     "code": "import numpy as np\nI=np.eye(8)\nout,A=attention_head(X,I,I,I)\nref=softmax(X@X.T)\nassert np.allclose(A,ref) and np.allclose(out,ref@X), 'with identity projections the head should reduce to last lesson\\'s raw attention'"
+    }
+   ],
+   "hints": [
+    "Q, K, V = X @ Wq, X @ Wk, X @ Wv",
+    "A = softmax(Q @ K.T, axis=-1); return A @ V, A"
+   ],
+   "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Exponentiate, then divide by the total along one axis (you will write this yourself in 9.6).\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\n# ---- the character-level GPT so far (lessons 9.1, 9.2) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, d_k = 8, 4\nE = rng.normal(size=(len(vocab), d))           # embedding table (V, d)\nX = E[np.array(encode(\"hello\"))]               # (T, d) = (5, 8)\nWq = rng.normal(size=(d, d_k))                 # learned in a real model; random here\nWk = rng.normal(size=(d, d_k))\nWv = rng.normal(size=(d, d_k))\n\n# ---- step 3: one attention head with queries, keys and values (this lesson) ----\ndef attention_head(X, Wq, Wk, Wv):\n    \"\"\"Returns (out, A). No scaling and no mask yet: those come in lesson 9.6.\"\"\"\n    Q, K, V = X @ Wq, X @ Wk, X @ Wv\n    A = softmax(Q @ K.T, axis=-1)\n    return A @ V, A\n"
+  },
+  {
+   "id": "design",
+   "title": "Teach \"it\" to find \"cat\"",
+   "prompt": "<p>A trained model learns W_Q and W_K. Here you choose them by hand. Three tokens have 2-number embeddings; the first coordinate is a crude \"noun-ness\". With identity matrices (raw attention), <i>it</i> mostly attends to itself.</p><p>Change <code>Wq</code> and <code>Wk</code> (2 × 2 NumPy arrays) so that <code>weights_for_it(Wq, Wk)</code> puts <b>more than half</b> of the weight on <i>cat</i>. Think about what the keys should advertise and what the query of <i>it</i> should ask for.</p>",
+   "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Exponentiate, then divide by the total along one axis (you will write this yourself in 9.6).\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\n# three tokens with 2-number embeddings\nwords = [\"cat\", \"sat\", \"it\"]\nX = np.array([[1.0, 0.0],     # cat\n              [0.0, 1.0],     # sat\n              [0.6, 0.8]])    # it\n\ndef weights_for_it(Wq, Wk):\n    Q, K = X @ Wq, X @ Wk\n    return softmax(Q[2] @ K.T)          # how much \"it\" attends to cat, sat, it\n\n# With identity matrices this is raw attention, and \"it\" mostly looks at itself:\n#   print(weights_for_it(np.eye(2), np.eye(2)).round(2))\n# TODO: choose 2x2 matrices so that \"it\" puts more than half its weight on \"cat\".\nWq = np.eye(2)\nWk = np.eye(2)\n",
+   "tests": [
+    {
+     "name": "it attends mostly to cat",
+     "code": "import numpy as np\nw=weights_for_it(np.asarray(Wq,float),np.asarray(Wk,float))\nassert np.argmax(w)==0, f'the largest weight should be on cat (index 0); got weights {w.round(2)} for [cat, sat, it]'\nassert w[0]>0.5, f'cat should get more than half the weight, got {w[0]:.2f}. Try making the keys exaggerate the noun coordinate.'"
+    },
+    {
+     "name": "matrices are 2 x 2",
+     "code": "import numpy as np\nassert np.shape(Wq)==(2,2) and np.shape(Wk)==(2,2), 'both projections map 2 numbers to 2 numbers, so they are 2 x 2'"
+    }
+   ],
+   "hints": [
+    "Scores are q_it · k_j. With Wq = I the query is just [0.6, 0.8]. Which keys would make cat's score large compared with it's own?",
+    "If the keys keep only the first coordinate and stretch it, cat's key becomes long while sat's vanishes.",
+    "Wk = np.array([[5.0, 0.0], [0.0, 0.0]]) with Wq = np.eye(2) gives cat about 0.74."
+   ],
+   "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Exponentiate, then divide by the total along one axis (you will write this yourself in 9.6).\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\n# three tokens with 2-number embeddings\nwords = [\"cat\", \"sat\", \"it\"]\nX = np.array([[1.0, 0.0],     # cat\n              [0.0, 1.0],     # sat\n              [0.6, 0.8]])    # it\n\ndef weights_for_it(Wq, Wk):\n    Q, K = X @ Wq, X @ Wk\n    return softmax(Q[2] @ K.T)          # how much \"it\" attends to cat, sat, it\n\n# With identity matrices this is raw attention, and \"it\" mostly looks at itself:\n#   print(weights_for_it(np.eye(2), np.eye(2)).round(2))\n# TODO: choose 2x2 matrices so that \"it\" puts more than half its weight on \"cat\".\nWq = np.eye(2)\nWk = np.array([[5.0, 0.0],     # every key keeps 5x its first coordinate (\"noun-ness\")\n               [0.0, 0.0]])    # and drops the second\n"
+  }
+ ],
+ "poster": "videos/9.5-qkv.jpg"
+}

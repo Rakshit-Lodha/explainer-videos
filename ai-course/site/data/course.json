@@ -207,7 +207,8 @@
     },
     {
      "num": "5.5",
-     "title": "Train, validation and test splits"
+     "title": "Train, validation and test splits",
+     "id": "5.5-data-splits"
     },
     {
      "num": "5.6",
@@ -258,11 +259,13 @@
     },
     {
      "num": "6.6",
-     "title": "Backpropagation: the chain rule run backwards"
+     "title": "Backpropagation: the chain rule run backwards",
+     "id": "6.6-backpropagation"
     },
     {
      "num": "6.7",
-     "title": "Initialization and vanishing gradients"
+     "title": "Initialization and vanishing gradients",
+     "id": "6.7-initialization"
     },
     {
      "num": "6.8",
@@ -344,7 +347,8 @@
     },
     {
      "num": "9.5",
-     "title": "Queries, keys and values"
+     "title": "Queries, keys and values",
+     "id": "9.5-qkv"
     },
     {
      "num": "9.6",
@@ -394,7 +398,8 @@
     },
     {
      "num": "10.5",
-     "title": "Retrieval-augmented generation"
+     "title": "Retrieval-augmented generation",
+     "id": "10.5-rag"
     },
     {
      "num": "10.6",
@@ -403,7 +408,8 @@
     },
     {
      "num": "10.7",
-     "title": "Evaluating models"
+     "title": "Evaluating models",
+     "id": "10.7-evaluation"
     }
    ]
   },
@@ -418,11 +424,13 @@
     },
     {
      "num": "11.2",
-     "title": "Diffusion: learning to remove noise"
+     "title": "Diffusion: learning to remove noise",
+     "id": "11.2-diffusion"
     },
     {
      "num": "11.3",
-     "title": "GANs in brief"
+     "title": "GANs in brief",
+     "id": "11.3-gans"
     }
    ]
   },

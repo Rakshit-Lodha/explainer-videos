@@ -1,0 +1,159 @@
+{
+ "id": "11.2-diffusion",
+ "module": 11,
+ "title": "Diffusion: learning to remove noise",
+ "summary": "A fixed forward process slowly turns data into Gaussian noise. Because Gaussians compose, any noise level can be reached in one jump: x_t = √ᾱ_t·x_0 + √(1−ᾱ_t)·ε. A network is trained by plain regression to predict the added noise ε, and generation runs the process backwards from pure noise, removing a little predicted noise at each step. The predicted noise points away from likely data, which links diffusion to score matching.",
+ "video": "videos/11.2-diffusion.mp4",
+ "llm_link": "Text-to-image models condition the denoiser on a text encoder's embeddings, so a language model's representation of your prompt steers every denoising step. Unlike an LLM, which writes one token after another, a diffusion model refines the whole output a little at each step.",
+ "key_ideas": [
+  "Forward process (fixed): q(x_t | x_{t−1}) = N(√(1−β_t)·x_{t−1}, β_t·I). DDPM (Ho, Jain & Abbeel, 2020) used T = 1000 and β rising linearly from 10⁻⁴ to 0.02. The idea goes back to Sohl-Dickstein et al. (2015).",
+  "Closed form: ᾱ_t = Π_{s≤t}(1 − β_s) and x_t = √ᾱ_t·x_0 + √(1−ᾱ_t)·ε, ε ~ N(0, I).",
+  "Training: sample x_0, t, ε; build x_t in one jump; minimise ‖ε − ε_θ(x_t, t)‖² (the 'simplified' objective).",
+  "Sampling: start at x_T ~ N(0, I); each step removes a scaled predicted noise, rescales and adds a little fresh noise. Later samplers (e.g. DDIM) use far fewer steps.",
+  "The noise prediction is proportional to minus the score ∇ log p(x_t): the connection to score matching (Song & Ermon, 2019).",
+  "Conditioning on text plus classifier-free guidance controls the output; Dhariwal & Nichol (2021) reported diffusion beating GANs on image benchmarks."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: ᾱ_t = 0.64, the clean value x_0 = 1.0 and the noise sample ε = 0.5. What is x_t = √ᾱ_t·x_0 + √(1−ᾱ_t)·ε?",
+   "options": [
+    "1.1",
+    "0.82",
+    "1.5",
+    "0.64"
+   ],
+   "answer": 0,
+   "explain": "√0.64 = 0.8 and √0.36 = 0.6, so x_t = 0.8·1.0 + 0.6·0.5 = 1.1."
+  },
+  {
+   "q": "What does the DDPM network learn to predict in the simplified objective?",
+   "options": [
+    "The clean image directly",
+    "The noise ε that was added to make x_t",
+    "The step number t",
+    "The next pixel"
+   ],
+   "answer": 1,
+   "explain": "The target is ε, scored with squared error. Knowing ε and x_t you can also recover an estimate of x_0."
+  },
+  {
+   "q": "Why does the closed form x_t = √ᾱ_t·x_0 + √(1−ᾱ_t)·ε make training cheap?",
+   "options": [
+    "It removes the need for a network",
+    "Any noise level can be sampled in one step, so you never simulate the whole chain during training",
+    "It makes all steps identical",
+    "It shortens images"
+   ],
+   "answer": 1,
+   "explain": "Each training example picks a random t and builds x_t directly, so one network evaluation per example is enough."
+  },
+  {
+   "q": "Which part of a diffusion model is learned?",
+   "options": [
+    "The forward noising schedule β_t",
+    "The denoiser ε_θ(x_t, t)",
+    "Both, equally",
+    "Neither"
+   ],
+   "answer": 1,
+   "explain": "The forward process is a fixed recipe; only the reverse (denoising) network has parameters."
+  },
+  {
+   "q": "In a text-to-image diffusion model, where does the language understanding come in?",
+   "options": [
+    "The noise schedule is chosen by an LLM",
+    "The denoiser is conditioned on embeddings of the prompt from a text encoder at every step",
+    "The image is converted to tokens and generated left to right",
+    "It does not use text"
+   ],
+   "answer": 1,
+   "explain": "The text embedding is an extra input to ε_θ, and classifier-free guidance strengthens its effect."
+  }
+ ],
+ "problems": [
+  {
+   "id": "schedule",
+   "title": "The noise schedule (NumPy)",
+   "prompt": "<p>Write <code>alpha_bar(T, beta_start=1e-4, beta_end=0.02)</code>: make <code>T</code> betas spaced linearly from <code>beta_start</code> to <code>beta_end</code>, then return the running product of <code>1 − beta</code> (an array of length T).</p><p>Then look at how much of the signal survives: <code>sqrt(alpha_bar)</code> is the weight on the clean image at each step.</p><pre>ab = alpha_bar(1000)\nab[0]    # 0.9999\nab[-1]   # about 4e-05: almost pure noise</pre>",
+   "starter": "import numpy as np\n\ndef alpha_bar(T, beta_start=1e-4, beta_end=0.02):\n    # TODO 1: betas = np.linspace(beta_start, beta_end, T)\n    # TODO 2: return the cumulative product of (1 - betas)   (np.cumprod)\n    pass\n",
+   "tests": [
+    {
+     "name": "length and first value",
+     "code": "ab = alpha_bar(1000)\nassert ab is not None, 'alpha_bar returned None'\nassert len(ab) == 1000, f'expected 1000 values, got {len(ab)}'\nassert abs(ab[0] - 0.9999) < 1e-12, f'the first value is 1 - 1e-4 = 0.9999, got {ab[0]}'"
+    },
+    {
+     "name": "ends near zero",
+     "code": "ab = alpha_bar(1000)\nassert abs(ab[-1] - 4.0358e-05) < 1e-7, f'after 1000 steps about 4e-5 of the signal variance remains, got {ab[-1]:.3e}. Use a product (np.cumprod), not a sum.'"
+    },
+    {
+     "name": "strictly decreasing",
+     "code": "import numpy as np\nab = alpha_bar(50)\nassert np.all(np.diff(ab) < 0), 'each step removes a bit more signal, so alpha_bar must decrease'"
+    },
+    {
+     "name": "custom schedule",
+     "code": "import numpy as np\nab = alpha_bar(3, 0.1, 0.3)\nassert np.allclose(ab, [0.9, 0.9 * 0.8, 0.9 * 0.8 * 0.7]), f'betas 0.1, 0.2, 0.3 give [0.9, 0.72, 0.504], got {ab}'"
+    }
+   ],
+   "hints": [
+    "betas = np.linspace(beta_start, beta_end, T)",
+    "return np.cumprod(1 - betas)"
+   ],
+   "solution": "import numpy as np\n\ndef alpha_bar(T, beta_start=1e-4, beta_end=0.02):\n    betas = np.linspace(beta_start, beta_end, T)\n    return np.cumprod(1 - betas)\n"
+  },
+  {
+   "id": "qsample",
+   "title": "Jump to any noise level",
+   "prompt": "<p>Write <code>q_sample(x0, t, ab, eps)</code> = <code>sqrt(ab[t]) * x0 + sqrt(1 − ab[t]) * eps</code>, where <code>ab</code> is the array from the previous problem (included below). The noise <code>eps</code> is passed in so tests are deterministic.</p><pre>q_sample(np.array([1.0]), 0, np.array([0.64]), np.array([0.5]))   # array([1.1])</pre><p>The last test checks a nice property: if the data has variance 1, so does every <code>x_t</code>. That is what the shrinking factor is for.</p>",
+   "starter": "import numpy as np\n\ndef alpha_bar(T, beta_start=1e-4, beta_end=0.02):\n    return np.cumprod(1 - np.linspace(beta_start, beta_end, T))\n\ndef q_sample(x0, t, ab, eps):\n    # TODO: weighted mix of the clean data and the noise\n    pass\n",
+   "tests": [
+    {
+     "name": "worked example",
+     "code": "import numpy as np\nout = q_sample(np.array([1.0]), 0, np.array([0.64]), np.array([0.5]))\nassert out is not None, 'q_sample returned None'\nassert np.allclose(out, [1.1]), f'expected 0.8*1 + 0.6*0.5 = 1.1, got {out}. Use square roots of ab and of 1 - ab.'"
+    },
+    {
+     "name": "early steps keep the data",
+     "code": "import numpy as np\nab = alpha_bar(1000); x0 = np.array([2.0, -1.0])\nout = q_sample(x0, 0, ab, np.array([1.0, 1.0]))\nassert np.allclose(out, x0, atol=0.02), f'at t = 0 almost no noise has been added, got {out}'"
+    },
+    {
+     "name": "late steps are almost pure noise",
+     "code": "import numpy as np\nab = alpha_bar(1000); eps = np.array([0.3, -0.8])\nout = q_sample(np.array([5.0, 5.0]), 999, ab, eps)\nassert np.allclose(out, eps, atol=0.05), f'at the last step x_t should be essentially the noise, got {out}'"
+    },
+    {
+     "name": "variance stays 1",
+     "code": "import numpy as np\nrng = np.random.default_rng(0); ab = alpha_bar(1000)\nx0 = rng.standard_normal(50000); eps = rng.standard_normal(50000)\nv = q_sample(x0, 500, ab, eps).var()\nassert abs(v - 1) < 0.03, f'unit-variance data should stay unit-variance at every step, got {v:.3f}'"
+    }
+   ],
+   "hints": [
+    "a = ab[t] is a single number.",
+    "return np.sqrt(a) * x0 + np.sqrt(1 - a) * eps"
+   ],
+   "solution": "import numpy as np\n\ndef alpha_bar(T, beta_start=1e-4, beta_end=0.02):\n    return np.cumprod(1 - np.linspace(beta_start, beta_end, T))\n\ndef q_sample(x0, t, ab, eps):\n    a = ab[t]\n    return np.sqrt(a) * x0 + np.sqrt(1 - a) * eps\n"
+  },
+  {
+   "id": "denoiser",
+   "title": "A 1-D denoiser by least squares",
+   "prompt": "<p>Train the smallest possible noise predictor. The data are numbers drawn from N(2, 0.5²). At one fixed noise level (ᾱ = 0.5) make noisy samples <code>x_t</code> and the noise <code>eps</code> that made them, then fit a straight line <code>eps_hat = a·x_t + b</code> by least squares, exactly the regression a diffusion network does, with a line instead of a network.</p><p>Write <code>fit_denoiser(xt, eps)</code> returning <code>(a, b)</code> (use <code>np.polyfit(xt, eps, 1)</code>, which returns <code>[slope, intercept]</code>).</p><p>For Gaussian data the best predictor really is a line, and the test compares your slope with the exact one: <code>a* = √(1−ᾱ) / (ᾱ·s² + 1 − ᾱ)</code> with <code>s = 0.5</code>.</p>",
+   "starter": "import numpy as np\n\ndef make_data(n=20000, ab=0.5, seed=0):\n    rng = np.random.default_rng(seed)\n    x0 = 2 + 0.5 * rng.standard_normal(n)\n    eps = rng.standard_normal(n)\n    xt = np.sqrt(ab) * x0 + np.sqrt(1 - ab) * eps\n    return xt, eps\n\ndef fit_denoiser(xt, eps):\n    # TODO: least-squares line eps ≈ a * xt + b ; return (a, b)\n    pass\n",
+   "tests": [
+    {
+     "name": "slope matches theory",
+     "code": "import numpy as np\nxt, eps = make_data()\nout = fit_denoiser(xt, eps)\nassert out is not None, 'fit_denoiser returned None'\na, b = out\nab, s = 0.5, 0.5\nastar = np.sqrt(1 - ab) / (ab * s**2 + 1 - ab)\nassert abs(a - astar) < 0.02, f'expected slope near {astar:.3f}, got {a:.3f}. Fit eps as a function of xt (x first, y second in polyfit).'"
+    },
+    {
+     "name": "beats predicting zero",
+     "code": "import numpy as np\nxt, eps = make_data(seed=1)\na, b = fit_denoiser(xt, eps)\nmse = np.mean((eps - (a * xt + b)) ** 2)\nassert mse < 0.5 * np.mean(eps ** 2), f'the fitted line should remove well over half of the noise error, got MSE {mse:.3f} vs {np.mean(eps**2):.3f} for always guessing 0'"
+    },
+    {
+     "name": "denoised estimate of x0",
+     "code": "import numpy as np\nxt, eps = make_data(seed=2)\na, b = fit_denoiser(xt, eps)\nab = 0.5\nx0_hat = (xt - np.sqrt(1 - ab) * (a * xt + b)) / np.sqrt(ab)\nassert abs(x0_hat.mean() - 2) < 0.05, f'removing the predicted noise should recover data centred at 2, got mean {x0_hat.mean():.3f}'"
+    }
+   ],
+   "hints": [
+    "np.polyfit(x, y, 1) fits y ≈ slope·x + intercept. Here x is xt and y is eps.",
+    "a, b = np.polyfit(xt, eps, 1); return a, b"
+   ],
+   "solution": "import numpy as np\n\ndef make_data(n=20000, ab=0.5, seed=0):\n    rng = np.random.default_rng(seed)\n    x0 = 2 + 0.5 * rng.standard_normal(n)\n    eps = rng.standard_normal(n)\n    xt = np.sqrt(ab) * x0 + np.sqrt(1 - ab) * eps\n    return xt, eps\n\ndef fit_denoiser(xt, eps):\n    a, b = np.polyfit(xt, eps, 1)\n    return a, b\n"
+  }
+ ],
+ "poster": "videos/11.2-diffusion.jpg"
+}

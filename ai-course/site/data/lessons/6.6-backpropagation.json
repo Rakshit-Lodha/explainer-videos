@@ -1,0 +1,152 @@
+{
+ "id": "6.6-backpropagation",
+ "module": 6,
+ "title": "Backpropagation: the chain rule run backwards",
+ "summary": "A derivative is a sensitivity, like a gear ratio. Each node knows its local derivatives (addition passes the gradient through; multiplication swaps in the other input). The chain rule multiplies local ratios along a path, and running it from the output backwards, in reverse topological order and adding contributions where a value is reused, gives the gradient of the loss for every value in one pass.",
+ "video": "videos/6.6-backpropagation.mp4",
+ "llm_link": "Training a language model is this procedure at scale: one loss for how well it predicted the next tokens, one call to loss.backward(), and a gradient for each of its billions of parameters, at a cost of a small multiple of the forward pass.",
+ "key_ideas": [
+  "∂L/∂w is a sensitivity: how much the loss moves per tiny nudge of w. Its sign says up or down.",
+  "Local derivatives: for a + b both are 1; for a·b, ∂/∂a = b and ∂/∂b = a (the swap).",
+  "Chain rule: ∂L/∂a = ∂L/∂c · ∂c/∂a. Multiply local ratios along the path back from the loss.",
+  "For L = (a·b + c)·f with a = 2, b = −3, c = 10, f = −2: grad f = 4, d = −2, c = −2, e = −2, a = 6, b = −4.",
+  "A value used in several places adds the gradients from each path (+=, never =). Visit nodes in reverse topological order; each edge is handled once.",
+  "Gradient descent: w ← w − η·∂L/∂w moves every weight a small step downhill."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: L = (a + b)·c with a = 1, b = 2, c = 4. What is ∂L/∂a?",
+   "options": [
+    "1",
+    "3",
+    "4",
+    "12"
+   ],
+   "answer": 2,
+   "explain": "The multiplication passes c = 4 back to (a + b) by the swap rule; the addition passes it to a unchanged, so ∂L/∂a = 4."
+  },
+  {
+   "q": "What is the local derivative of a·b with respect to a?",
+   "options": [
+    "1",
+    "a",
+    "b",
+    "a·b"
+   ],
+   "answer": 2,
+   "explain": "Nudge a by Δ and the product changes by b·Δ: the other input is the gear ratio."
+  },
+  {
+   "q": "∂L/∂c = −3 and ∂c/∂a = 2, and a affects L only through c. What is ∂L/∂a?",
+   "options": [
+    "−1",
+    "−6",
+    "5",
+    "−1.5"
+   ],
+   "answer": 1,
+   "explain": "Chain rule: multiply the ratios along the path, −3 × 2 = −6."
+  },
+  {
+   "q": "A value x feeds two different operations, which send back gradients 3 and 2. What is x.grad?",
+   "options": [
+    "3",
+    "2",
+    "5",
+    "6"
+   ],
+   "answer": 2,
+   "explain": "Its influence reaches the loss along two paths, and the effects add. Overwriting instead of += is the classic bug."
+  },
+  {
+   "q": "What does loss.backward() do in PyTorch when training a language model?",
+   "options": [
+    "Runs the model backwards to generate text",
+    "Walks the recorded graph from the loss back to every parameter, filling in .grad for each in one pass",
+    "Undoes the last training step",
+    "Computes the loss again"
+   ],
+   "answer": 1,
+   "explain": "It is the backward pass from this lesson: one sweep in reverse order, costing a small multiple of the forward pass."
+  }
+ ],
+ "problems": [
+  {
+   "id": "backward",
+   "title": "Backward for + and ×",
+   "prompt": "<p>Give your engine a backward pass. Each operation stores a <code>_backward</code> function that sends <code>out.grad</code> to its inputs using the local derivatives:</p><ul><li><b>+</b>: both inputs get <code>out.grad</code></li><li><b>×</b>: <code>self</code> gets <code>other.data * out.grad</code>, <code>other</code> gets <code>self.data * out.grad</code></li></ul><p>Always <b>accumulate</b> with <code>+=</code>. Then finish <code>backward()</code>: set the output's grad to 1 and call <code>_backward()</code> on every node in reverse topological order.</p><pre>a, b, c, f = Value(2.0), Value(-3.0), Value(10.0), Value(-2.0)\nL = (a * b + c) * f\nL.backward()\na.grad, b.grad, c.grad, f.grad   # 6.0, -4.0, -2.0, 4.0</pre>",
+   "starter": "class Value:\n    \"\"\"Lesson 6.5: a number that remembers how it was made.\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self.grad = 0.0                 # dL/d(this value), filled in by backward()\n        self._backward = lambda: None   # how to pass my gradient to my inputs\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value(data={self.data}, grad={self.grad})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data + other.data, (self, other), '+')\n        def _backward():\n            # TODO: addition passes out.grad through unchanged to both inputs.\n            #       ACCUMULATE with += (a value may be used more than once)\n            pass\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data * other.data, (self, other), '*')\n        def _backward():\n            # TODO: the swap rule: self gets other.data * out.grad, other gets self.data * out.grad\n            pass\n        out._backward = _backward\n        return out\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n\n    def backward(self):\n        # topological order (lesson 6.5): every node after the nodes that made it\n        order, visited = [], set()\n        def visit(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    visit(child)\n                order.append(v)\n        visit(self)\n        # TODO 1: the output's gradient with respect to itself is 1\n        # TODO 2: call _backward() on every node, in REVERSE order\n",
+   "tests": [
+    {
+     "name": "the example from the video",
+     "code": "a, b, c, f = Value(2.0), Value(-3.0), Value(10.0), Value(-2.0)\nL = (a * b + c) * f\nL.backward()\nassert L.grad == 1.0, f'the output starts with grad 1, got {L.grad}'\nassert f.grad == 4.0, f'f.grad should be d = 4 (swap rule), got {f.grad}'\nassert c.grad == -2.0, f'c.grad should be -2: + passes the gradient through, got {c.grad}'\nassert a.grad == 6.0, f'a.grad should be -2 * b = 6, got {a.grad}'\nassert b.grad == -4.0, f'b.grad should be -2 * a = -4, got {b.grad}'"
+    },
+    {
+     "name": "addition passes the gradient through",
+     "code": "x, y = Value(5.0), Value(7.0)\nz = x + y\nz.backward()\nassert x.grad == 1.0 and y.grad == 1.0, f'd(x+y)/dx = d(x+y)/dy = 1, got {x.grad} and {y.grad}'"
+    },
+    {
+     "name": "a value used twice accumulates",
+     "code": "a = Value(3.0)\ny = a * a + a\ny.backward()\nassert a.grad == 7.0, f'y = a^2 + a so dy/da = 2a + 1 = 7, got {a.grad}. Use += so every path adds its share'"
+    },
+    {
+     "name": "order matters in a longer chain",
+     "code": "x = Value(2.0)\ny = x * 3.0\nz = y * y\nw = z + y\nw.backward()\nassert abs(x.grad - 39.0) < 1e-9, f'w = (3x)^2 + 3x, so dw/dx = 18x + 3 = 39 at x = 2; got {x.grad}. Nodes must be visited in reverse topological order'"
+    }
+   ],
+   "hints": [
+    "+: self.grad += out.grad; other.grad += out.grad",
+    "×: self.grad += other.data * out.grad; other.grad += self.data * out.grad",
+    "backward: self.grad = 1.0, then for v in reversed(order): v._backward()"
+   ],
+   "solution": "class Value:\n    \"\"\"Lesson 6.5: a number that remembers how it was made.\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self.grad = 0.0                 # dL/d(this value), filled in by backward()\n        self._backward = lambda: None   # how to pass my gradient to my inputs\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value(data={self.data}, grad={self.grad})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data + other.data, (self, other), '+')\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data * other.data, (self, other), '*')\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n        out._backward = _backward\n        return out\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n\n    def backward(self):\n        order, visited = [], set()\n        def visit(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    visit(child)\n                order.append(v)\n        visit(self)\n        self.grad = 1.0\n        for v in reversed(order):\n            v._backward()\n"
+  },
+  {
+   "id": "relu-grad",
+   "title": "Gradients through a neuron",
+   "prompt": "<p>The starter has the full engine from the first problem. Add <code>relu()</code> with its backward rule (slope 1 when the output is positive, 0 otherwise), then use <code>neuron(xs, ws, b)</code> to check what backpropagation says about a neuron:</p><ul><li>when the neuron is active, <code>w.grad</code> equals its input <code>x</code> and <code>b.grad</code> is 1</li><li>when it is not (z &lt; 0), every gradient is 0: the dead side of ReLU</li></ul>",
+   "starter": "class Value:\n    \"\"\"Lesson 6.5: a number that remembers how it was made.\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self.grad = 0.0                 # dL/d(this value), filled in by backward()\n        self._backward = lambda: None   # how to pass my gradient to my inputs\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value(data={self.data}, grad={self.grad})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data + other.data, (self, other), '+')\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data * other.data, (self, other), '*')\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n        out._backward = _backward\n        return out\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n\n    def backward(self):\n        order, visited = [], set()\n        def visit(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    visit(child)\n                order.append(v)\n        visit(self)\n        self.grad = 1.0\n        for v in reversed(order):\n            v._backward()\n\n    def relu(self):\n        out = Value(max(0, self.data), (self,), 'ReLU')\n        def _backward():\n            # TODO: the slope of ReLU is 1 if the output is positive, else 0\n            pass\n        out._backward = _backward\n        return out\n\ndef neuron(xs, ws, b):\n    total = b\n    for x, w in zip(xs, ws):\n        total = total + x * w\n    return total.relu()\n",
+   "tests": [
+    {
+     "name": "active neuron",
+     "code": "xs = [Value(1.0), Value(2.0)]\nws = [Value(0.5), Value(1.0)]\nb = Value(0.0)\nout = neuron(xs, ws, b)\nout.backward()\nassert out.data == 2.5, f'z = 0.5 + 2 = 2.5, got {out.data}'\nassert [w.grad for w in ws] == [1.0, 2.0], f'each w.grad should equal its input x, got {[w.grad for w in ws]}'\nassert b.grad == 1.0, f'b.grad should be 1 when active, got {b.grad}'\nassert [x.grad for x in xs] == [0.5, 1.0], f'each x.grad should equal its weight, got {[x.grad for x in xs]}'"
+    },
+    {
+     "name": "inactive neuron passes no gradient",
+     "code": "xs = [Value(1.0), Value(2.0)]\nws = [Value(0.5), Value(-1.0)]\nb = Value(1.0)\nout = neuron(xs, ws, b)\nout.backward()\nassert out.data == 0, f'z = -0.5 so ReLU gives 0, got {out.data}'\nassert all(w.grad == 0 for w in ws) and b.grad == 0, f'on the flat side the slope is 0, so every grad should be 0; got {[w.grad for w in ws]} and {b.grad}'"
+    }
+   ],
+   "hints": [
+    "self.grad += (1.0 if out.data > 0 else 0.0) * out.grad"
+   ],
+   "solution": "class Value:\n    \"\"\"Lesson 6.5: a number that remembers how it was made.\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self.grad = 0.0                 # dL/d(this value), filled in by backward()\n        self._backward = lambda: None   # how to pass my gradient to my inputs\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value(data={self.data}, grad={self.grad})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data + other.data, (self, other), '+')\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data * other.data, (self, other), '*')\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n        out._backward = _backward\n        return out\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n\n    def backward(self):\n        order, visited = [], set()\n        def visit(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    visit(child)\n                order.append(v)\n        visit(self)\n        self.grad = 1.0\n        for v in reversed(order):\n            v._backward()\n\n    def relu(self):\n        out = Value(max(0, self.data), (self,), 'ReLU')\n        def _backward():\n            self.grad += (1.0 if out.data > 0 else 0.0) * out.grad\n        out._backward = _backward\n        return out\n\ndef neuron(xs, ws, b):\n    total = b\n    for x, w in zip(xs, ws):\n        total = total + x * w\n    return total.relu()\n"
+  },
+  {
+   "id": "gradcheck",
+   "title": "Check backprop with a nudge",
+   "prompt": "<p>The slow way from the start of the video is still the best test. Write <code>numerical_grad(f, xs, i, h=1e-6)</code>: nudge <code>xs[i]</code> up and down by h and return <code>(f(up) - f(down)) / (2h)</code>. Here <code>f</code> takes a list of plain floats and returns a float.</p><p>Then <code>backprop_grads(xs)</code> should rebuild L = (a·b + c)·f with Values from <code>xs = [a, b, c, f]</code>, call <code>backward()</code> and return the four gradients. The tests compare the two.</p>",
+   "starter": "class Value:\n    \"\"\"Lesson 6.5: a number that remembers how it was made.\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self.grad = 0.0                 # dL/d(this value), filled in by backward()\n        self._backward = lambda: None   # how to pass my gradient to my inputs\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value(data={self.data}, grad={self.grad})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data + other.data, (self, other), '+')\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data * other.data, (self, other), '*')\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n        out._backward = _backward\n        return out\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n\n    def backward(self):\n        order, visited = [], set()\n        def visit(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    visit(child)\n                order.append(v)\n        visit(self)\n        self.grad = 1.0\n        for v in reversed(order):\n            v._backward()\n\ndef L_plain(xs):\n    a, b, c, f = xs\n    return (a * b + c) * f\n\ndef numerical_grad(f, xs, i, h=1e-6):\n    # TODO: copy xs twice, add h to one copy's entry i and subtract h from the other's\n    return 0.0\n\ndef backprop_grads(xs):\n    a, b, c, f = [Value(x) for x in xs]\n    L = (a * b + c) * f\n    # TODO: run backward() and return [a.grad, b.grad, c.grad, f.grad]\n    return [0.0, 0.0, 0.0, 0.0]\n",
+   "tests": [
+    {
+     "name": "numerical gradient of a simple function",
+     "code": "g = numerical_grad(lambda v: v[0] ** 2, [3.0], 0)\nassert abs(g - 6.0) < 1e-4, f'd(x^2)/dx at 3 is 6, got {g}'"
+    },
+    {
+     "name": "backprop matches the video",
+     "code": "g = backprop_grads([2.0, -3.0, 10.0, -2.0])\nassert [round(x, 9) for x in g] == [6.0, -4.0, -2.0, 4.0], f'expected [6, -4, -2, 4], got {g}'"
+    },
+    {
+     "name": "the two agree on random inputs",
+     "code": "import random\nrandom.seed(0)\nfor _ in range(5):\n    xs = [random.uniform(-3, 3) for _ in range(4)]\n    bp = backprop_grads(xs)\n    nm = [numerical_grad(L_plain, xs, i) for i in range(4)]\n    for i in range(4):\n        assert abs(bp[i] - nm[i]) < 1e-4, f'input {i}: backprop says {bp[i]:.6f}, nudging says {nm[i]:.6f}'"
+    }
+   ],
+   "hints": [
+    "up = list(xs); up[i] += h; down = list(xs); down[i] -= h",
+    "return (f(up) - f(down)) / (2 * h)",
+    "L.backward(); return [a.grad, b.grad, c.grad, f.grad]"
+   ],
+   "solution": "class Value:\n    \"\"\"Lesson 6.5: a number that remembers how it was made.\"\"\"\n    def __init__(self, data, _prev=(), _op=''):\n        self.data = data\n        self.grad = 0.0                 # dL/d(this value), filled in by backward()\n        self._backward = lambda: None   # how to pass my gradient to my inputs\n        self._prev = set(_prev)\n        self._op = _op\n\n    def __repr__(self):\n        return f\"Value(data={self.data}, grad={self.grad})\"\n\n    def __add__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data + other.data, (self, other), '+')\n        def _backward():\n            self.grad += out.grad\n            other.grad += out.grad\n        out._backward = _backward\n        return out\n\n    def __mul__(self, other):\n        other = other if isinstance(other, Value) else Value(other)\n        out = Value(self.data * other.data, (self, other), '*')\n        def _backward():\n            self.grad += other.data * out.grad\n            other.grad += self.data * out.grad\n        out._backward = _backward\n        return out\n\n    def __radd__(self, other):\n        return self + other\n\n    def __rmul__(self, other):\n        return self * other\n\n    def backward(self):\n        order, visited = [], set()\n        def visit(v):\n            if v not in visited:\n                visited.add(v)\n                for child in v._prev:\n                    visit(child)\n                order.append(v)\n        visit(self)\n        self.grad = 1.0\n        for v in reversed(order):\n            v._backward()\n\ndef L_plain(xs):\n    a, b, c, f = xs\n    return (a * b + c) * f\n\ndef numerical_grad(f, xs, i, h=1e-6):\n    up = list(xs); up[i] += h\n    down = list(xs); down[i] -= h\n    return (f(up) - f(down)) / (2 * h)\n\ndef backprop_grads(xs):\n    a, b, c, f = [Value(x) for x in xs]\n    L = (a * b + c) * f\n    L.backward()\n    return [a.grad, b.grad, c.grad, f.grad]\n"
+  }
+ ],
+ "poster": "videos/6.6-backpropagation.jpg"
+}

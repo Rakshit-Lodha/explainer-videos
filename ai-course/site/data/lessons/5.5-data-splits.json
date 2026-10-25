@@ -1,0 +1,160 @@
+{
+ "id": "5.5-data-splits",
+ "module": 5,
+ "title": "Train, validation and test splits",
+ "summary": "Judge a model only on data it never learned from. The training set fits the weights, the validation set chooses settings such as degree or λ, and the test set is opened once for an honest final estimate. Shuffle with a seed before splitting (but split time series by time), use k-fold cross-validation when data is scarce, and fit preprocessing on the training set only.",
+ "video": "videos/5.5-data-splits.mp4",
+ "llm_link": "Public benchmarks can leak into a language model's web-scale training text (contamination), so a model may score well partly by remembering test questions. Careful evaluations check for overlap or use fresh, held-back questions.",
+ "key_ideas": [
+  "Training set: fit the weights. Validation set: choose settings (degree, λ, k, architecture). Test set: one final, honest estimate.",
+  "Every choice made by looking at a score leaks a little information. Tuning on the test set makes its score optimistic.",
+  "Shuffle before splitting, with a fixed seed so the split is repeatable. For time series, train on the past and test on later data.",
+  "k-fold cross-validation: rotate the validation fold through k parts and average the k scores.",
+  "Fit preprocessing (means, standard deviations, vocabularies) on the training set only, then apply the same numbers to validation and test."
+ ],
+ "quiz": [
+  {
+   "q": "You try 30 values of λ and pick the one with the best validation score. Which set gives an honest estimate of the chosen model's performance?",
+   "options": [
+    "The training set",
+    "The validation set",
+    "The test set, used once",
+    "Any of them, since λ is just one number"
+   ],
+   "answer": 2,
+   "explain": "The validation score of the winner is biased upward, because it was selected for looking good on that data. Only data untouched by the selection (the test set) is honest."
+  },
+  {
+   "q": "Predict the result: 30 equally good settings each have true accuracy 80%, and each validation score is 80% ± random noise. What is the best validation score you will typically see?",
+   "options": [
+    "Exactly 80%",
+    "Below 80%",
+    "Above 80%",
+    "0%"
+   ],
+   "answer": 2,
+   "explain": "The maximum of 30 noisy scores sits above their common mean. That gap is pure luck, and it disappears on fresh data."
+  },
+  {
+   "q": "Your data is sorted by date and you want to predict next month's sales. How should you split?",
+   "options": [
+    "Shuffle, then take a random 20% as test",
+    "Train on earlier dates, test on the latest dates",
+    "Use the earliest dates as the test set",
+    "Splitting does not matter for time series"
+   ],
+   "answer": 1,
+   "explain": "Shuffling would put future days in the training set, letting the model peek at tomorrow. Splitting by time mimics how the model will actually be used."
+  },
+  {
+   "q": "What is wrong with standardising features using the mean and standard deviation of the whole dataset before splitting?",
+   "options": [
+    "Nothing, it is faster",
+    "The test set's values have influenced the training data, a subtle leak",
+    "Standardising is never needed",
+    "It changes the labels"
+   ],
+   "answer": 1,
+   "explain": "Compute μ and σ on the training set alone and apply those same numbers to validation and test, as if the test data arrived tomorrow."
+  },
+  {
+   "q": "A language model aces a public benchmark released three years before its training data was collected. What should you suspect first?",
+   "options": [
+    "The benchmark is too easy for humans",
+    "Contamination: benchmark questions and answers may be in its training text",
+    "The model has no parameters",
+    "The tokenizer is broken"
+   ],
+   "answer": 1,
+   "explain": "Web-scale training data can contain published benchmarks. The model may partly be remembering rather than reasoning, so the score overstates its ability on new questions."
+  }
+ ],
+ "problems": [
+  {
+   "id": "split",
+   "title": "A seeded three-way split",
+   "prompt": "<p>Write <code>split_indices(n, val_frac, test_frac, seed)</code> that shuffles the indices <code>0 … n−1</code> with <code>np.random.default_rng(seed).permutation(n)</code> and cuts them into three arrays: train, validation, test. Use <code>n_test = int(n * test_frac)</code> and <code>n_val = int(n * val_frac)</code>; the test indices come first in the shuffled order, then validation, and the rest are training.</p><p>The same seed must always give the same split, and no index may appear in two parts.</p>",
+   "starter": "import numpy as np\n\ndef split_indices(n, val_frac, test_frac, seed):\n    perm = np.random.default_rng(seed).permutation(n)\n    n_test = int(n * test_frac)\n    n_val = int(n * val_frac)\n    # TODO: slice perm into test, val and train (in that order)\n    train = perm\n    val = perm[:0]\n    test = perm[:0]\n    return train, val, test\n",
+   "tests": [
+    {
+     "name": "sizes",
+     "code": "tr, va, te = split_indices(100, 0.2, 0.1, seed=0)\nassert (len(tr), len(va), len(te)) == (70, 20, 10), f'expected 70/20/10, got {len(tr)}/{len(va)}/{len(te)}'"
+    },
+    {
+     "name": "no overlap, nothing lost",
+     "code": "tr, va, te = split_indices(100, 0.2, 0.1, seed=0)\nallidx = np.concatenate([tr, va, te])\nassert len(set(allidx.tolist())) == 100 and sorted(allidx.tolist()) == list(range(100)), 'every index must appear in exactly one part; an overlap means the model is judged on data it learned from'"
+    },
+    {
+     "name": "repeatable",
+     "code": "a = split_indices(50, 0.2, 0.2, seed=7); b = split_indices(50, 0.2, 0.2, seed=7)\nassert all(np.array_equal(x, y) for x, y in zip(a, b)), 'the same seed must give the same split'"
+    },
+    {
+     "name": "actually shuffled",
+     "code": "tr, va, te = split_indices(100, 0.2, 0.1, seed=0)\nassert not np.array_equal(np.sort(te), np.arange(10)), 'the test set is just the first 10 rows: slice the shuffled perm, not range(n)'"
+    }
+   ],
+   "hints": [
+    "test = perm[:n_test]",
+    "val = perm[n_test:n_test + n_val]",
+    "train = perm[n_test + n_val:]"
+   ],
+   "solution": "import numpy as np\n\ndef split_indices(n, val_frac, test_frac, seed):\n    perm = np.random.default_rng(seed).permutation(n)\n    n_test = int(n * test_frac)\n    n_val = int(n * val_frac)\n    test = perm[:n_test]\n    val = perm[n_test:n_test + n_val]\n    train = perm[n_test + n_val:]\n    return train, val, test\n"
+  },
+  {
+   "id": "kfold",
+   "title": "k folds",
+   "prompt": "<p>Write <code>kfold_indices(n, k)</code> returning a list of k pairs <code>(train_idx, val_idx)</code>. Split <code>np.arange(n)</code> into k nearly equal consecutive chunks with <code>np.array_split</code>; in round i, chunk i is the validation fold and all other chunks are concatenated as training.</p><p>(In real use you would shuffle first; the tests keep the order so you can see the folds.)</p>",
+   "starter": "import numpy as np\n\ndef kfold_indices(n, k):\n    chunks = np.array_split(np.arange(n), k)\n    folds = []\n    for i in range(k):\n        # TODO: val = chunks[i]; train = every other chunk joined together\n        pass\n    return folds\n",
+   "tests": [
+    {
+     "name": "k rounds",
+     "code": "f = kfold_indices(10, 5)\nassert len(f) == 5, f'expected 5 (train, val) pairs, got {len(f)}'"
+    },
+    {
+     "name": "each example validated exactly once",
+     "code": "f = kfold_indices(23, 5)\nv = np.concatenate([va for tr, va in f])\nassert sorted(v.tolist()) == list(range(23)), 'across the k rounds, every index should be in a validation fold exactly once'"
+    },
+    {
+     "name": "never in both in the same round",
+     "code": "for tr, va in kfold_indices(23, 5):\n    assert len(set(tr.tolist()) & set(va.tolist())) == 0, 'an index is in both train and validation in the same round'\n    assert len(tr) + len(va) == 23, 'train and validation together should cover all 23 examples'"
+    }
+   ],
+   "hints": [
+    "val = chunks[i]",
+    "train = np.concatenate([c for j, c in enumerate(chunks) if j != i])",
+    "folds.append((train, val))"
+   ],
+   "solution": "import numpy as np\n\ndef kfold_indices(n, k):\n    chunks = np.array_split(np.arange(n), k)\n    folds = []\n    for i in range(k):\n        val = chunks[i]\n        train = np.concatenate([c for j, c in enumerate(chunks) if j != i])\n        folds.append((train, val))\n    return folds\n"
+  },
+  {
+   "id": "scaler",
+   "title": "Standardise without leaking",
+   "prompt": "<p>Write <code>fit_scaler(X_train)</code> that returns the column means and standard deviations of the <b>training</b> data (each of shape <code>(d,)</code>, use <code>axis=0</code>), and <code>transform(X, mu, sd)</code> that returns <code>(X − mu) / sd</code>.</p><p>Shapes: <code>X</code> is <code>(n, d)</code> and <code>mu</code> is <code>(d,)</code>, so broadcasting subtracts the mean of each column from every row.</p>",
+   "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\nX_train = rng.normal([50, 3], [10, 1], size=(80, 2))\nX_test = rng.normal([50, 3], [10, 1], size=(20, 2)) + [5, 0]   # the test data drifted a bit\n\ndef fit_scaler(X_train):\n    # TODO: column means and standard deviations, shape (d,) each\n    pass\n\ndef transform(X, mu, sd):\n    # TODO\n    pass\n",
+   "tests": [
+    {
+     "name": "statistics per column",
+     "code": "out = fit_scaler(X_train)\nassert out is not None, 'fit_scaler returned None'\nmu, sd = out\nassert np.shape(mu) == (2,) and np.shape(sd) == (2,), f'expected one mean and one sd per column, shapes (2,), got {np.shape(mu)}, {np.shape(sd)}. Use axis=0'"
+    },
+    {
+     "name": "training data comes out standardised",
+     "code": "mu, sd = fit_scaler(X_train)\nZ = transform(X_train, mu, sd)\nassert np.allclose(Z.mean(axis=0), 0) and np.allclose(Z.std(axis=0), 1), 'after transform, each training column should have mean 0 and sd 1'"
+    },
+    {
+     "name": "test uses the training numbers",
+     "code": "mu, sd = fit_scaler(X_train)\nZ = transform(X_test, mu, sd)\nassert Z[:, 0].mean() > 0.2, 'the drifted test column should NOT come out with mean 0: transform must use the training mu and sd, not refit on the test data'"
+    },
+    {
+     "name": "fit_scaler only sees what it is given",
+     "code": "mu, sd = fit_scaler(X_train)\nassert np.allclose(mu, X_train.mean(axis=0)), 'the mean must come from X_train alone'"
+    }
+   ],
+   "hints": [
+    "return X_train.mean(axis=0), X_train.std(axis=0)",
+    "return (X - mu) / sd   # (n, d) minus (d,) broadcasts across rows"
+   ],
+   "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\nX_train = rng.normal([50, 3], [10, 1], size=(80, 2))\nX_test = rng.normal([50, 3], [10, 1], size=(20, 2)) + [5, 0]\n\ndef fit_scaler(X_train):\n    return X_train.mean(axis=0), X_train.std(axis=0)\n\ndef transform(X, mu, sd):\n    return (X - mu) / sd\n"
+  }
+ ],
+ "poster": "videos/5.5-data-splits.jpg"
+}

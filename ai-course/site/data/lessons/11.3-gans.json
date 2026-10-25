@@ -1,0 +1,158 @@
+{
+ "id": "11.3-gans",
+ "module": 11,
+ "title": "GANs in brief",
+ "summary": "A GAN trains a generator G (noise → sample) against a discriminator D (sample → probability it is real). They play a minimax game over V(D, G) = E[log D(x)] + E[log(1 − D(G(z)))]. For a fixed G the best discriminator is p_data / (p_data + p_g), and against it G minimises the Jensen-Shannon divergence, so the game is won when the distributions match. In practice G uses the non-saturating loss −log D(G(z)); training can oscillate and collapse onto a few modes.",
+ "video": "videos/11.3-gans.mp4",
+ "llm_link": "LLMs are not GANs, but the adversarial idea appears around them: the autoencoders behind latent diffusion are sharpened with an adversarial loss, and learned 'discriminators' (reward models, classifiers that detect generated text) judge model outputs much as D judges G.",
+ "key_ideas": [
+  "Goodfellow et al. (2014): generator G(z) maps noise to samples; discriminator D(x) ∈ (0, 1) is the probability x is real.",
+  "Value: V(D, G) = E_x[log D(x)] + E_z[log(1 − D(G(z)))]; D maximises it, G minimises it.",
+  "Optimal discriminator: D*(x) = p_data(x) / (p_data(x) + p_g(x)). Then V(D*, G) = −log 4 + 2·JS(p_data ‖ p_g), minimised when p_g = p_data (D* = ½ everywhere).",
+  "Non-saturating generator loss: maximise log D(G(z)) instead of minimising log(1 − D(G(z))); it gives strong gradients when D confidently rejects fakes.",
+  "Failure modes: oscillation and mode collapse (few distinct outputs).",
+  "GANs sample in one pass (fast) but have no likelihood; diffusion trains with a stable regression objective and has overtaken GANs for many image tasks."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: at a point x, p_data(x) = 0.3 and p_g(x) = 0.1. What does the optimal discriminator output there?",
+   "options": [
+    "0.3",
+    "0.75",
+    "0.25",
+    "0.5"
+   ],
+   "answer": 1,
+   "explain": "D*(x) = 0.3 / (0.3 + 0.1) = 0.75: three times as likely to be real as fake at that point."
+  },
+  {
+   "q": "When the generator matches the data distribution exactly, what does the optimal discriminator output?",
+   "options": [
+    "1 everywhere",
+    "0 everywhere",
+    "0.5 everywhere",
+    "It depends on the noise"
+   ],
+   "answer": 2,
+   "explain": "p / (p + p) = ½: real and fake are indistinguishable, so the best D can do is a coin flip."
+  },
+  {
+   "q": "Why is the generator usually trained to maximise log D(G(z)) rather than minimise log(1 − D(G(z)))?",
+   "options": [
+    "It changes the optimum",
+    "Early on, when D(G(z)) ≈ 0, log(1 − D) is flat and gives tiny gradients; −log D(G(z)) gives strong ones",
+    "It removes the need for a discriminator",
+    "It makes D train faster"
+   ],
+   "answer": 1,
+   "explain": "Both push D(G(z)) upward, but the non-saturating version has its steepest slope exactly where the generator is doing badly."
+  },
+  {
+   "q": "A GAN trained on faces keeps producing the same few faces. What is this called?",
+   "options": [
+    "Overfitting the discriminator",
+    "Mode collapse",
+    "Vanishing noise",
+    "Posterior collapse"
+   ],
+   "answer": 1,
+   "explain": "The generator found a few outputs that fool D and stopped covering the variety of the data."
+  },
+  {
+   "q": "Which statement best compares GANs with diffusion models?",
+   "options": [
+    "GANs need many denoising steps",
+    "GANs sample in a single pass but train less stably; diffusion is slower to sample but trains with a regression loss",
+    "Diffusion models use a discriminator",
+    "They are the same method"
+   ],
+   "answer": 1,
+   "explain": "Speed versus stability and coverage: one reason diffusion overtook GANs for many image tasks."
+  }
+ ],
+ "problems": [
+  {
+   "id": "losses",
+   "title": "Discriminator and generator losses (NumPy)",
+   "prompt": "<p>You are given the discriminator's outputs on a batch of real samples, <code>d_real</code>, and on a batch of generated samples, <code>d_fake</code> (arrays of probabilities). Write:</p><ul><li><code>d_loss(d_real, d_fake)</code> = <code>−mean(log d_real) − mean(log(1 − d_fake))</code> (minimising this maximises V for D)</li><li><code>g_loss(d_fake)</code> = <code>−mean(log d_fake)</code> (the non-saturating generator loss)</li></ul><pre>d_loss(np.array([0.5]), np.array([0.5]))   # 2·log 2 = 1.386\ng_loss(np.array([0.5]))                     # log 2 = 0.693</pre>",
+   "starter": "import numpy as np\n\ndef d_loss(d_real, d_fake):\n    # TODO: reward calling real 'real' and fake 'fake'\n    pass\n\ndef g_loss(d_fake):\n    # TODO: the generator wants D to call its samples real\n    pass\n",
+   "tests": [
+    {
+     "name": "coin-flip discriminator",
+     "code": "import numpy as np\nout = d_loss(np.array([0.5, 0.5]), np.array([0.5, 0.5]))\nassert out is not None, 'd_loss returned None'\nassert abs(out - 2 * np.log(2)) < 1e-9, f'a discriminator that always says 0.5 has loss 2 log 2 = 1.386, got {out}'"
+    },
+    {
+     "name": "good discriminator, low loss",
+     "code": "import numpy as np\nassert d_loss(np.array([0.99]), np.array([0.01])) < d_loss(np.array([0.6]), np.array([0.4])), 'confidently right answers should give a lower discriminator loss'"
+    },
+    {
+     "name": "fake term uses 1 - d_fake",
+     "code": "import numpy as np\nout = d_loss(np.array([1.0]), np.array([0.2]))\nassert abs(out - (-np.log(0.8))) < 1e-9, f'with d_real = 1 only the fake term counts: -log(1 - 0.2) = {-np.log(0.8):.4f}; got {out}'"
+    },
+    {
+     "name": "generator loss",
+     "code": "import numpy as np\nout = g_loss(np.array([0.5, 0.5]))\nassert out is not None and abs(out - np.log(2)) < 1e-9, f'expected log 2 = 0.693, got {out}'\nassert g_loss(np.array([0.9])) < g_loss(np.array([0.1])), 'the generator loss should fall as D is fooled more'"
+    }
+   ],
+   "hints": [
+    "-np.mean(np.log(d_real)) - np.mean(np.log(1 - d_fake))",
+    "g_loss: -np.mean(np.log(d_fake))"
+   ],
+   "solution": "import numpy as np\n\ndef d_loss(d_real, d_fake):\n    return -np.mean(np.log(d_real)) - np.mean(np.log(1 - d_fake))\n\ndef g_loss(d_fake):\n    return -np.mean(np.log(d_fake))\n"
+  },
+  {
+   "id": "saturate",
+   "title": "Why the generator loss was changed",
+   "prompt": "<p>Let <code>d = D(G(z))</code>. Compare how steeply each generator loss changes with <code>d</code> when the discriminator is winning (d close to 0). Write <code>slopes(d)</code> returning <code>(minimax_slope, nonsat_slope)</code>, the derivatives with respect to <code>d</code> of</p><ul><li>the original loss <code>log(1 − d)</code>: derivative <code>−1 / (1 − d)</code></li><li>the non-saturating loss <code>−log d</code>: derivative <code>−1 / d</code></li></ul><p>Then check the story: at <code>d = 0.01</code> the non-saturating slope is about 100 times larger.</p>",
+   "starter": "def slopes(d):\n    # TODO: derivatives of log(1 - d) and of -log(d) with respect to d\n    pass\n",
+   "tests": [
+    {
+     "name": "values at d = 0.5",
+     "code": "out = slopes(0.5)\nassert out is not None, 'slopes returned None'\nm, n = out\nassert abs(m + 2) < 1e-9 and abs(n + 2) < 1e-9, f'at d = 0.5 both slopes are -2, got {out}'"
+    },
+    {
+     "name": "non-saturating is much steeper early",
+     "code": "m, n = slopes(0.01)\nassert abs(n / m) > 90, f'at d = 0.01 the non-saturating slope should be about 99x the minimax one, got ratio {n/m:.1f}'"
+    },
+    {
+     "name": "both push d upward",
+     "code": "for d in (0.05, 0.3, 0.8):\n    m, n = slopes(d)\n    assert m < 0 and n < 0, 'both losses fall as d rises (negative slopes), so minimising either pushes D(G(z)) up'"
+    }
+   ],
+   "hints": [
+    "return -1 / (1 - d), -1 / d"
+   ],
+   "solution": "def slopes(d):\n    return -1 / (1 - d), -1 / d\n"
+  },
+  {
+   "id": "optimal",
+   "title": "The optimal discriminator (NumPy)",
+   "prompt": "<p>On a tiny world of 4 possible samples, <code>p</code> is the data distribution and <code>q</code> the generator's. Write <code>best_d(p, q)</code> = <code>p / (p + q)</code> (element-wise) and <code>value(p, q, D)</code> = <code>Σ p·log D + Σ q·log(1 − D)</code>, the GAN value as sums over the 4 samples.</p><p>The tests check the two theorems from the video: when <code>q = p</code>, D* is ½ everywhere and the value is <code>−log 4</code>; otherwise the value at D* equals <code>−log 4 + 2·JS(p, q)</code>, which is larger.</p>",
+   "starter": "import numpy as np\n\ndef best_d(p, q):\n    # TODO\n    pass\n\ndef value(p, q, D):\n    # TODO: sum of p*log(D) plus sum of q*log(1 - D)\n    pass\n",
+   "tests": [
+    {
+     "name": "matching distributions",
+     "code": "import numpy as np\np = np.array([0.1, 0.2, 0.3, 0.4])\nD = best_d(p, p)\nassert D is not None and np.allclose(D, 0.5), f'when the generator matches the data, D* = 0.5 everywhere, got {D}'\nv = value(p, p, D)\nassert abs(v + np.log(4)) < 1e-9, f'the value at the optimum should be -log 4 = {-np.log(4):.4f}, got {v}'"
+    },
+    {
+     "name": "D* is p / (p + q)",
+     "code": "import numpy as np\nD = best_d(np.array([0.3, 0.7]), np.array([0.1, 0.9]))\nassert np.allclose(D, [0.75, 0.4375]), f'expected [0.75, 0.4375], got {D}'"
+    },
+    {
+     "name": "value at D* = -log 4 + 2 JS",
+     "code": "import numpy as np\np = np.array([0.4, 0.4, 0.1, 0.1]); q = np.array([0.1, 0.2, 0.3, 0.4]); m = (p + q) / 2\njs = 0.5 * np.sum(p * np.log(p / m)) + 0.5 * np.sum(q * np.log(q / m))\nv = value(p, q, best_d(p, q))\nassert abs(v - (-np.log(4) + 2 * js)) < 1e-9, f'expected {-np.log(4) + 2*js:.5f}, got {v}'"
+    },
+    {
+     "name": "D* beats other discriminators",
+     "code": "import numpy as np\np = np.array([0.4, 0.4, 0.1, 0.1]); q = np.array([0.1, 0.2, 0.3, 0.4])\nbest = value(p, q, best_d(p, q))\nfor D in (np.full(4, 0.5), np.array([0.9, 0.6, 0.2, 0.3]), np.array([0.7, 0.7, 0.3, 0.3])):\n    assert value(p, q, D) <= best + 1e-12, 'no discriminator should score a higher value than D*'"
+    }
+   ],
+   "hints": [
+    "best_d: return p / (p + q)",
+    "value: np.sum(p * np.log(D)) + np.sum(q * np.log(1 - D))"
+   ],
+   "solution": "import numpy as np\n\ndef best_d(p, q):\n    return p / (p + q)\n\ndef value(p, q, D):\n    return np.sum(p * np.log(D)) + np.sum(q * np.log(1 - D))\n"
+  }
+ ],
+ "poster": "videos/11.3-gans.jpg"
+}
