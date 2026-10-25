@@ -1,0 +1,44 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "In the transformers module we assembled a small GPT piece by piece: characters become vectors, positions are added, blocks of attention and feed-forward layers refine the stream, and a final layer turns it into scores for the next character. Its weights were random, so it wrote noise. This last capstone trains it, so that it writes text in the style of whatever it has read."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The data is a single long text. A popular choice, made famous by Andrej Karpathy, is about a million characters of Shakespeare. Every character is mapped to an integer, giving a vocabulary of a few dozen symbols, and the text is split into a training part and a validation part. A batch is a set of random windows from the training text: the input is each window, and the target is the same window shifted one character to the right, so every position becomes a training example."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "The model returns a score for every vocabulary entry at every position, a block of shape batch by time by vocabulary. Cross-entropy compares each position's scores with the character that really came next, and the loss is the average over all of them. Before any training, the model should be roughly uniform, so the first loss should sit near the natural log of the vocabulary size, the sanity check from the lesson on loss curves."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "Training is the loop you already know, now with a framework computing the backward pass that you derived by hand: forward, loss, backward, and an AdamW step, repeated a few thousand times on mini-batches, with the validation loss checked every so often. A modest learning rate, a little dropout, and patience are enough for a model of a few million parameters to learn a great deal on a single graphics card."
+ },
+ {
+  "id": "s5",
+  "pace": 0.98,
+  "temperature": 0.78,
+  "text": "It helps to start with the simplest language model of all, the bigram model, which predicts each character from the one before it using nothing but a table of scores. It learns which letters tend to follow which, and its loss falls quickly and then stalls, because one character of context is all it has. Attention is what lets the transformer use the whole window, and its loss keeps falling well past the point where the bigram model gives up."
+ },
+ {
+  "id": "s6",
+  "pace": 0.98,
+  "temperature": 0.78,
+  "text": "Sampling, with the temperature from the transformers module, shows the progress. At first the output is random symbols. Soon spaces and short words appear, then line breaks, capitalised names and the rhythm of dialogue, even though the meaning remains nonsense. Scaled up by many orders of magnitude, in data, parameters and compute, this same recipe is how large language models are made."
+ },
+ {
+  "id": "s7",
+  "pace": 0.92,
+  "temperature": 0.84,
+  "text": "That completes the course. You can now follow the whole path, from text to tokens and embeddings, through attention and transformer blocks, to logits, loss, backpropagation, training and generation, and you have built each step yourself. Every new model you read about is a variation on these ideas."
+ }
+]

@@ -485,7 +485,8 @@
     },
     {
      "num": "C2",
-     "title": "Tiny GPT: a character-level transformer"
+     "title": "Tiny GPT: a character-level transformer",
+     "id": "C2-tiny-gpt"
     }
    ]
   }

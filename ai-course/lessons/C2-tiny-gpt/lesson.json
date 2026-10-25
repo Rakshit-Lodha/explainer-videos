@@ -1,0 +1,152 @@
+{
+ "id": "C2-tiny-gpt",
+ "module": 13,
+ "title": "Tiny GPT: a character-level transformer",
+ "summary": "Capstone 2 trains the character-level GPT from the transformers module. The data is one long text mapped to integers; batches are random windows whose targets are the same windows shifted one character. The model's (B, T, V) logits are scored by cross-entropy at every position, starting near ln V. Training repeats forward, loss, backward and an AdamW step, with validation checks. A bigram model, one character of context, stalls early; attention lets the transformer use the whole window. Sampling with temperature shows text emerging, and the same recipe, scaled up enormously, makes large language models.",
+ "video": "videos/C2-tiny-gpt.mp4",
+ "llm_link": "This is the pretraining recipe of every large language model in miniature: next-token targets from raw text, cross-entropy at every position, gradient descent with AdamW, and autoregressive sampling.",
+ "key_ideas": [
+  "Data: encode characters as integers; split train/validation; a batch is random windows x with targets y = x shifted by one.",
+  "Loss: logits (B, T, V) vs targets (B, T); mean cross-entropy over all B·T positions; it should start near ln V.",
+  "Training: forward, loss, backward (autograd), AdamW step; check validation loss periodically; a little dropout.",
+  "A bigram model uses one character of context and stalls; attention uses the whole window, so the transformer's loss keeps falling.",
+  "Sampling with temperature shows the progression from noise to words, line breaks and dialogue-like structure."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: the text is \"hello\" (ids h, e, l, l, o) and a window of length 4 starts at position 0. What are the targets?",
+   "options": [
+    "h e l l",
+    "e l l o",
+    "l l o ?",
+    "h e l l o"
+   ],
+   "answer": 1,
+   "explain": "Targets are the inputs shifted one character to the right: after h comes e, after e comes l, and so on."
+  },
+  {
+   "q": "A character model has a vocabulary of 65 symbols. Roughly what should its loss be before training?",
+   "options": [
+    "0",
+    "1",
+    "about 4.2",
+    "65"
+   ],
+   "answer": 2,
+   "explain": "A near-uniform guess gives cross-entropy ln 65 ≈ 4.17, the sanity check from lesson 7.3."
+  },
+  {
+   "q": "Logits have shape (32, 128, 65). How many next-character predictions does one batch train on?",
+   "options": [
+    "32",
+    "128",
+    "65",
+    "4,096"
+   ],
+   "answer": 3,
+   "explain": "Every position of every window is a prediction: 32 × 128 = 4,096."
+  },
+  {
+   "q": "Why does a bigram model's loss stall while a transformer's keeps falling?",
+   "options": [
+    "The bigram model has too many parameters",
+    "It sees only the previous character; attention lets the transformer use the whole window",
+    "The transformer uses a different loss",
+    "Bigram models cannot be trained with gradients"
+   ],
+   "answer": 1,
+   "explain": "More context is more information about what comes next."
+  },
+  {
+   "q": "What turns this capstone's recipe into a large language model?",
+   "options": [
+    "A different loss function",
+    "Scaling data, parameters and compute by many orders of magnitude, plus tokenisation of subwords",
+    "Removing attention",
+    "Training without validation"
+   ],
+   "answer": 1,
+   "explain": "The objective and loop are the same; scale (and subword tokens) is what changes."
+  }
+ ],
+ "problems": [
+  {
+   "id": "batches",
+   "title": "Next-character batches",
+   "prompt": "<p>The starter holds a short corpus already encoded as integers in <code>data</code>. Write <code>get_batch(data, block_size, batch_size, rng)</code>: draw <code>batch_size</code> start positions with <code>rng.integers(0, len(data) - block_size, batch_size)</code>, take a window of <code>block_size</code> ids from each for <code>x</code>, and the same window shifted one to the right for <code>y</code>. Return two arrays of shape (B, T).</p>",
+   "starter": "import numpy as np\n\ntext = (\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"up above the world so high\\n\"\n    \"like a diamond in the sky\\n\"\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"when the blazing sun is gone\\n\"\n    \"when he nothing shines upon\\n\"\n    \"then you show your little light\\n\"\n    \"twinkle twinkle all the night\\n\"\n)\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\nitos = {i: ch for ch, i in stoi.items()}\ndata = np.array([stoi[ch] for ch in text])\nV = len(vocab)\n\ndef get_batch(data, block_size, batch_size, rng):\n    \"\"\"Random windows: x (B, T) and y (B, T), where y is x shifted one character to the right.\"\"\"\n    # TODO: starts = rng.integers(0, len(data) - block_size, batch_size)\n    # TODO: stack data[s:s+block_size] for x and data[s+1:s+block_size+1] for y\n    return None, None\n",
+   "tests": [
+    {
+     "name": "shapes",
+     "code": "x, y = get_batch(data, 8, 4, np.random.default_rng(0))\nassert x is not None and x.shape == (4, 8) and y.shape == (4, 8), f'expected (4, 8) arrays, got {None if x is None else (x.shape, y.shape)}'"
+    },
+    {
+     "name": "targets are shifted inputs",
+     "code": "x, y = get_batch(data, 8, 16, np.random.default_rng(1))\nassert np.array_equal(x[:, 1:], y[:, :-1]), 'y must be x shifted left by one: y[:, :-1] == x[:, 1:]'\nfor row_x, row_y in zip(x, y):\n    s = [i for i in range(len(data) - 8) if np.array_equal(data[i:i + 8], row_x)]\n    assert any(data[i + 8] == row_y[-1] for i in s), 'the last target must be the character that follows the window'"
+    },
+    {
+     "name": "random windows",
+     "code": "x1, _ = get_batch(data, 8, 4, np.random.default_rng(2)); x2, _ = get_batch(data, 8, 4, np.random.default_rng(3))\nassert not np.array_equal(x1, x2), 'different seeds should give different windows'"
+    }
+   ],
+   "hints": [
+    "starts = rng.integers(0, len(data) - block_size, batch_size)",
+    "x = np.stack([data[s:s + block_size] for s in starts])",
+    "y = np.stack([data[s + 1:s + block_size + 1] for s in starts])"
+   ],
+   "solution": "import numpy as np\n\ntext = (\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"up above the world so high\\n\"\n    \"like a diamond in the sky\\n\"\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"when the blazing sun is gone\\n\"\n    \"when he nothing shines upon\\n\"\n    \"then you show your little light\\n\"\n    \"twinkle twinkle all the night\\n\"\n)\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\nitos = {i: ch for ch, i in stoi.items()}\ndata = np.array([stoi[ch] for ch in text])\nV = len(vocab)\n\ndef get_batch(data, block_size, batch_size, rng):\n    starts = rng.integers(0, len(data) - block_size, batch_size)\n    x = np.stack([data[s:s + block_size] for s in starts])\n    y = np.stack([data[s + 1:s + block_size + 1] for s in starts])\n    return x, y\n"
+  },
+  {
+   "id": "seq-loss",
+   "title": "Cross-entropy at every position",
+   "prompt": "<p>Write <code>sequence_cross_entropy(logits, targets)</code> for logits of shape (B, T, V) and integer targets of shape (B, T): the mean over all B·T positions of <code>-log softmax(logits)[b, t, targets[b, t]]</code>. A stable <code>log_softmax</code> is provided. Hint: fancy indexing with <code>np.arange(B)[:, None]</code> and <code>np.arange(T)[None, :]</code> picks one entry per position.</p>",
+   "starter": "import numpy as np\n\ntext = (\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"up above the world so high\\n\"\n    \"like a diamond in the sky\\n\"\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"when the blazing sun is gone\\n\"\n    \"when he nothing shines upon\\n\"\n    \"then you show your little light\\n\"\n    \"twinkle twinkle all the night\\n\"\n)\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\nitos = {i: ch for ch, i in stoi.items()}\ndata = np.array([stoi[ch] for ch in text])\nV = len(vocab)\n\ndef get_batch(data, block_size, batch_size, rng):\n    starts = rng.integers(0, len(data) - block_size, batch_size)\n    x = np.stack([data[s:s + block_size] for s in starts])\n    y = np.stack([data[s + 1:s + block_size + 1] for s in starts])\n    return x, y\n\ndef log_softmax(z):\n    z = z - z.max(axis=-1, keepdims=True)\n    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))\n\ndef sequence_cross_entropy(logits, targets):\n    \"\"\"logits (B, T, V), targets (B, T) -> mean negative log-probability of the targets.\"\"\"\n    # TODO: lp = log_softmax(logits); pick lp[b, t, targets[b, t]] for every b, t; return minus the mean\n    return 0.0\n",
+   "tests": [
+    {
+     "name": "uniform logits give ln V",
+     "code": "lg = np.zeros((2, 5, V)); tg = np.zeros((2, 5), dtype=int)\nl = sequence_cross_entropy(lg, tg)\nassert abs(l - np.log(V)) < 1e-9, f'uniform scores give ln V = {np.log(V):.4f}, got {l}'"
+    },
+    {
+     "name": "confident and right is near zero",
+     "code": "tg = np.array([[1, 2, 3]]); lg = np.full((1, 3, V), -10.0)\nlg[0, np.arange(3), tg[0]] = 10.0\nassert sequence_cross_entropy(lg, tg) < 1e-6, 'very confident correct predictions should give almost zero loss'"
+    },
+    {
+     "name": "matches a loop",
+     "code": "r = np.random.default_rng(0); lg = r.normal(size=(3, 4, V)); tg = r.integers(0, V, (3, 4))\nlp = log_softmax(lg)\nwant = -np.mean([lp[b, t, tg[b, t]] for b in range(3) for t in range(4)])\nassert abs(sequence_cross_entropy(lg, tg) - want) < 1e-9, f'expected {want:.6f}'"
+    }
+   ],
+   "hints": [
+    "lp = log_softmax(logits); B, T = targets.shape",
+    "picked = lp[np.arange(B)[:, None], np.arange(T)[None, :], targets]  # (B, T)",
+    "return float(-picked.mean())"
+   ],
+   "solution": "import numpy as np\n\ntext = (\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"up above the world so high\\n\"\n    \"like a diamond in the sky\\n\"\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"when the blazing sun is gone\\n\"\n    \"when he nothing shines upon\\n\"\n    \"then you show your little light\\n\"\n    \"twinkle twinkle all the night\\n\"\n)\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\nitos = {i: ch for ch, i in stoi.items()}\ndata = np.array([stoi[ch] for ch in text])\nV = len(vocab)\n\ndef get_batch(data, block_size, batch_size, rng):\n    starts = rng.integers(0, len(data) - block_size, batch_size)\n    x = np.stack([data[s:s + block_size] for s in starts])\n    y = np.stack([data[s + 1:s + block_size + 1] for s in starts])\n    return x, y\n\ndef log_softmax(z):\n    z = z - z.max(axis=-1, keepdims=True)\n    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))\n\ndef sequence_cross_entropy(logits, targets):\n    \"\"\"logits (B, T, V), targets (B, T) -> mean negative log-probability of the targets.\"\"\"\n    lp = log_softmax(logits)\n    B, T = targets.shape\n    return float(-lp[np.arange(B)[:, None], np.arange(T)[None, :], targets].mean())\n"
+  },
+  {
+   "id": "bigram",
+   "title": "Train a bigram model and sample",
+   "prompt": "<p>The simplest language model: a (V, V) table <code>W</code> where row <code>c</code> holds the scores for the character after <code>c</code>. Complete <code>train_bigram</code> (logits <code>W[x]</code>, loss, gradient, update) and <code>sample</code>. The gradient is the softmax-cross-entropy rule: <code>probs - onehot(y)</code>, divided by the number of positions and added into the rows of the input characters with <code>np.add.at(dW, x.ravel(), grads.reshape(-1, V))</code>.</p><p><b>Taking it further.</b> The full tiny GPT is too heavy to train in a browser tab. This PyTorch script trains the model from the transformers module on any text file (for example about a million characters of Shakespeare) on a laptop or in a free Colab notebook:</p><pre># Optional: the full tiny GPT, trained with PyTorch (run locally or in Colab, not in the browser).\nimport torch, torch.nn as nn, torch.nn.functional as F\ntext = open(&quot;input.txt&quot;).read()            # e.g. ~1 MB of Shakespeare\nchars = sorted(set(text)); V = len(chars)\nstoi = {c: i for i, c in enumerate(chars)}; itos = {i: c for c, i in stoi.items()}\ndata = torch.tensor([stoi[c] for c in text]); n = int(0.9 * len(data))\ntrain, val = data[:n], data[n:]\nT, B, d, H, L = 128, 32, 192, 6, 6\ndef batch(src):\n    ix = torch.randint(len(src) - T - 1, (B,))\n    return torch.stack([src[i:i+T] for i in ix]), torch.stack([src[i+1:i+T+1] for i in ix])\nclass Block(nn.Module):\n    def __init__(s):\n        super().__init__(); s.ln1, s.ln2 = nn.LayerNorm(d), nn.LayerNorm(d)\n        s.attn = nn.MultiheadAttention(d, H, batch_first=True, dropout=0.1)\n        s.mlp = nn.Sequential(nn.Linear(d, 4*d), nn.GELU(), nn.Linear(4*d, d), nn.Dropout(0.1))\n    def forward(s, x):\n        mask = torch.triu(torch.ones(x.size(1), x.size(1), dtype=torch.bool, device=x.device), 1)\n        h = s.ln1(x); x = x + s.attn(h, h, h, attn_mask=mask, need_weights=False)[0]\n        return x + s.mlp(s.ln2(x))\nclass GPT(nn.Module):\n    def __init__(s):\n        super().__init__(); s.tok, s.pos = nn.Embedding(V, d), nn.Embedding(T, d)\n        s.blocks = nn.Sequential(*[Block() for _ in range(L)]); s.ln, s.head = nn.LayerNorm(d), nn.Linear(d, V)\n    def forward(s, idx):\n        x = s.tok(idx) + s.pos(torch.arange(idx.size(1), device=idx.device))\n        return s.head(s.ln(s.blocks(x)))\nmodel = GPT(); opt = torch.optim.AdamW(model.parameters(), lr=1e-3)\nfor step in range(3000):\n    x, y = batch(train); loss = F.cross_entropy(model(x).view(-1, V), y.view(-1))\n    opt.zero_grad(); loss.backward(); opt.step()\n    if step % 300 == 0: print(step, loss.item())\nmodel.eval(); idx = torch.zeros((1, 1), dtype=torch.long)\nwith torch.no_grad():\n    for _ in range(500):\n        p = F.softmax(model(idx[:, -T:])[:, -1] / 0.8, -1); idx = torch.cat([idx, torch.multinomial(p, 1)], 1)\nprint(&quot;&quot;.join(itos[i] for i in idx[0].tolist()))\n</pre>",
+   "starter": "import numpy as np\n\ntext = (\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"up above the world so high\\n\"\n    \"like a diamond in the sky\\n\"\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"when the blazing sun is gone\\n\"\n    \"when he nothing shines upon\\n\"\n    \"then you show your little light\\n\"\n    \"twinkle twinkle all the night\\n\"\n)\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\nitos = {i: ch for ch, i in stoi.items()}\ndata = np.array([stoi[ch] for ch in text])\nV = len(vocab)\n\ndef get_batch(data, block_size, batch_size, rng):\n    starts = rng.integers(0, len(data) - block_size, batch_size)\n    x = np.stack([data[s:s + block_size] for s in starts])\n    y = np.stack([data[s + 1:s + block_size + 1] for s in starts])\n    return x, y\n\ndef log_softmax(z):\n    z = z - z.max(axis=-1, keepdims=True)\n    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))\n\ndef sequence_cross_entropy(logits, targets):\n    \"\"\"logits (B, T, V), targets (B, T) -> mean negative log-probability of the targets.\"\"\"\n    lp = log_softmax(logits)\n    B, T = targets.shape\n    return float(-lp[np.arange(B)[:, None], np.arange(T)[None, :], targets].mean())\n\ndef train_bigram(data, steps=300, lr=5.0, block_size=16, batch_size=32, seed=0):\n    \"\"\"A (V, V) table of next-character scores, trained by gradient descent. Returns (W, losses).\"\"\"\n    rng = np.random.default_rng(seed)\n    W = np.zeros((V, V))\n    losses = []\n    for _ in range(steps):\n        x, y = get_batch(data, block_size, batch_size, rng)\n        # TODO 1: logits = W[x]  (B, T, V); append the loss\n        # TODO 2: probs - onehot(y), scattered into dW with np.add.at(dW, x.ravel(), ... / x.size)\n        # TODO 3: W -= lr * dW\n    return W, losses\n\ndef sample(W, start, n, rng, temperature=1.0):\n    \"\"\"Generate n characters after `start` by sampling from softmax(W[last] / temperature).\"\"\"\n    out = [stoi[start]]\n    # TODO\n    return \"\".join(itos[i] for i in out)\n",
+   "tests": [
+    {
+     "name": "the loss falls well below ln V",
+     "code": "W, losses = train_bigram(data)\nassert len(losses) == 300, f'one loss per step: expected 300, got {len(losses)}'\nassert abs(losses[0] - np.log(V)) < 1e-6, f'with W = 0 the first loss is ln V = {np.log(V):.3f}, got {losses[0]:.3f}'\nassert np.mean(losses[-20:]) < np.log(V) - 1.0, f'the loss should fall by more than 1 nat, last losses ≈ {np.mean(losses[-20:]):.3f}'"
+    },
+    {
+     "name": "learns letter pairs",
+     "code": "W, _ = train_bigram(data)\nassert itos[int(W[stoi['q' if 'q' in stoi else 't']].argmax())] in vocab\nassert itos[int(W[stoi['w']].argmax())] in 'hoia', f\"after 'w' the corpus mostly has 'h', 'o', 'i' or 'a'; the table prefers {itos[int(W[stoi['w']].argmax())]!r}\""
+    },
+    {
+     "name": "sampling",
+     "code": "W, _ = train_bigram(data)\ns = sample(W, 't', 60, np.random.default_rng(0), temperature=0.8)\nassert isinstance(s, str) and len(s) == 61 and s[0] == 't', f'expected 61 characters starting with t, got {s!r}'\nassert set(s) <= set(vocab), 'samples must use corpus characters only'"
+    }
+   ],
+   "hints": [
+    "logits = W[x]; losses.append(sequence_cross_entropy(logits, y)); probs = np.exp(log_softmax(logits))",
+    "probs[np.arange(x.shape[0])[:, None], np.arange(x.shape[1])[None, :], y] -= 1\ndW = np.zeros_like(W); np.add.at(dW, x.ravel(), probs.reshape(-1, V) / x.size)",
+    "sample: for _ in range(n): z = W[out[-1]] / temperature; p = softmax(z); out.append(int(rng.choice(V, p=p)))"
+   ],
+   "solution": "import numpy as np\n\ntext = (\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"up above the world so high\\n\"\n    \"like a diamond in the sky\\n\"\n    \"twinkle twinkle little star\\n\"\n    \"how i wonder what you are\\n\"\n    \"when the blazing sun is gone\\n\"\n    \"when he nothing shines upon\\n\"\n    \"then you show your little light\\n\"\n    \"twinkle twinkle all the night\\n\"\n)\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\nitos = {i: ch for ch, i in stoi.items()}\ndata = np.array([stoi[ch] for ch in text])\nV = len(vocab)\n\ndef get_batch(data, block_size, batch_size, rng):\n    starts = rng.integers(0, len(data) - block_size, batch_size)\n    x = np.stack([data[s:s + block_size] for s in starts])\n    y = np.stack([data[s + 1:s + block_size + 1] for s in starts])\n    return x, y\n\ndef log_softmax(z):\n    z = z - z.max(axis=-1, keepdims=True)\n    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))\n\ndef sequence_cross_entropy(logits, targets):\n    \"\"\"logits (B, T, V), targets (B, T) -> mean negative log-probability of the targets.\"\"\"\n    lp = log_softmax(logits)\n    B, T = targets.shape\n    return float(-lp[np.arange(B)[:, None], np.arange(T)[None, :], targets].mean())\n\ndef train_bigram(data, steps=300, lr=5.0, block_size=16, batch_size=32, seed=0):\n    \"\"\"A (V, V) table of next-character scores, trained by gradient descent. Returns (W, losses).\"\"\"\n    rng = np.random.default_rng(seed)\n    W = np.zeros((V, V))\n    losses = []\n    for _ in range(steps):\n        x, y = get_batch(data, block_size, batch_size, rng)\n        logits = W[x]                                        # (B, T, V)\n        losses.append(sequence_cross_entropy(logits, y))\n        probs = np.exp(log_softmax(logits))\n        probs[np.arange(x.shape[0])[:, None], np.arange(x.shape[1])[None, :], y] -= 1   # p - onehot\n        dW = np.zeros_like(W)\n        np.add.at(dW, x.ravel(), probs.reshape(-1, V) / x.size)\n        W -= lr * dW\n    return W, losses\n\ndef sample(W, start, n, rng, temperature=1.0):\n    out = [stoi[start]]\n    for _ in range(n):\n        z = W[out[-1]] / temperature\n        p = np.exp(z - z.max()); p /= p.sum()\n        out.append(int(rng.choice(V, p=p)))\n    return \"\".join(itos[i] for i in out)\n"
+  }
+ ]
+}
