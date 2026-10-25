@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.note{position:absolute;font-size:44px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+.code{position:absolute;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:38px;line-height:1.55;white-space:pre;color:var(--ink);
+  background:#11161dcc;border:2px solid #2a3442;border-radius:16px;padding:26px 34px;opacity:0;visibility:hidden}
+.panel{position:absolute;background:#0e1116e6;border-radius:20px}
+.kw{color:#c792ea}.fn{color:#58c4dd}.nm{color:#f5cf4a}.cm{color:#7f8b99;font-style:italic}
+
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="284.52" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="284.52" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 1.4 Matrix multiplication as composition</div>
+  <div class="layer" id="STAGE"></div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="30.854"></div>
+  <div class="clip scene" id="S2" data-start="30.854" data-duration="30.624"></div>
+  <div class="clip scene" id="S3" data-start="61.478" data-duration="26.394"></div>
+  <div class="clip scene" id="S4" data-start="87.872" data-duration="26.308"></div>
+  <div class="clip scene" id="S5" data-start="114.18" data-duration="24.987"></div>
+  <div class="clip scene" id="S6" data-start="139.167" data-duration="29.636"></div>
+  <div class="clip scene" id="S7" data-start="168.803" data-duration="32.377"></div>
+  <div class="clip scene" id="S8" data-start="201.18" data-duration="24.649"></div>
+  <div class="clip scene" id="S9" data-start="225.829" data-duration="35.104"></div>
+  <div class="clip scene" id="S10" data-start="260.933" data-duration="23.587"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":30.854,"s3":61.478,"s4":87.872,"s5":114.18,"s6":139.167,"s7":168.803,"s8":201.18,"s9":225.829,"s10":260.933},"total":284.52,"cues":{"s1":[["last",0.0],["time",0.355],["a",1.063],["matrix",1.184],["became",1.606],["a",2.028],["motion",2.149],["of",2.571],["the",2.752],["plane",2.993],["a",3.805],["record",3.974],["of",4.567],["where",4.821],["i",5.329],["hat",5.498],["and",5.836],["j",6.175],["hat",6.344],["land",6.683],["a",7.565],["natural",7.703],["next",8.255],["question",8.6],["is",9.221],["what",9.428],["happens",9.773],["when",10.325],["you",10.67],["perform",10.946],["one",11.498],["motion",11.774],["and",12.257],["then",12.533],["another",12.878],["say",13.928],["a",14.195],["quarter",14.328],["turn",14.86],["followed",15.193],["by",15.792],["a",15.991],["shear",16.124],["the",16.812],["grid",17.212],["lines",17.712],["are",18.312],["still",18.712],["straight",19.312],["parallel",20.586],["and",21.102],["evenly",21.332],["spaced",21.733],["at",22.135],["the",22.307],["end",22.536],["so",23.146],["the",23.383],["combined",23.7],["motion",24.413],["must",24.967],["itself",25.364],["be",25.918],["a",26.156],["linear",26.314],["transformation",26.869],["with",28.601],["a",28.918],["matrix",29.045],["of",29.49],["its",29.68],["own",29.934]],"s2":[["let",0.0],["us",0.172],["watch",0.301],["it",0.558],["first",1.387],["the",1.693],["rotation",1.898],["i",2.926],["hat",3.09],["swings",3.417],["up",3.99],["to",4.235],["zero",4.48],["one",5.301],["and",6.229],["j",6.519],["hat",6.664],["swings",6.954],["left",7.462],["to",7.825],["minus",8.043],["one",8.479],["zero",9.083],["then",9.325],["starting",10.092],["from",10.75],["wherever",11.116],["things",11.774],["now",12.286],["sit",12.578],["the",13.35],["shear",13.708],["pushes",14.243],["the",14.868],["plane",15.226],["sideways",15.761],["sliding",17.12],["every",17.585],["point",17.934],["to",18.283],["the",18.458],["right",18.69],["by",19.039],["its",19.214],["height",19.446],["follow",20.248],["i",20.691],["hat",20.818],["through",21.072],["both",21.579],["steps",21.895],["and",22.845],["it",23.126],["ends",23.336],["up",23.686],["at",23.896],["one",24.107],["one",24.81],["follow",25.893],["j",26.638],["hat",26.851],["and",27.7],["it",27.791],["ends",27.859],["up",27.972],["back",28.041],["at",28.154],["minus",28.222],["one",28.359],["zero",28.605]],"s3":[["those",0.0],["two",0.431],["landing",0.718],["spots",1.293],["are",1.724],["all",2.011],["we",2.298],["need",2.514],["because",3.24],["they",3.7],["are",3.987],["the",4.217],["columns",4.447],["of",4.906],["the",5.079],["combined",5.309],["matrix",5.826],["one",6.483],["one",6.958],["and",7.779],["minus",8.047],["one",8.45],["zero",8.929],["one",9.684],["matrix",9.976],["now",10.486],["does",10.777],["the",11.142],["work",11.433],["of",11.798],["two",12.017],["we",12.696],["call",12.868],["this",13.154],["new",13.44],["matrix",13.669],["the",14.07],["product",14.299],["of",14.756],["the",14.928],["shear",15.157],["and",15.5],["the",15.729],["rotation",15.958],["and",16.99],["the",17.235],["act",17.48],["of",17.725],["applying",17.909],["one",18.46],["transformation",18.705],["after",19.624],["another",19.991],["is",20.481],["called",20.665],["composition",21.094],["much",22.218],["as",22.52],["two",22.701],["legs",22.943],["of",23.244],["a",23.425],["journey",23.546],["combine",24.029],["into",24.512],["a",24.814],["single",24.935],["route",25.357]],"s4":[["notice",0.0],["how",0.355],["we",0.558],["write",0.71],["it",1.014],["the",1.791],["rotation",2.047],["happens",2.622],["first",3.132],["yet",3.796],["it",4.04],["sits",4.223],["on",4.527],["the",4.71],["right",4.954],["next",5.714],["to",5.969],["the",6.122],["vector",6.326],["and",7.128],["the",7.319],["shear",7.511],["sits",7.799],["on",8.038],["the",8.182],["left",8.374],["that",9.042],["is",9.317],["because",9.481],["as",10.496],["with",10.706],["functions",11.056],["the",12.232],["matrix",12.509],["closest",12.995],["to",13.55],["the",13.758],["vector",14.035],["acts",14.521],["on",14.868],["it",15.076],["first",15.284],["reading",16.027],["a",16.451],["product",16.557],["from",16.981],["right",17.245],["to",17.563],["left",17.722],["the",18.439],["way",18.712],["the",18.985],["vector",19.258],["experiences",19.735],["it",20.554],["removes",21.333],["most",21.833],["of",22.146],["the",22.333],["confusion",22.583],["people",23.208],["have",23.646],["with",23.958],["matrix",24.271],["multiplication",24.708]],"s5":[["we",0.0],["can",0.161],["now",0.375],["compute",0.589],["the",1.018],["product",1.232],["without",1.661],["memorising",2.09],["anything",2.679],["the",3.587],["first",3.862],["column",4.276],["of",4.758],["the",4.964],["product",5.24],["is",5.791],["where",5.997],["i",6.411],["hat",6.548],["ends",6.824],["up",7.168],["so",7.604],["take",7.759],["the",8.017],["rotation's",8.224],["first",8.791],["column",9.101],["which",9.842],["is",10.177],["where",10.344],["i",10.679],["hat",10.791],["went",11.014],["after",11.293],["the",11.628],["first",11.852],["step",12.187],["and",12.981],["feed",13.154],["it",13.37],["through",13.5],["the",13.846],["shear",14.019],["then",14.533],["do",14.933],["the",15.173],["same",15.493],["with",15.893],["the",16.293],["second",16.612],["column",17.172],["in",18.303],["other",18.531],["words",18.986],["the",19.637],["left",19.83],["matrix",20.072],["acts",20.411],["on",20.652],["each",20.797],["column",21.039],["of",21.378],["the",21.523],["right",21.717],["matrix",22.007],["one",22.958],["column",23.219],["at",23.676],["a",23.872],["time",24.002]],"s6":[["watch",0.0],["it",0.314],["on",0.471],["the",0.628],["numbers",0.838],["the",1.656],["rotation's",1.944],["first",2.736],["column",3.168],["is",3.672],["zero",3.888],["one",4.805],["so",5.122],["we",5.313],["take",5.503],["zero",5.82],["copies",6.137],["of",6.581],["the",6.771],["shear's",7.024],["first",7.532],["column",7.912],["plus",8.356],["one",8.673],["copy",8.927],["of",9.244],["its",9.434],["second",9.687],["which",10.604],["gives",10.93],["one",11.257],["one",11.756],["the",12.414],["rotation's",12.659],["second",13.332],["column",13.76],["is",14.189],["minus",14.372],["one",14.739],["zero",15.333],["so",16.384],["we",16.568],["take",16.752],["minus",17.059],["one",17.427],["copy",17.672],["of",17.979],["the",18.163],["shear's",18.408],["first",18.899],["column",19.267],["which",20.155],["gives",20.54],["minus",20.925],["one",21.31],["zero",21.971],["each",22.804],["column",23.107],["of",23.532],["the",23.714],["answer",23.956],["is",24.381],["just",24.563],["the",24.866],["matrix",25.108],["times",25.533],["vector",25.897],["rule",26.321],["from",26.625],["the",26.928],["last",27.17],["lesson",27.474],["applied",28.241],["again",28.745]],"s7":[["now",0.0],["swap",0.249],["the",0.559],["order",0.808],["and",1.813],["shear",2.11],["first",2.556],["then",3.408],["rotate",3.67],["watch",4.644],["the",5.006],["grid",5.247],["this",6.025],["time",6.4],["i",6.775],["hat",6.925],["ends",7.225],["up",7.6],["at",7.825],["zero",8.05],["one",8.863],["and",9.774],["j",10.035],["hat",10.166],["ends",10.427],["up",10.753],["at",10.949],["minus",11.145],["one",11.536],["one",11.862],["which",12.575],["is",13.074],["a",13.324],["different",13.49],["place",14.322],["so",15.309],["the",15.52],["product",15.801],["is",16.363],["a",16.574],["different",16.715],["matrix",17.417],["order",18.231],["matters",18.56],["in",18.999],["matrix",19.163],["multiplication",19.547],["just",20.731],["as",21.122],["putting",21.357],["on",21.983],["socks",22.218],["and",22.688],["then",23.001],["shoes",23.393],["is",23.862],["not",24.097],["the",24.41],["same",24.723],["as",25.115],["shoes",25.35],["and",25.82],["then",26.133],["socks",26.524],["in",27.443],["symbols",27.639],["a",28.518],["times",28.699],["b",29.243],["is",29.424],["usually",29.696],["not",30.421],["b",30.783],["times",30.964],["a",31.508]],"s8":[["what",0.0],["does",0.278],["not",0.556],["matter",0.779],["is",1.168],["how",1.335],["you",1.558],["group",1.78],["a",2.114],["longer",2.226],["chain",2.615],["applying",3.273],["three",3.868],["transformations",4.265],["in",5.322],["a",5.52],["row",5.653],["gives",5.917],["the",6.313],["same",6.578],["final",6.908],["motion",7.305],["whether",7.768],["you",8.296],["first",8.561],["combine",8.957],["the",9.486],["first",9.751],["pair",10.147],["or",10.478],["the",10.676],["last",10.94],["pair",11.271],["because",11.905],["either",12.381],["way",12.797],["the",13.034],["vector",13.272],["goes",13.688],["through",13.985],["the",14.461],["same",14.699],["motions",14.996],["in",15.471],["the",15.65],["same",15.888],["order",16.185],["this",16.825],["property",17.141],["is",17.711],["called",17.901],["associativity",18.344],["and",19.773],["it",20.046],["lets",20.25],["us",20.591],["collapse",20.795],["any",21.408],["chain",21.68],["of",22.089],["matrices",22.293],["into",22.906],["a",23.246],["single",23.383],["one",23.859]],"s9":[["that",0.0],["fact",0.386],["explains",0.771],["a",1.466],["design",1.62],["choice",2.16],["in",2.7],["every",2.931],["neural",3.394],["network",3.934],["two",5.229],["layers",5.517],["that",6.02],["only",6.379],["multiply",6.739],["by",7.385],["matrices",7.601],["collapse",8.248],["into",8.895],["a",9.254],["single",9.398],["matrix",9.901],["so",10.917],["stacking",11.107],["them",11.678],["buys",11.996],["nothing",12.313],["new",12.82],["real",13.4],["networks",13.738],["put",14.346],["a",14.617],["gentle",14.752],["bend",15.225],["called",15.884],["a",16.327],["nonlinearity",16.454],["between",17.653],["the",18.045],["layers",18.241],["precisely",19.2],["so",19.853],["that",20.05],["the",20.377],["chain",20.638],["cannot",21.03],["be",21.488],["folded",21.684],["into",22.142],["one",22.469],["matrix",22.731],["and",23.671],["depth",23.93],["gives",24.317],["genuinely",24.704],["new",25.35],["power",25.608],["inside",26.49],["a",26.963],["transformer",27.098],["much",27.976],["of",28.314],["the",28.517],["work",28.787],["in",29.124],["every",29.327],["layer",29.732],["is",30.138],["matrix",30.34],["multiplication",30.813],["separated",32.38],["by",33.064],["bends",33.27],["like",33.68],["these",34.022]],"s10":[["so",0.0],["multiplying",0.215],["matrices",1.075],["means",1.72],["doing",2.15],["one",2.58],["motion",2.866],["after",3.368],["another",3.798],["with",4.947],["the",5.242],["right",5.478],["hand",5.831],["matrix",6.126],["acting",6.538],["first",6.95],["and",7.689],["each",7.958],["column",8.295],["of",8.767],["the",8.969],["product",9.239],["is",9.778],["where",9.98],["a",10.385],["basis",10.52],["arrow",10.924],["finally",11.328],["lands",11.868],["next",12.821],["we",13.737],["ask",13.959],["how",14.255],["much",14.551],["a",14.921],["transformation",15.069],["stretches",16.179],["or",16.919],["squashes",17.141],["area",17.807],["which",18.752],["is",19.06],["measured",19.214],["by",19.675],["a",19.829],["single",19.932],["number",20.291],["called",20.65],["the",21.009],["determinant",21.214]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,keepEnd){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!keepEnd)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+/* generic seek-safe tween of plain numbers: from/to objects, apply(o) redraws */
+function anim(time,d,from,to,apply,ease){const o={...from};tl.to(o,{...to,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>apply(o)},time)}
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+/* 2x2 matrix with brackets; cols[j][i] are cells, colours per column */
+function mat2(parent,cx,cy,m,o){o=o||{};const fs=o.fs||60,cw=o.cw||110,rowH=fs*1.35,pad=fs*.3,W=cw*2+44,H=rowH*2+pad*2;
+  const box=el(parent,'colv hid','',{left:(cx-W/2)+'px',top:(cy-H/2)+'px',width:W+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cols=[0,1].map(j=>[0,1].map(i=>el(box,'cell',m[i][j],{left:(22+j*cw)+'px',top:(pad+i*rowH)+'px',width:cw+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:(o.colColors||[C.ink,C.ink])[j]})));
+  return {box,cols,cx,cy,W,H,cw,rowH,pad}}
+function colHL(parent,m,j,color){return el(parent,'hl','',{left:(m.cx-m.W/2+22+j*m.cw+6)+'px',top:(m.cy-m.H/2+m.pad-6)+'px',width:(m.cw-12)+'px',height:(m.rowH*2+12)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+
+/* transformable grid: lines in grid units, redrawn through a 2x2 matrix [a b; c d] (columns = images of i-hat, j-hat) */
+function tgrid(svg,P,n,o){o=o||{};const g=svgEl('g',{},svg);const lines=[];
+  for(let k=-n;k<=n;k++){
+    lines.push({p:[k,-n],q:[k,n],e:svgEl('line',{stroke:k===0?C.axis:(o.color||C.blue),'stroke-width':k===0?3:2,opacity:k===0?.95:(o.op||.7)},g)});
+    lines.push({p:[-n,k],q:[n,k],e:svgEl('line',{stroke:k===0?C.axis:(o.color||C.blue),'stroke-width':k===0?3:2,opacity:k===0?.95:(o.op||.7)},g)})}
+  const T={g,lines,P,m:{a:1,b:0,c:0,d:1}};
+  T.apply=(m)=>{T.m={a:m.a,b:m.b,c:m.c,d:m.d};for(const L of lines){const A=P(m.a*L.p[0]+m.b*L.p[1],m.c*L.p[0]+m.d*L.p[1]),B=P(m.a*L.q[0]+m.b*L.q[1],m.c*L.q[0]+m.d*L.q[1]);
+    L.e.setAttribute('x1',A[0]);L.e.setAttribute('y1',A[1]);L.e.setAttribute('x2',B[0]);L.e.setAttribute('y2',B[1])}};
+  T.apply(T.m);return T}
+/* the whole picture (grid + arrows defined in source coordinates) moves under one matrix tween */
+function mkScene(P){const S={P,grids:[],arrows:[],dots:[],m:{a:1,b:0,c:0,d:1},extra:[]};
+  S.apply=(m)=>{S.m={a:m.a,b:m.b,c:m.c,d:m.d};S.grids.forEach(g=>g.apply(m));
+    S.arrows.forEach(([ar,x,y])=>geom(ar,0,0,m.a*x+m.b*y,m.c*x+m.d*y));
+    S.dots.forEach(([e,x,y])=>{const p=P(m.a*x+m.b*y,m.c*x+m.d*y);e.setAttribute('cx',p[0]);e.setAttribute('cy',p[1])});
+    S.extra.forEach(f=>f(m))};
+  S.to=(time,d,m,ease)=>{anim(time,d,S.m,m,S.apply,ease||'power2.inOut');S.m={...m}};
+  return S}
+
+/* ============ persistent stage (s1-s8): a plane moved by matrices ============ */
+const STAGE=$('STAGE');
+const P=plane(560,590,82);
+const ssvg=layerSvg(STAGE);
+const defs=svgEl('defs',{},ssvg);const cp=svgEl('clipPath',{id:'pclip'},defs);svgEl('rect',{x:40,y:110,width:1060,height:940},cp);
+const world=svgEl('g',{'clip-path':'url(#pclip)'},ssvg);
+const ref=svgEl('g',{opacity:.22},world);
+for(let k=-7;k<=7;k++){const a=P(k,-6),b=P(k,6),c=P(-7,k),d=P(7,k);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.dim,'stroke-width':1.2},ref);svgEl('line',{x1:c[0],y1:c[1],x2:d[0],y2:d[1],stroke:C.dim,'stroke-width':1.2},ref)}
+const MS=mkScene(P);
+const TG=tgrid(world,P,12,{color:C.blue,op:.6});MS.grids.push(TG);
+const iA=mkArrow(ssvg,P,C.green,9,tex('\\hat{\\imath}',54),24,38,STAGE);
+const jA=mkArrow(ssvg,P,C.red,9,tex('\\hat{\\jmath}',54),-40,-8,STAGE);
+MS.arrows.push([iA,1,0],[jA,0,1]);
+svgEl('circle',{cx:P(0,0)[0],cy:P(0,0)[1],r:9,fill:C.ink},ssvg);
+MS.apply({a:1,b:0,c:0,d:1});
+const I2={a:1,b:0,c:0,d:1};
+const mul=(A,B)=>({a:A.a*B.a+A.b*B.c,b:A.a*B.b+A.b*B.d,c:A.c*B.a+A.d*B.c,d:A.c*B.b+A.d*B.d});
+const Rot=t=>{const r=t*Math.PI/180;return {a:Math.cos(r),b:-Math.sin(r),c:Math.sin(r),d:Math.cos(r)}};
+const Sh=s=>({a:1,b:s,c:0,d:1});
+const R90=Rot(90),S1=Sh(1),SR=mul(S1,R90),RS=mul(R90,S1);
+/* matrix motions never overlap; path(p) gives the matrix along a motion */
+let msEnd=0;
+function motion(time,d,p0,p1,path,ease){time=Math.max(time,msEnd);msEnd=time+d;anim(time,d,{p:p0},{p:p1},o=>MS.apply(path(o.p)),ease||'power2.inOut');MS.m=path(p1)}
+const _to=MS.to;MS.to=(t,d,m,e)=>{t=Math.max(t,msEnd);_to(t,d,m,e);msEnd=t+d};
+const rotate=(t,d,pre)=>motion(t,d,0,90,th=>mul(Rot(th),pre||I2));
+const shear=(t,d,pre)=>motion(t,d,0,1,s=>mul(Sh(s),pre||I2));
+function marker(parent,svg,x,y,c,t,dx,dy){const p=P(x,y);const r=svgEl('circle',{cx:p[0],cy:p[1],r:17,fill:'none',stroke:c,'stroke-width':4,'stroke-dasharray':'7 6',style:'opacity:0;visibility:hidden'},svg);
+  const l=el(parent,'lbl',t,{color:c,fontSize:'40px'});place(l,p[0]+dx,p[1]+dy);return [r,l]}
+const rp=(css)=>Object.assign({left:'1180px',width:'700px'},css);
+const RM='\\begin{bmatrix}0&-1\\\\1&0\\end{bmatrix}',SM='\\begin{bmatrix}1&1\\\\0&1\\end{bmatrix}';
+tl.to(STAGE,{autoAlpha:1,duration:.8},at('s1',.02));
+showArrow(iA,at('s1',.05),.5);showArrow(jA,at('s1',.05),.5);
+tl.to(STAGE,{autoAlpha:0,duration:.6},at('s9',0)-.3);
+
+/* ============ S1: one motion, then another ============ */
+(function(){const S=$('S1');const sid='s1';
+  const a=el(S,'note','a matrix = where î and ĵ land',rp({top:'170px',textAlign:'center',color:C.dim}));
+  show(a,cue(sid,'record'),.5);
+  const q=el(S,'note','one motion, then another?',rp({top:'270px',textAlign:'center',color:C.ink}));
+  show(q,cue(sid,'another'),.5);
+  const r=el(S,'note','a quarter turn',rp({top:'380px',textAlign:'center',color:C.green}));
+  const s=el(S,'note','… followed by a shear',rp({top:'450px',textAlign:'center',color:C.yellow}));
+  show(r,cue(sid,'quarter'),.4);rotate(cue(sid,'quarter'),1.6);
+  show(s,cue(sid,'shear'),.4);shear(cue(sid,'shear'),1.6,R90);
+  const st=el(S,'note','still straight, parallel, evenly spaced',rp({top:'580px',textAlign:'center',color:C.teal}));
+  show(st,cue(sid,'straight'),.5);
+  const own=el(S,'abs hid',tex('\\Rightarrow\\ \\text{one matrix}\\ \\begin{bmatrix}?&?\\\\?&?\\end{bmatrix}',52),rp({top:'690px',textAlign:'center',color:C.pink}));
+  show(own,cue(sid,'own'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: follow i-hat and j-hat through both steps ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);
+  MS.to(at(sid,0),1,I2);
+  const st1=el(S,'abs hid',`<span style="color:#83c167">1.</span> rotate &nbsp;${tex('R='+RM,46)}`,rp({top:'160px',fontSize:'44px'}));
+  const st2=el(S,'abs hid',`<span style="color:#f5cf4a">2.</span> shear &nbsp;&nbsp;${tex('S='+SM,46)}`,rp({top:'330px',fontSize:'44px'}));
+  show(st1,cue(sid,'rotation'),.5);
+  const m1=marker(S,svg,0,1,C.green,'(0, 1)',-74,-24),m2=marker(S,svg,-1,0,C.red,'(−1, 0)',-60,44);
+  rotate(cue(sid,'swings'),2.4);
+  fadeIn(m1,cue(sid,'swings')+1.4,.4);fadeIn(m2,cue(sid,'left')+.5,.4);
+  fadeOut(m1.concat(m2),cue(sid,'shear')-.2,.4);
+  show(st2,cue(sid,'shear'),.5);
+  shear(cue(sid,'sideways')-.3,2.6,R90);
+  const sl=el(S,'note','every point slides right by its height',rp({top:'500px',color:C.yellow}));
+  show(sl,cue(sid,'height'),.5);
+  const f1=marker(S,svg,1,1,C.green,'(1, 1)',70,-20),f2=marker(S,svg,-1,0,C.red,'(−1, 0)',-60,44);
+  fadeIn(f1,cue(sid,'follow'),.4);tl.to(iA.line,{attr:{'stroke-width':15},duration:.35,yoyo:true,repeat:1},cue(sid,'follow'));
+  fadeIn(f2,cue(sid,'follow',2),.4);tl.to(jA.line,{attr:{'stroke-width':15},duration:.35,yoyo:true,repeat:1},cue(sid,'follow',2));
+  const r1=el(S,'abs hid',tex('{\\color{#83c167}\\hat{\\imath}}\\to(0,1)\\to(1,1)',46),rp({top:'620px',textAlign:'center'}));
+  const r2=el(S,'abs hid',tex('{\\color{#fc6255}\\hat{\\jmath}}\\to(-1,0)\\to(-1,0)',46),rp({top:'720px',textAlign:'center'}));
+  show(r1,cue(sid,'follow')+.3,.5);show(r2,cue(sid,'follow',2)+.3,.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: the landing spots are the product's columns ============ */
+(function(){const S=$('S3');const sid='s3';
+  const m=mat2(S,1530,300,[['1','−1'],['1','0']],{fs:76,cw:140,colColors:[C.green,C.red]});
+  show(m.box,cue(sid,'columns'),.6);
+  const h0=colHL(S,m,0,C.green),h1=colHL(S,m,1,C.red);
+  fadeIn(h0,cue(sid,'one'),.3);fadeIn(h1,cue(sid,'minus'),.3);fadeOut([h0,h1],cue(sid,'work')-.2,.3);
+  const w=el(S,'note','one matrix does the work of two',rp({top:'470px',textAlign:'center',color:C.ink}));
+  show(w,cue(sid,'work'),.5);
+  // replay: the two-step motion done as one
+  MS.to(cue(sid,'work')+.2,.8,I2);
+  MS.to(cue(sid,'work')+1.2,2.4,SR);
+  const pr=el(S,'abs hid',tex('S\\,R=\\begin{bmatrix}1&-1\\\\1&0\\end{bmatrix}',50),rp({top:'580px',textAlign:'center',color:C.pink}));
+  show(pr,cue(sid,'product'),.5);
+  const cm=el(S,'note','one after another = <span style="color:#e77fb3">composition</span>',rp({top:'720px',textAlign:'center'}));
+  show(cm,cue(sid,'composition'),.5);
+  const jr=el(S,'note','two legs of a journey, one route',rp({top:'810px',textAlign:'center',color:C.dim}));
+  show(jr,cue(sid,'journey'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: right to left ============ */
+(function(){const S=$('S4');const sid='s4';
+  const f=el(S,'abs hid',tex('{\\color{#f5cf4a}S}\\;{\\color{#83c167}R}\\;\\vec{v}',110),rp({top:'200px',textAlign:'center'}));
+  show(f,at(sid,.02),.6);
+  const lr=el(S,'abs hid','first',{left:'1520px',top:'360px',width:'140px',textAlign:'center',fontSize:'38px',fontStyle:'italic',color:C.green});
+  const ls=el(S,'abs hid','then',{left:'1400px',top:'360px',width:'140px',textAlign:'center',fontSize:'38px',fontStyle:'italic',color:C.yellow});
+  show(lr,cue(sid,'right'),.5);show(ls,cue(sid,'left'),.5);
+  const fn=el(S,'abs hid',`like functions: ${tex('f(g(x))',46)} applies g first`,rp({top:'480px',textAlign:'center',fontSize:'40px',fontStyle:'italic'}));
+  show(fn,cue(sid,'functions'),.5);
+  const cl=el(S,'note','the matrix closest to the vector acts first',rp({top:'590px',textAlign:'center',color:C.ink}));
+  show(cl,cue(sid,'closest'),.5);
+  const svg=layerSvg(S);
+  const arr=svgEl('path',{d:'M1720 720 L1340 720',fill:'none',stroke:C.pink,'stroke-width':5,'stroke-dasharray':'380','stroke-dashoffset':'380',style:'opacity:0;visibility:hidden'},svg);
+  const ah=svgEl('polygon',{points:'1322,720 1348,705 1348,735',fill:C.pink,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(arr,cue(sid,'reading'),.2);tl.to(arr,{attr:{'stroke-dashoffset':0},duration:1.2,ease:'power2.inOut'},cue(sid,'reading'));fadeIn(ah,cue(sid,'reading')+1.1,.2);
+  const rl=el(S,'note','read right to left, as the vector does',rp({top:'760px',textAlign:'center',color:C.pink}));
+  show(rl,cue(sid,'experiences'),.5);
+  // the grid replays the order: R, then S
+  MS.to(cue(sid,'rotation')-.2,.8,I2);
+  rotate(cue(sid,'rotation')+.6,1.4);
+  shear(cue(sid,'shear')+.2,1.4,R90);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: the left matrix acts on each column of the right one ============ */
+(function(){const S=$('S5');const sid='s5';
+  const sm=mat2(S,1300,260,[['1','1'],['0','1']],{fs:60,cw:100});
+  const rm=mat2(S,1580,260,[['0','−1'],['1','0']],{fs:60,cw:100,colColors:[C.green,C.red]});
+  const ls=el(S,'abs hid','S',{left:'1250px',top:'130px',width:'100px',textAlign:'center',fontSize:'44px',fontStyle:'italic',color:C.yellow});
+  const lr=el(S,'abs hid','R',{left:'1530px',top:'130px',width:'100px',textAlign:'center',fontSize:'44px',fontStyle:'italic',color:C.green});
+  show([sm.box,rm.box,ls,lr],cue(sid,'compute'),.6);
+  const h0=colHL(S,rm,0,C.green),h1=colHL(S,rm,1,C.red);
+  fadeIn(h0,cue(sid,"rotation's"),.3);
+  const t1=el(S,'note','R’s first column: where î went first',rp({top:'420px',textAlign:'center',color:C.green}));
+  show(t1,cue(sid,"rotation's"),.5);
+  const t2=el(S,'note','feed it through S → first column of S R',rp({top:'500px',textAlign:'center',color:C.ink}));
+  show(t2,cue(sid,'feed'),.5);
+  fadeOut(h0,cue(sid,'second')-.2,.3);fadeIn(h1,cue(sid,'second'),.3);
+  const t3=el(S,'note','same for the second column',rp({top:'580px',textAlign:'center',color:C.red}));
+  show(t3,cue(sid,'second'),.5);
+  const t4=el(S,'abs hid',tex('S\\,R=\\Big[\\;S\\,{\\color{#83c167}r_1}\\;\\;\\Big|\\;\\;S\\,{\\color{#fc6255}r_2}\\;\\Big]',56),rp({top:'690px',textAlign:'center'}));
+  show(t4,cue(sid,'left'),.6);
+  const t5=el(S,'note','the left matrix acts on each column of the right one',rp({top:'820px',textAlign:'center',color:C.pink}));
+  show(t5,cue(sid,'left')+.4,.5);
+  // on the grid: after step 1 only, then step 2
+  MS.to(cue(sid,'first')-.2,1,R90);
+  shear(cue(sid,'feed'),1.8,R90);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: the numbers ============ */
+(function(){const S=$('S6');const sid='s6';
+  const eqn=(top,lhs,rhs)=>{const d=el(S,'abs hid','',{left:'1150px',top:top+'px',width:'760px',textAlign:'center',whiteSpace:'nowrap'});
+    d.innerHTML=tex(lhs,42);const r=el(d,'hid','',{display:'inline-block'});r.innerHTML=tex(rhs,42);return [d,r]};
+  const [c1,r1]=eqn(180,'S\\,{\\color{#83c167}\\begin{bmatrix}0\\\\1\\end{bmatrix}}=0\\begin{bmatrix}1\\\\0\\end{bmatrix}+1\\begin{bmatrix}1\\\\1\\end{bmatrix}','\\;=\\;{\\color{#83c167}\\begin{bmatrix}1\\\\1\\end{bmatrix}}');
+  const [c2,r2]=eqn(380,'S\\,{\\color{#fc6255}\\begin{bmatrix}-1\\\\0\\end{bmatrix}}=-1\\begin{bmatrix}1\\\\0\\end{bmatrix}+0\\begin{bmatrix}1\\\\1\\end{bmatrix}','\\;=\\;{\\color{#fc6255}\\begin{bmatrix}-1\\\\0\\end{bmatrix}}');
+  show(c1,cue(sid,"rotation's"),.6);show(c2,cue(sid,"rotation's",2),.6);
+  fadeIn(r1,cue(sid,'gives'),.4);fadeIn(r2,cue(sid,'gives',2),.4);
+  const res=el(S,'abs hid',tex('S\\,R=\\begin{bmatrix}{\\color{#83c167}1}&{\\color{#fc6255}-1}\\\\{\\color{#83c167}1}&{\\color{#fc6255}0}\\end{bmatrix}',58),rp({top:'620px',textAlign:'center'}));
+  show(res,cue(sid,'gives',2)+.8,.6);
+  const rl=el(S,'note','each column: matrix × vector, from lesson 1.3',rp({top:'820px',textAlign:'center',color:C.dim}));
+  show(rl,cue(sid,'rule'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: the other order is a different matrix ============ */
+(function(){const S=$('S7');const sid='s7';
+  const svg=layerSvg(S);
+  MS.to(cue(sid,'swap')-.3,1,I2);
+  const o=el(S,'note','shear first, then rotate',rp({top:'160px',textAlign:'center',color:C.yellow}));
+  show(o,cue(sid,'swap'),.5);
+  shear(cue(sid,'watch')-.6,1.6);
+  rotate(cue(sid,'watch')+1.1,2,S1);
+  const m1=marker(S,svg,0,1,C.green,'(0, 1)',70,-20),m2=marker(S,svg,-1,1,C.red,'(−1, 1)',-30,-62);
+  fadeIn(m1,cue(sid,'zero'),.4);fadeIn(m2,cue(sid,'minus'),.4);
+  const a=el(S,'abs hid',tex('R\\,S=\\begin{bmatrix}{\\color{#83c167}0}&{\\color{#fc6255}-1}\\\\{\\color{#83c167}1}&{\\color{#fc6255}1}\\end{bmatrix}',50),rp({top:'260px',textAlign:'center'}));
+  const b=el(S,'abs hid',tex('\\ne\\; S\\,R=\\begin{bmatrix}1&-1\\\\1&0\\end{bmatrix}',50),rp({top:'420px',textAlign:'center',color:C.dim}));
+  show(a,cue(sid,'different'),.6);show(b,cue(sid,'different')+.6,.6);
+  const om=el(S,'note','order matters',rp({top:'590px',textAlign:'center',color:C.pink}));
+  show(om,cue(sid,'order'),.5);
+  const sk=el(S,'note','socks then shoes ≠ shoes then socks',rp({top:'670px',textAlign:'center',color:C.dim}));
+  show(sk,cue(sid,'socks'),.5);
+  const ab=el(S,'abs hid',tex('AB\\ne BA\\quad\\text{(usually)}',54),rp({top:'780px',textAlign:'center',color:C.ink}));
+  show(ab,cue(sid,'symbols'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S8: grouping does not matter ============ */
+(function(){const S=$('S8');const sid='s8';
+  const g1=el(S,'abs hid',tex('(A\\,B)\\,C\\,\\vec{v}',64),rp({top:'200px',textAlign:'center'}));
+  const g2=el(S,'abs hid',tex('=\\;A\\,(B\\,C)\\,\\vec{v}',64),rp({top:'320px',textAlign:'center'}));
+  show(g1,cue(sid,'group'),.6);show(g2,cue(sid,'first')+.2,.6);
+  const sm=el(S,'note','same motions, same order, same result',rp({top:'470px',textAlign:'center',color:C.ink}));
+  show(sm,cue(sid,'order'),.5);
+  const as=el(S,'note','<span style="color:#f5cf4a">associativity</span>',rp({top:'580px',textAlign:'center'}));
+  show(as,cue(sid,'associativity'),.5);
+  const cl=el(S,'note','so any chain of matrices collapses into one',rp({top:'680px',textAlign:'center',color:C.pink}));
+  show(cl,cue(sid,'collapse'),.5);
+  // three motions in a row: rotate, shear, stretch; then the single product in one go
+  const ST={a:1.3,b:0,c:0,d:.7},ALL=mul(ST,SR);
+  MS.to(cue(sid,'three')-.4,.8,I2);
+  rotate(cue(sid,'three')+.4,1.1);shear(cue(sid,'three')+1.6,1.1,R90);MS.to(cue(sid,'three')+2.8,1.1,ALL);
+  MS.to(cue(sid,'collapse')-.6,.8,I2);MS.to(cue(sid,'collapse')+.3,2,ALL);
+  sceneInOut(sid);
+})();
+
+/* ============ S9: why networks put a bend between layers ============ */
+(function(){const S=$('S9');const sid='s9';
+  const box=(x,y,w,h,html,c)=>el(S,'abs hid',html,{left:x+'px',top:y+'px',width:w+'px',height:h+'px',border:`3px solid ${c}`,borderRadius:'16px',background:'#141a22',textAlign:'center',lineHeight:h+'px',fontSize:'44px',color:c});
+  const arrow=(x,y)=>el(S,'abs hid','→',{left:x+'px',top:(y-34)+'px',width:'70px',textAlign:'center',fontSize:'56px',color:C.dim});
+  // row 1: two linear layers collapse into one
+  const y1=260;
+  const r1=[el(S,'abs hid',tex('\\vec{x}',56),{left:'240px',top:(y1-40)+'px',width:'80px',textAlign:'center'}),arrow(320,y1),box(400,y1-55,200,110,tex('W_1',48),C.yellow),arrow(610,y1),box(690,y1-55,200,110,tex('W_2',48),C.yellow),arrow(900,y1),el(S,'abs hid',tex('\\vec{y}',56),{left:'980px',top:(y1-40)+'px',width:'80px',textAlign:'center'})];
+  show(r1,cue(sid,'layers'),.5,{stagger:.08});
+  const eqv=el(S,'abs hid',`= &nbsp;${tex('(W_2W_1)\\,\\vec{x}',52)} &nbsp;<span style="font-size:38px;font-style:italic;color:${C.dim}">one matrix: nothing new</span>`,{left:'1120px',top:(y1-40)+'px',width:'760px',fontSize:'44px'});
+  show(eqv,cue(sid,'collapse'),.6);
+  // row 2: with a bend in between
+  const y2=560;
+  const bend='<svg width="120" height="70" viewBox="0 0 120 70"><path d="M8 58 L60 58 L112 10" fill="none" stroke="#e77fb3" stroke-width="6" stroke-linecap="round"/></svg>';
+  const r2=[el(S,'abs hid',tex('\\vec{x}',56),{left:'100px',top:(y2-40)+'px',width:'80px',textAlign:'center'}),arrow(180,y2),box(260,y2-55,180,110,tex('W_1',48),C.yellow),arrow(450,y2),
+    el(S,'abs hid',bend,{left:'530px',top:(y2-45)+'px',width:'160px',height:'90px',border:`3px solid ${C.pink}`,borderRadius:'16px',background:'#141a22',paddingTop:'8px',textAlign:'center'}),arrow(700,y2),box(780,y2-55,180,110,tex('W_2',48),C.yellow),arrow(970,y2),el(S,'abs hid',tex('\\vec{y}',56),{left:'1050px',top:(y2-40)+'px',width:'80px',textAlign:'center'})];
+  show(r2,cue(sid,'bend'),.5,{stagger:.08});
+  const nl=el(S,'abs hid','a nonlinearity: the chain can no longer fold into one matrix',{left:'100px',top:(y2+90)+'px',width:'1100px',textAlign:'center',fontSize:'38px',fontStyle:'italic',color:C.pink});
+  show(nl,cue(sid,'nonlinearity'),.5);
+  const dp=el(S,'abs hid','→ depth gives genuinely new power',{left:'1240px',top:(y2-30)+'px',width:'620px',fontSize:'42px',fontStyle:'italic',color:C.teal});
+  show(dp,cue(sid,'depth'),.5);
+  const tr=el(S,'abs hid','a transformer layer: lots of matrix products, separated by bends',{left:'0',top:'900px',width:'1920px',textAlign:'center',fontSize:'42px',fontStyle:'italic',color:C.yellow});
+  show(tr,cue(sid,'transformer'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S10: summary and next ============ */
+(function(){const S=$('S10');const sid='s10';
+  const a=el(S,'abs hid',`${tex('A\\,B',64)} &nbsp;= do <span style="color:#83c167">B</span> first, then <span style="color:#f5cf4a">A</span>`,{left:'0',top:'250px',width:'1920px',textAlign:'center',fontSize:'56px'});
+  show(a,cue(sid,'motion'),.6);
+  const b=el(S,'abs hid','each column of the product = where a basis arrow finally lands',{left:'0',top:'440px',width:'1920px',textAlign:'center',fontSize:'48px',fontStyle:'italic'});
+  show(b,cue(sid,'column'),.6);
+  const c=el(S,'abs hid','how much does a transformation stretch area?',{left:'0',top:'640px',width:'1920px',textAlign:'center',fontSize:'46px',fontStyle:'italic',color:C.dim});
+  show(c,cue(sid,'area'),.6);
+  const next=el(S,'cap','next &nbsp;·&nbsp; 1.5 &nbsp;determinant: how much area gets stretched',{top:'900px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
+  show(next,cue(sid,'determinant'),.7);
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+
+/* KaTeX stacks glyphs (hats, sub/superscripts) on purpose */
+document.querySelectorAll('.katex, .katex *').forEach(e=>e.setAttribute('data-layout-allow-overlap',''));
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{
+  "id": "1.4-composition",
+  "module": 1,
+  "title": "Matrix multiplication as composition",
+  "summary": "Doing one linear transformation after another is again a linear transformation, and its matrix is the product. In S R the right-hand matrix R acts first. Each column of S R is S applied to the matching column of R: follow where î and ĵ end up after both steps. Order matters (S R ≠ R S in general), but grouping does not ((A B) C = A (B C)).",
+  "video": "videos/1.4-composition.mp4",
+  "llm_link": "Two layers that only multiply by matrices collapse into one matrix (W₂W₁), so stacking them adds nothing. That is why every network puts a nonlinearity between layers. Inside a transformer most of the work is still matrix products, separated by these bends.",
+  "key_ideas": [
+    "Composition: apply R, then S. The result is one linear transformation with matrix S R.",
+    "Read products right to left: the matrix closest to the vector acts first, as with f(g(x)).",
+    "Column rule: column j of S R = S × (column j of R). Example: S = [[1, 1], [0, 1]], R = [[0, −1], [1, 0]] give S R = [[1, −1], [1, 0]].",
+    "Order matters: R S = [[0, −1], [1, 1]] is a different matrix. In general A B ≠ B A.",
+    "Grouping doesn't: (A B) C = A (B C) (associativity), so any chain of matrices collapses into one."
+  ],
+  "quiz": [
+    {
+      "q": "In the product S R applied to a vector v (that is, S R v), which transformation happens first?",
+      "options": [
+        "S, because it is written first",
+        "R, because it is closest to the vector",
+        "Both at the same time",
+        "It depends on the vector"
+      ],
+      "answer": 1,
+      "explain": "S R v means S(R v): R acts on v first, then S acts on the result. Read products right to left, the way the vector experiences them."
+    },
+    {
+      "q": "Predict the result: [[2, 0], [0, 1]] · [[0, −1], [1, 0]]",
+      "options": [
+        "[[0, −2], [1, 0]]",
+        "[[0, −1], [2, 0]]",
+        "[[2, −1], [1, 1]]",
+        "[[0, −2], [2, 0]]"
+      ],
+      "answer": 0,
+      "explain": "Column by column: the left matrix stretches x by 2. First column (0, 1) → (0, 1); second column (−1, 0) → (−2, 0). So the product is [[0, −2], [1, 0]]."
+    },
+    {
+      "q": "R is a quarter turn and S is the shear [[1, 1], [0, 1]]. Is S R equal to R S?",
+      "options": [
+        "Yes, matrix multiplication is commutative",
+        "No: S R = [[1, −1], [1, 0]] but R S = [[0, −1], [1, 1]]",
+        "Only for vectors on the diagonal",
+        "Yes, because both are 2×2"
+      ],
+      "answer": 1,
+      "explain": "Rotating then shearing sends ĵ to (−1, 0); shearing then rotating sends it to (−1, 1). Different landing spots, different matrices: order matters."
+    },
+    {
+      "q": "Why does (A B) C equal A (B C)?",
+      "options": [
+        "Because A B = B A",
+        "Because either way the vector goes through C, then B, then A, in that order",
+        "Only when the matrices are square",
+        "It doesn't; you must choose one grouping"
+      ],
+      "answer": 1,
+      "explain": "Grouping only changes which pair you combine first on paper. The vector still experiences C, then B, then A, so the final motion is the same (associativity)."
+    },
+    {
+      "q": "A network computes y = W₂(W₁x) with no nonlinearity in between. What can you say?",
+      "options": [
+        "It is more powerful than a single layer",
+        "It is equivalent to the single matrix W = W₂W₁",
+        "It cannot be computed",
+        "It always outputs zero"
+      ],
+      "answer": 1,
+      "explain": "By associativity, W₂(W₁x) = (W₂W₁)x: one matrix. Depth only adds power when a nonlinearity (ReLU, GELU, ...) sits between the layers."
+    }
+  ],
+  "problems": [
+    {
+      "id": "matmul",
+      "title": "Multiply matrices column by column",
+      "prompt": "<p>Matrices are lists of rows. Write <code>matmul(A, B)</code> that returns the product A B using the column rule: <b>column j of A B is A times column j of B</b>.</p><p><code>matvec</code> from lesson 1.3 and a helper <code>column</code> are included. Build the columns of the answer, then turn them back into rows. If the inner sizes do not match (columns of A ≠ rows of B), raise a <code>ValueError</code>.</p><pre>S = [[1, 1], [0, 1]]\nR = [[0, -1], [1, 0]]\nmatmul(S, R)   # [[1, -1], [1, 0]]\nmatmul(R, S)   # [[0, -1], [1, 1]]</pre>",
+      "starter": "def column(M, j):\n    return [row[j] for row in M]\n\n\ndef matvec(M, v):\n    if len(v) != len(M[0]):\n        raise ValueError(\"vector length must equal the number of columns\")\n    result = [0] * len(M)\n    for j in range(len(v)):\n        for i in range(len(M)):\n            result[i] += v[j] * M[i][j]\n    return result\n\n\ndef matmul(A, B):\n    # TODO 1: raise ValueError if len(A[0]) != len(B)\n\n    # TODO 2: cols = [matvec(A, column(B, j)) for each column j of B]\n\n    # TODO 3: turn the list of columns into a list of rows and return it\n    pass\n",
+      "tests": [
+        {
+          "name": "shear after rotation",
+          "code": "out = matmul([[1, 1], [0, 1]], [[0, -1], [1, 0]])\nassert out is not None, 'matmul returned None'\nassert out == [[1, -1], [1, 0]], f'S R should be [[1, -1], [1, 0]] (i-hat ends at (1, 1), j-hat at (-1, 0)); got {out}'"
+        },
+        {
+          "name": "rotation after shear",
+          "code": "out = matmul([[0, -1], [1, 0]], [[1, 1], [0, 1]])\nassert out == [[0, -1], [1, 1]], f'R S should be [[0, -1], [1, 1]]; got {out}. If you got [[1, -1], [1, 0]], you multiplied in the wrong order.'"
+        },
+        {
+          "name": "identity changes nothing",
+          "code": "A = [[2, 3], [4, 5]]\nassert matmul(A, [[1, 0], [0, 1]]) == A and matmul([[1, 0], [0, 1]], A) == A, 'multiplying by the identity on either side should give A back'"
+        },
+        {
+          "name": "rows, not columns",
+          "code": "out = matmul([[1, 2], [3, 4]], [[5, 6], [7, 8]])\nassert out == [[19, 22], [43, 50]], f'expected [[19, 22], [43, 50]]; got {out}. If you got [[19, 43], [22, 50]], you returned the columns as rows; transpose them.'"
+        },
+        {
+          "name": "non-square shapes",
+          "code": "out = matmul([[1, 2, 3]], [[1], [0], [2]])\nassert out == [[7]], f'(1x3)(3x1) is 1x1: 1*1 + 2*0 + 3*2 = 7; got {out}'"
+        },
+        {
+          "name": "rejects mismatched sizes",
+          "code": "try:\n    matmul([[1, 2], [3, 4]], [[1, 2, 3]])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('A has 2 columns but B has 1 row; expected a ValueError')"
+        }
+      ],
+      "hints": [
+        "cols = [matvec(A, column(B, j)) for j in range(len(B[0]))]",
+        "cols[j][i] is the entry in row i, column j. Rows: [[cols[j][i] for j in range(len(cols))] for i in range(len(A))]"
+      ],
+      "solution": "def column(M, j):\n    return [row[j] for row in M]\n\n\ndef matvec(M, v):\n    if len(v) != len(M[0]):\n        raise ValueError(\"vector length must equal the number of columns\")\n    result = [0] * len(M)\n    for j in range(len(v)):\n        for i in range(len(M)):\n            result[i] += v[j] * M[i][j]\n    return result\n\n\ndef matmul(A, B):\n    if len(A[0]) != len(B):\n        raise ValueError(\"columns of A must equal rows of B\")\n    cols = [matvec(A, column(B, j)) for j in range(len(B[0]))]\n    return [[cols[j][i] for j in range(len(cols))] for i in range(len(A))]\n"
+    },
+    {
+      "id": "order",
+      "title": "Order matters, grouping doesn't (NumPy)",
+      "prompt": "<p>Use NumPy's <code>@</code> operator to check the two facts from the video on random matrices.</p><ul><li><code>commutes(A, B)</code>: return <code>True</code> if A B equals B A (use <code>np.allclose</code>, since floats rarely match exactly).</li><li><code>assoc_holds(A, B, C)</code>: return <code>True</code> if (A B) C equals A (B C).</li><li><code>collapse(layers)</code>: given a list of matrices <code>[W1, W2, W3, ...]</code> applied in that order to a vector (W1 first), return the <b>single</b> matrix that does the same job.</li></ul><pre>x = np.array([1.0, 2.0])\ncollapse([W1, W2]) @ x  # same as W2 @ (W1 @ x)</pre>",
+      "starter": "import numpy as np\n\ndef commutes(A, B):\n    # TODO\n    pass\n\n\ndef assoc_holds(A, B, C):\n    # TODO\n    pass\n\n\ndef collapse(layers):\n    # TODO: start from the identity; each new layer acts AFTER the ones before,\n    #       so it multiplies on the LEFT\n    M = np.eye(layers[0].shape[1])\n    return M\n",
+      "tests": [
+        {
+          "name": "rotation and shear do not commute",
+          "code": "import numpy as np\nR = np.array([[0., -1.], [1., 0.]]); S = np.array([[1., 1.], [0., 1.]])\nassert commutes(R, S) is False or commutes(R, S) == False, 'R S and S R differ, so commutes should be False'"
+        },
+        {
+          "name": "a matrix commutes with itself",
+          "code": "import numpy as np\nA = np.array([[2., 1.], [0., 3.]])\nassert commutes(A, A), 'A A equals A A, so commutes(A, A) should be True'"
+        },
+        {
+          "name": "associativity on random matrices",
+          "code": "import numpy as np\nrng = np.random.default_rng(0)\nA, B, C = rng.normal(size=(3, 3, 3))\nassert assoc_holds(A, B, C), '(A B) C should equal A (B C) up to rounding; are you using np.allclose?'"
+        },
+        {
+          "name": "collapse two layers",
+          "code": "import numpy as np\nW1 = np.array([[0., -1.], [1., 0.]]); W2 = np.array([[1., 1.], [0., 1.]])\nM = collapse([W1, W2])\nassert np.allclose(M, W2 @ W1), f'W1 acts first, so the single matrix is W2 @ W1 = {(W2 @ W1).tolist()}; got {np.round(M, 3).tolist()}'"
+        },
+        {
+          "name": "collapse a deep stack",
+          "code": "import numpy as np\nrng = np.random.default_rng(1)\nWs = [rng.normal(size=(4, 4)) for _ in range(5)]\nx = rng.normal(size=4)\ny = x\nfor W in Ws:\n    y = W @ y\nassert np.allclose(collapse(Ws) @ x, y), 'collapse(Ws) @ x should equal applying the layers one by one'"
+        },
+        {
+          "name": "collapse handles changing sizes",
+          "code": "import numpy as np\nW1 = np.ones((3, 2)); W2 = np.ones((4, 3))\nM = collapse([W1, W2])\nassert M.shape == (4, 2), f'a 2-vector goes to 3 then to 4 entries, so the single matrix is 4x2; got {M.shape}'"
+        }
+      ],
+      "hints": [
+        "commutes: return np.allclose(A @ B, B @ A)",
+        "assoc_holds: return np.allclose((A @ B) @ C, A @ (B @ C))",
+        "collapse: for W in layers: M = W @ M"
+      ],
+      "solution": "import numpy as np\n\ndef commutes(A, B):\n    return bool(np.allclose(A @ B, B @ A))\n\n\ndef assoc_holds(A, B, C):\n    return bool(np.allclose((A @ B) @ C, A @ (B @ C)))\n\n\ndef collapse(layers):\n    M = np.eye(layers[0].shape[1])\n    for W in layers:\n        M = W @ M\n    return M\n"
+    }
+  ]
+}
