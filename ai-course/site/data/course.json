@@ -222,7 +222,8 @@
     },
     {
      "num": "5.8",
-     "title": "k-means clustering"
+     "title": "k-means clustering",
+     "id": "5.8-kmeans"
     },
     {
      "num": "5.9",

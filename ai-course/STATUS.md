@@ -63,3 +63,7 @@ Follow `course.md` § Build pipeline. Use 1.1 (`lessons/1.1-vectors/`) as the re
   - Gradient boosting is described as adding trees sequentially to correct errors left by earlier trees.
   - Tree ensembles are described as among the strongest methods for tabular business data.
   - Mixture-of-experts language models are described as routing each token to a small subset of expert sub-networks.
+- **5.8:**
+  - K-means is described as alternating nearest-centroid assignment and centroid recomputation, monotonically reducing inertia until it reaches a local optimum; k-means++ is described as improving initialization.
+  - The elbow method is described as a heuristic for choosing K, and k-means is described as working best for roughly round, similarly sized clusters.
+  - Vector databases are described as using k-means in inverted-file indexing and product quantization to organize or compress embeddings.
