@@ -1,0 +1,103 @@
+{
+  "id": "10.4-kv-cache",
+  "module": 10,
+  "title": "Context windows and the KV cache",
+  "summary": "With a causal mask, a token's keys and values never change once computed, so generation stores them in a KV cache instead of recomputing the whole prefix at every step. Each step then processes only the new token. The price is memory: 2 × layers × KV heads × head dimension × bytes × tokens, about half a megabyte per token for a Llama-2-7B-shaped model in 16-bit. Multi-query and grouped-query attention and paged memory shrink or organise that cost.",
+  "video": "videos/10.4-kv-cache.mp4",
+  "llm_link": "This is why API pricing often separates input (prefill) from output (decode) tokens, why the first token of a long prompt is slow, why long contexts cost more to serve, and why prompt caching can make a repeated long prefix much cheaper: the stored keys and values for that prefix are reused.",
+  "key_ideas": [
+    "Generation loop: run the model, sample one token, append, repeat.",
+    "Causal mask ⇒ keys and values at position i depend only on tokens ≤ i, so they never change once computed.",
+    "KV cache: per layer, store K and V for all past tokens; each step computes q, k, v for the new token only, appends k and v, and attends q over the cache.",
+    "Prefill (the prompt, in parallel, fills the cache) vs decode (one token per step, reading all weights and the whole cache: usually memory-bandwidth bound).",
+    "Cache bytes = 2 × n_layers × n_kv_heads × head_dim × bytes_per_value × n_tokens (× batch). Llama-2-7B shape (32 layers, 32 heads, head_dim 128, fp16): 0.5 MiB per token, 2 GiB at 4,096 tokens.",
+    "Multi-query attention (Shazeer, 2019) shares one K/V head across all query heads; grouped-query attention (Ainslie et al., 2023) shares each K/V head within a group. Llama 2 70B uses 8 KV heads.",
+    "PagedAttention (vLLM, Kwon et al., 2023) stores the cache in fixed-size blocks to avoid wasted memory."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: a model has 32 layers, 8 KV heads, head dimension 128, and stores values in 16-bit (2 bytes). How many bytes of KV cache per token?",
+      "options": ["131,072 (128 KiB)", "524,288 (512 KiB)", "65,536 (64 KiB)", "16,384 (16 KiB)"],
+      "answer": 0,
+      "explain": "2 (K and V) × 32 × 8 × 128 × 2 bytes = 131,072 bytes. With 32 KV heads it would be 4× more: grouped-query attention cut the cache by the ratio of query heads to KV heads."
+    },
+    {
+      "q": "Why can keys and values of earlier tokens be cached at all?",
+      "options": ["Because embeddings are frozen", "Because the causal mask means they depend only on earlier tokens, which do not change as new tokens are added", "Because attention is linear", "Because the model uses the same weights for every layer"],
+      "answer": 1,
+      "explain": "Adding token t+1 cannot change anything computed for positions ≤ t, since those positions never attend to the future."
+    },
+    {
+      "q": "With a KV cache, what does one decode step compute for the new token?",
+      "options": ["Queries, keys and values for every token in the sequence", "Its own query, key and value; one row of attention scores against all cached keys", "Only the final softmax", "Nothing: tokens are read from the cache"],
+      "answer": 1,
+      "explain": "The new token gets a fresh q, k, v per layer. Its k and v are appended to the cache and its q is dotted with every cached key."
+    },
+    {
+      "q": "A server's KV cache budget is 40 GB and each user's conversation needs 2 GB of cache. Roughly how many such conversations fit at once?",
+      "options": ["2", "20", "80", "400"],
+      "answer": 1,
+      "explain": "40 / 2 = 20. The cache, not the weights, often decides how many users a GPU can serve at a given context length."
+    },
+    {
+      "q": "Why is the first token of a response to a very long prompt slower than the following tokens?",
+      "options": ["The tokenizer is slow on long input", "The prefill must process the whole prompt to fill the cache before the first new token can be produced", "The model reloads its weights for the first token", "Sampling is slower at the start"],
+      "answer": 1,
+      "explain": "Time to first token is dominated by prefill. After that, each decode step only processes one new token against the cache."
+    }
+  ],
+  "problems": [
+    {
+      "id": "size",
+      "title": "How big is the cache?",
+      "prompt": "<p>Write <code>kv_cache_bytes(n_layers, n_kv_heads, head_dim, n_tokens, bytes_per_value=2, batch=1)</code> using</p><p><code>2 × n_layers × n_kv_heads × head_dim × bytes_per_value × n_tokens × batch</code></p><p>The leading 2 is for keys <i>and</i> values.</p><pre>kv_cache_bytes(32, 32, 128, 4096)   # 2147483648 (2 GiB): Llama-2-7B shape</pre>",
+      "starter": "def kv_cache_bytes(n_layers, n_kv_heads, head_dim, n_tokens, bytes_per_value=2, batch=1):\n    # TODO: keys and values, in every layer, for every KV head, every token\n    pass\n",
+      "tests": [
+        {"name": "Llama-2-7B shape at 4096 tokens", "code": "out = kv_cache_bytes(32, 32, 128, 4096)\nassert out is not None, 'kv_cache_bytes returned None'\nassert out == 2 * 1024**3, f'expected 2 GiB = 2147483648 bytes, got {out}. Did you forget the factor 2 for keys AND values?'"},
+        {"name": "half a megabyte per token", "code": "out = kv_cache_bytes(32, 32, 128, 1)\nassert out == 524288, f'one token should take 2*32*32*128*2 = 524288 bytes, got {out}'"},
+        {"name": "grouped-query attention", "code": "full = kv_cache_bytes(80, 64, 128, 1000); gqa = kv_cache_bytes(80, 8, 128, 1000)\nassert full == 8 * gqa, 'with 8 KV heads instead of 64 the cache should be 8 times smaller'"},
+        {"name": "batch and precision scale it", "code": "a = kv_cache_bytes(10, 4, 64, 100)\nassert kv_cache_bytes(10, 4, 64, 100, batch=3) == 3 * a, 'three users need three caches'\nassert kv_cache_bytes(10, 4, 64, 100, bytes_per_value=1) * 2 == a, '8-bit values (1 byte) should halve the cache compared with 16-bit'"}
+      ],
+      "hints": [
+        "It is a single product of all the arguments, times 2.",
+        "return 2 * n_layers * n_kv_heads * head_dim * bytes_per_value * n_tokens * batch"
+      ],
+      "solution": "def kv_cache_bytes(n_layers, n_kv_heads, head_dim, n_tokens, bytes_per_value=2, batch=1):\n    return 2 * n_layers * n_kv_heads * head_dim * bytes_per_value * n_tokens * batch\n"
+    },
+    {
+      "id": "cached",
+      "title": "Attention with a cache (NumPy)",
+      "prompt": "<p>One attention head, one layer. The input <code>X</code> has shape <code>(T, d)</code>: one row per token. <code>attend(q, K, V)</code> is given: it attends a single query over the rows of <code>K</code> and <code>V</code>.</p><p>Write <code>decode_with_cache(X, Wq, Wk, Wv)</code> that processes the tokens <b>one at a time</b>, the way generation does. For token <code>t</code>: compute <code>q, k, v</code> from <code>X[t]</code>, append <code>k</code> and <code>v</code> to the cache lists, and attend <code>q</code> over everything cached so far. Return the stacked outputs, shape <code>(T, d_head)</code>, and the final cache length.</p><p>The tests compare your answer with full causal attention computed all at once: they must match exactly, which is the whole point of the cache.</p>",
+      "starter": "import numpy as np\n\ndef attend(q, K, V):\n    # q: (d_head,), K and V: (n, d_head)\n    scores = K @ q / np.sqrt(q.shape[0])\n    w = np.exp(scores - scores.max())\n    w = w / w.sum()\n    return w @ V\n\ndef decode_with_cache(X, Wq, Wk, Wv):\n    k_cache, v_cache = [], []\n    outputs = []\n    for t in range(X.shape[0]):\n        x = X[t]\n        # TODO 1: q, k, v for this token only (x @ Wq, x @ Wk, x @ Wv)\n        # TODO 2: append k and v to the caches\n        # TODO 3: attend q over np.array(k_cache), np.array(v_cache); append to outputs\n        pass\n    return np.array(outputs), len(k_cache)\n",
+      "tests": [
+        {"name": "matches full causal attention", "code": "import numpy as np\nrng = np.random.default_rng(0)\nT, d, h = 6, 8, 4\nX = rng.normal(size=(T, d)); Wq, Wk, Wv = (rng.normal(size=(d, h)) for _ in range(3))\nQ, K, V = X @ Wq, X @ Wk, X @ Wv\nS = Q @ K.T / np.sqrt(h); S = S + np.triu(np.full((T, T), -np.inf), 1)\nW = np.exp(S - S.max(axis=1, keepdims=True)); W = W / W.sum(axis=1, keepdims=True)\nref = W @ V\nout, n = decode_with_cache(X, Wq, Wk, Wv)\nassert out.shape == (T, h), f'expected outputs of shape {(T, h)}, got {out.shape}'\nassert np.allclose(out, ref), 'outputs differ from full causal attention. Each token must attend over the cache INCLUDING its own key and value, and never over later tokens.'"},
+        {"name": "the cache holds every token", "code": "import numpy as np\nrng = np.random.default_rng(1)\nX = rng.normal(size=(5, 3)); W = rng.normal(size=(3, 2))\nout, n = decode_with_cache(X, W, W, W)\nassert n == 5, f'after 5 tokens the cache should hold 5 keys, got {n}'"},
+        {"name": "first token attends only to itself", "code": "import numpy as np\nrng = np.random.default_rng(2)\nX = rng.normal(size=(3, 4)); Wq, Wk, Wv = (rng.normal(size=(4, 4)) for _ in range(3))\nout, n = decode_with_cache(X, Wq, Wk, Wv)\nassert np.allclose(out[0], X[0] @ Wv), 'with only one cached token, the softmax weight is 1, so output 0 must equal its own value vector'"}
+      ],
+      "hints": [
+        "q = x @ Wq; k = x @ Wk; v = x @ Wv",
+        "Append before attending, so the token can see itself: k_cache.append(k); v_cache.append(v)",
+        "outputs.append(attend(q, np.array(k_cache), np.array(v_cache)))"
+      ],
+      "solution": "import numpy as np\n\ndef attend(q, K, V):\n    scores = K @ q / np.sqrt(q.shape[0])\n    w = np.exp(scores - scores.max())\n    w = w / w.sum()\n    return w @ V\n\ndef decode_with_cache(X, Wq, Wk, Wv):\n    k_cache, v_cache = [], []\n    outputs = []\n    for t in range(X.shape[0]):\n        x = X[t]\n        q, k, v = x @ Wq, x @ Wk, x @ Wv\n        k_cache.append(k)\n        v_cache.append(v)\n        outputs.append(attend(q, np.array(k_cache), np.array(v_cache)))\n    return np.array(outputs), len(k_cache)\n"
+    },
+    {
+      "id": "fit",
+      "title": "How many users fit?",
+      "prompt": "<p>A GPU has <code>gpu_bytes</code> of memory. The model's weights take <code>weight_bytes</code>, and the rest is available for KV caches. Write <code>max_users(gpu_bytes, weight_bytes, bytes_per_token, context_tokens)</code>: how many conversations of <code>context_tokens</code> tokens can be served at once? Round down, and return 0 if the weights alone do not leave room for one.</p><pre>GB = 1e9\nmax_users(80*GB, 14*GB, 524288, 4096)   # 30</pre>",
+      "starter": "def max_users(gpu_bytes, weight_bytes, bytes_per_token, context_tokens):\n    # TODO 1: memory left after the weights (never negative)\n    # TODO 2: cache needed by one conversation\n    # TODO 3: how many whole conversations fit (use //)\n    pass\n",
+      "tests": [
+        {"name": "7B model on an 80 GB GPU", "code": "out = max_users(80e9, 14e9, 524288, 4096)\nassert out == 30, f'66 GB free / 2.147 GB per conversation = 30.7, so 30 fit; got {out}'"},
+        {"name": "returns a whole number", "code": "out = max_users(80e9, 14e9, 524288, 4096)\nassert isinstance(out, int), f'expected an int (users are whole), got {type(out).__name__}. Use // and int().'"},
+        {"name": "shorter contexts serve more users", "code": "assert max_users(80e9, 14e9, 524288, 1024) > max_users(80e9, 14e9, 524288, 4096), 'a quarter of the context should fit about four times as many users'"},
+        {"name": "no room left", "code": "out = max_users(16e9, 20e9, 524288, 4096)\nassert out == 0, f'if the weights do not even fit there is room for 0 users, got {out}'"}
+      ],
+      "hints": [
+        "free = max(0, gpu_bytes - weight_bytes)",
+        "per_user = bytes_per_token * context_tokens",
+        "return int(free // per_user)"
+      ],
+      "solution": "def max_users(gpu_bytes, weight_bytes, bytes_per_token, context_tokens):\n    free = max(0, gpu_bytes - weight_bytes)\n    per_user = bytes_per_token * context_tokens\n    return int(free // per_user)\n"
+    }
+  ]
+}
