@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "To compute the exact gradient, you have to look at every example in the training set. For a language model that means billions of tokens for a single step, which would make training impossibly slow. The way out is to estimate the gradient from a small random sample."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The loss is an average over examples, so its gradient is an average of the gradients of the individual examples. Each example pulls the parameters in its own direction, and the true gradient is the average of all those pulls."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Stochastic gradient descent picks a single random example and follows its pull alone. Each step is cheap but noisy, like asking one passer-by for directions instead of polling a crowd, so the path wanders. Still, on average the noisy steps point the right way, because the expected value of one random example's gradient is exactly the true gradient."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "A mini-batch is the compromise. Average the gradients of a few dozen random examples and the noise shrinks, because averaging reduces the spread of a random estimate, while each step stays far cheaper than a pass over all the data. Modern hardware also processes the examples of a batch in parallel, so a moderate batch costs little more time than a single example."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Training then cycles through the data in shuffled mini-batches, and one full pass is called an epoch. The noise that remains is not purely a nuisance: it jostles the parameters, which can help them escape flat regions and shallow dips where exact gradient descent would stall."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "Large language models are trained this way, on batches of token sequences rather than on the whole corpus at once. Next, in lesson four point five, we give the steps a memory, with momentum and the Adam optimiser."
+ }
+]
