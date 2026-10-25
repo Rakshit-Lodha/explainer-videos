@@ -1,0 +1,104 @@
+{
+  "id": "10.1-scaling-laws",
+  "module": 10,
+  "title": "Pretraining and scaling laws",
+  "summary": "Pretraining is next-token prediction on unlabeled text at enormous scale. Its loss falls as a power law in model size, data and compute, which is a straight line on log-log axes, so a lab can forecast a run before paying for it. Chinchilla showed that, for a fixed compute budget, parameters and tokens should grow together; in practice models are often trained past that point because serving them is the bigger cost.",
+  "video": "videos/10.1-scaling-laws.mp4",
+  "llm_link": "Every model you have called through an API started as a pretrained next-token predictor whose size and training-set size were chosen with a scaling law. The compute rule C ≈ 6·N·D is the back-of-envelope every lab uses to price a run.",
+  "key_ideas": [
+    "Pretraining objective: minimise the cross-entropy of the next token over a huge unlabeled corpus. The text supplies its own labels.",
+    "Training compute is about 6·N·D floating point operations: roughly 2N per token for the forward pass and 4N for the backward pass (N parameters, D tokens).",
+    "Kaplan et al. (2020): test loss follows a power law in N, D and compute when the other two are not the bottleneck. A power law L = (N_c / N)^α is a straight line on log-log axes with slope −α.",
+    "Hoffmann et al. (2022, Chinchilla) fitted L(N, D) = E + A/N^α + B/D^β. E is the irreducible loss; the other terms shrink with model size and data.",
+    "Chinchilla's conclusion: for compute-optimal training, scale parameters and tokens in equal proportion. Chinchilla (70B parameters, 1.4T tokens) beat Gopher (280B, 300B tokens) on the same compute.",
+    "Compute-optimal is not deployment-optimal: Llama trained smaller models on more tokens because a cheaper-to-serve model pays off over many queries.",
+    "Scaling laws forecast loss, not specific skills; task-level performance can change much less smoothly."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: roughly how many floating point operations does it take to train a 7-billion-parameter model on 1 trillion tokens?",
+      "options": ["About 7 × 10^21", "About 4 × 10^22", "About 4 × 10^19", "About 6 × 10^12"],
+      "answer": 1,
+      "explain": "C ≈ 6·N·D = 6 × 7×10^9 × 10^12 = 4.2 × 10^22. The 6 comes from about 2 operations per parameter per token forward and about 4 backward."
+    },
+    {
+      "q": "Loss follows L = (N_c / N)^α. What does this look like on a plot with log(N) on the x-axis and log(L) on the y-axis?",
+      "options": ["An exponential curve", "A straight line with slope −α", "A parabola", "A horizontal line at N_c"],
+      "answer": 1,
+      "explain": "log L = α·log N_c − α·log N, which is linear in log N with slope −α. That is why scaling plots are drawn on log-log axes and extrapolated with a ruler."
+    },
+    {
+      "q": "What did the Chinchilla paper conclude about spending a fixed compute budget?",
+      "options": ["Put almost all of it into model size", "Grow parameters and training tokens in roughly equal proportion", "Train for exactly one epoch on as little data as possible", "Model size does not matter, only data"],
+      "answer": 1,
+      "explain": "Hoffmann et al. found the compute-optimal model size and token count should scale equally, so a 4× smaller model trained on more than 4× more data (Chinchilla vs Gopher) did better for the same compute."
+    },
+    {
+      "q": "Why would a lab train a 7B model on far more tokens than the compute-optimal amount?",
+      "options": ["Because scaling laws stop working for small models", "Because a smaller model is cheaper to run for every query after training, which can outweigh the extra training cost", "Because more tokens reduce the irreducible loss E", "Because the 6·N·D rule only applies to large models"],
+      "answer": 1,
+      "explain": "Compute-optimal minimises training cost for a target loss. If the model will answer millions of queries, a smaller model trained longer can be cheaper overall. The first Llama paper made this argument explicitly."
+    },
+    {
+      "q": "In Chinchilla's fit L(N, D) = E + A/N^α + B/D^β, what does E represent for a language model?",
+      "options": ["The loss of a model with zero parameters", "A floor no model can go below, because text itself is partly unpredictable", "The embedding dimension", "The number of epochs"],
+      "answer": 1,
+      "explain": "As N and D grow the two fractions shrink toward zero, leaving E: the part of next-token uncertainty that is genuinely in the text, which no model can remove."
+    }
+  ],
+  "problems": [
+    {
+      "id": "budget",
+      "title": "Price a training run",
+      "prompt": "<p>Write two functions.</p><p><code>train_flops(n_params, n_tokens)</code> returns the approximate training compute <code>6 · N · D</code>.</p><p><code>chinchilla_loss(n_params, n_tokens)</code> returns the Chinchilla paper's fitted loss <code>E + A / N**alpha + B / D**beta</code> with <code>E = 1.69, A = 406.4, B = 410.7, alpha = 0.34, beta = 0.28</code>.</p><pre>train_flops(70e9, 1.4e12)        # 5.88e23\nchinchilla_loss(70e9, 1.4e12)    # about 1.94</pre><p>Then check the story from the video: Chinchilla (70B params, 1.4T tokens) and Gopher (280B params, 300B tokens) cost about the same, yet the fit says Chinchilla's loss is lower.</p>",
+      "starter": "E, A, B, ALPHA, BETA = 1.69, 406.4, 410.7, 0.34, 0.28\n\ndef train_flops(n_params, n_tokens):\n    # TODO: about 2 operations per parameter per token forward, 4 backward\n    pass\n\ndef chinchilla_loss(n_params, n_tokens):\n    # TODO: E + A / N**ALPHA + B / D**BETA\n    pass\n",
+      "tests": [
+        {"name": "6ND for Chinchilla", "code": "out = train_flops(70e9, 1.4e12)\nassert out is not None, 'train_flops returned None; did you forget return?'\nassert abs(out - 5.88e23) / 5.88e23 < 1e-9, f'expected 6 * 70e9 * 1.4e12 = 5.88e23, got {out}. The rule is 6 * N * D: 2 per parameter per token forward plus 4 backward.'"},
+        {"name": "compute is linear in both", "code": "a = train_flops(1e9, 1e10); b = train_flops(2e9, 1e10); c = train_flops(1e9, 3e10)\nassert abs(b / a - 2) < 1e-9 and abs(c / a - 3) < 1e-9, 'doubling parameters should double compute, and tripling tokens should triple it'"},
+        {"name": "loss for Chinchilla", "code": "out = chinchilla_loss(70e9, 1.4e12)\nassert out is not None, 'chinchilla_loss returned None'\nassert abs(out - 1.9366) < 1e-3, f'expected about 1.9366, got {out}. Check that you divide A by N**ALPHA (not multiply), and B by D**BETA.'"},
+        {"name": "Chinchilla beats Gopher at similar cost", "code": "cg, cc = train_flops(280e9, 300e9), train_flops(70e9, 1.4e12)\nassert abs(cc / cg - 1) < 0.2, 'by 6ND the two runs should cost within 20% of each other (the paper reports the same budget for both)'\nlg, lc = chinchilla_loss(280e9, 300e9), chinchilla_loss(70e9, 1.4e12)\nassert lc < lg, f'Chinchilla should have the lower fitted loss, got Chinchilla {lc:.3f} vs Gopher {lg:.3f}'"},
+        {"name": "loss never goes below E", "code": "out = chinchilla_loss(1e20, 1e20)\nassert 1.69 < out < 1.70, f'with huge N and D the loss should approach the floor E = 1.69 from above, got {out}'"}
+      ],
+      "hints": [
+        "train_flops is one line: return 6 * n_params * n_tokens",
+        "In Python, N ** ALPHA raises N to a power. A / N ** ALPHA divides A by that (** binds tighter than /)."
+      ],
+      "solution": "E, A, B, ALPHA, BETA = 1.69, 406.4, 410.7, 0.34, 0.28\n\ndef train_flops(n_params, n_tokens):\n    return 6 * n_params * n_tokens\n\ndef chinchilla_loss(n_params, n_tokens):\n    return E + A / n_params ** ALPHA + B / n_tokens ** BETA\n"
+    },
+    {
+      "id": "optimal",
+      "title": "Spend a fixed budget (NumPy)",
+      "prompt": "<p>With a fixed compute budget <code>C</code>, choosing the model size <code>N</code> also fixes the data: <code>D = C / (6 N)</code>. Write <code>best_split(C)</code> that tries model sizes on a log-spaced grid, computes the fitted loss for each, and returns <code>(N, D)</code> for the lowest loss.</p><pre>N_grid = np.logspace(7, 13, 4001)   # 10 million to 10 trillion parameters</pre><p>Both functions from the previous problem are included. Note that this parametric fit is only one of the three methods in the Chinchilla paper, and its optimum is not identical to the others; the paper's headline result is the equal-proportion scaling, which you will check in the last test.</p>",
+      "starter": "import numpy as np\nE, A, B, ALPHA, BETA = 1.69, 406.4, 410.7, 0.34, 0.28\n\ndef chinchilla_loss(n_params, n_tokens):\n    return E + A / n_params ** ALPHA + B / n_tokens ** BETA\n\ndef best_split(C):\n    N_grid = np.logspace(7, 13, 4001)\n    # TODO 1: the tokens each model size can afford: D = C / (6 N)  (works on the whole array at once)\n    # TODO 2: the loss for every (N, D) pair\n    # TODO 3: index of the smallest loss (np.argmin), return (N, D) at that index\n    pass\n",
+      "tests": [
+        {"name": "returns a pair that spends the budget", "code": "out = best_split(1e21)\nassert out is not None, 'best_split returned None'\nN, D = out\nassert abs(6 * N * D / 1e21 - 1) < 1e-6, f'6*N*D should equal the budget C, got {6*N*D:.3e}. Did you compute D = C / (6 * N)?'"},
+        {"name": "finds the minimum", "code": "import numpy as np\nN, D = best_split(1e21)\nNs = np.logspace(7, 13, 200001); Ls = chinchilla_loss(Ns, 1e21 / (6 * Ns)); Nref = Ns[np.argmin(Ls)]\nassert abs(N / Nref - 1) < 0.02, f'expected N near {Nref:.3e}, got {N:.3e}. Use np.argmin on the loss array, not np.argmax.'"},
+        {"name": "more compute buys a bigger model and more data", "code": "N1, D1 = best_split(1e21); N2, D2 = best_split(1e23)\nassert N2 > N1 and D2 > D1, 'with 100x the budget, both the optimal model size and the optimal token count should grow'"},
+        {"name": "both grow at similar rates", "code": "import numpy as np\nN1, D1 = best_split(1e21); N2, D2 = best_split(1e25)\ngN, gD = np.log(N2 / N1), np.log(D2 / D1)\nassert 0.6 < gN / gD < 1.6, f'over 10,000x more compute, log-growth of N and D should be comparable (ratio near 1), got {gN/gD:.2f}'"}
+      ],
+      "hints": [
+        "NumPy arrays do arithmetic element by element, so D = C / (6 * N_grid) gives one D per model size.",
+        "loss = chinchilla_loss(N_grid, D) is also an array. i = np.argmin(loss) is the position of its smallest value.",
+        "return N_grid[i], D[i]"
+      ],
+      "solution": "import numpy as np\nE, A, B, ALPHA, BETA = 1.69, 406.4, 410.7, 0.34, 0.28\n\ndef chinchilla_loss(n_params, n_tokens):\n    return E + A / n_params ** ALPHA + B / n_tokens ** BETA\n\ndef best_split(C):\n    N_grid = np.logspace(7, 13, 4001)\n    D = C / (6 * N_grid)\n    loss = chinchilla_loss(N_grid, D)\n    i = np.argmin(loss)\n    return N_grid[i], D[i]\n"
+    },
+    {
+      "id": "fit",
+      "title": "Read the slope off a log-log plot",
+      "prompt": "<p>Below are losses from a family of models that follow a pure power law <code>L = (Nc / N) ** alpha</code>. Write <code>fit_power_law(N, L)</code> that recovers <code>alpha</code> and <code>Nc</code>.</p><p>Take logarithms: <code>log L = alpha·log Nc − alpha·log N</code>. That is a straight line in <code>log N</code>, so <code>np.polyfit(np.log(N), np.log(L), 1)</code> gives you its slope and intercept. Turn those back into <code>alpha</code> and <code>Nc</code>.</p><pre>N = np.array([1e6, 1e7, 1e8, 1e9])\nL = (8.8e13 / N) ** 0.076\nfit_power_law(N, L)    # (0.076, 8.8e13)</pre>",
+      "starter": "import numpy as np\n\ndef fit_power_law(N, L):\n    # TODO 1: slope, intercept = np.polyfit(np.log(N), np.log(L), 1)\n    # TODO 2: alpha is minus the slope\n    # TODO 3: intercept = alpha * log(Nc), so Nc = exp(intercept / alpha)\n    pass\n",
+      "tests": [
+        {"name": "recovers alpha", "code": "import numpy as np\nN = np.array([1e6, 1e7, 1e8, 1e9]); L = (8.8e13 / N) ** 0.076\nout = fit_power_law(N, L)\nassert out is not None, 'fit_power_law returned None'\na, Nc = out\nassert abs(a - 0.076) < 1e-6, f'expected alpha = 0.076, got {a}. The slope of log L against log N is negative; alpha is minus the slope.'"},
+        {"name": "recovers Nc", "code": "import numpy as np\nN = np.array([1e6, 1e7, 1e8, 1e9]); L = (8.8e13 / N) ** 0.076\na, Nc = fit_power_law(N, L)\nassert abs(Nc / 8.8e13 - 1) < 1e-4, f'expected Nc = 8.8e13, got {Nc:.3e}. The intercept equals alpha * log(Nc).'"},
+        {"name": "works for another power law", "code": "import numpy as np\nN = np.logspace(3, 9, 7); L = (5.4e13 / N) ** 0.095\na, Nc = fit_power_law(N, L)\nassert abs(a - 0.095) < 1e-6 and abs(Nc / 5.4e13 - 1) < 1e-4, f'expected (0.095, 5.4e13), got ({a}, {Nc:.3e})'"}
+      ],
+      "hints": [
+        "np.polyfit(x, y, 1) returns [slope, intercept] for the best straight line y = slope*x + intercept.",
+        "If log L = alpha*log(Nc) - alpha*log(N), the slope is -alpha and the intercept is alpha*log(Nc).",
+        "alpha = -slope; Nc = np.exp(intercept / alpha)"
+      ],
+      "solution": "import numpy as np\n\ndef fit_power_law(N, L):\n    slope, intercept = np.polyfit(np.log(N), np.log(L), 1)\n    alpha = -slope\n    Nc = np.exp(intercept / alpha)\n    return alpha, Nc\n"
+    }
+  ]
+}
