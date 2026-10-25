@@ -1,0 +1,150 @@
+{
+ "id": "2.3-partial-derivatives",
+ "module": 2,
+ "title": "Partial derivatives",
+ "summary": "A function of several inputs is a landscape. A partial derivative freezes every input but one, which turns the landscape into an ordinary curve along one slice, and takes that curve's slope. To compute it, treat the other variables as constants; to check it, nudge one input and divide.",
+ "video": "videos/2.3-partial-derivatives.mp4",
+ "llm_link": "A language model's loss is one number that depends on billions of weights. Every training step needs ∂loss/∂w for each weight: one partial derivative per weight, computed all at once by backpropagation.",
+ "key_ideas": [
+  "f(x, y) is a landscape: (x, y) is where you stand, f is the height of the ground.",
+  "∂f/∂x: hold y fixed, walk along the east–west slice, take that curve's ordinary slope. The curly ∂ says the other inputs are held still.",
+  "Compute it by treating every other variable as a constant: for f = x² + 2y², ∂f/∂x = 2x and ∂f/∂y = 4y.",
+  "For a smooth surface, the partials facing east and north determine the slope facing any direction: (∂f/∂x)·cos θ + (∂f/∂y)·sin θ.",
+  "Numerically: nudge one input by h, leave the others alone, divide the change by h. Slow for millions of inputs, but the standard way to check backpropagation."
+ ],
+ "quiz": [
+  {
+   "q": "What does ∂f/∂y measure?",
+   "options": [
+    "The slope of f when every input moves together",
+    "How f changes when only y is nudged and every other input is held fixed",
+    "The value of f at y = 0",
+    "The average of f over y"
+   ],
+   "answer": 1,
+   "explain": "A partial derivative freezes all other inputs, so it is the ordinary slope along the slice where only y varies."
+  },
+  {
+   "q": "Predict the result: f(x, y) = x²y + 3y. What is ∂f/∂x at (x, y) = (2, 5)?",
+   "options": [
+    "4",
+    "20",
+    "23",
+    "10"
+   ],
+   "answer": 1,
+   "explain": "Treat y as a constant: ∂f/∂x = 2x·y (3y has no x, so its slope is 0). At (2, 5): 2·2·5 = 20."
+  },
+  {
+   "q": "For f = x² + 2y², why is the 2y² term ignored when computing ∂f/∂x?",
+   "options": [
+    "Because it is smaller than x²",
+    "Because y is held fixed, so 2y² is a constant and its slope in x is 0",
+    "Because squares always cancel",
+    "It is not ignored; ∂f/∂x = 2x + 4y"
+   ],
+   "answer": 1,
+   "explain": "Along the east–west slice y does not move, so 2y² is just a constant height offset, which has zero slope."
+  },
+  {
+   "q": "At a point, ∂f/∂x = 2 and ∂f/∂y = 4. What is the slope facing exactly north-east (θ = 45°)?",
+   "options": [
+    "6",
+    "3",
+    "6/√2 ≈ 4.24",
+    "8"
+   ],
+   "answer": 2,
+   "explain": "2·cos 45° + 4·sin 45° = (2 + 4)/√2 ≈ 4.24. Two partials are enough to get the slope in any direction."
+  },
+  {
+   "q": "A model has 1 billion weights. Why don't we compute ∂loss/∂w for each weight by nudging it numerically?",
+   "options": [
+    "Numerical nudging gives the wrong sign",
+    "It would need a separate forward pass for every weight, about a billion passes per step; backpropagation gets them all in one backward pass",
+    "Partial derivatives do not exist for weights",
+    "Nudging only works for two inputs"
+   ],
+   "answer": 1,
+   "explain": "Each nudge only reveals one partial. Backpropagation computes every partial at once, and numerical nudging is kept as a spot check."
+  }
+ ],
+ "problems": [
+  {
+   "id": "handpartials",
+   "title": "Partials by hand",
+   "prompt": "<p>For <code>f(x, y) = x**2 * y + 3*y</code>, write the two partial derivatives as functions, treating the other variable as a constant:</p><ul><li><code>df_dx(x, y)</code></li><li><code>df_dy(x, y)</code></li></ul><p>The tests compare your formulas with a numerical nudge, so a wrong formula is caught at several points.</p>",
+   "starter": "def f(x, y):\n    return x**2 * y + 3 * y\n\ndef df_dx(x, y):\n    # TODO: y is a constant here. What is the slope of x**2 * y in x? And of 3*y?\n    pass\n\ndef df_dy(x, y):\n    # TODO: x is a constant here.\n    pass\n",
+   "tests": [
+    {
+     "name": "∂f/∂x at (2, 5)",
+     "code": "out = df_dx(2, 5)\nassert out == 20, f'treat y as a constant: d/dx (x² y) = 2xy = 20, and 3y has no x. Got {out}'"
+    },
+    {
+     "name": "∂f/∂y at (2, 5)",
+     "code": "out = df_dy(2, 5)\nassert out == 7, f'treat x as a constant: d/dy (x² y + 3y) = x² + 3 = 7. Got {out}'"
+    },
+    {
+     "name": "matches a numerical nudge everywhere",
+     "code": "def f(x, y):\n    return x**2 * y + 3 * y\nh = 1e-6\nfor (x, y) in [(-1.5, 2), (0.3, -4), (3, 0.5)]:\n    nx = (f(x + h, y) - f(x - h, y)) / (2 * h)\n    ny = (f(x, y + h) - f(x, y - h)) / (2 * h)\n    assert abs(df_dx(x, y) - nx) < 1e-5, f'at ({x}, {y}) the numerical ∂f/∂x is {nx:.4f}, yours is {df_dx(x, y)}'\n    assert abs(df_dy(x, y) - ny) < 1e-5, f'at ({x}, {y}) the numerical ∂f/∂y is {ny:.4f}, yours is {df_dy(x, y)}'"
+    }
+   ],
+   "hints": [
+    "∂/∂x of x²·y is 2x·y (y is just a number multiplying x²). ∂/∂x of 3y is 0.",
+    "∂/∂y of x²·y is x² (x² is a number multiplying y). ∂/∂y of 3y is 3."
+   ],
+   "solution": "def f(x, y):\n    return x**2 * y + 3 * y\n\ndef df_dx(x, y):\n    return 2 * x * y\n\ndef df_dy(x, y):\n    return x**2 + 3\n"
+  },
+  {
+   "id": "numgrad",
+   "title": "All partials, numerically",
+   "prompt": "<p>Write <code>partials(f, xs, h=1e-6)</code>. <code>f</code> takes a list of numbers and returns one number; <code>xs</code> is a list. Return a list with one partial derivative per input: for each index <code>i</code>, nudge only <code>xs[i]</code> by <code>h</code> (on a <b>copy</b> of the list) and compute <code>(f(bumped) - f(xs)) / h</code>.</p><pre>f = lambda v: v[0]**2 + 2 * v[1]**2\npartials(f, [1.0, 1.0])   # about [2.0, 4.0]</pre>",
+   "starter": "def partials(f, xs, h=1e-6):\n    result = []\n    base = f(xs)\n    for i in range(len(xs)):\n        # TODO 1: bumped = list(xs)   (a copy, so xs itself is not changed)\n        # TODO 2: bumped[i] += h\n        # TODO 3: result.append((f(bumped) - base) / h)\n        pass\n    return result\n",
+   "tests": [
+    {
+     "name": "the lesson's bowl",
+     "code": "out = partials(lambda v: v[0]**2 + 2 * v[1]**2, [1.0, 1.0])\nassert len(out) == 2, f'one partial per input: expected 2 numbers, got {out}'\nassert abs(out[0] - 2) < 1e-4 and abs(out[1] - 4) < 1e-4, f'expected about [2, 4] (2x and 4y at (1, 1)), got {out}'"
+    },
+    {
+     "name": "does not change xs",
+     "code": "xs = [1.0, 2.0, 3.0]\npartials(lambda v: sum(t * t for t in v), xs)\nassert xs == [1.0, 2.0, 3.0], f'xs was modified to {xs}; nudge a copy (bumped = list(xs))'"
+    },
+    {
+     "name": "only one input moves at a time",
+     "code": "out = partials(lambda v: 3 * v[0] + 5 * v[1] - v[2], [0.0, 0.0, 0.0])\nassert all(abs(a - b) < 1e-4 for a, b in zip(out, [3, 5, -1])), f'for 3a + 5b - c the partials are [3, 5, -1], got {out}. If they look added together, you forgot to copy xs for each i'"
+    }
+   ],
+   "hints": [
+    "Inside the loop: bumped = list(xs); bumped[i] += h; result.append((f(bumped) - base) / h)",
+    "list(xs) makes a new list. Without it, the nudge from step i would still be there at step i + 1."
+   ],
+   "solution": "def partials(f, xs, h=1e-6):\n    result = []\n    base = f(xs)\n    for i in range(len(xs)):\n        bumped = list(xs)\n        bumped[i] += h\n        result.append((f(bumped) - base) / h)\n    return result\n"
+  },
+  {
+   "id": "lossgrid",
+   "title": "Partials of a loss over weights (NumPy)",
+   "prompt": "<p>A tiny model predicts <code>y_hat = w * x + b</code> for arrays of inputs <code>x</code> and targets <code>y</code>. Its loss is the mean squared error <code>L = mean((w*x + b - y)**2)</code>.</p><p>Treating the other parameter as a constant, the partials are</p><pre>dL/dw = mean(2 * (w*x + b - y) * x)\ndL/db = mean(2 * (w*x + b - y))</pre><p>Write <code>loss_partials(w, b, x, y)</code> that returns <code>(dL_dw, dL_db)</code> as floats, using NumPy (no loops).</p>",
+   "starter": "import numpy as np\n\ndef loss_partials(w, b, x, y):\n    err = w * x + b - y          # one error per data point, shape (n,)\n    # TODO: dL_dw = mean of 2 * err * x,  dL_db = mean of 2 * err\n    dL_dw = 0.0\n    dL_db = 0.0\n    return float(dL_dw), float(dL_db)\n",
+   "tests": [
+    {
+     "name": "perfect fit has zero slopes",
+     "code": "import numpy as np\nx = np.array([0., 1., 2., 3.]); y = 2 * x + 1\ndw, db = loss_partials(2.0, 1.0, x, y)\nassert abs(dw) < 1e-12 and abs(db) < 1e-12, f'w=2, b=1 fits exactly, so both partials are 0; got {dw}, {db}'"
+    },
+    {
+     "name": "known values",
+     "code": "import numpy as np\nx = np.array([0., 1., 2., 3.]); y = 2 * x + 1\ndw, db = loss_partials(0.0, 0.0, x, y)\nassert abs(dw - (-17.0)) < 1e-9, f'expected dL/dw = mean(2*(0-y)*x) = -17, got {dw}'\nassert abs(db - (-8.0)) < 1e-9, f'expected dL/db = mean(2*(0-y)) = -8, got {db}'"
+    },
+    {
+     "name": "matches a numerical nudge",
+     "code": "import numpy as np\nrng = np.random.default_rng(1)\nx = rng.normal(size=20); y = 3 * x - 2 + rng.normal(size=20) * .1\nL = lambda w, b: np.mean((w * x + b - y) ** 2)\nw, b, h = 0.7, 0.4, 1e-6\nnw = (L(w + h, b) - L(w - h, b)) / (2 * h); nb = (L(w, b + h) - L(w, b - h)) / (2 * h)\ndw, db = loss_partials(w, b, x, y)\nassert abs(dw - nw) < 1e-5 and abs(db - nb) < 1e-5, f'numerical partials are ({nw:.4f}, {nb:.4f}), yours are ({dw:.4f}, {db:.4f})'"
+    }
+   ],
+   "hints": [
+    "err * x multiplies entry by entry; np.mean averages the array.",
+    "dL_dw = np.mean(2 * err * x); dL_db = np.mean(2 * err)"
+   ],
+   "solution": "import numpy as np\n\ndef loss_partials(w, b, x, y):\n    err = w * x + b - y\n    dL_dw = np.mean(2 * err * x)\n    dL_db = np.mean(2 * err)\n    return float(dL_dw), float(dL_db)\n"
+  }
+ ],
+ "poster": "videos/2.3-partial-derivatives.jpg"
+}

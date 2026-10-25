@@ -1,0 +1,154 @@
+{
+ "id": "2.2-chain-rule",
+ "module": 2,
+ "title": "Chain rule: rates multiply",
+ "summary": "When functions are stacked, a small nudge to the input is scaled by each function's local slope in turn, so the slope of the whole chain is the product of the slopes of the links: dy/dx = dy/du · du/dx. Running the chain forwards once and then multiplying slopes backwards is backpropagation.",
+ "video": "videos/2.2-chain-rule.mp4",
+ "llm_link": "A large language model is a chain of hundreds of functions. Training runs the chain rule backwards through every layer, for every batch of text: that backward walk is backpropagation.",
+ "key_ideas": [
+  "Gears: if the middle turns 2× per turn of the first and the last 3× per turn of the middle, the last turns 2 × 3 = 6× per turn of the first.",
+  "For y = f(g(x)) with u = g(x): dy/dx = dy/du · du/dx. Example: u = 3x, y = u² gives 2u · 3 = 18x.",
+  "Each link's slope is evaluated where the signal currently is, so compute the inner function first.",
+  "A neuron is a chain: z = w·x + b, a = σ(z), E = (a − t)². So ∂E/∂w = 2(a − t) · σ′(z) · x.",
+  "Backpropagation: one forward pass storing every intermediate value, then one backward pass multiplying local slopes."
+ ],
+ "quiz": [
+  {
+   "q": "A gear chain: B turns 4 times per turn of A, and C turns 0.5 times per turn of B. How many times does C turn per turn of A?",
+   "options": [
+    "4.5",
+    "2",
+    "8",
+    "3.5"
+   ],
+   "answer": 1,
+   "explain": "Rates multiply along the chain: 4 × 0.5 = 2."
+  },
+  {
+   "q": "Predict the result: y = (3x)². Using the chain rule, what is dy/dx at x = 2?",
+   "options": [
+    "12",
+    "18",
+    "36",
+    "6"
+   ],
+   "answer": 2,
+   "explain": "u = 3x = 6, dy/du = 2u = 12, du/dx = 3, so dy/dx = 12 × 3 = 36. (Check: y = 9x², dy/dx = 18x = 36.)"
+  },
+  {
+   "q": "Why must the inner function be evaluated before using the chain rule?",
+   "options": [
+    "Because multiplication is not commutative",
+    "Because each outer slope depends on where the signal currently sits, which is the inner function's output",
+    "Because the inner function is always linear",
+    "It does not need to be; order never matters"
+   ],
+   "answer": 1,
+   "explain": "dy/du = 2u needs the value of u. You only know u after computing the inner function, which is why backpropagation stores forward values."
+  },
+  {
+   "q": "In backpropagation, why walk backwards from the error rather than forwards from each weight?",
+   "options": [
+    "Going backwards is the only direction calculus allows",
+    "One backward pass reuses each running product, so every link is visited once, instead of redoing the chain for every weight",
+    "Forward passes cannot store values",
+    "To make the gradients positive"
+   ],
+   "answer": 1,
+   "explain": "The running product ∂E/∂(this node) is shared by everything upstream. Computing it once from the error backwards gives all the slopes in a single sweep."
+  },
+  {
+   "q": "A language model has 96 layers. During training, how does the loss's slope reach the weights in layer 1?",
+   "options": [
+    "Layer 1 is trained separately",
+    "By the chain rule: the slope is multiplied backwards through all the later layers",
+    "Layer 1's weights are never updated",
+    "By random search"
+   ],
+   "answer": 1,
+   "explain": "The loss depends on layer 1 only through every layer above it, so its slope is a product of local slopes passed back layer by layer: backpropagation."
+  }
+ ],
+ "problems": [
+  {
+   "id": "compose",
+   "title": "Chain rule by hand",
+   "prompt": "<p>Write <code>chain_slope(x)</code> for <code>y = (3x + 1)²</code>, using the chain rule in two steps:</p><ol><li>inner: <code>u = 3x + 1</code>, with slope <code>du/dx = 3</code>;</li><li>outer: <code>y = u²</code>, with slope <code>dy/du = 2u</code>, evaluated at the <b>current</b> u.</li></ol><p>Return <code>dy/du * du/dx</code>.</p><pre>chain_slope(0)   # u = 1, so 2*1*3 = 6\nchain_slope(1)   # u = 4, so 2*4*3 = 24</pre>",
+   "starter": "def chain_slope(x):\n    # TODO 1: u = 3 * x + 1          (evaluate the inner function first)\n    # TODO 2: du_dx = 3\n    # TODO 3: dy_du = 2 * u          (the outer slope where the signal sits)\n    # TODO 4: return dy_du * du_dx\n    pass\n",
+   "tests": [
+    {
+     "name": "at x = 0",
+     "code": "out = chain_slope(0)\nassert out == 6, f'u = 1, dy/du = 2, du/dx = 3, so expected 6, got {out}'"
+    },
+    {
+     "name": "at x = 1",
+     "code": "out = chain_slope(1)\nassert out == 24, f'u = 4, so dy/du = 8, times du/dx = 3 is 24; got {out}. Did you use 2*x instead of 2*u?'"
+    },
+    {
+     "name": "matches a numerical derivative",
+     "code": "f = lambda x: (3 * x + 1) ** 2\nfor x in [-2, 0.5, 3]:\n    num = (f(x + 1e-6) - f(x - 1e-6)) / 2e-6\n    out = chain_slope(x)\n    assert abs(out - num) < 1e-4, f'at x = {x} the numerical slope is {num:.4f}, chain_slope gave {out}'"
+    }
+   ],
+   "hints": [
+    "u = 3 * x + 1, then return (2 * u) * 3",
+    "Multiplying 2*x by 3 is the classic mistake: the outer slope needs u, not x."
+   ],
+   "solution": "def chain_slope(x):\n    u = 3 * x + 1\n    du_dx = 3\n    dy_du = 2 * u\n    return dy_du * du_dx\n"
+  },
+  {
+   "id": "neuron",
+   "title": "Backpropagate through one neuron",
+   "prompt": "<p>One neuron: <code>z = w*x + b</code>, <code>a = sigmoid(z)</code>, error <code>E = (a - t)**2</code>. <code>sigmoid</code> is given, and its slope is <code>sigmoid(z) * (1 - sigmoid(z))</code>.</p><p>Write <code>backprop(w, b, x, t)</code> that runs the chain forwards (store z, a, E), then backwards, and returns <code>(E, dE_dw, dE_db)</code>:</p><pre>dE_da = 2 * (a - t)\nda_dz = a * (1 - a)\ndE_dz = dE_da * da_dz\ndE_dw = dE_dz * x      # dz/dw = x\ndE_db = dE_dz * 1      # dz/db = 1</pre><p>With <code>x = 2, w = 0.5, b = -0.5, t = 1</code> (the video's numbers) you should get <code>dE_dw ≈ -0.355</code>.</p>",
+   "starter": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef backprop(w, b, x, t):\n    # forward\n    z = w * x + b\n    a = sigmoid(z)\n    E = (a - t) ** 2\n    # TODO: backward. Multiply the local slopes from the error back to w and b.\n    dE_dw = 0\n    dE_db = 0\n    return E, dE_dw, dE_db\n",
+   "tests": [
+    {
+     "name": "the video's numbers",
+     "code": "E, dw, db = backprop(0.5, -0.5, 2, 1)\nassert abs(E - 0.14254) < 1e-4, f'forward pass: E should be about 0.1425, got {E}'\nassert abs(dw - (-0.35486)) < 1e-4, f'dE/dw should be about -0.355, got {dw}. It is 2(a - t) * a(1 - a) * x'"
+    },
+    {
+     "name": "bias slope",
+     "code": "E, dw, db = backprop(0.5, -0.5, 2, 1)\nassert abs(db - (-0.17743)) < 1e-4, f'dE/db should be about -0.177 (dz/db = 1), got {db}'"
+    },
+    {
+     "name": "agrees with a numerical check",
+     "code": "import math\ndef err(w, b, x, t):\n    a = 1 / (1 + math.exp(-(w * x + b)))\n    return (a - t) ** 2\nfor (w, b, x, t) in [(1.2, 0.3, -1.5, 0), (-0.7, 0.1, 0.8, 1)]:\n    E, dw, db = backprop(w, b, x, t)\n    nw = (err(w + 1e-6, b, x, t) - err(w - 1e-6, b, x, t)) / 2e-6\n    nb = (err(w, b + 1e-6, x, t) - err(w, b - 1e-6, x, t)) / 2e-6\n    assert abs(dw - nw) < 1e-6, f'at w={w}, b={b}, x={x}, t={t}: numerical dE/dw is {nw:.6f}, yours is {dw:.6f}'\n    assert abs(db - nb) < 1e-6, f'at w={w}, b={b}, x={x}, t={t}: numerical dE/db is {nb:.6f}, yours is {db:.6f}'"
+    }
+   ],
+   "hints": [
+    "Start at the error: dE_da = 2 * (a - t). Then da_dz = a * (1 - a) because a = sigmoid(z).",
+    "dE_dz = dE_da * da_dz is shared by w and b. Then dE_dw = dE_dz * x and dE_db = dE_dz."
+   ],
+   "solution": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef backprop(w, b, x, t):\n    z = w * x + b\n    a = sigmoid(z)\n    E = (a - t) ** 2\n    dE_da = 2 * (a - t)\n    da_dz = a * (1 - a)\n    dE_dz = dE_da * da_dz\n    dE_dw = dE_dz * x\n    dE_db = dE_dz\n    return E, dE_dw, dE_db\n"
+  },
+  {
+   "id": "chainlist",
+   "title": "Slope of a whole chain",
+   "prompt": "<p>A chain is a list of <code>(f, df)</code> pairs: each function and its derivative. Write <code>chain_derivative(chain, x)</code> that returns the slope of the whole composition at <code>x</code>.</p><p>Walk forwards: at each link, multiply a running product by <code>df(current value)</code>, then move the current value on with <code>f</code>. Return the product.</p><pre>import math\nchain = [(lambda x: 3*x, lambda x: 3), (lambda u: u**2, lambda u: 2*u)]\nchain_derivative(chain, 1.0)   # 18.0</pre>",
+   "starter": "def chain_derivative(chain, x):\n    slope = 1.0\n    value = x\n    for f, df in chain:\n        # TODO 1: multiply slope by df evaluated at the CURRENT value\n        # TODO 2: move the value on: value = f(value)\n        pass\n    return slope\n",
+   "tests": [
+    {
+     "name": "u = 3x, y = u²",
+     "code": "chain = [(lambda x: 3*x, lambda x: 3), (lambda u: u**2, lambda u: 2*u)]\nout = chain_derivative(chain, 1.0)\nassert abs(out - 18) < 1e-9, f'dy/dx = 2u * 3 with u = 3, so 18; got {out}'"
+    },
+    {
+     "name": "order matters",
+     "code": "chain = [(lambda x: x**2, lambda x: 2*x), (lambda u: 3*u, lambda u: 3)]\nout = chain_derivative(chain, 2.0)\nassert abs(out - 12) < 1e-9, f'y = 3x²: slope at 2 is 6x = 12; got {out}'"
+    },
+    {
+     "name": "three links with sin",
+     "code": "import math\nchain = [(lambda x: 2*x, lambda x: 2), (math.sin, math.cos), (lambda u: u**3, lambda u: 3*u**2)]\nx = 0.4\nexpected = 3 * math.sin(2*x)**2 * math.cos(2*x) * 2\nout = chain_derivative(chain, x)\nassert abs(out - expected) < 1e-9, f'expected {expected:.6f}, got {out}. Evaluate df at the value BEFORE applying f at that link'"
+    },
+    {
+     "name": "empty chain is the identity",
+     "code": "out = chain_derivative([], 5.0)\nassert out == 1.0, f'no links means y = x, slope 1; got {out}'"
+    }
+   ],
+   "hints": [
+    "Inside the loop: slope = slope * df(value), then value = f(value). The order of those two lines matters.",
+    "df must see the input to its own link, which is the current value before f is applied."
+   ],
+   "solution": "def chain_derivative(chain, x):\n    slope = 1.0\n    value = x\n    for f, df in chain:\n        slope = slope * df(value)\n        value = f(value)\n    return slope\n"
+  }
+ ],
+ "poster": "videos/2.2-chain-rule.jpg"
+}

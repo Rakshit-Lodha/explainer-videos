@@ -1,0 +1,158 @@
+{
+ "id": "2.4-gradient",
+ "module": 2,
+ "title": "The gradient points uphill",
+ "summary": "The gradient collects all partial derivatives into one vector. The slope in any unit direction u is ∇f · u, which is largest when u points along ∇f, so the gradient points in the direction of steepest ascent, its length is that steepest slope, and it crosses contour lines at right angles. Gradient descent steps against it, with a step size set by the learning rate.",
+ "video": "videos/2.4-gradient.mp4",
+ "llm_link": "Training a language model is gradient descent in a landscape with billions of dimensions: the height is the loss on a batch of text, and every step moves each weight a little against its own partial derivative, w ← w − η ∂L/∂w.",
+ "key_ideas": [
+  "∇f = [∂f/∂x, ∂f/∂y, …]: one partial per input, stacked into a vector.",
+  "Slope facing a unit direction û is ∇f · û. A dot product with a fixed arrow is largest along that arrow, so ∇f is the steepest uphill direction and |∇f| is the steepest slope.",
+  "Along a contour line the height is constant, so ∇f · û = 0: the gradient is perpendicular to the contours.",
+  "Gradient descent: repeat x ← x − η ∇f(x). In a long, narrow valley the steps zigzag.",
+  "The learning rate η sets the step size: too small crawls, too large overshoots and can climb."
+ ],
+ "quiz": [
+  {
+   "q": "For f(x, y) = x² + y², what is ∇f at (3, −1)?",
+   "options": [
+    "[3, −1]",
+    "[6, −2]",
+    "[9, 1]",
+    "[2, 2]"
+   ],
+   "answer": 1,
+   "explain": "∂f/∂x = 2x = 6 and ∂f/∂y = 2y = −2, so ∇f = [6, −2]. It points straight away from the bowl's centre, uphill."
+  },
+  {
+   "q": "Predict the result: ∇f = [3, 4] at a point. What is the slope facing the unit direction û = [0, 1]?",
+   "options": [
+    "5",
+    "3",
+    "4",
+    "7"
+   ],
+   "answer": 2,
+   "explain": "Slope = ∇f · û = 3·0 + 4·1 = 4: facing straight along y you only feel ∂f/∂y."
+  },
+  {
+   "q": "With ∇f = [3, 4], what is the steepest possible slope at that point, and in which direction?",
+   "options": [
+    "7, along [1, 1]",
+    "5, along [0.6, 0.8]",
+    "4, along [0, 1]",
+    "25, along [3, 4]"
+   ],
+   "answer": 1,
+   "explain": "The steepest direction is ∇f itself, scaled to length 1: [3, 4]/5 = [0.6, 0.8]. The slope there is |∇f| = 5."
+  },
+  {
+   "q": "Why is the gradient always perpendicular to the contour lines?",
+   "options": [
+    "Because contours are circles",
+    "Because along a contour the height does not change, so ∇f · û = 0 for û along the contour",
+    "Because the gradient is always horizontal",
+    "It is only perpendicular at the minimum"
+   ],
+   "answer": 1,
+   "explain": "A zero dot product means a right angle, and walking along a contour has zero slope by definition."
+  },
+  {
+   "q": "A language-model training step uses w ← w − η·∂L/∂w with η = 0.001. If η were set to 10, what would most likely happen?",
+   "options": [
+    "Training would finish 10,000 times faster",
+    "Steps would overshoot the valley and the loss would jump around or blow up",
+    "Nothing: η does not affect training",
+    "The gradient would become zero"
+   ],
+   "answer": 1,
+   "explain": "The gradient only describes the landscape near the current weights. Huge steps leap past the valley floor and can land higher than before, so the loss diverges."
+  }
+ ],
+ "problems": [
+  {
+   "id": "grad",
+   "title": "The gradient of a bowl",
+   "prompt": "<p>For <code>f(x, y) = x**2 + 3*y**2</code>, write <code>grad(x, y)</code> that returns the gradient as a list <code>[df/dx, df/dy]</code>.</p><p>Then write <code>steepest(x, y)</code> that returns the unit vector pointing uphill fastest: the gradient divided by its length. At the very bottom (gradient zero) there is no uphill, so raise <code>ValueError</code>.</p>",
+   "starter": "import math\n\ndef grad(x, y):\n    # TODO: [2x, 6y]\n    pass\n\ndef steepest(x, y):\n    g = grad(x, y)\n    # TODO 1: length = math.hypot(g[0], g[1]); if length == 0, raise ValueError(\"flat: no uphill direction\")\n    # TODO 2: return [g[0] / length, g[1] / length]\n    pass\n",
+   "tests": [
+    {
+     "name": "gradient at (1, 1)",
+     "code": "out = grad(1, 1)\nassert out == [2, 6], f'∂/∂x of x² is 2x = 2, ∂/∂y of 3y² is 6y = 6; got {out}'"
+    },
+    {
+     "name": "gradient at (-2, 0.5)",
+     "code": "out = grad(-2, 0.5)\nassert out == [-4, 3], f'expected [2*(-2), 6*0.5] = [-4, 3], got {out}'"
+    },
+    {
+     "name": "steepest is a unit vector along the gradient",
+     "code": "import math\nout = steepest(3, 0)\nassert out is not None, 'steepest returned None'\nassert abs(out[0] - 1) < 1e-12 and abs(out[1]) < 1e-12, f'at (3, 0) the gradient is [6, 0], so uphill is [1, 0]; got {out}'\nout = steepest(1, 1)\nassert abs(math.hypot(*out) - 1) < 1e-12, f'the direction should have length 1, got {math.hypot(*out)}'"
+    },
+    {
+     "name": "flat bottom raises",
+     "code": "try:\n    steepest(0, 0)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('at (0, 0) the gradient is [0, 0]: there is no uphill direction, so raise ValueError')"
+    }
+   ],
+   "hints": [
+    "return [2 * x, 6 * y]",
+    "raise ValueError(\"...\") is how to raise: ValueError is called like a function."
+   ],
+   "solution": "import math\n\ndef grad(x, y):\n    return [2 * x, 6 * y]\n\ndef steepest(x, y):\n    g = grad(x, y)\n    length = math.hypot(g[0], g[1])\n    if length == 0:\n        raise ValueError(\"flat: no uphill direction\")\n    return [g[0] / length, g[1] / length]\n"
+  },
+  {
+   "id": "descent",
+   "title": "Gradient descent on a bowl",
+   "prompt": "<p>Write <code>descend(grad, start, lr, steps)</code>: start at the point <code>start</code> (a list), and <code>steps</code> times replace every coordinate <code>p[i]</code> with <code>p[i] - lr * g[i]</code>, where <code>g = grad(p)</code>. Return the list of all points visited, including the start (so <code>steps + 1</code> points).</p><p>Then try different learning rates on <code>f = x² + 6y²</code> and watch the zigzag from the video.</p>",
+   "starter": "def descend(grad, start, lr, steps):\n    p = list(start)\n    path = [list(p)]\n    for _ in range(steps):\n        g = grad(p)\n        # TODO: p = [p_i - lr * g_i for each coordinate]\n        path.append(list(p))\n    return path\n",
+   "tests": [
+    {
+     "name": "one step on x²",
+     "code": "path = descend(lambda p: [2 * p[0]], [1.0], 0.1, 1)\nassert len(path) == 2, f'1 step gives 2 points (start + 1), got {len(path)}'\nassert abs(path[1][0] - 0.8) < 1e-12, f'x = 1 - 0.1 * 2 = 0.8, got {path[1][0]}. Did you step against the gradient (minus)?'"
+    },
+    {
+     "name": "reaches the bottom of the bowl",
+     "code": "path = descend(lambda p: [2 * p[0], 12 * p[1]], [-5.2, 1.5], 0.05, 200)\nx, y = path[-1]\nassert abs(x) < 1e-6 and abs(y) < 1e-6, f'with a small learning rate the walk should end near (0, 0), got ({x:.4g}, {y:.4g})'"
+    },
+    {
+     "name": "zigzag in y with a bigger step",
+     "code": "path = descend(lambda p: [2 * p[0], 12 * p[1]], [-5.2, 1.5], 0.15, 6)\nys = [q[1] for q in path]\nsigns = [y > 0 for y in ys]\nassert all(signs[i] != signs[i + 1] for i in range(len(signs) - 1)), f'with lr = 0.15 the y coordinate should flip sign every step (zigzag), got {[round(y, 3) for y in ys]}'"
+    },
+    {
+     "name": "too large a step climbs",
+     "code": "path = descend(lambda p: [2 * p[0]], [1.0], 1.1, 5)\nassert abs(path[-1][0]) > abs(path[0][0]), f'with lr = 1.1 on x² every step overshoots and lands higher; got {[round(q[0], 3) for q in path]}'"
+    }
+   ],
+   "hints": [
+    "p = [pi - lr * gi for pi, gi in zip(p, g)]",
+    "Keep path.append(list(p)) after the update, so each new point is recorded."
+   ],
+   "solution": "def descend(grad, start, lr, steps):\n    p = list(start)\n    path = [list(p)]\n    for _ in range(steps):\n        g = grad(p)\n        p = [pi - lr * gi for pi, gi in zip(p, g)]\n        path.append(list(p))\n    return path\n"
+  },
+  {
+   "id": "fitline",
+   "title": "Fit a line with gradient descent (NumPy)",
+   "prompt": "<p>Put it together: fit <code>y ≈ w*x + b</code> by gradient descent on the mean squared error.</p><p>Write <code>fit(x, y, lr=0.05, steps=2000)</code> that starts at <code>w = b = 0</code> and repeats:</p><pre>err = w*x + b - y\ndw = np.mean(2 * err * x)\ndb = np.mean(2 * err)\nw, b = w - lr*dw, b - lr*db</pre><p>Return <code>(w, b)</code> as floats.</p>",
+   "starter": "import numpy as np\n\ndef fit(x, y, lr=0.05, steps=2000):\n    w, b = 0.0, 0.0\n    for _ in range(steps):\n        # TODO: compute err, dw, db as above, then step against the gradient\n        pass\n    return float(w), float(b)\n",
+   "tests": [
+    {
+     "name": "recovers a noiseless line",
+     "code": "import numpy as np\nx = np.linspace(-2, 2, 21); y = 3 * x - 1\nw, b = fit(x, y)\nassert abs(w - 3) < 1e-3 and abs(b + 1) < 1e-3, f'the data is exactly y = 3x - 1, expected w ≈ 3, b ≈ -1; got w = {w:.4f}, b = {b:.4f}'"
+    },
+    {
+     "name": "agrees with least squares on noisy data",
+     "code": "import numpy as np\nrng = np.random.default_rng(3)\nx = rng.uniform(-2, 2, 50); y = -0.5 * x + 2 + rng.normal(0, .2, 50)\nw, b = fit(x, y)\nW, B = np.polyfit(x, y, 1)\nassert abs(w - W) < 1e-3 and abs(b - B) < 1e-3, f'np.polyfit gives w = {W:.4f}, b = {B:.4f}; gradient descent gave w = {w:.4f}, b = {b:.4f}'"
+    },
+    {
+     "name": "returns floats",
+     "code": "import numpy as np\nw, b = fit(np.array([0., 1.]), np.array([1., 3.]), steps=10)\nassert isinstance(w, float) and isinstance(b, float), f'return plain floats, got {type(w).__name__}, {type(b).__name__}'"
+    }
+   ],
+   "hints": [
+    "err is an array (one error per point); np.mean turns each slope into a single number.",
+    "Update both at once: w, b = w - lr * dw, b - lr * db"
+   ],
+   "solution": "import numpy as np\n\ndef fit(x, y, lr=0.05, steps=2000):\n    w, b = 0.0, 0.0\n    for _ in range(steps):\n        err = w * x + b - y\n        dw = np.mean(2 * err * x)\n        db = np.mean(2 * err)\n        w, b = w - lr * dw, b - lr * db\n    return float(w), float(b)\n"
+  }
+ ],
+ "poster": "videos/2.4-gradient.jpg"
+}

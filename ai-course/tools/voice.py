@@ -50,7 +50,11 @@ else:
 shutil.copytree(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'vendor'),
                 os.path.join(lesson, 'hf', 'assets', 'lib'), dirs_exist_ok=True)
 # sync the composition: scene clip timings, root duration and the TIMING literal
-p = os.path.join(lesson, 'hf', 'index.html'); h = open(p).read()
+p = os.path.join(lesson, 'hf', 'index.html')
+if not os.path.exists(p):
+    print('timing written; no hf/index.html yet, so nothing to sync (re-run after writing it)')
+    sys.exit(0)
+h = open(p).read()
 ids = [s['id'] for s in N]
 for k, i in enumerate(ids):
     end = starts[ids[k + 1]] if k + 1 < len(ids) else total

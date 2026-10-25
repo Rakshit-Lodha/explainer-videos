@@ -1,0 +1,153 @@
+{
+ "id": "2.6-taylor-series",
+ "module": 2,
+ "title": "Linear approximation and Taylor series",
+ "summary": "Near a point, a smooth function is close to its tangent line, f(a) + f′(a)(x − a). Adding a curvature term ½f″(a)(x − a)² gives a parabola that hugs the curve over a wider stretch, and each further term matches one more derivative: the Taylor series. Optimisers live on the first two terms: gradient descent trusts the line, Newton's method jumps to the parabola's bottom.",
+ "video": "videos/2.6-taylor-series.mp4",
+ "llm_link": "Every training step of a language model bets on the first-order approximation L(w + Δw) ≈ L(w) + ∇L · Δw. The bet only pays off when the step is small, which is why the learning rate has to be small.",
+ "key_ideas": [
+  "Linear approximation: f(x) ≈ f(a) + f′(a)(x − a), the tangent line. For eˣ near 0 that is 1 + x.",
+  "Quadratic: add ½ f″(a)(x − a)²; f″ measures how fast the slope itself changes.",
+  "Taylor series: f(x) = Σ f⁽ⁿ⁾(a)/n! · (x − a)ⁿ. For eˣ at 0: 1 + x + x²/2 + x³/6 + …",
+  "sin x = x − x³/3! + x⁵/5! − …: only odd powers. More terms cover more of the waves; some series (like 1/(1 − x)) only work within a certain distance.",
+  "Gradient descent uses the linear term (so small steps); Newton's method uses the curvature too: w ← w − L′(w)/L″(w)."
+ ],
+ "quiz": [
+  {
+   "q": "What is the linear (tangent-line) approximation of f at a?",
+   "options": [
+    "f(a) + f′(a)(x − a)",
+    "f′(a) · x",
+    "f(a) · (x − a)",
+    "f(x) − f(a)"
+   ],
+   "answer": 0,
+   "explain": "Start at the known value f(a) and move along the slope f′(a) for the distance x − a."
+  },
+  {
+   "q": "Predict the result: using eˣ ≈ 1 + x + x²/2, what is the approximation of e^0.1?",
+   "options": [
+    "1.1",
+    "1.105",
+    "1.01",
+    "1.2"
+   ],
+   "answer": 1,
+   "explain": "1 + 0.1 + 0.01/2 = 1.105. The true value is 1.10517…, so two terms past the line already get within 0.0002."
+  },
+  {
+   "q": "Why does the tangent line 1 + x drift away from eˣ as x grows?",
+   "options": [
+    "Because eˣ is not differentiable",
+    "Because a straight line cannot bend, while eˣ curves upwards",
+    "Because the slope of eˣ is negative",
+    "It does not drift away"
+   ],
+   "answer": 1,
+   "explain": "The line only matches the value and slope at 0. The curvature (second derivative) is missing, so the gap grows with distance."
+  },
+  {
+   "q": "Newton's method updates w ← w − L′(w)/L″(w). What does it assume about the loss near w?",
+   "options": [
+    "That it is a straight line",
+    "That it is a parabola (the first three Taylor terms), and it jumps to that parabola's bottom",
+    "That it is constant",
+    "Nothing; it is a random search"
+   ],
+   "answer": 1,
+   "explain": "Using value, slope and curvature models L as a parabola; the bottom of that parabola is at w − L′/L″."
+  },
+  {
+   "q": "A training step moves the weights by Δw = −η ∇L. Why does a huge learning rate η break the reasoning behind this step?",
+   "options": [
+    "The gradient becomes zero",
+    "The step relies on L(w + Δw) ≈ L(w) + ∇L·Δw, which is only accurate for small Δw",
+    "Large η makes the loss linear",
+    "Because η must be an integer"
+   ],
+   "answer": 1,
+   "explain": "The first-order Taylor approximation is only trustworthy near the current weights. Far away the ignored curvature dominates, and the loss can go up."
+  }
+ ],
+ "problems": [
+  {
+   "id": "linear",
+   "title": "Linear approximation",
+   "prompt": "<p>Write <code>linear_approx(f, df, a, x)</code> that returns the tangent-line approximation <code>f(a) + df(a) * (x - a)</code>.</p><p>Use it to see how good the line is close to <code>a</code> and how it drifts further out.</p><pre>import math\nlinear_approx(math.exp, math.exp, 0, 0.1)   # 1.1   (true: 1.10517)\nlinear_approx(math.exp, math.exp, 0, 2.0)   # 3.0   (true: 7.389)</pre>",
+   "starter": "def linear_approx(f, df, a, x):\n    # TODO: start at f(a) and move along the slope df(a) for the distance x - a\n    pass\n",
+   "tests": [
+    {
+     "name": "eˣ near 0",
+     "code": "import math\nout = linear_approx(math.exp, math.exp, 0, 0.1)\nassert out is not None, 'returned None. Did you forget return?'\nassert abs(out - 1.1) < 1e-12, f'1 + 0.1 = 1.1, got {out}'"
+    },
+    {
+     "name": "uses the distance from a",
+     "code": "out = linear_approx(lambda x: x**2, lambda x: 2*x, 3, 3.5)\nassert abs(out - 12) < 1e-12, f'9 + 6 * 0.5 = 12, got {out}. Multiply the slope by (x - a), not by x'"
+    },
+    {
+     "name": "good near a, worse far away",
+     "code": "import math\nnear = abs(linear_approx(math.exp, math.exp, 0, 0.1) - math.exp(0.1))\nfar = abs(linear_approx(math.exp, math.exp, 0, 2.0) - math.exp(2.0))\nassert near < 0.01 < far, f'error near 0 should be small ({near:.4f}) and far away large ({far:.4f})'"
+    }
+   ],
+   "hints": [
+    "return f(a) + df(a) * (x - a)"
+   ],
+   "solution": "def linear_approx(f, df, a, x):\n    return f(a) + df(a) * (x - a)\n"
+  },
+  {
+   "id": "expseries",
+   "title": "Taylor series of eˣ",
+   "prompt": "<p>Write <code>exp_taylor(x, n)</code> that sums the first <code>n + 1</code> terms of the series at 0:</p><pre>1 + x + x**2/2! + x**3/3! + ... + x**n/n!</pre><p>Build each term from the previous one instead of computing factorials: term k equals term k−1 times <code>x / k</code>.</p><p>Compare with <code>math.exp</code> as <code>n</code> grows.</p>",
+   "starter": "import math\n\ndef exp_taylor(x, n):\n    total = 0.0\n    term = 1.0          # the k = 0 term: x**0 / 0! = 1\n    for k in range(n + 1):\n        # TODO 1: add the current term to total\n        # TODO 2: turn it into the next term: term = term * x / (k + 1)\n        pass\n    return total\n",
+   "tests": [
+    {
+     "name": "degree 0 and 1",
+     "code": "assert exp_taylor(0.5, 0) == 1.0, f'degree 0 is just the constant 1, got {exp_taylor(0.5, 0)}'\nassert abs(exp_taylor(0.5, 1) - 1.5) < 1e-12, f'degree 1 is 1 + x = 1.5, got {exp_taylor(0.5, 1)}'"
+    },
+    {
+     "name": "degree 3",
+     "code": "out = exp_taylor(1.0, 3)\nassert abs(out - (1 + 1 + 0.5 + 1/6)) < 1e-12, f'1 + 1 + 1/2 + 1/6 = 2.6667, got {out}. Is the next term divided by (k + 1)?'"
+    },
+    {
+     "name": "converges to e^x",
+     "code": "import math\nfor x in [-2.0, 1.0, 3.0]:\n    out = exp_taylor(x, 30)\n    assert abs(out - math.exp(x)) < 1e-9, f'with 30 terms the series should match exp({x}) = {math.exp(x):.6f}, got {out}'"
+    },
+    {
+     "name": "more terms, smaller error",
+     "code": "import math\nerrs = [abs(exp_taylor(2.0, n) - math.exp(2.0)) for n in (1, 3, 6, 10)]\nassert errs[0] > errs[1] > errs[2] > errs[3], f'errors should shrink as n grows, got {errs}'"
+    }
+   ],
+   "hints": [
+    "Inside the loop: total += term, then term = term * x / (k + 1).",
+    "Check by hand for x = 1: terms are 1, 1, 1/2, 1/6, 1/24, …"
+   ],
+   "solution": "import math\n\ndef exp_taylor(x, n):\n    total = 0.0\n    term = 1.0\n    for k in range(n + 1):\n        total += term\n        term = term * x / (k + 1)\n    return total\n"
+  },
+  {
+   "id": "newton",
+   "title": "Gradient descent versus Newton's method",
+   "prompt": "<p>For a loss with derivative <code>dL</code> and second derivative <code>d2L</code>, write two one-step updates:</p><ul><li><code>gd_step(w, dL, lr)</code>: trust the line, <code>w - lr * dL(w)</code>;</li><li><code>newton_step(w, dL, d2L)</code>: model a parabola and jump to its bottom, <code>w - dL(w) / d2L(w)</code>.</li></ul><p>Then <code>run(step, w0, steps)</code> applies a one-argument step function repeatedly and returns the final w. On a perfect parabola, Newton lands on the minimum in a single step.</p>",
+   "starter": "def gd_step(w, dL, lr):\n    # TODO\n    pass\n\ndef newton_step(w, dL, d2L):\n    # TODO\n    pass\n\ndef run(step, w0, steps):\n    w = w0\n    for _ in range(steps):\n        w = step(w)\n    return w\n",
+   "tests": [
+    {
+     "name": "gradient descent step",
+     "code": "out = gd_step(3.0, lambda w: 2 * (w - 1), 0.1)\nassert out is not None and abs(out - 2.6) < 1e-12, f'3 - 0.1 * 2 * (3 - 1) = 2.6, got {out}'"
+    },
+    {
+     "name": "Newton solves a parabola in one step",
+     "code": "dL = lambda w: 2 * (w - 1); d2L = lambda w: 2.0\nout = newton_step(-5.0, dL, d2L)\nassert out is not None and abs(out - 1) < 1e-12, f'L = (w - 1)² is its own parabola, so one Newton step lands on w = 1; got {out}'"
+    },
+    {
+     "name": "Newton beats small-step descent on a quartic",
+     "code": "dL = lambda w: (w - 1)**3 + 1.2 * (w - 1); d2L = lambda w: 3 * (w - 1)**2 + 1.2\nwn = run(lambda w: newton_step(w, dL, d2L), -1.0, 6)\nwg = run(lambda w: gd_step(w, dL, 0.02), -1.0, 6)\nassert abs(wn - 1) < 1e-6, f'6 Newton steps should reach the minimum at 1, got {wn}'\nassert abs(wg - 1) > abs(wn - 1), 'small gradient steps should still be further from the minimum after 6 steps'"
+    }
+   ],
+   "hints": [
+    "gd_step: return w - lr * dL(w)",
+    "newton_step: return w - dL(w) / d2L(w)"
+   ],
+   "solution": "def gd_step(w, dL, lr):\n    return w - lr * dL(w)\n\ndef newton_step(w, dL, d2L):\n    return w - dL(w) / d2L(w)\n\ndef run(step, w0, steps):\n    w = w0\n    for _ in range(steps):\n        w = step(w)\n    return w\n"
+  }
+ ],
+ "poster": "videos/2.6-taylor-series.jpg"
+}

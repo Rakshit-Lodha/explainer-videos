@@ -1,0 +1,146 @@
+{
+ "id": "2.5-jacobians",
+ "module": 2,
+ "title": "Jacobians: derivatives of vector functions",
+ "summary": "A function from vectors to vectors bends the grid, but zoomed in on a small patch it acts like a linear map. The matrix of that local map is the Jacobian: entry (i, j) is ∂(output i)/∂(input j), and its columns show where small steps along each input land. The chain rule becomes a product of Jacobians.",
+ "video": "videos/2.5-jacobians.mp4",
+ "llm_link": "Every layer of a language model turns a vector into a vector, so its derivative is a Jacobian. Backpropagation never builds these huge matrices: it carries one vector backwards and multiplies it by one layer's Jacobian at a time (a vector-Jacobian product).",
+ "key_ideas": [
+  "For F: ℝⁿ → ℝᵐ the Jacobian J is m × n: row i belongs to output i, column j to input j, and J[i][j] = ∂Fᵢ/∂xⱼ.",
+  "Zoomed in, a smooth function's curved grid looks straight: F(x + δ) ≈ F(x) + J δ.",
+  "Column j of J is where a small step along input j lands, like the columns of a matrix in lesson 1.3.",
+  "Polar coordinates (r, θ) → (r cos θ, r sin θ) have det J = r: patches far from the centre are stretched more.",
+  "Chain rule: J of g∘f is J_g(f(x)) · J_f(x). For a linear layer y = Wx, J = W."
+ ],
+ "quiz": [
+  {
+   "q": "F takes 3 inputs and returns 2 outputs. What shape is its Jacobian?",
+   "options": [
+    "3 × 2",
+    "2 × 3",
+    "3 × 3",
+    "2 × 2"
+   ],
+   "answer": 1,
+   "explain": "One row per output (2) and one column per input (3), so 2 × 3. Each row is the gradient of one output."
+  },
+  {
+   "q": "Predict the result: F(x, y) = (x·y, x + 3y). What is the Jacobian at (2, 5)?",
+   "options": [
+    "[[5, 2], [1, 3]]",
+    "[[2, 5], [3, 1]]",
+    "[[5, 1], [2, 3]]",
+    "[[10, 17], [0, 0]]"
+   ],
+   "answer": 0,
+   "explain": "Row 1 is ∂(xy)/∂x = y = 5 and ∂(xy)/∂y = x = 2. Row 2 is ∂(x + 3y)/∂x = 1 and ∂/∂y = 3."
+  },
+  {
+   "q": "What does the first column of a Jacobian tell you?",
+   "options": [
+    "How the first output depends on all inputs",
+    "Where a small step along the first input lands (scaled per unit step)",
+    "The largest eigenvalue",
+    "The value of F"
+   ],
+   "answer": 1,
+   "explain": "Nudging only input 1 moves every output by column 1 times the nudge, exactly like a matrix's first column showing where î lands."
+  },
+  {
+   "q": "For polar coordinates, det J = r. A tiny patch of size Δr × Δθ near r = 4 has how much area, compared with the same Δr × Δθ patch near r = 1?",
+   "options": [
+    "The same",
+    "4 times as much",
+    "16 times as much",
+    "A quarter as much"
+   ],
+   "answer": 1,
+   "explain": "Area scales by |det J| = r locally, so the patch at r = 4 covers 4 times the area: rings further out are bigger."
+  },
+  {
+   "q": "A layer computes y = W x with W of shape (4096, 4096). During backpropagation it receives the vector g = ∂L/∂y. What does it pass back as ∂L/∂x?",
+   "options": [
+    "W",
+    "gᵀ W (a vector of length 4096)",
+    "W @ W",
+    "The full Jacobian of the whole network"
+   ],
+   "answer": 1,
+   "explain": "The layer's Jacobian is W, so the chain rule gives ∂L/∂x = gᵀ W: one vector times one Jacobian. No matrix-matrix product is ever needed."
+  }
+ ],
+ "problems": [
+  {
+   "id": "jac2",
+   "title": "A Jacobian by hand",
+   "prompt": "<p>For <code>F(x, y) = (x*y, x + 3*y)</code>, write <code>jacobian(x, y)</code> that returns the 2 × 2 Jacobian as a list of rows:</p><pre>[[dF1/dx, dF1/dy],\n [dF2/dx, dF2/dy]]</pre><p>Row = output, column = input.</p>",
+   "starter": "def F(x, y):\n    return (x * y, x + 3 * y)\n\ndef jacobian(x, y):\n    # TODO: row 1 holds the partials of x*y, row 2 the partials of x + 3*y\n    pass\n",
+   "tests": [
+    {
+     "name": "at (2, 5)",
+     "code": "out = jacobian(2, 5)\nassert out == [[5, 2], [1, 3]], f'expected [[y, x], [1, 3]] = [[5, 2], [1, 3]], got {out}. Rows are outputs, columns are inputs'"
+    },
+    {
+     "name": "matches numerical partials",
+     "code": "def F(x, y):\n    return (x * y, x + 3 * y)\nh = 1e-6\nfor (x, y) in [(-1, 4), (0.5, -2)]:\n    J = jacobian(x, y)\n    for j, (dx, dy) in enumerate([(h, 0), (0, h)]):\n        a, b = F(x + dx, y + dy), F(x - dx, y - dy)\n        for i in range(2):\n            num = (a[i] - b[i]) / (2 * h)\n            assert abs(J[i][j] - num) < 1e-6, f'at ({x}, {y}) entry [{i}][{j}] should be about {num:.4f}, got {J[i][j]}'"
+    }
+   ],
+   "hints": [
+    "∂(xy)/∂x = y and ∂(xy)/∂y = x.",
+    "return [[y, x], [1, 3]]"
+   ],
+   "solution": "def F(x, y):\n    return (x * y, x + 3 * y)\n\ndef jacobian(x, y):\n    return [[y, x], [1, 3]]\n"
+  },
+  {
+   "id": "numjac",
+   "title": "Numerical Jacobian (NumPy)",
+   "prompt": "<p>Write <code>num_jacobian(F, x, h=1e-6)</code>. <code>F</code> takes a NumPy array of shape <code>(n,)</code> and returns one of shape <code>(m,)</code>. Build the <code>(m, n)</code> Jacobian <b>one column at a time</b>: column <code>j</code> is <code>(F(x + h e_j) - F(x - h e_j)) / (2h)</code>, where <code>e_j</code> is the j-th basis vector.</p><p>Shape check first: for <code>F</code> from 3 inputs to 2 outputs, what shape should the result have?</p>",
+   "starter": "import numpy as np\n\ndef num_jacobian(F, x, h=1e-6):\n    x = np.asarray(x, dtype=float)\n    m = len(F(x))\n    n = len(x)\n    J = np.zeros((m, n))\n    for j in range(n):\n        e = np.zeros(n)\n        e[j] = h\n        # TODO: J[:, j] = (F(x + e) - F(x - e)) / (2 * h)\n    return J\n",
+   "tests": [
+    {
+     "name": "linear map gives its matrix",
+     "code": "import numpy as np\nW = np.array([[1., 2., 3.], [4., 5., 6.]])\nJ = num_jacobian(lambda v: W @ v, np.array([0.3, -1., 2.]))\nassert J.shape == (2, 3), f'2 outputs and 3 inputs give shape (2, 3), got {J.shape}'\nassert np.allclose(J, W, atol=1e-6), f'for y = W x the Jacobian is W itself, got {J}'"
+    },
+    {
+     "name": "polar map has determinant r",
+     "code": "import numpy as np\nPF = lambda v: np.array([v[0] * np.cos(v[1]), v[0] * np.sin(v[1])])\nJ = num_jacobian(PF, np.array([3.0, 0.7]))\nassert abs(np.linalg.det(J) - 3.0) < 1e-5, f'det J for polar coordinates should equal r = 3, got {np.linalg.det(J):.6f}'"
+    },
+    {
+     "name": "columns are where input steps land",
+     "code": "import numpy as np\nF = lambda v: np.array([v[0] * v[1], v[0] + 3 * v[1]])\nJ = num_jacobian(F, np.array([2., 5.]))\nassert np.allclose(J, [[5, 2], [1, 3]], atol=1e-6), f'expected [[5, 2], [1, 3]], got {np.round(J, 4)}. Fill a column (J[:, j]) per input, not a row'"
+    }
+   ],
+   "hints": [
+    "J[:, j] selects column j (every row, position j).",
+    "J[:, j] = (F(x + e) - F(x - e)) / (2 * h)"
+   ],
+   "solution": "import numpy as np\n\ndef num_jacobian(F, x, h=1e-6):\n    x = np.asarray(x, dtype=float)\n    m = len(F(x))\n    n = len(x)\n    J = np.zeros((m, n))\n    for j in range(n):\n        e = np.zeros(n)\n        e[j] = h\n        J[:, j] = (F(x + e) - F(x - e)) / (2 * h)\n    return J\n"
+  },
+  {
+   "id": "vjp",
+   "title": "Backprop through two layers with vector-Jacobian products (NumPy)",
+   "prompt": "<p>Two linear layers: <code>h = W1 @ x</code>, then <code>y = W2 @ h</code>, and a loss <code>L = sum(y)</code>, so <code>∂L/∂y</code> is a vector of ones.</p><p>Write <code>grad_x(W1, W2, x)</code> that returns <code>∂L/∂x</code> by carrying a vector backwards: start with <code>g = ones</code> (shape of y), then <code>g = g @ W2</code> (now ∂L/∂h), then <code>g = g @ W1</code> (now ∂L/∂x). Never form <code>W2 @ W1</code>.</p><p>Shapes: W1 is (4, 3), W2 is (2, 4). Predict the shape of g after each step.</p>",
+   "starter": "import numpy as np\n\ndef grad_x(W1, W2, x):\n    h = W1 @ x\n    y = W2 @ h\n    g = np.ones_like(y)      # dL/dy, shape (2,)\n    # TODO 1: g = g @ W2      -> dL/dh, shape (4,)\n    # TODO 2: g = g @ W1      -> dL/dx, shape (3,)\n    return g\n",
+   "tests": [
+    {
+     "name": "shape is the shape of x",
+     "code": "import numpy as np\nrng = np.random.default_rng(0)\nW1 = rng.normal(size=(4, 3)); W2 = rng.normal(size=(2, 4)); x = rng.normal(size=3)\ng = grad_x(W1, W2, x)\nassert g.shape == (3,), f'∂L/∂x must have the shape of x, (3,), got {g.shape}. Each step is (vector) @ (Jacobian)'"
+    },
+    {
+     "name": "matches the full product",
+     "code": "import numpy as np\nrng = np.random.default_rng(0)\nW1 = rng.normal(size=(4, 3)); W2 = rng.normal(size=(2, 4)); x = rng.normal(size=3)\ng = grad_x(W1, W2, x)\nref = np.ones(2) @ (W2 @ W1)\nassert np.allclose(g, ref), f'expected {np.round(ref, 4)}, got {np.round(g, 4)}'"
+    },
+    {
+     "name": "matches a numerical gradient",
+     "code": "import numpy as np\nrng = np.random.default_rng(5)\nW1 = rng.normal(size=(4, 3)); W2 = rng.normal(size=(2, 4)); x = rng.normal(size=3)\nL = lambda v: np.sum(W2 @ (W1 @ v))\nnum = np.array([(L(x + e) - L(x - e)) / 2e-6 for e in np.eye(3) * 1e-6])\nassert np.allclose(grad_x(W1, W2, x), num, atol=1e-5), f'numerical gradient is {np.round(num, 4)}'"
+    }
+   ],
+   "hints": [
+    "A row vector times a Jacobian: g @ W2 has shape (2,) @ (2, 4) = (4,).",
+    "g = g @ W2, then g = g @ W1."
+   ],
+   "solution": "import numpy as np\n\ndef grad_x(W1, W2, x):\n    h = W1 @ x\n    y = W2 @ h\n    g = np.ones_like(y)\n    g = g @ W2\n    g = g @ W1\n    return g\n"
+  }
+ ],
+ "poster": "videos/2.5-jacobians.jpg"
+}

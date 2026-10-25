@@ -78,23 +78,28 @@
     },
     {
      "num": "2.2",
-     "title": "Chain rule: rates multiply"
+     "title": "Chain rule: rates multiply",
+     "id": "2.2-chain-rule"
     },
     {
      "num": "2.3",
-     "title": "Partial derivatives"
+     "title": "Partial derivatives",
+     "id": "2.3-partial-derivatives"
     },
     {
      "num": "2.4",
-     "title": "The gradient points uphill"
+     "title": "The gradient points uphill",
+     "id": "2.4-gradient"
     },
     {
      "num": "2.5",
-     "title": "Jacobians: derivatives of vector functions"
+     "title": "Jacobians: derivatives of vector functions",
+     "id": "2.5-jacobians"
     },
     {
      "num": "2.6",
-     "title": "Linear approximation and Taylor series"
+     "title": "Linear approximation and Taylor series",
+     "id": "2.6-taylor-series"
     }
    ]
   },
