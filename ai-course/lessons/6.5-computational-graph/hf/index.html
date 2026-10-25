@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;border-radius:50%;border:4px solid;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;background:#10151c;opacity:0;visibility:hidden}
+.box{position:absolute;border-radius:16px;border:3px solid;display:flex;align-items:center;justify-content:center;text-align:center;background:#10151c;opacity:0;visibility:hidden}
+.code{position:absolute;font-family:'JetBrains Mono',monospace;font-size:30px;line-height:1.45;white-space:pre;background:#121821;border:2px solid #2a3442;border-radius:14px;padding:22px 30px;color:var(--ink);opacity:0;visibility:hidden}
+.code .k{color:#c792ea}.code .f{color:#58c4dd}.code .n{color:#f5cf4a}.code .c{color:#7f8b99}
+.px{position:absolute;border:1px solid #0e1116}
+
+.vbox{position:absolute;border-radius:14px;border:3px solid;background:#10151c;opacity:0;visibility:hidden;font-family:'JetBrains Mono',monospace;text-align:center}
+.vbox .nm{position:absolute;left:0;top:6px;width:100%;font-size:26px;color:#7f8b99;font-family:'Newsreader',serif;font-style:italic}
+.vbox .vl{position:absolute;left:0;top:34px;width:100%;font-size:40px;color:#e8edf3;opacity:0}
+.op{position:absolute;border-radius:50%;border:3px solid #7f8b99;background:#10151c;color:#e8edf3;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:40px;opacity:0;visibility:hidden}
+
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="199.4" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="199.4" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 6.5 Computational graphs</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="21.989"></div>
+  <div class="clip scene" id="S2" data-start="21.989" data-duration="29.307"></div>
+  <div class="clip scene" id="S3" data-start="51.296" data-duration="29.222"></div>
+  <div class="clip scene" id="S4" data-start="80.518" data-duration="27.515"></div>
+  <div class="clip scene" id="S5" data-start="108.033" data-duration="28.754"></div>
+  <div class="clip scene" id="S6" data-start="136.787" data-duration="27.957"></div>
+  <div class="clip scene" id="S7" data-start="164.744" data-duration="17.32"></div>
+  <div class="clip scene" id="S8" data-start="182.064" data-duration="17.336"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":21.989,"s3":51.296,"s4":80.518,"s5":108.033,"s6":136.787,"s7":164.744,"s8":182.064},"total":199.4,"cues":{"s1":[["to",0.0],["train",0.176],["a",0.527],["network",0.645],["we",1.113],["will",1.289],["need",1.582],["to",1.875],["know",2.051],["for",3.131],["every",3.391],["single",3.782],["weight",4.237],["how",5.31],["a",5.59],["small",5.73],["change",6.151],["to",6.641],["it",6.851],["would",7.061],["change",7.482],["the",7.972],["final",8.253],["error",8.673],["before",9.754],["we",10.127],["can",10.287],["answer",10.499],["that",10.872],["we",11.694],["need",11.887],["a",12.209],["precise",12.338],["record",12.853],["of",13.304],["how",13.497],["the",13.755],["output",14.013],["was",14.464],["computed",14.721],["in",15.301],["the",15.494],["first",15.752],["place",16.139],["and",17.189],["the",17.423],["cleanest",17.657],["such",18.184],["record",18.476],["is",18.886],["a",19.062],["picture",19.179],["called",19.647],["a",20.057],["computational",20.174],["graph",20.993]],"s2":[["take",0.0],["a",0.27],["small",0.377],["expression",0.701],["multiply",1.617],["a",2.456],["by",2.642],["b",2.922],["add",3.512],["c",3.894],["and",4.618],["multiply",4.884],["the",5.482],["result",5.748],["by",6.213],["f",6.412],["a",6.839],["computational",6.958],["graph",7.787],["breaks",8.142],["it",8.557],["into",8.734],["elementary",9.03],["operations",9.682],["each",10.915],["operation",11.189],["is",11.736],["a",11.9],["node",12.009],["each",12.807],["number",13.072],["travels",13.441],["along",13.864],["an",14.181],["edge",14.34],["and",15.13],["the",15.367],["edges",15.605],["show",15.962],["which",16.259],["results",16.615],["feed",17.091],["into",17.388],["which",17.685],["operations",18.042],["it",19.061],["is",19.271],["like",19.482],["the",19.833],["flowchart",20.113],["of",20.815],["a",21.026],["recipe",21.166],["where",22.015],["every",22.46],["step",22.905],["names",23.276],["the",23.72],["ingredients",24.017],["it",24.907],["uses",25.129],["and",25.5],["hands",25.796],["its",26.241],["product",26.537],["on",27.131],["to",27.353],["the",27.575],["next",27.872],["step",28.242]],"s3":[["running",0.0],["the",0.497],["forward",0.746],["pass",1.243],["means",1.553],["pushing",1.926],["actual",2.423],["numbers",2.858],["through",3.355],["the",3.852],["graph",4.101],["from",4.474],["left",4.784],["to",5.095],["right",5.281],["with",6.05],["a",6.366],["equal",6.493],["to",6.872],["two",7.062],["and",7.315],["b",7.568],["equal",7.695],["to",8.074],["minus",8.264],["three",8.644],["the",9.513],["first",9.775],["node",10.168],["produces",10.496],["minus",11.085],["six",11.478],["adding",12.087],["c",12.559],["which",13.048],["is",13.363],["ten",13.52],["gives",14.084],["four",14.488],["and",15.331],["multiplying",15.589],["by",16.361],["f",16.554],["which",17.135],["is",17.499],["minus",17.681],["two",18.046],["gives",18.693],["a",19.068],["final",19.194],["output",19.569],["of",20.008],["minus",20.196],["eight",20.571],["every",21.366],["node",21.723],["computes",22.021],["its",22.557],["value",22.795],["only",23.152],["after",23.45],["all",23.808],["of",24.046],["its",24.224],["inputs",24.463],["are",24.88],["ready",25.118],["so",25.811],["the",25.988],["order",26.225],["of",26.579],["evaluation",26.756],["follows",27.406],["the",27.879],["arrows",28.115]],"s4":[["a",0.0],["neuron",0.123],["fits",0.553],["the",0.86],["same",1.105],["mould",1.413],["each",2.279],["input",2.579],["meets",2.94],["its",3.3],["weight",3.54],["at",3.96],["a",4.14],["multiplication",4.26],["node",5.161],["the",5.956],["products",6.227],["flow",6.836],["into",7.174],["an",7.513],["addition",7.716],["node",8.325],["the",9.397],["bias",9.664],["joins",9.997],["at",10.397],["another",10.597],["addition",11.13],["and",12.234],["the",12.469],["result",12.705],["passes",13.116],["through",13.527],["a",13.997],["relu",14.115],["node",14.409],["a",14.982],["whole",15.1],["network",15.455],["is",15.928],["this",16.105],["pattern",16.4],["repeated",16.873],["and",17.933],["even",18.163],["a",18.451],["language",18.566],["model",19.084],["with",19.43],["billions",19.718],["of",20.236],["parameters",20.409],["is",21.042],["underneath",21.686],["one",22.659],["enormous",22.97],["graph",23.67],["made",24.137],["of",24.526],["the",24.759],["same",25.07],["few",25.459],["kinds",25.77],["of",26.237],["node",26.47]],"s5":[["the",0.0],["key",0.231],["design",0.461],["decision",0.864],["is",1.383],["that",1.556],["every",1.844],["value",2.19],["remembers",2.536],["where",3.112],["it",3.458],["came",3.631],["from",3.919],["when",4.667],["we",4.998],["compute",5.196],["a",5.725],["times",5.857],["b",6.254],["the",6.953],["result",7.208],["does",7.653],["not",7.971],["just",8.225],["store",8.543],["the",8.925],["number",9.179],["minus",9.624],["six",10.006],["it",10.826],["also",11.087],["stores",11.521],["a",12.13],["link",12.304],["to",12.738],["a",12.999],["and",13.173],["to",13.52],["b",13.781],["and",14.554],["a",14.761],["note",14.865],["that",15.125],["the",15.384],["operation",15.592],["was",16.111],["multiplication",16.319],["that",17.436],["memory",17.798],["costs",18.305],["a",18.74],["little",18.885],["storage",19.392],["but",20.044],["it",20.334],["is",20.551],["precisely",20.768],["what",21.493],["will",21.855],["let",22.218],["us",22.507],["walk",22.725],["the",23.087],["graph",23.377],["backwards",23.811],["later",24.536],["and",24.971],["ask",25.261],["how",25.55],["each",25.84],["input",26.202],["influenced",26.637],["the",27.434],["output",27.724]],"s6":[["in",0.0],["code",0.189],["we",0.566],["can",0.755],["build",1.006],["this",1.384],["with",1.698],["a",2.012],["small",2.138],["class",2.515],["called",2.893],["value",3.333],["it",4.062],["wraps",4.215],["a",4.521],["number",4.623],["keeps",5.341],["the",5.613],["set",5.794],["of",5.975],["values",6.111],["that",6.428],["produced",6.655],["it",7.063],["and",7.615],["records",7.803],["the",8.178],["name",8.366],["of",8.6],["the",8.741],["operation",8.928],["and",9.895],["by",10.22],["defining",10.463],["python's",11.194],["addition",11.924],["and",12.655],["multiplication",12.98],["for",14.198],["it",14.522],["ordinary",15.007],["expressions",15.458],["like",16.059],["a",16.309],["times",16.41],["b",16.71],["plus",16.81],["c",17.061],["build",17.161],["the",17.462],["graph",17.662],["automatically",17.963],["as",18.664],["they",18.814],["run",19.065],["this",19.595],["is",19.927],["the",20.126],["first",20.391],["piece",20.79],["of",21.188],["your",21.387],["own",21.719],["tiny",21.985],["automatic",22.317],["differentiation",22.981],["engine",24.043],["and",25.016],["you",25.209],["will",25.402],["write",25.643],["it",25.933],["in",26.078],["this",26.223],["lesson's",26.464],["problems",26.898]],"s7":[["pytorch",0.0],["works",0.485],["in",0.849],["the",1.031],["same",1.274],["way",1.577],["every",2.168],["time",2.489],["a",2.756],["model",2.863],["runs",3.184],["its",3.451],["forward",3.664],["pass",4.092],["the",4.563],["library",4.859],["quietly",5.45],["records",6.04],["a",6.631],["node",6.779],["for",7.148],["each",7.443],["operation",7.812],["it",8.551],["performs",8.772],["building",9.707],["the",10.301],["graph",10.564],["as",10.96],["the",11.158],["code",11.421],["runs",11.751],["and",12.286],["that",12.555],["record",12.89],["is",13.361],["what",13.562],["makes",13.898],["a",14.301],["single",14.435],["call",14.905],["to",15.241],["backward",15.443],["possible",16.047]],"s8":[["so",0.0],["the",0.214],["forward",0.498],["pass",1.068],["computes",1.424],["the",2.064],["answer",2.349],["and",2.847],["as",3.326],["a",3.488],["side",3.597],["effect",3.867],["leaves",4.749],["behind",5.186],["a",5.622],["map",5.747],["of",5.996],["how",6.183],["it",6.433],["got",6.62],["there",6.869],["in",7.717],["the",7.934],["next",8.223],["lesson",8.584],["we",9.09],["walk",9.307],["along",9.668],["that",10.102],["map",10.463],["in",10.752],["reverse",10.969],["and",12.173],["that",12.486],["reverse",12.876],["journey",13.502],["is",14.127],["backpropagation",14.361]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0',orange:'#f39c4a',purple:'#b48ef0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,last){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!last)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u,uy){return (x,y)=>[ox+u*x,oy-(uy||u)*y]}
+function drawGrid(svg,P,x0,x1,y0,y1,step){step=step||1;
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1+1e-9;x+=step){const a=P(x,y0),b=P(x,y1);const ax=Math.abs(x)<1e-9;svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:ax?C.axis:C.grid,'stroke-width':ax?3:1.6,opacity:ax?.9:.55},g)}
+  for(let y=y0;y<=y1+1e-9;y+=step){const a=P(x0,y),b=P(x1,y);const ax=Math.abs(y)<1e-9;svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:ax?C.axis:C.grid,'stroke-width':ax?3:1.6,opacity:ax?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ---- extra helpers for module 6 and 8 lessons ---- */
+/* a hidden SVG line or path, drawn on by animating its dash */
+function ln(svg,x1,y1,x2,y2,color,w,extra){return svgEl('line',Object.assign({x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+function pth(svg,d,color,w,extra){return svgEl('path',Object.assign({d,fill:'none',stroke:color,'stroke-width':w||5,'stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+function plen(e){if(e.tagName==='line'){const a=+e.getAttribute('x1'),b=+e.getAttribute('y1'),c=+e.getAttribute('x2'),d=+e.getAttribute('y2');return Math.hypot(c-a,d-b)}return e.getTotalLength()}
+function drawOn(e,time,d,ease){const L=plen(e)+2;tl.set(e,{attr:{'stroke-dasharray':`${L} ${L}`,'stroke-dashoffset':L}},0);
+  tl.to(e,{autoAlpha:1,duration:.15},time);tl.to(e,{attr:{'stroke-dashoffset':0},duration:d||1,ease:ease||'power1.inOut'},time)}
+/* sample y=f(x) on [x0,x1] into an SVG path through plane P */
+function fpath(f,P,x0,x1,n){n=n||160;let s='';for(let i=0;i<=n;i++){const x=x0+(x1-x0)*i/n;const [px,py]=P(x,f(x));s+=(i?'L':'M')+px.toFixed(1)+' '+py.toFixed(1)}return s}
+/* morph a path between two functions by tweening a mix parameter */
+function morphF(path,P,fa,fb,x0,x1,time,d,ease){const o={m:0};tl.to(o,{m:1,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>path.setAttribute('d',fpath(x=>fa(x)*(1-o.m)+fb(x)*o.m,P,x0,x1))},time)}
+/* circular node with a label */
+function node(parent,x,y,r,html,color,fs){const n=el(parent,'node',html,{left:(x-r)+'px',top:(y-r)+'px',width:2*r+'px',height:2*r+'px',borderColor:color||C.ink,fontSize:(fs||Math.round(r*.7))+'px',color:C.ink});n.cx=x;n.cy=y;n.r=r;return n}
+/* rounded box with a label */
+function boxEl(parent,x,y,w,h,html,color,fs){const b=el(parent,'box',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.ink,fontSize:(fs||40)+'px'});b.cx=x;b.cy=y;b.w=w;b.h=h;return b}
+/* edge between two circle nodes (stops at their rims) */
+function edge(svg,a,b,color,w,arrow){const dx=b.cx-a.cx,dy=b.cy-a.cy,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L;const ra=a.r||a.w/2,rb=b.r||b.w/2;
+  return ln(svg,a.cx+ux*ra,a.cy+uy*ra,b.cx-ux*(rb+(arrow?6:0)),b.cy-uy*(rb+(arrow?6:0)),color||C.dim,w||3)}
+/* count a number shown in an element from a to b */
+function countTo(e,time,d,a,b,dp){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.textContent=fmt(o.v,dp)}},time)}
+/* bracketed matrix of strings; cells[r][c] */
+function matrix(parent,cx,cy,rows,o){o=o||{};const fs=o.fs||44,cw=o.cw||fs*2.4,rowH=fs*1.35,pad=fs*.3,nr=rows.length,nc=rows[0].length,W=nc*cw+36,H=nr*rowH+pad*2;
+  const box=el(parent,'colv hid','',{left:(cx-W/2)+'px',top:(cy-H/2)+'px',width:W+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=rows.map((r,i)=>r.map((v,j)=>el(box,'cell',v,{left:(18+j*cw)+'px',top:(pad+i*rowH)+'px',width:cw+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink})));
+  return {box,cells,cx,cy,W,H,rowH,cw,pad,nr,nc}}
+function rowHL(parent,m,i,color){return el(parent,'hl','',{left:(m.cx-m.W/2+10)+'px',top:(m.cy-m.H/2+m.pad+i*m.rowH-2)+'px',width:(m.W-20)+'px',height:(m.rowH+4)+'px',borderColor:color,boxShadow:`0 0 20px ${color}55`})}
+function colHL(parent,m,j,color){return el(parent,'hl','',{left:(m.cx-m.W/2+18+j*m.cw)+'px',top:(m.cy-m.H/2+6)+'px',width:m.cw+'px',height:(m.H-12)+'px',borderColor:color,boxShadow:`0 0 20px ${color}55`})}
+function nextCap(S,sid,word,n,txt){const c=el(S,'cap','next &nbsp;·&nbsp; '+txt,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(c,cue(sid,word,n),.7);return c}
+
+
+/* the expression graph L = (a*b + c) * f, shared by this lesson's scenes */
+function vbox(S,x,y,name,val,color){const b=el(S,'vbox','',{left:(x-80)+'px',top:(y-48)+'px',width:'160px',height:'96px',borderColor:color||C.blue});
+  el(b,'nm',name);const v=el(b,'vl',val);b.cx=x;b.cy=y;b.w=160;b.h=96;b.v=v;return b}
+function opn(S,x,y,sym){const o=el(S,'op',sym,{left:(x-38)+'px',top:(y-38)+'px',width:'76px',height:'76px'});o.cx=x;o.cy=y;o.r=38;return o}
+function link(svg,a,b,color){const ax=a.cx+(a.w?a.w/2:a.r),bx=b.cx-(b.w?b.w/2:b.r);const ay=a.cy,by=b.cy;const mx=(ax+bx)/2;
+  const p=pth(svg,`M${ax} ${ay} C${mx} ${ay} ${mx} ${by} ${bx-8} ${by}`,color||C.dim,3);
+  const head=svgEl('polygon',{points:`${bx},${by} ${bx-14},${by-7} ${bx-14},${by+7}`,fill:color||C.dim,style:'opacity:0;visibility:hidden'},svg);p.head=head;return p}
+function buildExpr(S,svg){const G={};
+  G.a=vbox(S,200,300,'a','2',C.blue);G.b=vbox(S,200,520,'b','−3',C.blue);G.m1=opn(S,450,410,'×');G.e=vbox(S,660,410,'e = a·b','−6',C.ink);
+  G.c=vbox(S,660,650,'c','10',C.blue);G.p=opn(S,900,530,'+');G.d=vbox(S,1110,530,'d = e + c','4',C.ink);
+  G.f=vbox(S,1110,770,'f','−2',C.blue);G.m2=opn(S,1350,650,'×');G.L=vbox(S,1580,650,'L = d·f','−8',C.yellow);
+  G.E={am:link(svg,G.a,G.m1),bm:link(svg,G.b,G.m1),me:link(svg,G.m1,G.e),ep:link(svg,G.e,G.p),cp:link(svg,G.c,G.p),pd:link(svg,G.p,G.d),dm:link(svg,G.d,G.m2),fm:link(svg,G.f,G.m2),mL:link(svg,G.m2,G.L)};
+  return G}
+function showLink(l,t,d){drawOn(l,t,d||.5);tl.to(l.head,{autoAlpha:1,duration:.2},t+(d||.5)-.1)}
+function showVal(b,t){tl.to(b.v,{opacity:1,duration:.4},t);tl.fromTo(b,{boxShadow:'0 0 0px #f5cf4a00'},{boxShadow:'0 0 30px #f5cf4a88',duration:.3,yoyo:true,repeat:1,immediateRender:false},t)}
+
+/* ============ S1: how does a nudge change the error? ============ */
+(function(){const S=$('S1');const sid='s1';
+  const svg=layerSvg(S);
+  const cols=[3,4,4,1],N=cols.map((n,i)=>{const a=[];for(let j=0;j<n;j++)a.push(node(S,420+i*360,540+(j-(n-1)/2)*140,30,'',i===3?C.yellow:C.blue));return a});
+  const E=[];for(let i=0;i<3;i++)N[i].forEach(a=>N[i+1].forEach(b=>E.push(edge(svg,a,b,C.dim,2))));
+  fadeIn([].concat(...N),cue(sid,'network'),.4,.03);E.forEach((e,k)=>drawOn(e,cue(sid,'network')+.2+k*.02,.4));
+  const hot=E[9];
+  tl.to(hot,{attr:{stroke:C.pink,'stroke-width':7},duration:.4},cue(sid,'weight'));
+  const wl=el(S,'lbl','one weight',{color:C.pink,fontSize:'38px',fontStyle:'italic'});place(wl,(+hot.getAttribute('x1')+ +hot.getAttribute('x2'))/2,(+hot.getAttribute('y1')+ +hot.getAttribute('y2'))/2-50);
+  show(wl,cue(sid,'weight'),.4);
+  const err=el(S,'abs mono','',{left:'1400px',top:'420px',width:'300px',textAlign:'center',fontSize:'42px',color:C.yellow,opacity:0,visibility:'hidden'});err.innerHTML='error<br><span id="errv">0.731</span>';
+  place(err,1500,380);fadeIn(err,cue(sid,'error'),.4);
+  const ev=err.querySelector('#errv');const o={v:.731};tl.to(o,{v:.712,duration:.6,yoyo:true,repeat:3,immediateRender:false,onUpdate:()=>{ev.textContent=o.v.toFixed(3)}},cue(sid,'change'));
+  tl.to(hot,{attr:{'stroke-width':12},duration:.3,yoyo:true,repeat:3},cue(sid,'change'));
+  const rec=el(S,'cap','we need a record of how the output was computed',{top:'920px',fontStyle:'italic',fontSize:'44px'});show(rec,cue(sid,'record'),.5);
+  tl.to(rec,{autoAlpha:0,duration:.3},cue(sid,'picture')-.2);
+  const cg=el(S,'cap','a <em>computational graph</em>',{top:'920px',fontStyle:'italic',fontSize:'52px'});show(cg,cue(sid,'computational'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: the graph of an expression ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);const G=buildExpr(S,svg);
+  const ex=el(S,'cap',tex('L = (a\\cdot b + c)\\cdot f',60),{top:'110px'});show(ex,cue(sid,'expression'),.6);
+  show([G.a,G.b],cue(sid,'multiply'),.4);show(G.m1,cue(sid,'b'),.4);showLink(G.E.am,cue(sid,'b'));showLink(G.E.bm,cue(sid,'b'));showLink(G.E.me,cue(sid,'add')-.3);show(G.e,cue(sid,'add')-.1,.4);
+  show(G.c,cue(sid,'c'),.4);show(G.p,cue(sid,'c')+.2,.4);showLink(G.E.ep,cue(sid,'c')+.2);showLink(G.E.cp,cue(sid,'c')+.2);showLink(G.E.pd,cue(sid,'multiply',2));show(G.d,cue(sid,'multiply',2),.4);
+  show(G.f,cue(sid,'f'),.4);show(G.m2,cue(sid,'f')+.2,.4);showLink(G.E.dm,cue(sid,'f')+.2);showLink(G.E.fm,cue(sid,'f')+.2);showLink(G.E.mL,cue(sid,'f')+.5);show(G.L,cue(sid,'f')+.7,.4);
+  const ops=[G.m1,G.p,G.m2];
+  tl.to(ops,{borderColor:C.yellow,boxShadow:'0 0 24px #f5cf4a88',duration:.4},cue(sid,'node'));tl.to(ops,{borderColor:C.dim,boxShadow:'0 0 0px #f5cf4a00',duration:.4},cue(sid,'edge'));
+  const ls=Object.values(G.E);tl.to(ls,{attr:{stroke:C.teal,'stroke-width':6},duration:.4},cue(sid,'edge'));tl.to(ls,{attr:{stroke:C.dim,'stroke-width':3},duration:.4},cue(sid,'flowchart'));
+  const lg=el(S,'abs','',{left:'1340px',top:'860px',width:'520px',fontSize:'34px',fontStyle:'italic',color:C.dim,lineHeight:'1.4',opacity:0,visibility:'hidden'});
+  lg.innerHTML='circles: operations<br>boxes: values on the edges';show(lg,cue(sid,'node')+.4,.5);
+  const rc=el(S,'abs','',{left:'120px',top:'860px',width:'900px',fontSize:'38px',fontStyle:'italic',opacity:0,visibility:'hidden'});rc.innerHTML='like a recipe flowchart: each step names its ingredients';show(rc,cue(sid,'recipe'),.5);
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+  // hand the graph to s3 without fading: s3 reuses the same layout, so keep S2 visible underneath until s3 fades in
+  S.G=G;
+})();
+
+/* ============ S3: forward pass ============ */
+(function(){const S=$('S3');const sid='s3';
+  const svg=layerSvg(S);const G=buildExpr(S,svg);
+  [G.a,G.b,G.c,G.f,G.e,G.d,G.L,G.m1,G.p,G.m2].forEach(b=>gsap.set(b,{autoAlpha:1}));
+  Object.values(G.E).forEach(l=>{gsap.set([l,l.head],{autoAlpha:1})});
+  const ex=el(S,'cap',tex('L = (a\\cdot b + c)\\cdot f',60),{top:'110px'});gsap.set(ex,{autoAlpha:1});
+  const lr=el(S,'abs','',{left:'120px',top:'880px',width:'600px',fontSize:'40px',fontStyle:'italic',color:C.teal,opacity:0,visibility:'hidden'});lr.innerHTML='forward: left to right →';show(lr,cue(sid,'left'),.5);
+  showVal(G.a,cue(sid,'two'));showVal(G.b,cue(sid,'three'));
+  const pulse=(l,t)=>{tl.to(l,{attr:{stroke:C.teal,'stroke-width':6},duration:.3},t);tl.to(l,{attr:{stroke:C.dim,'stroke-width':3},duration:.5},t+.8)};
+  pulse(G.E.am,cue(sid,'first'));pulse(G.E.bm,cue(sid,'first'));pulse(G.E.me,cue(sid,'produces'));showVal(G.e,cue(sid,'six'));
+  showVal(G.c,cue(sid,'ten'));pulse(G.E.ep,cue(sid,'gives'));pulse(G.E.cp,cue(sid,'gives'));pulse(G.E.pd,cue(sid,'gives')+.3);showVal(G.d,cue(sid,'four'));
+  showVal(G.f,cue(sid,'two',2));pulse(G.E.dm,cue(sid,'gives',2));pulse(G.E.fm,cue(sid,'gives',2));pulse(G.E.mL,cue(sid,'final'));showVal(G.L,cue(sid,'eight'));
+  const rd=el(S,'abs','',{left:'1240px',top:'880px',width:'640px',fontSize:'36px',fontStyle:'italic',color:C.dim,opacity:0,visibility:'hidden'});rd.innerHTML='each node waits until its inputs are ready';show(rd,cue(sid,'ready'),.5);
+  tl.to(S,{opacity:1,duration:.05,ease:'none'},START[sid]);tl.to(S,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5);
+})();
+
+/* ============ S4: a neuron is a graph too ============ */
+(function(){const S=$('S4');const sid='s4';
+  const svg=layerSvg(S);
+  const mk=(x,y,n,c)=>{const b=vbox(S,x,y,n,'',c);b.style.height='70px';b.style.top=(y-35)+'px';b.h=70;b.querySelector('.nm').style.top='18px';b.querySelector('.nm').style.fontSize='32px';return b};
+  const x1=mk(200,260,'x₁',C.blue),w1=mk(200,420,'w₁',C.pink),x2=mk(200,620,'x₂',C.blue),w2=mk(200,780,'w₂',C.pink);
+  const m1=opn(S,480,340,'×'),m2=opn(S,480,700,'×'),p1=opn(S,760,520,'+'),bb=mk(760,780,'b',C.pink),p2=opn(S,1020,600,'+'),r=opn(S,1270,600,'');
+  r.innerHTML='<svg width="44" height="30" viewBox="0 0 44 30"><path d="M2 26 L22 26 L42 4" fill="none" stroke="#f5cf4a" stroke-width="4"/></svg>';
+  const out=mk(1520,600,'output',C.yellow);
+  const L=[[x1,m1],[w1,m1],[x2,m2],[w2,m2],[m1,p1],[m2,p1],[p1,p2],[bb,p2],[p2,r],[r,out]].map(([a,b])=>link(svg,a,b));
+  show([x1,w1],cue(sid,'input'),.4);show([x2,w2],cue(sid,'input')+.3,.4);show([m1,m2],cue(sid,'multiplication'),.4);[0,1,2,3].forEach(i=>showLink(L[i],cue(sid,'multiplication')));
+  show(p1,cue(sid,'addition'),.4);showLink(L[4],cue(sid,'products'));showLink(L[5],cue(sid,'products'));
+  show(bb,cue(sid,'bias'),.4);show(p2,cue(sid,'joins'),.4);showLink(L[6],cue(sid,'joins'));showLink(L[7],cue(sid,'joins'));
+  show(r,cue(sid,'relu'),.4);showLink(L[8],cue(sid,'relu'));showLink(L[9],cue(sid,'node',3));show(out,cue(sid,'node',3)+.2,.4);
+  const lab=el(S,'lbl','ReLU',{color:C.yellow,fontSize:'32px',fontStyle:'italic'});place(lab,1270,530);show(lab,cue(sid,'relu'),.4);
+  const all=[x1,w1,x2,w2,m1,m2,p1,bb,p2,r,out,lab,...L,...L.map(l=>l.head)];
+  tl.to(all,{autoAlpha:0,duration:.5},cue(sid,'repeated')-.6);
+  // many copies: a network is a big graph
+  const rnd=seedRand(12);const dots=[];const lines=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  for(let i=0;i<14;i++)for(let j=0;j<7;j++){const x=200+i*115+(j%2)*30,y=230+j*100;dots.push(svgEl('circle',{cx:x,cy:y,r:9,fill:[C.blue,C.yellow,C.pink,C.dim][Math.floor(rnd()*4)],style:'opacity:0;visibility:hidden'},svg));if(i<13)svgEl('line',{x1:x,y1:y,x2:x+115,y2:230+Math.floor(rnd()*7)*100,stroke:C.dim,'stroke-width':1.2,opacity:.5},lines)}
+  tl.to(dots,{autoAlpha:1,duration:.15,stagger:.008},cue(sid,'repeated'));fadeIn(lines,cue(sid,'repeated')+.3,.6);
+  const big=el(S,'cap','one enormous graph, a few kinds of node',{top:'960px',fontStyle:'italic',fontSize:'44px'});show(big,cue(sid,'enormous'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: every value remembers where it came from ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);const G=buildExpr(S,svg);
+  [G.a,G.b,G.c,G.f,G.e,G.d,G.L,G.m1,G.p,G.m2].forEach(b=>{gsap.set(b,{autoAlpha:.35});gsap.set(b.v,{opacity:1})});
+  Object.values(G.E).forEach(l=>{gsap.set([l,l.head],{autoAlpha:.35})});
+  tl.to([G.e,G.a,G.b],{autoAlpha:1,duration:.4},cue(sid,'compute'));
+  tl.to(G.e,{borderColor:C.yellow,boxShadow:'0 0 30px #f5cf4a66',duration:.4},cue(sid,'result'));
+  const card=el(S,'code','',{left:'830px',top:'150px',fontSize:'32px'});
+  card.innerHTML='<span class="c"># the value e remembers</span>\ndata  = <span class="n">-6</span>\n_prev = {<span class="f">a</span>, <span class="f">b</span>}\n_op   = <span class="n">\'*\'</span>';
+  show(card,cue(sid,'number'),.5);
+  const back=[pth(svg,`M580 395 C480 370 380 300 284 300`,C.pink,4,{'stroke-dasharray':'10 8'}),pth(svg,`M580 425 C480 450 380 520 284 520`,C.pink,4,{'stroke-dasharray':'10 8'})];
+  back.forEach(p=>fadeIn(p,cue(sid,'link'),.5));
+  const hl=[el(S,'hl','',{left:'850px',top:'214px',width:'280px',height:'50px',borderColor:C.yellow}),el(S,'hl','',{left:'850px',top:'260px',width:'380px',height:'50px',borderColor:C.pink}),el(S,'hl','',{left:'850px',top:'307px',width:'300px',height:'50px',borderColor:C.teal})];
+  fadeIn(hl[0],cue(sid,'number'),.3);fadeOut(hl[0],cue(sid,'link')-.2,.3);fadeIn(hl[1],cue(sid,'link'),.3);fadeOut(hl[1],cue(sid,'note')-.2,.3);fadeIn(hl[2],cue(sid,'note'),.3);fadeOut(hl[2],cue(sid,'memory')+.5,.3);
+  const bw=el(S,'abs','',{left:'1240px',top:'900px',width:'620px',textAlign:'right',fontSize:'38px',fontStyle:'italic',color:C.pink,opacity:0,visibility:'hidden'});bw.innerHTML='← lets us walk the graph backwards';show(bw,cue(sid,'backwards'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: the Value class ============ */
+(function(){const S=$('S6');const sid='s6';
+  const lines=[
+   '<span class="k">class</span> <span class="f">Value</span>:',
+   '    <span class="k">def</span> <span class="f">__init__</span>(self, data, _prev=(), _op=<span class="n">\'\'</span>):',
+   '        self.data = data',
+   '        self._prev = set(_prev)',
+   '        self._op = _op',
+   '',
+   '    <span class="k">def</span> <span class="f">__add__</span>(self, other):',
+   '        <span class="k">return</span> Value(self.data + other.data, (self, other), <span class="n">\'+\'</span>)',
+   '',
+   '    <span class="k">def</span> <span class="f">__mul__</span>(self, other):',
+   '        <span class="k">return</span> Value(self.data * other.data, (self, other), <span class="n">\'*\'</span>)',
+   '',
+   'a, b, c = Value(<span class="n">2.0</span>), Value(<span class="n">-3.0</span>), Value(<span class="n">10.0</span>)',
+   'e = a * b + c   <span class="c"># builds the graph as it runs</span>'];
+  const code=el(S,'code',lines.join('\n'),{left:'170px',top:'150px',fontSize:'31px'});
+  show(code,cue(sid,'class'),.6);
+  const lh=31*1.45,top0=150+22+2;
+  const H=(i,n,col)=>el(S,'hl','',{left:'180px',top:(top0+i*lh-4)+'px',width:'1110px',height:(n*lh+8)+'px',borderColor:col});
+  const h=[[2,1,C.yellow,'wraps','keeps'],[3,1,C.pink,'keeps','records'],[4,1,C.teal,'records','defining'],[6,2,C.blue,'addition','multiplication'],[9,2,C.blue,'multiplication','ordinary'],[12,2,C.yellow,'ordinary','first']].map(([i,n,col,a,b])=>{const e=H(i,n,col);fadeIn(e,cue(sid,a),.3);fadeOut(e,cue(sid,b)-.1,.3);return e});
+  const eng=el(S,'cap','the first piece of <em>your own autograd engine</em>',{top:'900px',fontStyle:'italic',fontSize:'46px'});show(eng,cue(sid,'first'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: PyTorch records the graph too ============ */
+(function(){const S=$('S7');const sid='s7';
+  const code=el(S,'code','<span class="k">import</span> torch\na = torch.tensor(<span class="n">2.0</span>, requires_grad=<span class="k">True</span>)\ny = a * <span class="n">3</span> + <span class="n">1</span>\ny.grad_fn        <span class="c"># &lt;AddBackward0&gt;</span>\ny.backward()     <span class="c"># walks the recorded graph</span>',{left:'170px',top:'200px',fontSize:'34px'});
+  show(code,cue(sid,'pytorch'),.6);
+  const lh=34*1.45,top0=200+22+2;
+  const h1=el(S,'hl','',{left:'180px',top:(top0+3*lh-4)+'px',width:'860px',height:(lh+8)+'px',borderColor:C.teal});fadeIn(h1,cue(sid,'records'),.3);fadeOut(h1,cue(sid,'record')-.2,.3);
+  const h2=el(S,'hl','',{left:'180px',top:(top0+4*lh-4)+'px',width:'860px',height:(lh+8)+'px',borderColor:C.pink});fadeIn(h2,cue(sid,'backward'),.3);
+  const svg=layerSvg(S);
+  const n1=node(S,1300,640,40,'a',C.blue,30),n2=node(S,1480,560,36,'×',C.dim,30),n3=node(S,1660,640,36,'+',C.dim,30),n4=node(S,1660,820,40,'y',C.yellow,30);
+  const e=[edge(svg,n1,n2,C.dim,3),edge(svg,n2,n3,C.dim,3),edge(svg,n3,n4,C.dim,3)];
+  show(n1,cue(sid,'forward'),.4);show(n2,cue(sid,'node'),.4);drawOn(e[0],cue(sid,'node'),.4);show(n3,cue(sid,'operation'),.4);drawOn(e[1],cue(sid,'operation'),.4);show(n4,cue(sid,'building'),.4);drawOn(e[2],cue(sid,'building'),.4);
+  const gl=el(S,'lbl','recorded as the code runs',{color:C.dim,fontSize:'32px',fontStyle:'italic'});place(gl,1480,940);show(gl,cue(sid,'runs',2),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S8: recap ============ */
+(function(){const S=$('S8');const sid='s8';
+  const svg=layerSvg(S);const G=buildExpr(S,svg);
+  [G.a,G.b,G.c,G.f,G.e,G.d,G.L,G.m1,G.p,G.m2].forEach(b=>{gsap.set(b.v,{opacity:1})});
+  const all=[G.a,G.b,G.c,G.f,G.e,G.d,G.L,G.m1,G.p,G.m2];
+  fadeIn(all,at(sid,.02),.5);Object.values(G.E).forEach(l=>fadeIn([l,l.head],at(sid,.02),.5));
+  const fw=pth(svg,'M200 180 L1580 180',C.teal,5);drawOn(fw,cue(sid,'forward'),1.2);
+  const fl=el(S,'lbl','forward: compute, and leave a map',{color:C.teal,fontSize:'36px',fontStyle:'italic'});place(fl,890,140);show(fl,cue(sid,'map'),.5);
+  const bw=pth(svg,'M1580 900 L200 900',C.pink,5);drawOn(bw,cue(sid,'reverse'),1.2);
+  const bl=el(S,'lbl','backward: walk the map in reverse',{color:C.pink,fontSize:'36px',fontStyle:'italic'});place(bl,890,860);show(bl,cue(sid,'reverse'),.5);
+  nextCap(S,sid,'backpropagation',1,'6.6 &nbsp;backpropagation: the chain rule run backwards');
+  sceneInOut(sid,true);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
