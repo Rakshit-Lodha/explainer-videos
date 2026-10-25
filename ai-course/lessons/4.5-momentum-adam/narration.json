@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Plain gradient descent has a weakness in long, narrow valleys. The slope across the valley is steep while the slope along it is gentle, so each step mostly bounces from one wall to the other, creeping only slowly towards the minimum."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Momentum fixes this by giving the parameters a velocity, like a heavy ball rolling downhill. Each step adds the new gradient to a fading memory of the previous ones. The side to side components keep flipping sign, so they cancel out, while the steady push along the valley floor accumulates, and the ball picks up speed in the direction that matters."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "A second problem is that different parameters may need very different step sizes, because some see large gradients and others see small ones. Adaptive methods keep a running average of each parameter's squared gradient and divide its step by the square root of that average, so steep directions take careful steps and gentle directions take bolder ones."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Adam, published by Kingma and Ba in two thousand fourteen, combines both ideas. It keeps a running average of the gradient, which acts as momentum, and a running average of the squared gradient, which sets the scale of each step. It also corrects both averages for the fact that they start at zero, which would otherwise distort the first few steps."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Watch the three optimisers race down the same narrow valley from the same starting point. Plain descent zigzags across the walls, momentum swings wide but builds speed along the floor, and Adam heads towards the minimum along a steadier line, because its steps are scaled separately in each direction."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "Adam, and its close relative Adam W, which handles weight decay separately, are the usual choice for training transformers, including large language models. Next, in lesson four point six, we leave tidy bowls behind and look at landscapes with many valleys."
+ }
+]

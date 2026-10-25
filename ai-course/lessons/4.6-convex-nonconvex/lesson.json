@@ -1,0 +1,161 @@
+{
+  "id": "4.6-convex-nonconvex",
+  "module": 4,
+  "title": "Convex vs non-convex landscapes",
+  "summary": "A function is convex when the straight line between any two points of its graph never dips below the graph; then every local minimum is the global minimum and gradient descent cannot end in the wrong valley. Non-convex landscapes have several valleys, so the starting point matters, and in many dimensions they also have saddle points where the gradient is zero. Neural networks are non-convex, yet training works well in practice.",
+  "video": "videos/4.6-convex-nonconvex.mp4",
+  "llm_link": "A language model's loss over its billions of weights is highly non-convex. Different random initialisations reach different weights with similar loss, and mini-batch noise helps optimisers like AdamW move past saddles and flat regions.",
+  "key_ideas": [
+    "Convex: f(λa + (1 − λ)b) ≤ λf(a) + (1 − λ)f(b) for all a, b and 0 ≤ λ ≤ 1 (the chord lies above the graph).",
+    "For convex functions any local minimum is a global minimum.",
+    "Non-convex: several valleys; where gradient descent ends depends on where it starts.",
+    "Saddle point: gradient zero, curving up in some directions and down in others (e.g. x² − y² at the origin).",
+    "Linear regression with squared error is convex; neural networks are not."
+  ],
+  "quiz": [
+    {
+      "q": "Which of these functions is convex?",
+      "options": [
+        "cos(x)",
+        "x²",
+        "x³",
+        "sin(x) + x²/100"
+      ],
+      "answer": 1,
+      "explain": "x² is a bowl: every chord lies above it. cos(x) and x³ have regions where a chord passes beneath the graph."
+    },
+    {
+      "q": "Predict the result: for f(x) = x², is the midpoint test f((a+b)/2) ≤ (f(a) + f(b))/2 satisfied for a = −1, b = 3?",
+      "options": [
+        "Yes: 1 ≤ 5",
+        "No: 4 > 5",
+        "Yes: 0 ≤ 1",
+        "No: 1 > 5"
+      ],
+      "answer": 0,
+      "explain": "f(1) = 1 and (f(−1) + f(3))/2 = (1 + 9)/2 = 5, so the chord's midpoint sits above the graph, as convexity requires."
+    },
+    {
+      "q": "Why can two runs of gradient descent on a non-convex loss end in different places?",
+      "options": [
+        "Gradient descent is random even without noise",
+        "They start in different basins, and each run only follows the local slope downhill",
+        "The learning rate changes the minimum",
+        "Non-convex functions have no minimum"
+      ],
+      "answer": 1,
+      "explain": "Gradient descent only sees the ground under its feet, so it rolls into whichever valley it starts above."
+    },
+    {
+      "q": "At the origin, L(x, y) = x² − y² has a zero gradient. What kind of point is it?",
+      "options": [
+        "A minimum",
+        "A maximum",
+        "A saddle point",
+        "Not a critical point"
+      ],
+      "answer": 2,
+      "explain": "It curves up along x and down along y, like a mountain pass."
+    },
+    {
+      "q": "Large language models are trained on a non-convex loss. Which statement fits current understanding?",
+      "options": [
+        "Training always finds the single global minimum",
+        "Training usually fails because of bad local minima",
+        "Training reaches good low-loss regions in practice; noise helps escape saddles, and many low valleys appear similarly good",
+        "Their loss is actually convex"
+      ],
+      "answer": 2,
+      "explain": "There is no guarantee of the global minimum, but in very large networks poor local minima appear rare and many solutions generalise similarly well. This is an empirical observation, not a theorem."
+    }
+  ],
+  "problems": [
+    {
+      "id": "chord",
+      "title": "The midpoint chord test",
+      "prompt": "<p>Write <code>looks_convex(f, xs)</code>: for every pair of points <code>a, b</code> in the list <code>xs</code>, check that <code>f((a + b) / 2) &lt;= (f(a) + f(b)) / 2 + 1e-12</code>. Return <code>False</code> as soon as a pair fails, otherwise <code>True</code>.</p><p>This is a numerical check on a grid, not a proof, but it catches non-convex functions quickly.</p><pre>xs = [i / 10 for i in range(-50, 51)]\nlooks_convex(lambda x: x * x, xs)        # True\nlooks_convex(lambda x: math.cos(x), xs)  # False</pre>",
+      "starter": "import math\n\ndef looks_convex(f, xs):\n    for a in xs:\n        for b in xs:\n            # TODO: if the midpoint of the chord is below the graph, return False\n            pass\n    return True\n",
+      "tests": [
+        {
+          "name": "a bowl passes",
+          "code": "xs = [i / 10 for i in range(-50, 51)]\nassert looks_convex(lambda x: x * x, xs) is True, 'x**2 is convex: every chord midpoint lies above the graph'"
+        },
+        {
+          "name": "cosine fails",
+          "code": "import math\nxs = [i / 10 for i in range(-50, 51)]\nassert looks_convex(lambda x: math.cos(x), xs) is False, 'cos(x) is not convex: near its peaks the chord passes below the graph'"
+        },
+        {
+          "name": "a straight line is convex",
+          "code": "xs = [i / 10 for i in range(-20, 21)]\nassert looks_convex(lambda x: 3 * x + 1, xs) is True, 'for a line the chord lies exactly on the graph, which still counts as convex (<=, with a small tolerance)'"
+        },
+        {
+          "name": "x cubed fails",
+          "code": "xs = [i / 10 for i in range(-20, 21)]\nassert looks_convex(lambda x: x ** 3, xs) is False, 'x**3 bends downwards for x < 0, so it is not convex'"
+        }
+      ],
+      "hints": [
+        "m = (a + b) / 2",
+        "if f(m) > (f(a) + f(b)) / 2 + 1e-12: return False"
+      ],
+      "solution": "import math\n\ndef looks_convex(f, xs):\n    for a in xs:\n        for b in xs:\n            if f((a + b) / 2) > (f(a) + f(b)) / 2 + 1e-12:\n                return False\n    return True\n"
+    },
+    {
+      "id": "starts",
+      "title": "Where you start decides where you end",
+      "prompt": "<p>The landscape <code>f</code> from the video (with several valleys) and its derivative <code>df</code> are provided. Write <code>descend(x0, lr=0.1, steps=500)</code> that runs gradient descent from <code>x0</code> and returns the final x, and <code>valleys(starts)</code> that returns the sorted list of <b>distinct</b> end points, each rounded to 1 decimal place.</p><pre>valleys([4.65, 5.05])   # two different valleys from starts only 0.4 apart\nvalleys([i * 0.5 for i in range(21)])   # every valley reachable from 0, 0.5, ..., 10</pre>",
+      "starter": "import math\n\ndef f(x):\n    # the landscape with several valleys from the video\n    return 2.3 + 1.2 * math.cos(1.3 * x) + 0.06 * (x - 5) ** 2 - 0.5 * math.exp(-((x - 7.3) ** 2) / 0.8)\n\ndef df(x, h=1e-5):\n    return (f(x + h) - f(x - h)) / (2 * h)\n\ndef descend(x0, lr=0.1, steps=500):\n    x = x0\n    # TODO: gradient descent steps using df\n    return x\n\ndef valleys(starts):\n    # TODO: descend from every start, round to 1 decimal, keep distinct values, sort\n    pass\n",
+      "tests": [
+        {
+          "name": "descend lands at a minimum",
+          "code": "x = descend(4.65)\nassert abs(df(x)) < 1e-4, f'after descending, the slope should be about 0; got df({x:.3f}) = {df(x):.5f}'"
+        },
+        {
+          "name": "close starts, different valleys",
+          "code": "v = valleys([4.65, 5.05])\nassert v is not None, 'valleys returned None'\nassert len(v) == 2, f'starts 4.65 and 5.05 sit on either side of a peak, so they should reach two different valleys; got {v}'"
+        },
+        {
+          "name": "all the valleys",
+          "code": "v = valleys([i * 0.5 for i in range(21)])\nassert len(v) >= 2 and v == sorted(set(v)), f'expected a sorted list of distinct valley positions, got {v}'\nlow = min(v, key=f)\nassert abs(low - 7.3) < 0.4, f'the deepest valley is near x = 7.3; your valleys are {v}'"
+        }
+      ],
+      "hints": [
+        "for _ in range(steps): x = x - lr * df(x)",
+        "sorted(set(round(descend(s), 1) for s in starts))"
+      ],
+      "solution": "import math\n\ndef f(x):\n    # the landscape with several valleys from the video\n    return 2.3 + 1.2 * math.cos(1.3 * x) + 0.06 * (x - 5) ** 2 - 0.5 * math.exp(-((x - 7.3) ** 2) / 0.8)\n\ndef df(x, h=1e-5):\n    return (f(x + h) - f(x - h)) / (2 * h)\n\ndef descend(x0, lr=0.1, steps=500):\n    x = x0\n    for _ in range(steps):\n        x = x - lr * df(x)\n    return x\n\ndef valleys(starts):\n    return sorted(set(round(descend(s), 1) for s in starts))\n"
+    },
+    {
+      "id": "saddle",
+      "title": "Minimum, maximum or saddle? (NumPy)",
+      "prompt": "<p>At a point where the gradient is zero, the matrix of second derivatives (the Hessian, a symmetric matrix) tells you the shape: if all its eigenvalues are positive the point is a minimum, all negative a maximum, and mixed signs a saddle.</p><p>Write <code>classify(H)</code> for a 2D NumPy array <code>H</code> using <code>np.linalg.eigvalsh(H)</code> (eigenvalues of a symmetric matrix). Return <code>'minimum'</code>, <code>'maximum'</code>, <code>'saddle'</code>, or <code>'flat'</code> if any eigenvalue is (close to) zero.</p><pre>classify(np.array([[2., 0.], [0., -2.]]))   # 'saddle'   (x**2 - y**2)\nclassify(np.array([[2., 0.], [0., 8.]]))    # 'minimum'  (x**2 + 4*y**2)</pre>",
+      "starter": "import numpy as np\n\ndef classify(H, tol=1e-9):\n    ev = np.linalg.eigvalsh(H)\n    # TODO: decide from the signs of ev\n    pass\n",
+      "tests": [
+        {
+          "name": "the saddle from the video",
+          "code": "import numpy as np\nout = classify(np.array([[2., 0.], [0., -2.]]))\nassert out == 'saddle', f'x**2 - y**2 curves up along x and down along y; expected saddle, got {out}'"
+        },
+        {
+          "name": "a bowl",
+          "code": "import numpy as np\nout = classify(np.array([[2., 0.], [0., 8.]]))\nassert out == 'minimum', f'all eigenvalues positive means a minimum, got {out}'"
+        },
+        {
+          "name": "a hilltop",
+          "code": "import numpy as np\nout = classify(np.array([[-1., 0.5], [0.5, -3.]]))\nassert out == 'maximum', f'both eigenvalues are negative, so this is a maximum; got {out}'"
+        },
+        {
+          "name": "a tilted saddle",
+          "code": "import numpy as np\nout = classify(np.array([[1., 2.], [2., 1.]]))\nassert out == 'saddle', f'eigenvalues are 3 and -1 (look beyond the diagonal: off-diagonal terms matter); expected saddle, got {out}'"
+        },
+        {
+          "name": "flat direction",
+          "code": "import numpy as np\nout = classify(np.array([[1., 0.], [0., 0.]]))\nassert out == 'flat', f'one eigenvalue is 0, so the second-derivative test cannot decide; expected flat, got {out}'"
+        }
+      ],
+      "hints": [
+        "if np.any(np.abs(ev) < tol): return 'flat'",
+        "np.all(ev > 0) → 'minimum', np.all(ev < 0) → 'maximum', otherwise 'saddle'"
+      ],
+      "solution": "import numpy as np\n\ndef classify(H, tol=1e-9):\n    ev = np.linalg.eigvalsh(H)\n    if np.any(np.abs(ev) < tol):\n        return 'flat'\n    if np.all(ev > 0):\n        return 'minimum'\n    if np.all(ev < 0):\n        return 'maximum'\n    return 'saddle'\n"
+    }
+  ]
+}

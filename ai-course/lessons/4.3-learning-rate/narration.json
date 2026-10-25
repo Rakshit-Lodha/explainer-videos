@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Gradient descent has one dial of its own, the learning rate, and choosing it badly can ruin training even when everything else is correct. So let us run the same descent on the same bowl three times, changing only that one number."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "With a tiny learning rate, each step is a cautious shuffle. The loss does go down, but so slowly that you could spend your whole budget of computation and still find yourself halfway down the hill."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "With a learning rate that is too large, each step overshoots the bottom and lands on the opposite slope, higher than where it started. The next step overshoots even further, so the loss grows instead of shrinking. The run diverges, and in a real network you see the loss shoot up towards infinity or turn into not a number."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "In between lies a range that works. Steps are long where the slope is steep and shorten naturally near the bottom, so the loss falls quickly and steadily. For a simple bowl the boundary can be worked out exactly: on a parabola, the run diverges once the learning rate exceeds two divided by the curvature."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "In practice we watch the loss curve. A curve that barely slopes suggests the rate is too small, and a curve that zigzags or explodes suggests it is too large. Large models are often trained with a short warm up, raising the rate gradually, and then a slow decay, so that early steps are bold and late steps are precise."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "The learning rate is the first setting you will tune in nearly every model, including the transformers at the end of this course. Next, in lesson four point four, we look at what happens when the slope itself is estimated from only a small sample of the data."
+ }
+]

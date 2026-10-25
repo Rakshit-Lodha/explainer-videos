@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Some events surprise you and some do not. If the sun rises tomorrow you learn almost nothing, but if it snows in a desert you learn a great deal. Information theory turns that feeling into a number, and that number is the foundation of the loss that trains every language model."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The surprise of an outcome with probability p is defined as the logarithm of one over p. A certain event, with probability one, carries no surprise at all, and rarer events carry more. When two independent events both happen, their surprises simply add, because their probabilities multiply and the logarithm turns products into sums."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "With a base two logarithm, surprise is measured in bits. A fair coin flip carries one bit, because it settles a single yes or no question. An outcome with a probability of one in eight carries three bits, the same as three fair coin flips coming up in one particular order."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Entropy is the average surprise, the expectation of the surprise over the whole distribution, and it measures how uncertain you are before the outcome arrives. A coin that always lands heads has zero entropy, because nothing is left to learn, while a fair coin reaches the largest possible value for two outcomes, exactly one bit."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "With more outcomes the same pattern holds. Entropy is largest when probability is spread evenly, and it shrinks as the distribution piles up on a few outcomes. A fair choice among eight options has three bits of entropy, while a distribution concentrated on a single option has almost none. Claude Shannon showed in nineteen forty eight that entropy is also the smallest average number of bits needed to encode the outcomes."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "A language model's prediction at each position is a distribution with its own entropy. When the next word is obvious, the entropy is low; at the start of a fresh sentence it can be high. Next, in lesson three point seven, we combine two distributions into cross-entropy, the loss behind every large language model."
+ }
+]

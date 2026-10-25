@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "A model has dials, which we call its parameters, and a loss that measures how badly it does on the data. Training means turning the dials until the loss is small. To think clearly about that search, it helps to picture the loss as a landscape."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Start with a model that has a single dial: a line through the origin, y equals w times x, fitted to a few points. For every value of w we can compute the mean squared error, and plotting that error against w draws a curve. Turn the dial and a marker slides along the curve, and the line fits the data best exactly when the marker sits at the bottom."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Add a second dial, the intercept b, and the loss becomes a surface over a flat plane of settings, like terrain over a map. Every point on the map is one complete model, and the height of the ground at that point is how badly that model fits."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Drawing terrain in three dimensions quickly gets messy, so we use a contour map, the way hikers do. Each closed curve joins settings that share the same loss, the curves crowd together where the ground is steep and spread apart where it is flat, and the centre of the innermost ring is the best fit."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Real networks have millions or billions of dials, so their landscape lives in a space nobody can draw. The vocabulary still carries over, with its valleys, slopes and flat plateaus, and every method in this module is a strategy for walking downhill on that terrain when all you can feel is the ground beneath your feet."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "For a language model, the height of the landscape is the cross-entropy from lesson three point seven, averaged over training text, and its billions of weights are the coordinates. Next, in lesson four point two, gradient descent shows how to find the downhill direction and take a step."
+ }
+]

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.note{position:absolute;font-size:40px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+.ttl{position:absolute;font-size:46px;opacity:0;visibility:hidden;white-space:nowrap}
+svg .hid{opacity:0;visibility:hidden}
+</style>
+</head>
+
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="149.84" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="149.84" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 3.3 Bayes' rule</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="25.772"></div>
+  <div class="clip scene" id="S2" data-start="25.772" data-duration="23.164"></div>
+  <div class="clip scene" id="S3" data-start="48.936" data-duration="28.368"></div>
+  <div class="clip scene" id="S4" data-start="77.304" data-duration="23.761"></div>
+  <div class="clip scene" id="S5" data-start="101.065" data-duration="23.163"></div>
+  <div class="clip scene" id="S6" data-start="124.228" data-duration="25.612"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":25.772,"s3":48.936,"s4":77.304,"s5":101.065,"s6":124.228},"total":149.84,"cues":{"s1":[["a",0.0],["disease",0.141],["affects",0.703],["one",1.266],["person",1.547],["in",2.039],["a",2.25],["hundred",2.39],["and",3.481],["a",3.775],["test",3.922],["for",4.289],["it",4.583],["is",4.803],["right",5.023],["ninety",5.463],["nine",5.977],["times",6.344],["out",6.785],["of",7.078],["a",7.299],["hundred",7.445],["your",8.552],["result",8.754],["comes",9.037],["back",9.279],["positive",9.481],["most",10.065],["people",10.483],["feel",11.07],["almost",11.489],["certain",12.075],["that",12.745],["they",13.164],["are",13.583],["ill",13.918],["yet",14.957],["the",15.249],["real",15.541],["chance",15.906],["is",16.418],["only",16.637],["about",17.002],["one",17.44],["in",17.732],["two",17.952],["bayes'",18.531],["rule",18.958],["explains",19.263],["why",19.812],["and",20.642],["it",20.885],["is",21.068],["the",21.25],["general",21.493],["recipe",21.979],["for",22.404],["changing",22.647],["your",23.194],["mind",23.498],["when",23.801],["evidence",24.105],["arrives",24.652]],"s2":[["picture",0.0],["ten",0.415],["thousand",0.623],["people",1.09],["as",1.453],["a",1.609],["grid",1.713],["of",1.972],["dots",2.128],["one",2.814],["in",3.031],["a",3.194],["hundred",3.302],["has",3.736],["the",3.953],["disease",4.17],["so",4.902],["a",5.05],["hundred",5.149],["dots",5.545],["light",5.793],["up",6.09],["and",6.719],["the",6.957],["test",7.195],["catches",7.493],["nearly",7.97],["all",8.387],["of",8.625],["them",8.804],["but",9.379],["the",9.646],["healthy",9.914],["crowd",10.448],["is",10.849],["so",11.05],["much",11.25],["larger",11.584],["that",12.052],["its",12.386],["small",12.654],["error",13.055],["rate",13.456],["produces",13.79],["just",14.391],["as",14.725],["many",14.926],["false",15.26],["alarms",15.661],["a",16.415],["positive",16.522],["result",17.004],["places",17.378],["you",17.753],["among",17.967],["all",18.288],["the",18.502],["positive",18.716],["dots",19.198],["and",19.915],["only",20.147],["about",20.436],["half",20.782],["of",21.071],["them",21.245],["are",21.534],["actually",21.765],["ill",22.285]],"s3":[["bayes'",0.0],["rule",0.46],["is",0.788],["that",0.986],["counting",1.314],["written",2.416],["as",2.843],["a",3.003],["formula",3.109],["the",4.005],["probability",4.221],["of",4.871],["the",5.033],["disease",5.25],["given",5.683],["a",6.007],["positive",6.116],["test",6.603],["equals",6.873],["the",7.252],["probability",7.468],["of",8.118],["a",8.28],["positive",8.388],["test",8.876],["given",9.146],["the",9.471],["disease",9.687],["multiplied",10.611],["by",11.262],["the",11.44],["probability",11.677],["of",12.387],["the",12.565],["disease",12.802],["before",13.276],["any",13.69],["testing",13.927],["and",14.933],["divided",15.149],["by",15.58],["the",15.742],["overall",15.957],["probability",16.388],["of",17.035],["testing",17.196],["positive",17.627],["the",18.405],["first",18.602],["factor",18.897],["is",19.242],["called",19.389],["the",19.734],["likelihood",19.931],["the",20.923],["second",21.114],["is",21.447],["the",21.59],["prior",21.78],["and",22.484],["the",22.723],["division",22.962],["simply",23.5],["rescales",23.918],["the",24.455],["result",24.694],["so",25.112],["that",25.291],["the",25.59],["probabilities",25.829],["add",26.665],["up",26.903],["to",27.083],["one",27.262],["again",27.501]],"s4":[["our",0.0],["intuition",0.207],["goes",0.725],["wrong",0.983],["because",1.294],["it",1.708],["swaps",1.863],["the",2.174],["two",2.381],["conditional",2.588],["probabilities",3.209],["the",4.268],["test",4.562],["is",4.93],["excellent",5.151],["at",5.887],["answering",6.108],["the",6.844],["question",7.138],["if",8.036],["i",8.333],["am",8.531],["ill",8.827],["will",9.661],["the",9.954],["result",10.189],["be",10.6],["positive",10.776],["but",11.717],["you",11.851],["are",11.984],["asking",12.118],["the",12.351],["reverse",12.484],["question",12.751],["if",13.303],["my",13.371],["result",13.439],["is",13.598],["positive",13.666],["am",14.109],["i",14.269],["ill",14.376],["the",14.642],["answer",14.855],["to",15.228],["that",15.388],["depends",15.654],["heavily",16.08],["on",16.506],["how",16.666],["rare",16.879],["the",17.146],["disease",17.359],["was",17.785],["to",17.998],["begin",18.158],["with",18.477],["and",19.48],["a",19.769],["small",19.913],["prior",20.347],["can",20.781],["outweigh",21.07],["a",21.72],["very",21.865],["accurate",22.226],["test",22.877]],"s5":[["the",0.0],["real",0.251],["power",0.564],["of",0.94],["the",1.128],["rule",1.379],["is",1.692],["that",1.881],["it",2.194],["can",2.382],["be",2.633],["applied",2.821],["again",3.322],["and",3.698],["again",3.949],["today's",4.562],["posterior",5.345],["the",6.565],["belief",6.74],["after",7.047],["the",7.311],["evidence",7.486],["becomes",8.319],["tomorrow's",8.817],["prior",9.502],["so",10.118],["a",10.312],["second",10.441],["independent",10.893],["positive",11.668],["test",12.25],["lifts",12.573],["the",12.961],["belief",13.219],["from",13.671],["about",13.994],["one",14.382],["half",14.641],["to",14.964],["about",15.157],["ninety",15.545],["nine",15.997],["percent",16.32],["beliefs",17.192],["move",17.742],["in",18.086],["steps",18.292],["and",19.102],["each",19.375],["step",19.716],["is",20.056],["as",20.261],["large",20.465],["as",20.874],["the",21.078],["evidence",21.351],["is",21.964],["strong",22.168]],"s6":[["language",0.0],["models",0.549],["live",0.975],["inside",1.28],["this",1.707],["idea",2.012],["the",2.751],["probability",2.979],["of",3.663],["the",3.834],["next",4.062],["token",4.347],["given",4.689],["everything",5.031],["before",5.659],["it",6.058],["is",6.229],["a",6.4],["conditional",6.514],["probability",7.198],["and",8.465],["each",8.688],["new",8.967],["word",9.19],["in",9.468],["a",9.635],["prompt",9.747],["reshapes",10.137],["the",10.638],["distribution",10.861],["over",11.585],["what",11.863],["comes",12.142],["next",12.476],["much",13.259],["as",13.58],["evidence",13.773],["reshapes",14.351],["a",14.929],["posterior",15.058],["next",15.999],["in",16.395],["lesson",16.594],["three",17.057],["point",17.454],["four",17.851],["we",18.816],["meet",19.003],["the",19.315],["gaussian",19.564],["the",20.586],["bell-shaped",20.842],["curve",21.613],["that",21.998],["turns",22.319],["up",22.704],["almost",22.897],["everywhere",23.346]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0',bg:'#0e1116'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeTo(t,time,v,d){tl.to(t,{autoAlpha:v,duration:d||.5,ease:'power1.inOut'},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid,last){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);if(!last)tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+/* a text label: lbl(parent, html, x, y, css) centred on (x,y), hidden until shown */
+function lbl(parent,html,x,y,css){const d=el(parent,'lbl',html,css);place(d,x,y);return d}
+/* a hidden text block with its top-left at (x,y) */
+function note(parent,html,x,y,w,css){return el(parent,'note',html,Object.assign({left:x+'px',top:y+'px',width:w+'px'},css||{}))}
+
+/* drive(state, time, dur, target, render): tween a plain state object and redraw from it.
+   Every frame is recomputed from the tweened values, so seeking in any order lands on the same picture. */
+function drive(st,time,d,to,render,ease){const from={...st.v},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>render(o)},time);st.v=tgt}
+function state(v,render){render(v);return {v:{...v}}}
+
+/* plotting: axes(svg,{x,y,w,h,xmin,xmax,ymin,ymax}) maps data to pixels and draws the axes */
+function axes(svg,o){const X=v=>o.x+(v-o.xmin)/(o.xmax-o.xmin)*o.w,Y=v=>o.y+o.h-(v-o.ymin)/(o.ymax-o.ymin)*o.h;
+  const g=svgEl('g',{},svg);const y0=Y(o.xAt!=null?o.xAt:Math.max(o.ymin,0)),x0=X(o.yAt!=null?o.yAt:Math.max(o.xmin,0));
+  svgEl('line',{x1:o.x,y1:y0,x2:o.x+o.w,y2:y0,stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  if(o.yaxis!==false)svgEl('line',{x1:x0,y1:o.y,x2:x0,y2:o.y+o.h,stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  (o.xticks||[]).forEach(t=>svgEl('line',{x1:X(t),y1:y0-8,x2:X(t),y2:y0+8,stroke:C.axis,'stroke-width':2},g));
+  (o.yticks||[]).forEach(t=>svgEl('line',{x1:x0-8,y1:Y(t),x2:x0+8,y2:Y(t),stroke:C.axis,'stroke-width':2},g));
+  return {X,Y,g,o}}
+function gridLines(svg,A,xs,ys){const g=svgEl('g',{},svg);
+  xs.forEach(x=>svgEl('line',{x1:A.X(x),y1:A.o.y,x2:A.X(x),y2:A.o.y+A.o.h,stroke:C.grid,'stroke-width':1.4,opacity:.45},g));
+  ys.forEach(y=>svgEl('line',{x1:A.o.x,y1:A.Y(y),x2:A.o.x+A.o.w,y2:A.Y(y),stroke:C.grid,'stroke-width':1.4,opacity:.45},g));return g}
+function fpath(A,fn,a,b,n){n=n||160;let d='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+=(i?'L':'M')+A.X(x).toFixed(1)+','+A.Y(fn(x)).toFixed(1)}return d}
+function farea(A,fn,a,b,n,base){n=n||120;base=base||0;let d='M'+A.X(a).toFixed(1)+','+A.Y(base).toFixed(1);
+  for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+='L'+A.X(x).toFixed(1)+','+A.Y(fn(x)).toFixed(1)}return d+'L'+A.X(b).toFixed(1)+','+A.Y(base).toFixed(1)+'Z'}
+function polyPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function rectAttr(r,x,y,w,h){r.setAttribute('x',x.toFixed(1));r.setAttribute('y',y.toFixed(1));r.setAttribute('width',Math.max(0,w).toFixed(1));r.setAttribute('height',Math.max(0,h).toFixed(1))}
+/* bar chart: bars(svg,A,xs,hs,{w,color}) returns rects and a set(hs) redraw */
+function bars(svg,A,xs,hs,o){o=o||{};const w=o.w||.7;const g=svgEl('g',{},svg);
+  const rs=xs.map(()=>svgEl('rect',{fill:o.color||C.blue,'fill-opacity':o.op==null?.85:o.op,stroke:o.stroke||'none','stroke-width':o.sw||0,rx:3},g));
+  const set=h=>rs.forEach((r,i)=>{const x0=A.X(xs[i]-w/2),x1=A.X(xs[i]+w/2),yb=A.Y(0),yt=A.Y(h[i]);rectAttr(r,x0,Math.min(yb,yt),x1-x0,Math.abs(yb-yt))});
+  set(hs);return {g,rs,set}}
+const gauss=(x,m,s)=>Math.exp(-.5*((x-m)/s)**2)/(s*Math.sqrt(2*Math.PI));
+
+/* arrows (from lesson 1.1): geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(a.hl||30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+const PX=(x,y)=>[x,y];
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+function hl(parent,x,y,w,h,color){return el(parent,'hl','',{left:x+'px',top:y+'px',width:w+'px',height:h+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+/* closing line naming the next lesson */
+function nextUp(S,text,time){const n=el(S,'cap','next &nbsp;·&nbsp; '+text,{top:'940px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(n,time,.7);return n}
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ===================== scenes ===================== */
+/* ============ S1: the puzzle ============ */
+(function(){const S=$('S1');const sid='s1';
+  const a=note(S,'1 person in 100 has the disease',260,220,900,{fontSize:'54px',fontStyle:'normal'});show(a,cue(sid,'disease'),.6);
+  const b=note(S,'the test is right 99 times in 100',260,320,900,{fontSize:'54px',fontStyle:'normal'});show(b,cue(sid,'test'),.6);
+  const c=el(S,'chip','your result: <b style="color:#fc6255">positive</b>',{left:'260px',top:'450px',borderColor:C.red});show(c,cue(sid,'positive'),.6);
+  const q=lbl(S,tex('P(\\text{ill}\\mid +)\\;=\\;?',72),1450,330,{});show(q,cue(sid,'certain'),.6);
+  // intuition gauge vs truth
+  const svg=layerSvg(S);
+  const gx=260,gy=700,gw=1400;
+  const track=svgEl('rect',{x:gx,y:gy,width:gw,height:26,rx:13,fill:'#1d2531',style:'opacity:0;visibility:hidden'},svg);
+  const fill=svgEl('rect',{x:gx,y:gy,width:0,height:26,rx:13,fill:C.red},svg);
+  fadeIn(track,cue(sid,'feel'),.4);
+  const st=state({p:0},o=>fill.setAttribute('width',(gw*o.p).toFixed(1)));
+  drive(st,cue(sid,'feel'),1.2,{p:.97},o=>fill.setAttribute('width',(gw*o.p).toFixed(1)),'power2.out');
+  const fl=lbl(S,'what it feels like: almost certain',gx+gw*.97-260,gy-50,{fontSize:'38px',fontStyle:'italic',color:C.dim});show(fl,cue(sid,'feel'),.5);
+  drive(st,cue(sid,'yet'),1.4,{p:.5},o=>fill.setAttribute('width',(gw*o.p).toFixed(1)));
+  fadeOut(fl,cue(sid,'yet'),.3);
+  const tr=lbl(S,'the real chance: about one in two',gx+gw*.5,gy+90,{fontSize:'42px',color:C.yellow});show(tr,cue(sid,'chance'),.6);
+  ['0','0.5','1'].forEach((t,i)=>{const d=lbl(S,`<span class="mono">${t}</span>`,gx+gw*i/2,gy-30,{fontSize:'30px',color:C.dim});fadeIn(d,cue(sid,'feel'),.4)});
+  const br=el(S,'chip','Bayes\' rule',{left:'1460px',top:'860px',borderColor:C.teal,color:C.teal});show(br,cue(sid,"bayes'"),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: ten thousand people ============ */
+(function(){const S=$('S2');const sid='s2';const svg=layerSvg(S);
+  const cols=125,rows=80,cell=8.6,x0=140,y0=190;
+  const rnd=seedRand(42);const idx=[];for(let i=0;i<10000;i++)idx.push(i);
+  for(let i=9999;i>0;i--){const j=Math.floor(rnd()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
+  const ill=new Set(idx.slice(0,100)),fp=new Set(idx.slice(100,199));
+  const pos=i=>[x0+(i%cols)*cell,y0+Math.floor(i/cols)*cell];
+  let dH='',dI='',dF='';
+  for(let i=0;i<10000;i++){const [x,y]=pos(i);const r=`M${x.toFixed(1)},${y.toFixed(1)}h5.6v5.6h-5.6z`;if(ill.has(i))dI+=r;else if(fp.has(i))dF+=r;else dH+=r}
+  const pH=svgEl('path',{d:dH+dF,fill:C.grid,'fill-opacity':.75,style:'opacity:0;visibility:hidden'},svg);
+  const pI=svgEl('path',{d:dI,fill:C.red,style:'opacity:0;visibility:hidden'},svg);
+  const pF=svgEl('path',{d:dF,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(pH,cue(sid,'grid'),.8);
+  const tot=note(S,'10,000 people',1260,200,600,{fontSize:'46px',fontStyle:'normal'});show(tot,cue(sid,'ten'),.5);
+  fadeIn(pI,cue(sid,'hundred'),.5);
+  const t1=note(S,'<span style="color:#fc6255">■</span> 100 ill: the test catches 99',1260,290,640,{fontSize:'38px'});show(t1,cue(sid,'catches'),.5);
+  const t2=note(S,'9,900 healthy',1260,370,640,{fontSize:'38px',color:C.dim});show(t2,cue(sid,'healthy'),.5);
+  fadeIn(pF,cue(sid,'false'),.5);
+  const t3=note(S,'<span style="color:#f5cf4a">■</span> 1% of them test positive anyway: 99',1260,430,640,{fontSize:'38px'});show(t3,cue(sid,'false'),.5);
+  fadeTo(pH,cue(sid,'positive',2),.18,.6);
+  // the positive group, gathered: 99 ill + 99 false alarms
+  const gx=1300,gy=620,gc=22,gs=17;let d1='',d2='';
+  for(let k=0;k<198;k++){const x=gx+(k%gc)*gs,y=gy+Math.floor(k/gc)*gs;const r=`M${x},${y}h12v12h-12z`;if(k<99)d1+=r;else d2+=r}
+  const g1=svgEl('path',{d:d1,fill:C.red,style:'opacity:0;visibility:hidden'},svg),g2=svgEl('path',{d:d2,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn([g1,g2],cue(sid,'places'),.6);
+  const gl=note(S,'everyone who tested positive: 198',1300,560,620,{fontSize:'34px',color:C.dim});show(gl,cue(sid,'places'),.5);
+  const half=note(S,'half of them are ill',1300,800,620,{fontSize:'44px',color:C.ink});show(half,cue(sid,'half'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: the counting as a formula ============ */
+(function(){const S=$('S3');const sid='s3';
+  const f=lbl(S,tex('P(\\text{ill}\\mid +)=\\frac{P(+\\mid \\text{ill})\\;P(\\text{ill})}{P(+)}',84),960,330,{});
+  show(f,cue(sid,'probability'),.8);
+  const mk=(t,x,y,c,w)=>{const d=lbl(S,t,x,y,{fontSize:'40px',fontStyle:'italic',color:c});return d};
+  const lk=mk('likelihood',960-20,560,C.blue),pr=mk('prior',1160+20,560,C.green),ev=mk('evidence',1070,640,C.dim),po=mk('posterior',600,560,C.pink);
+  const hlL=hl(S,800,240,190,90,C.blue),hlP=hl(S,1000,240,170,90,C.green);
+  fadeIn(hlL,cue(sid,'likelihood'),.4);show(lk,cue(sid,'likelihood'),.5);
+  fadeIn(hlP,cue(sid,'prior'),.4);show(pr,cue(sid,'prior'),.5);
+  fadeOut([hlL,hlP],cue(sid,'division'),.4);show(ev,cue(sid,'division'),.5);
+  show(po,cue(sid,'probability'),.5);
+  const num=lbl(S,tex('=\\frac{0.99\\times0.01}{0.99\\times0.01\\;+\\;0.01\\times0.99}=0.5',60),960,820,{color:C.yellow});
+  show(num,cue(sid,'rescales'),.7);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: intuition swaps the conditionals; the prior matters ============ */
+(function(){const S=$('S4');const sid='s4';const svg=layerSvg(S);
+  const c1=el(S,'chip',`${tex('P(+\\mid\\text{ill})=0.99',44)}`,{left:'200px',top:'200px',borderColor:C.blue});
+  const c2=el(S,'chip',`${tex('P(\\text{ill}\\mid +)=0.5',44)}`,{left:'200px',top:'330px',borderColor:C.pink});
+  show(c1,cue(sid,'excellent'),.6);
+  const q1=note(S,'if I am ill, will it be positive?',720,212,520,{fontSize:'38px',color:C.blue});show(q1,cue(sid,'ill'),.5);
+  show(c2,cue(sid,'reverse'),.6);
+  const q2=note(S,'if positive, am I ill?',720,342,520,{fontSize:'38px',color:C.pink});show(q2,cue(sid,'reverse'),.5);
+  // posterior as a function of the prior
+  const A=axes(svg,{x:260,y:540,w:1100,h:360,xmin:-4,xmax:0,ymin:0,ymax:1,yAt:-4,xticks:[-4,-3,-2,-1,0],yticks:[.5,1]});
+  A.g.setAttribute('style','opacity:0;visibility:hidden');
+  const post=lp=>{const p=10**lp;return .99*p/(.99*p+.01*(1-p))};
+  const cv=svgEl('path',{d:fpath(A,post,-4,0),fill:'none',stroke:C.pink,'stroke-width':5,style:'opacity:0;visibility:hidden'},svg);
+  const xl=['1/10000','1/1000','1/100','1/10','1'].map((t,i)=>lbl(S,`<span class="mono">${t}</span>`,A.X(i-4),A.Y(0)+38,{fontSize:'28px',color:C.dim}));
+  const yl=[['0.5',.5],['1',1]].map(([t,v])=>lbl(S,`<span class="mono">${t}</span>`,A.X(-4)-40,A.Y(v),{fontSize:'28px',color:C.dim}));
+  const ax=lbl(S,'prior: how rare the disease is',A.X(-2),A.Y(0)+85,{fontSize:'34px',fontStyle:'italic',color:C.dim});
+  const ay=lbl(S,tex('P(\\text{ill}\\mid +)',36),A.X(-4)+110,A.Y(1)-10,{color:C.pink});
+  fadeIn([A.g,cv].concat(xl,yl,[ax,ay]),cue(sid,'depends'),.6);
+  const dot=svgEl('circle',{r:12,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);
+  const vl=el(S,'abs mono','',{left:'1420px',top:'640px',fontSize:'36px',color:C.yellow,whiteSpace:'nowrap'});
+  const render=o=>{dot.setAttribute('cx',A.X(o.l));dot.setAttribute('cy',A.Y(post(o.l)));vl.textContent=`prior 1/${Math.round(10**-o.l)} → ${post(o.l).toFixed(2)}`};
+  const st=state({l:-2},render);gsap.set(vl,{autoAlpha:0});
+  fadeIn([dot,vl],cue(sid,'rare'),.4);
+  drive(st,cue(sid,'rare')+.3,1.8,{l:-1},render);
+  drive(st,cue(sid,'small'),2.2,{l:-3.3},render);
+  const lab=note(S,'a small prior can outweigh an accurate test',1420,720,460,{fontSize:'34px',color:C.dim});show(lab,cue(sid,'outweigh'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: posterior becomes the next prior ============ */
+(function(){const S=$('S5');const sid='s5';const svg=layerSvg(S);
+  const vals=[.01,.5,.99],xs=[420,960,1500],by=760,bh=440;
+  const cols=[C.green,C.pink,C.pink];
+  const bs=vals.map((v,i)=>{const r=svgEl('rect',{x:xs[i]-70,y:by-bh*v,width:140,height:bh*v,rx:6,fill:cols[i],'fill-opacity':.85,style:'opacity:0;visibility:hidden'},svg);
+    svgEl('rect',{x:xs[i]-70,y:by-bh,width:140,height:bh,rx:6,fill:'none',stroke:C.dim,'stroke-width':2,'stroke-dasharray':'8 8'},svg);return r});
+  const vl=vals.map((v,i)=>lbl(S,`<span class="mono">${v}</span>`,xs[i],by+44,{fontSize:'40px',color:cols[i]}));
+  const nm=['prior','after test 1','after test 2'].map((t,i)=>lbl(S,t,xs[i],by+100,{fontSize:'36px',fontStyle:'italic',color:C.dim}));
+  const tm=[cue(sid,'again'),cue(sid,'posterior'),cue(sid,'second')+.6];
+  bs.forEach((b,i)=>{tl.fromTo(b,{autoAlpha:0,scaleY:0,transformOrigin:'50% 100%'},{autoAlpha:1,scaleY:1,duration:.8,immediateRender:false},tm[i]);show([vl[i],nm[i]],tm[i]+.2,.4)});
+  const ar=[0,1].map(i=>{const a=mkArrow(svg,PX,C.ink,5);a.hl=22;setArrow(a,{x0:xs[i]+90,y0:420,x1:xs[i]+90,y1:420});return a});
+  const al=['+ positive','+ positive'].map((t,i)=>lbl(S,t,(xs[i]+xs[i+1])/2,370,{fontSize:'34px',color:C.red}));
+  [0,1].forEach(i=>{showArrow(ar[i],tm[i+1]-.4,.2);arrowTo(ar[i],tm[i+1]-.4,.6,{x1:xs[i+1]-90},'power2.out');show(al[i],tm[i+1]-.4,.4)});
+  const pp=note(S,'today\'s posterior is tomorrow\'s prior',560,190,800,{fontSize:'44px',textAlign:'center'});show(pp,cue(sid,"tomorrow's"),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: conditional next-token distributions ============ */
+(function(){const S=$('S6');const sid='s6';const svg=layerSvg(S);
+  const words=['The','capital','of','France','is'];
+  const line=el(S,'abs','',{left:'200px',top:'230px',fontSize:'56px',fontStyle:'italic',whiteSpace:'nowrap'});
+  const ws=words.map(w=>{const sp=document.createElement('span');sp.textContent=w+' ';sp.style.opacity=0;sp.style.visibility='hidden';sp.style.display='inline-block';sp.style.marginRight='14px';line.appendChild(sp);return sp});
+  const toks=['Paris','a','the','Lyon','not','big'];
+  const dists=[[.04,.2,.25,.02,.2,.29],[.15,.25,.3,.08,.12,.1],[.55,.12,.1,.13,.05,.05],[.92,.02,.02,.03,.005,.005]];
+  const A=axes(svg,{x:1080,y:330,w:700,h:420,xmin:0,xmax:7,ymin:0,ymax:1,yaxis:false});
+  const B=bars(svg,A,[1,2,3,4,5,6],dists[0].map(()=>0),{color:C.blue,w:.7});
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);g.appendChild(A.g);g.appendChild(B.g);
+  const tk=toks.map((t,i)=>lbl(S,t,A.X(i+1),A.Y(0)+38,{fontSize:'30px',fontStyle:'italic',color:C.ink}));
+  const render=o=>B.set(o.h);
+  const st={v:{h:dists[0].map(()=>0)}};
+  const tw=(time,h)=>{const o={k:0};const from=st.v.h.slice();tl.to(o,{k:1,duration:.8,ease:'power2.inOut',immediateRender:false,onUpdate:()=>B.set(from.map((f,i)=>f+(h[i]-f)*o.k))},time);st.v.h=h.slice()};
+  const ts=[cue(sid,'conditional'),cue(sid,'word'),cue(sid,'reshapes'),cue(sid,'comes')];
+  show(ws.slice(0,2),ts[0]-.4,.5,{stagger:.2});fadeIn([g].concat(tk),ts[0]-.4,.5);
+  tw(ts[0],dists[1]);show(ws[2],ts[1],.4);show(ws[3],ts[2]-.3,.4);tw(ts[2],dists[2]);show(ws[4],ts[3]-.2,.4);tw(ts[3],dists[3]);
+  const cap=lbl(S,tex('P(\\text{next token}\\mid\\text{everything before})',48),640,420,{color:C.blue});show(cap,cue(sid,'probability'),.6);
+  const ev=note(S,'each word is evidence that reshapes the distribution',200,560,780,{fontSize:'40px',color:C.dim});show(ev,cue(sid,'evidence'),.6);
+  nextUp(S,'3.4 &nbsp;the Gaussian and why it\'s everywhere',cue(sid,'next'));
+  sceneInOut(sid,true);
+})();
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

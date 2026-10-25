@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "So far our landscapes have been tidy bowls, where walking downhill from anywhere leads to the same bottom. Bowls like that have a name, convex, and in deep learning they are the exception rather than the rule."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "A function is convex if the straight line between any two points on its graph never dips below the graph. Stretch a string between two points on a bowl and it hangs above the surface. That simple property guarantees that any local minimum is also the global minimum, so gradient descent cannot get stuck in the wrong valley."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "A non-convex landscape breaks that guarantee. The string can pass beneath the surface, and the terrain can hold several valleys of different depths. Where you start then decides where you end up, so two runs of gradient descent that begin a little apart can roll into different valleys."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "In many dimensions there is a second feature, the saddle point, which curves upwards in some directions and downwards in others, like a pass between two mountains. The gradient there is zero, so a careful descent can slow to a crawl nearby. In high dimensional problems, saddle points are thought to be far more common than poor local minima."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Neural networks are non-convex, yet training them works remarkably well. Part of the reason is that the noise in mini-batch gradients helps the parameters drift away from saddles and flat regions, and part is that in very large networks many of the low valleys appear to be about equally good. Linear regression, by contrast, is convex, which is why it always reaches the same answer."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "That completes our tour of optimisation, from the landscape itself to the shape of its terrain. Next, module five begins classical machine learning with lesson five point one, linear regression as projection."
+ }
+]
