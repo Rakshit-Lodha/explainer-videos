@@ -1,0 +1,7 @@
+# Review: 8.3 CNN architecture end to end
+
+- Creative call: the WIP snapshot had narration and an empty scaffold, so the composition and `lesson.json` were written new. The video follows a pixel-drawn 7 through the network as stacks of slabs with their shapes (28×28×1 → 28×28×8 → 14×14×8 → 7×7×16 → 784 → 10), a 3×3×8 kernel block, flatten-to-scores-to-softmax bars with a backpropagation arrow, a parameter bar chart (80 / 1,168 / 7,850, checked by hand), a LeNet-to-AlexNet-to-LLM timeline, and the CNN and LLM skeletons side by side. The problems trace shapes and parameter counts, then build a multi-channel conv layer in NumPy.
+- Measured: checker OK; Hyperframes check passed with 0 errors and 0 warnings; the delivery master is 1920x1080 at 30 fps and 195.3 seconds. Audio was measured and normalized, not listened to.
+- Looked at: twelve composition snapshots, re-snapshots after repairs, and two rounds of three frames sampled from the masters.
+- Repairs: (1) the first master showed the S5 parameter bars as invisible, even though snapshots had shown them. A `fromTo` that set only a starting opacity animated back to the element's hidden state; the fade-in and the grow are now separate tweens, and the lesson was re-rendered. (2) An S3 arrow left pointing at empty space now fades with the map it pointed to. (3) The S2 kernel and padding labels were moved off the feature-map stack.
+- Kept warnings: none.

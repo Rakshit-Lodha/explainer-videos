@@ -1,0 +1,127 @@
+{
+ "id": "8.3-cnn-architecture",
+ "module": 8,
+ "title": "CNN architecture end to end",
+ "summary": "A small digit classifier: a 28×28×1 image goes through a 3×3 conv with 8 kernels and padding (28×28×8), ReLU and 2×2 max pooling (14×14×8), then a 3×3 conv whose 16 kernels are each 3×3×8 blocks (14×14×16), ReLU and pooling (7×7×16). Flattening gives 784 numbers, a dense layer gives 10 scores, softmax gives probabilities and cross-entropy the loss; backpropagation trains every kernel. Most parameters sit in the final dense layer because conv weights are shared.",
+ "video": "videos/8.3-cnn-architecture.mp4",
+ "llm_link": "A language model has the same skeleton: inputs become vectors, pass through a stack of repeated blocks, and a final linear layer produces one score per vocabulary token, which softmax turns into probabilities.",
+ "key_ideas": [
+  "Shapes: 28×28×1 → conv(8, 3×3, pad 1) → 28×28×8 → pool → 14×14×8 → conv(16) → 14×14×16 → pool → 7×7×16 → flatten 784 → dense → 10.",
+  "A kernel in a later conv spans all input channels: 3×3×C_in. Each kernel produces one output channel.",
+  "Conv parameters: C_out × (k·k·C_in) + C_out. Dense: n_in × n_out + n_out.",
+  "Space shrinks while channels grow: less about where, more about what.",
+  "History: LeNet read cheque digits in the 1990s; AlexNet (2012) won ImageNet on GPUs and set off the deep learning boom."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the shape: a 28×28×1 image passes through a conv layer with 8 kernels of size 3×3, padding 1, stride 1. What comes out?",
+   "options": [
+    "26×26×8",
+    "28×28×8",
+    "28×28×1",
+    "14×14×8"
+   ],
+   "answer": 1,
+   "explain": "Padding 1 keeps 28×28, and each of the 8 kernels produces one channel."
+  },
+  {
+   "q": "A conv layer maps 8 input channels to 16 output channels with 3×3 kernels and a bias per kernel. How many parameters?",
+   "options": [
+    "144",
+    "1,152",
+    "1,168",
+    "2,304"
+   ],
+   "answer": 2,
+   "explain": "Each kernel is 3×3×8 = 72 weights plus 1 bias; 16 × 73 = 1,168."
+  },
+  {
+   "q": "Why does the final dense layer of this network hold most of the parameters?",
+   "options": [
+    "Dense layers are always the deepest",
+    "It connects every one of the 784 inputs to each of 10 outputs, with no weight sharing",
+    "Convolutions have no weights",
+    "Softmax has many parameters"
+   ],
+   "answer": 1,
+   "explain": "784 × 10 + 10 = 7,850, while the shared conv kernels need only 80 and 1,168."
+  },
+  {
+   "q": "What does flattening do to a 7×7×16 tensor?",
+   "options": [
+    "Averages it to 16 numbers",
+    "Lays its 784 numbers out as one long vector for the dense layer",
+    "Removes the channels",
+    "Doubles its size"
+   ],
+   "answer": 1,
+   "explain": "7 × 7 × 16 = 784 values, simply re-arranged into a vector."
+  },
+  {
+   "q": "In a language model, what plays the role of this network's final 10-way dense layer?",
+   "options": [
+    "The embedding table",
+    "A final linear layer giving one score per vocabulary token",
+    "The attention mask",
+    "Tokenisation"
+   ],
+   "answer": 1,
+   "explain": "The skeleton is the same: blocks, then a linear layer to scores, then softmax, now over the whole vocabulary."
+  }
+ ],
+ "problems": [
+  {
+   "id": "shapes-params",
+   "title": "Trace shapes and count parameters",
+   "prompt": "<p>Write <code>trace(h, w, c, layers)</code> for a list of layers given as tuples, returning <code>(shapes, params)</code>: the list of shapes after each layer (each a tuple) and the total number of parameters.</p><ul><li><code>('conv', c_out, k, pad)</code>: stride 1; new size <code>h + 2*pad - k + 1</code>; params <code>c_out * (k*k*c) + c_out</code>.</li><li><code>('pool', 2)</code>: divides h and w by 2 (integer); no params.</li><li><code>('flatten',)</code>: shape <code>(h*w*c,)</code>.</li><li><code>('dense', n)</code>: from a flat <code>(m,)</code> to <code>(n,)</code>; params <code>m*n + n</code>.</li></ul><p>Shapes for images are <code>(h, w, c)</code>.</p>",
+   "starter": "def trace(h, w, c, layers):\n    shapes, params = [], 0\n    m = None   # length of the flat vector after flatten\n    for layer in layers:\n        kind = layer[0]\n        # TODO: handle 'conv', 'pool', 'flatten' and 'dense', updating h, w, c (or m) and params\n        # then append the current shape to shapes\n    return shapes, params\n",
+   "tests": [
+    {
+     "name": "the digit network's shapes",
+     "code": "net = [('conv', 8, 3, 1), ('pool', 2), ('conv', 16, 3, 1), ('pool', 2), ('flatten',), ('dense', 10)]\nshapes, params = trace(28, 28, 1, net)\nwant = [(28, 28, 8), (14, 14, 8), (14, 14, 16), (7, 7, 16), (784,), (10,)]\nassert shapes == want, f'expected {want}, got {shapes}'"
+    },
+    {
+     "name": "the digit network's parameters",
+     "code": "net = [('conv', 8, 3, 1), ('pool', 2), ('conv', 16, 3, 1), ('pool', 2), ('flatten',), ('dense', 10)]\nshapes, params = trace(28, 28, 1, net)\nassert params == 80 + 1168 + 7850, f'expected 80 + 1,168 + 7,850 = 9,098, got {params}'"
+    },
+    {
+     "name": "no padding shrinks",
+     "code": "shapes, params = trace(32, 32, 3, [('conv', 6, 5, 0)])\nassert shapes == [(28, 28, 6)], f'32 - 5 + 1 = 28: expected [(28, 28, 6)], got {shapes}'\nassert params == 6 * (5 * 5 * 3) + 6, f'each kernel is 5×5×3 plus a bias: expected 456, got {params}'"
+    }
+   ],
+   "hints": [
+    "if kind == 'conv':\n    _, c_out, k, pad = layer\n    params += c_out * (k * k * c) + c_out\n    h, w, c = h + 2 * pad - k + 1, w + 2 * pad - k + 1, c_out",
+    "elif kind == 'pool': h, w = h // layer[1], w // layer[1]\nelif kind == 'flatten': m = h * w * c",
+    "elif kind == 'dense': params += m * layer[1] + layer[1]; m = layer[1]\nAppend (m,) after flatten and dense, otherwise (h, w, c)."
+   ],
+   "solution": "def trace(h, w, c, layers):\n    shapes, params = [], 0\n    m = None\n    for layer in layers:\n        kind = layer[0]\n        if kind == 'conv':\n            _, c_out, k, pad = layer\n            params += c_out * (k * k * c) + c_out\n            h, w, c = h + 2 * pad - k + 1, w + 2 * pad - k + 1, c_out\n            shapes.append((h, w, c))\n        elif kind == 'pool':\n            h, w = h // layer[1], w // layer[1]\n            shapes.append((h, w, c))\n        elif kind == 'flatten':\n            m = h * w * c\n            shapes.append((m,))\n        elif kind == 'dense':\n            n = layer[1]\n            params += m * n + n\n            m = n\n            shapes.append((m,))\n    return shapes, params\n"
+  },
+  {
+   "id": "multichannel-conv",
+   "title": "A multi-channel conv layer (NumPy)",
+   "prompt": "<p>Write <code>conv_layer(X, K, b)</code>: X has shape <b>(C_in, H, W)</b>, K has shape <b>(C_out, C_in, k, k)</b> and b has shape (C_out,). No padding, stride 1. Output shape <b>(C_out, H − k + 1, W − k + 1)</b>, where</p><pre>Y[o, i, j] = sum(X[:, i:i+k, j:j+k] * K[o]) + b[o]</pre><p>Each kernel reads every input channel at once: that is where channels meet.</p>",
+   "starter": "import numpy as np\n\ndef conv_layer(X, K, b):\n    C_in, H, W = X.shape\n    C_out, _, k, _ = K.shape\n    # TODO: Y = np.zeros((C_out, H - k + 1, W - k + 1)); fill each entry\n    return X\n",
+   "tests": [
+    {
+     "name": "output shape",
+     "code": "import numpy as np\nY = conv_layer(np.zeros((8, 14, 14)), np.zeros((16, 8, 3, 3)), np.zeros(16))\nassert Y.shape == (16, 12, 12), f'expected (16, 12, 12), got {Y.shape}'"
+    },
+    {
+     "name": "each kernel reads every channel",
+     "code": "import numpy as np\nX = np.ones((3, 4, 4)); K = np.ones((2, 3, 3, 3)); b = np.array([0.0, 1.0])\nY = conv_layer(X, K, b)\nassert np.allclose(Y[0], 27) and np.allclose(Y[1], 28), f'a 3×3×3 block of ones over ones gives 27, plus the bias; got {Y[:, 0, 0]}'"
+    },
+    {
+     "name": "matches the definition",
+     "code": "import numpy as np\nr = np.random.default_rng(0)\nX = r.normal(size=(2, 5, 5)); K = r.normal(size=(3, 2, 3, 3)); b = r.normal(size=3)\nY = conv_layer(X, K, b)\no, i, j = 2, 1, 2\nwant = (X[:, i:i+3, j:j+3] * K[o]).sum() + b[o]\nassert np.isclose(Y[o, i, j], want), f'Y[2, 1, 2] should be {want:.4f}, got {Y[o, i, j]:.4f}'"
+    }
+   ],
+   "hints": [
+    "Y = np.zeros((C_out, H - k + 1, W - k + 1))",
+    "for o in range(C_out):\n    for i in range(H - k + 1):\n        for j in range(W - k + 1): ...",
+    "Y[o, i, j] = (X[:, i:i+k, j:j+k] * K[o]).sum() + b[o]"
+   ],
+   "solution": "import numpy as np\n\ndef conv_layer(X, K, b):\n    C_in, H, W = X.shape\n    C_out, _, k, _ = K.shape\n    Y = np.zeros((C_out, H - k + 1, W - k + 1))\n    for o in range(C_out):\n        for i in range(H - k + 1):\n            for j in range(W - k + 1):\n                Y[o, i, j] = (X[:, i:i+k, j:j+k] * K[o]).sum() + b[o]\n    return Y\n"
+  }
+ ],
+ "poster": "videos/8.3-cnn-architecture.jpg"
+}
