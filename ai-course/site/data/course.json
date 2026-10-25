@@ -480,7 +480,8 @@
    "lessons": [
     {
      "num": "C1",
-     "title": "Digit recognizer: a NumPy MLP on MNIST"
+     "title": "Digit recognizer: a NumPy MLP on MNIST",
+     "id": "C1-digit-recognizer"
     },
     {
      "num": "C2",

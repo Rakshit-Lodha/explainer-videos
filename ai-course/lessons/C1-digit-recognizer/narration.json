@@ -1,0 +1,44 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "This capstone puts the whole first half of the course into one working program: a network that reads handwritten digits. The classic dataset is MNIST, seventy thousand small greyscale images of the digits zero to nine, sixty thousand for training and ten thousand for testing, each twenty-eight pixels square. Recognising them was once a research problem, and today you can solve it with nothing but NumPy and the ideas you already own."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "First, the data. Each image becomes one row: flatten the twenty-eight by twenty-eight grid into seven hundred and eighty-four numbers, and divide by two hundred and fifty-five so that every pixel lies between zero and one. Each label becomes a one-hot vector of length ten. Then set aside a validation set that the model never trains on, because it is the only honest judge of whether the network has learned digits or merely memorised examples."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "The model is a two-layer perceptron. The first layer multiplies each row by a weight matrix with seven hundred and eighty-four rows and one hundred and twenty-eight columns, adds a bias, and applies a ReLU. The second layer maps those features to ten scores, and softmax turns the scores into probabilities. With a batch of images stacked as rows, every step is a matrix product, so the whole batch moves through the network at once."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "Backpropagation for this network fits in a few lines, thanks to a pleasant fact about softmax with cross-entropy: the gradient of the loss with respect to the scores is simply the predicted probabilities minus the one-hot target, divided by the batch size. From there the chain rule runs backwards: multiply by the second weight matrix, zero the entries where the ReLU was off, and every weight receives its gradient, shaped exactly like the weight itself."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.76,
+  "text": "Training is the loop from module seven. Shuffle, take a mini-batch, run forward, compute the loss, run backward, and step each weight against its gradient. Initialise the weights with He scaling, so that signals neither shrink nor explode at the start, and watch the validation accuracy after every epoch. A network of this size typically reaches about ninety-seven to ninety-eight percent on MNIST within a few passes over the data."
+ },
+ {
+  "id": "s6",
+  "pace": 0.98,
+  "temperature": 0.78,
+  "text": "The errors are worth studying. A confusion matrix counts how often each true digit was read as each prediction, and the mistakes cluster where a person might hesitate too: fours that look like nines, threes that look like fives, sevens drawn with an unusual stroke. Looking at the images the model gets wrong is the quickest way to understand what it has and has not learned."
+ },
+ {
+  "id": "s7",
+  "pace": 0.92,
+  "temperature": 0.84,
+  "text": "In the browser, the exercises use a small synthetic set of eight by eight digits, so that everything runs in a few seconds, and the same code works unchanged on the real MNIST files on your own machine. Next comes the final capstone: training a tiny GPT on a character-level corpus."
+ }
+]
