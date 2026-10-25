@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "Measure the heights of a thousand adults, repeat a careful measurement a thousand times, or add up the faces of many dice, and the histograms keep taking the same shape: a single symmetric hump, with tails that fade away quickly on both sides. That shape is the Gaussian, which is also called the normal distribution."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The Gaussian is described completely by two numbers. The mean, written mu, sets where the peak sits, and the standard deviation, written sigma, sets how wide the bell is. Change mu and the whole curve slides along the line; increase sigma and it spreads out and flattens, because the total area underneath must stay equal to one."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "A useful rule of thumb follows from the shape. About two thirds of the probability lies within one standard deviation of the mean, about ninety five percent within two, and almost all of it within three. The tails never quite reach zero, but they thin out very quickly, because the formula decays like the exponential of a negative square."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Why does this curve appear everywhere? The central limit theorem says that when you add up many independent random effects, the total tends towards a Gaussian, whatever shape the individual effects had. One die is perfectly flat, the sum of two dice is a triangle, and the sum of five is already close to a bell. Heights and measurement errors are just such sums of many small causes."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Machine learning leans on the Gaussian constantly. The starting weights of a network are often drawn from a narrow Gaussian, and when we assume that a model's errors follow a Gaussian, minimising the squared error turns out to be the principled choice, a connection the next lesson will make precise."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "So the bell curve is not a coincidence of nature but the signature of many small causes adding together, and two numbers are enough to describe it. Next, in lesson three point five, maximum likelihood gives us a principle for choosing those numbers from data."
+ }
+]
