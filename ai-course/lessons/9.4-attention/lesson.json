@@ -1,0 +1,174 @@
+{
+  "id": "9.4-attention",
+  "module": 9,
+  "title": "Attention: which words should look at which",
+  "summary": "Attention lets every token build a new vector as a weighted average of all the token vectors in the sentence. In the raw version the weights come from dot products, turned into shares that sum to one by softmax. For all tokens at once this is two matrix products: A = softmax(X Xᵀ) row by row, then out = A X, with the same shape as X.",
+  "video": "videos/9.4-attention.mp4",
+  "llm_link": "Attention is how a language model resolves a word like \"it\" from context: inside every transformer layer, each token's vector is replaced by a weighted blend of the vectors of the tokens it attends to. The raw version here is the skeleton; the next lessons add learned queries, keys and values, scaling, masking and multiple heads.",
+  "key_ideas": [
+    "An embedding alone has no context: \"it\" has the same row in every sentence.",
+    "Attention: new_i = Σ_j w_ij x_j, a weighted average of all token vectors.",
+    "Raw weights: dot-product scores, then softmax so they are positive and sum to 1.",
+    "All at once: S = X Xᵀ is (T, T); A = softmax over each row; out = A X is (T, d).",
+    "Flaw of the raw version: each token is most similar to itself, and similarity is not the same as relevance. Queries, keys and values fix this next."
+  ],
+  "quiz": [
+    {
+      "q": "X has shape (10, 64). Predict the shape of softmax(X @ X.T) @ X.",
+      "options": [
+        "(10, 10)",
+        "(64, 64)",
+        "(10, 64)",
+        "(64, 10)"
+      ],
+      "answer": 2,
+      "explain": "X @ X.T is (10, 10), softmax keeps that shape, and (10, 10) @ (10, 64) gives (10, 64): one blended vector per token, the same shape as X."
+    },
+    {
+      "q": "Predict the result: the scores for one token are [2, 0, 0]. Roughly what weights does softmax give?",
+      "options": [
+        "[1, 0, 0]",
+        "[0.79, 0.11, 0.11]",
+        "[0.67, 0.17, 0.17]",
+        "[2, 0, 0]"
+      ],
+      "answer": 1,
+      "explain": "e² ≈ 7.39 and e⁰ = 1, so the total is 9.39 and the weights are 7.39/9.39 ≈ 0.79 and 1/9.39 ≈ 0.11 each. Large scores win most of the weight, small ones never reach exactly zero."
+    },
+    {
+      "q": "In the attention-weight matrix A = softmax(X Xᵀ), what does row i tell you?",
+      "options": [
+        "How much token i is attended to by the others",
+        "How much token i attends to each token",
+        "The embedding of token i",
+        "The position of token i"
+      ],
+      "answer": 1,
+      "explain": "Each row belongs to the token doing the looking, each column to the token being looked at. Rows sum to 1 because they are softmaxed separately."
+    },
+    {
+      "q": "Why does raw dot-product attention tend to put the most weight on the diagonal?",
+      "options": [
+        "Softmax favours the diagonal",
+        "A vector's dot product with itself is its squared length, which is usually larger than its dot product with other vectors",
+        "Because of positional encoding",
+        "It does not; the weights are uniform"
+      ],
+      "answer": 1,
+      "explain": "x · x = |x|², and for vectors of similar length this beats x · y unless y points the same way. So every token mostly looks at itself, which is why we need separate queries and keys."
+    },
+    {
+      "q": "Compared with an RNN, what does attention change about how a language model reads a sentence?",
+      "options": [
+        "It reads the sentence backwards",
+        "Every token can draw on every other token directly in one step, and all positions are computed in parallel",
+        "It removes the need for embeddings",
+        "It only looks at the previous token"
+      ],
+      "answer": 1,
+      "explain": "There is no chain of hidden states: A X mixes information from all positions at once with matrix products, which is what makes transformers fast to train on GPUs."
+    }
+  ],
+  "problems": [
+    {
+      "id": "shapes",
+      "title": "Shape drill: raw attention",
+      "prompt": "<p>Before writing attention, predict the shape of every intermediate result. <code>softmax</code> is given (it keeps the shape of its input; with the default <code>axis=-1</code> it works on each row separately).</p><p>Rules: <code>(a, b) @ (b, c)</code> gives <code>(a, c)</code>; <code>(b,) @ (b, c)</code> gives <code>(c,)</code>; summing along <code>axis=1</code> removes the second axis.</p>",
+      "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Turn scores into weights along one axis: exponentiate, then divide by the total.\n    (Given for now; you will write it yourself in lesson 9.6.)\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\nT, d = 4, 3\nX = np.ones((T, d))          # 4 tokens, 3 numbers each\nw = softmax(X[2] @ X.T)      # attention weights for token 2\nA = softmax(X @ X.T)         # attention weights for every token (softmax on each row)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"X @ X.T\": None,\n    \"X[2] @ X.T\": None,\n    \"w\": None,\n    \"w @ X\": None,\n    \"A\": None,\n    \"A @ X\": None,\n    \"A.sum(axis=1)\": None,\n}\n",
+      "tests": [
+        {
+          "name": "shape of X @ X.T",
+          "code": "import numpy as np\ngot = answers['X @ X.T']\nreal = np.shape(X @ X.T)\nassert got is not None, 'fill in your prediction for X @ X.T'\nassert tuple(got) == tuple(real), f'you predicted {got} but X @ X.T has shape {real}. (T, d) @ (d, T) gives (T, T): one score for every pair of tokens.'"
+        },
+        {
+          "name": "shape of X[2] @ X.T",
+          "code": "import numpy as np\ngot = answers['X[2] @ X.T']\nreal = np.shape(X[2] @ X.T)\nassert got is not None, 'fill in your prediction for X[2] @ X.T'\nassert tuple(got) == tuple(real), f'you predicted {got} but X[2] @ X.T has shape {real}. (d,) @ (d, T) gives (T,): one score for token 2 against each of the T tokens.'"
+        },
+        {
+          "name": "shape of w",
+          "code": "import numpy as np\ngot = answers['w']\nreal = np.shape(w)\nassert got is not None, 'fill in your prediction for w'\nassert tuple(got) == tuple(real), f'you predicted {got} but w has shape {real}. softmax keeps the shape: T scores become T weights.'"
+        },
+        {
+          "name": "shape of w @ X",
+          "code": "import numpy as np\ngot = answers['w @ X']\nreal = np.shape(w @ X)\nassert got is not None, 'fill in your prediction for w @ X'\nassert tuple(got) == tuple(real), f'you predicted {got} but w @ X has shape {real}. (T,) @ (T, d) gives (d,): a weighted average of the T rows, so it is one vector of the same width as a token.'"
+        },
+        {
+          "name": "shape of A",
+          "code": "import numpy as np\ngot = answers['A']\nreal = np.shape(A)\nassert got is not None, 'fill in your prediction for A'\nassert tuple(got) == tuple(real), f'you predicted {got} but A has shape {real}. softmax is applied to each row of the (T, T) score table, so the shape is still (T, T).'"
+        },
+        {
+          "name": "shape of A @ X",
+          "code": "import numpy as np\ngot = answers['A @ X']\nreal = np.shape(A @ X)\nassert got is not None, 'fill in your prediction for A @ X'\nassert tuple(got) == tuple(real), f'you predicted {got} but A @ X has shape {real}. (T, T) @ (T, d) gives (T, d): one blended vector per token, the same shape as X.'"
+        },
+        {
+          "name": "shape of A.sum(axis=1)",
+          "code": "import numpy as np\ngot = answers['A.sum(axis=1)']\nreal = np.shape(A.sum(axis=1))\nassert got is not None, 'fill in your prediction for A.sum(axis=1)'\nassert tuple(got) == tuple(real), f'you predicted {got} but A.sum(axis=1) has shape {real}. Summing along axis 1 adds up each row, leaving one number per token (and each of them is 1).'"
+        }
+      ],
+      "hints": [
+        "X.T has shape (d, T) = (3, 4).",
+        "A weighted average of rows has the width of one row."
+      ],
+      "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Turn scores into weights along one axis: exponentiate, then divide by the total.\n    (Given for now; you will write it yourself in lesson 9.6.)\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\nT, d = 4, 3\nX = np.ones((T, d))          # 4 tokens, 3 numbers each\nw = softmax(X[2] @ X.T)      # attention weights for token 2\nA = softmax(X @ X.T)         # attention weights for every token (softmax on each row)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"X @ X.T\": (4, 4),\n    \"X[2] @ X.T\": (4,),\n    \"w\": (4,),\n    \"w @ X\": (3,),\n    \"A\": (4, 4),\n    \"A @ X\": (4, 3),\n    \"A.sum(axis=1)\": (4,),\n}\n"
+    },
+    {
+      "id": "one",
+      "title": "Attention for one token",
+      "prompt": "<p>Write <code>attend_one(X, i)</code> for the token at position <code>i</code>, exactly as in the video:</p><ol><li>score every token by its dot product with <code>X[i]</code>,</li><li>turn the scores into weights with <code>softmax</code>,</li><li>return <code>(weights, new)</code>, where <code>new</code> is the weighted average of the rows of <code>X</code>.</li></ol><p>A weighted average of rows is a vector-matrix product: <code>weights @ X</code> computes <code>Σ_j weights[j] * X[j]</code>.</p>",
+      "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Turn scores into weights along one axis: exponentiate, then divide by the total.\n    (Given for now; you will write it yourself in lesson 9.6.)\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef attend_one(X, i):\n    \"\"\"Raw attention for token i: returns (weights, new_vector).\"\"\"\n    # TODO 1: scores = the dot product of X[i] with every row of X   -> shape (T,)\n    # TODO 2: weights = softmax(scores)                               -> shape (T,), sums to 1\n    # TODO 3: new = the weighted average of the rows of X            -> shape (d,)\n    pass\n",
+      "tests": [
+        {
+          "name": "returns weights and a vector",
+          "code": "import numpy as np\nX=np.array([[1.0,0.0],[0.0,1.0],[1.0,1.0]])\nr=attend_one(X,0)\nassert r is not None, 'attend_one returned None; return (weights, new)'\nw,new=r\nassert np.shape(w)==(3,), f'one weight per token: expected shape (3,), got {np.shape(w)}'\nassert np.shape(new)==(2,), f'the new vector has the width of a token, (2,), got {np.shape(new)}'"
+        },
+        {
+          "name": "weights are a softmax of dot products",
+          "code": "import numpy as np\nX=np.array([[1.0,0.0],[0.0,1.0],[1.0,1.0]])\nw,new=attend_one(X,0)\nexp=np.exp([1.0,0.0,1.0]);exp/=exp.sum()\nassert np.allclose(w,exp), f'scores for token 0 are X @ X[0] = [1, 0, 1], so the weights should be softmax of that = {exp.round(3)}, got {np.round(w,3)}'\nassert abs(w.sum()-1)<1e-9, 'the weights should sum to 1'"
+        },
+        {
+          "name": "new vector is the weighted average",
+          "code": "import numpy as np\nX=np.array([[1.0,0.0],[0.0,1.0],[1.0,1.0]])\nw,new=attend_one(X,0)\nassert np.allclose(new,w[0]*X[0]+w[1]*X[1]+w[2]*X[2]), f'new should be sum_j w[j] * X[j], got {new}'"
+        },
+        {
+          "name": "a similar token gets more weight",
+          "code": "import numpy as np\nX=np.array([[2.0,0.0],[2.0,0.1],[-2.0,0.0]])\nw,_=attend_one(X,0)\nassert w[1]>w[2], 'token 1 points the same way as token 0 and token 2 the opposite way, so token 1 should get much more weight'"
+        }
+      ],
+      "hints": [
+        "scores = X @ X[i] gives the dot product of X[i] with every row.",
+        "new = weights @ X"
+      ],
+      "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Turn scores into weights along one axis: exponentiate, then divide by the total.\n    (Given for now; you will write it yourself in lesson 9.6.)\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef attend_one(X, i):\n    \"\"\"Raw attention for token i: returns (weights, new_vector).\"\"\"\n    scores = X @ X[i]\n    weights = softmax(scores)\n    new = weights @ X\n    return weights, new\n"
+    },
+    {
+      "id": "all",
+      "title": "Self-attention for every token (GPT, step 2)",
+      "prompt": "<p>This is the first piece of your own character-level GPT, which grows through lessons 9.4 to 9.10. The starter already contains the earlier steps: a character tokenizer and an embedding table, so <code>X = E[ids]</code> is the <code>(T, d)</code> matrix for the word <code>hello</code>.</p><p>Write <code>simple_self_attention(X)</code> that returns <code>(out, A)</code>: the score table <code>S = X @ X.T</code>, the weights <code>A</code> (softmax of each row), and <code>out = A @ X</code>. No loops: two matrix products and one softmax.</p>",
+      "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Turn scores into weights along one axis: exponentiate, then divide by the total.\n    (Given for now; you will write it yourself in lesson 9.6.)\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\n# ---- the character-level GPT, step 1: tokens -> embeddings (lessons 9.1 and 9.2) ----\ntext = \"hello world\"\nvocab = sorted(set(text))                      # 8 characters\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd = 8\nE = rng.normal(size=(len(vocab), d))           # embedding table (V, d)\nids = np.array(encode(\"hello\"))                # (T,) = (5,)\nX = E[ids]                                     # (T, d) = (5, 8)\n\n# ---- step 2: raw self-attention (this lesson) ----\ndef simple_self_attention(X):\n    \"\"\"Every token becomes a weighted average of all tokens. Returns (out, A).\"\"\"\n    # TODO 1: S = all pairwise dot products              -> (T, T)\n    # TODO 2: A = softmax of each row of S                -> (T, T), rows sum to 1\n    # TODO 3: out = A @ X                                 -> (T, d)\n    pass\n\n# Try it once the tests pass:\n# out, A = simple_self_attention(X)\n# print(A.round(2))      # which character looks at which?\n",
+      "tests": [
+        {
+          "name": "shapes",
+          "code": "import numpy as np\nr=simple_self_attention(X)\nassert r is not None, 'return (out, A)'\nout,A=r\nassert A.shape==(5,5), f'A should be (T, T) = (5, 5), got {A.shape}'\nassert out.shape==(5,8), f'out should have the same shape as X, (T, d) = (5, 8), got {out.shape}'"
+        },
+        {
+          "name": "rows of A sum to 1",
+          "code": "import numpy as np\nout,A=simple_self_attention(X)\nassert np.allclose(A.sum(axis=1),1), f'each row of A is one token\\'s weights and must sum to 1; row sums are {A.sum(axis=1).round(3)}. Did you softmax over the right axis?'"
+        },
+        {
+          "name": "matches the one-token version",
+          "code": "import numpy as np\nout,A=simple_self_attention(X)\nfor i in range(len(X)):\n    s=X@X[i]; w=np.exp(s-s.max()); w/=w.sum()\n    assert np.allclose(A[i],w), f'row {i} of A should equal the weights attend_one would give for token {i}'\n    assert np.allclose(out[i],w@X), f'row {i} of out should be the weighted average of the rows of X'"
+        },
+        {
+          "name": "repeated characters look alike",
+          "code": "import numpy as np\nout,A=simple_self_attention(X)\nassert np.allclose(out[2],out[3]), 'the two l characters in hello have identical embeddings and no position information, so they must get identical outputs (positions come in lesson 9.8)'"
+        }
+      ],
+      "hints": [
+        "S = X @ X.T",
+        "A = softmax(S, axis=-1) softmaxes each row.",
+        "return A @ X, A"
+      ],
+      "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    \"\"\"Turn scores into weights along one axis: exponentiate, then divide by the total.\n    (Given for now; you will write it yourself in lesson 9.6.)\"\"\"\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\n# ---- the character-level GPT, step 1: tokens -> embeddings (lessons 9.1 and 9.2) ----\ntext = \"hello world\"\nvocab = sorted(set(text))                      # 8 characters\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd = 8\nE = rng.normal(size=(len(vocab), d))           # embedding table (V, d)\nids = np.array(encode(\"hello\"))                # (T,) = (5,)\nX = E[ids]                                     # (T, d) = (5, 8)\n\n# ---- step 2: raw self-attention (this lesson) ----\ndef simple_self_attention(X):\n    \"\"\"Every token becomes a weighted average of all tokens. Returns (out, A).\"\"\"\n    S = X @ X.T\n    A = softmax(S, axis=-1)\n    out = A @ X\n    return out, A\n\n# Try it once the tests pass:\n# out, A = simple_self_attention(X)\n# print(A.round(2))      # which character looks at which?\n"
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "id": "9.2-embeddings",
+  "module": 9,
+  "title": "Embeddings: meaning as direction",
+  "summary": "An embedding layer is a table with one row per token. Looking up a token's row is the same as multiplying its one-hot vector by the table, and a whole sequence becomes a (T × d) matrix. The rows start random; training pushes words used in similar contexts towards similar directions, which cosine similarity measures.",
+  "video": "videos/9.2-embeddings.mp4",
+  "llm_link": "The first layer of every GPT is an embedding table of shape (vocabulary size × d_model); GPT-2 small, for example, uses 768 numbers per token. Embeddings APIs that you have used for RAG return vectors of the same kind, read from deeper inside a model, and you compare them with cosine similarity for exactly the reason in this lesson.",
+  "key_ideas": [
+    "The embedding table E has shape (V, d): V tokens in the vocabulary, d numbers per token.",
+    "Embedding a token is a row lookup, E[id]. Mathematically it is one_hot(id) @ E, which is why it counts as a layer.",
+    "A sequence of T token IDs becomes E[ids], a (T, d) matrix. T and d are the two numbers to track from now on.",
+    "The table is learned. Words that help make similar predictions get pushed towards similar directions.",
+    "Compare embeddings by direction with cosine similarity: a · b / (|a| |b|)."
+  ],
+  "quiz": [
+    {
+      "q": "E has shape (50000, 768) and ids is an array of 12 token IDs. Predict the shape of E[ids].",
+      "options": [
+        "(12,)",
+        "(768, 12)",
+        "(12, 768)",
+        "(50000, 12)"
+      ],
+      "answer": 2,
+      "explain": "Indexing with an array of 12 IDs picks 12 rows, each with 768 numbers: one row per token, one column per embedding dimension."
+    },
+    {
+      "q": "Why is multiplying a one-hot vector by E the same as looking up a row?",
+      "options": [
+        "Because E is symmetric",
+        "Because every entry of the one-hot vector except one is zero, so every other row of E is multiplied by zero",
+        "Because NumPy optimises it",
+        "It is only approximately the same"
+      ],
+      "answer": 1,
+      "explain": "one_hot @ E adds up the rows of E weighted by the one-hot entries. Only the row at the 1 survives, exactly."
+    },
+    {
+      "q": "Before training, the embedding rows for \"cat\" and \"kitten\" are…",
+      "options": [
+        "Already close, because the words are spelled similarly",
+        "Random and unrelated",
+        "Identical",
+        "Orthogonal by design"
+      ],
+      "answer": 1,
+      "explain": "The table starts with small random numbers. Similar directions appear only because training nudges rows of words used in similar contexts the same way."
+    },
+    {
+      "q": "a = [2, 0] and b = [5, 0]. What is their cosine similarity?",
+      "options": [
+        "0.4",
+        "10",
+        "1",
+        "2.5"
+      ],
+      "answer": 2,
+      "explain": "They point in exactly the same direction, so the angle is 0 and the cosine is 1. The lengths (2 and 5) divide out."
+    },
+    {
+      "q": "In RAG you rank documents by cosine similarity between embedding vectors. What does a score near 0 suggest?",
+      "options": [
+        "The texts are identical",
+        "The texts are opposites in meaning",
+        "The vectors point in unrelated directions, so the texts are probably about different things",
+        "One text is much longer than the other"
+      ],
+      "answer": 2,
+      "explain": "Cosine measures direction only. Near 0 means roughly perpendicular: little shared meaning in the learned space. Length, which can reflect text length or word frequency, drops out."
+    }
+  ],
+  "problems": [
+    {
+      "id": "shapes",
+      "title": "Shape drill: predict before you print",
+      "prompt": "<p>From now on, most bugs you will meet are shape bugs. Before running anything, predict the NumPy shape of each expression and write it as a tuple in <code>answers</code>. Then print the real shapes and see which ones surprised you.</p><p>Reminders: indexing a 2D array with one integer picks a row; indexing with an array of integers picks several rows; <code>np.eye(V)</code> is the V × V identity, so its rows are one-hot vectors; <code>(a, b) @ (b, c)</code> gives <code>(a, c)</code>. A 1D shape is written with a trailing comma, like <code>(3,)</code>.</p>",
+      "starter": "import numpy as np\n\nV, d = 6, 4                  # vocabulary size, embedding width\nE = np.zeros((V, d))         # the embedding table: one row per token\nids = np.array([0, 2, 3])    # \"the cat sat\" as token IDs, so T = 3\n\n# Predict each shape as a tuple, e.g. (2, 5), WITHOUT running anything first.\n# Then check yourself by printing the expression's .shape.\nanswers = {\n    \"E\": None,\n    \"ids\": None,\n    \"E[2]\": None,\n    \"E[ids]\": None,\n    \"E[ids][1]\": None,\n    \"np.eye(V)[ids]\": None,        # one-hot rows for the three tokens\n    \"np.eye(V)[ids] @ E\": None,\n}\n",
+      "tests": [
+        {
+          "name": "shape of E",
+          "code": "import numpy as np\ngot = answers['E']\nreal = (E).shape\nassert got is not None, 'fill in your prediction for E'\nassert tuple(got) == real, f'you predicted {got} but E has shape {real}. The table has one row per token in the vocabulary and one column per embedding dimension: (V, d).'"
+        },
+        {
+          "name": "shape of ids",
+          "code": "import numpy as np\ngot = answers['ids']\nreal = (ids).shape\nassert got is not None, 'fill in your prediction for ids'\nassert tuple(got) == real, f'you predicted {got} but ids has shape {real}. ids is a 1D array of 3 integers, and a 1D shape is written (3,).'"
+        },
+        {
+          "name": "shape of E[2]",
+          "code": "import numpy as np\ngot = answers['E[2]']\nreal = (E[2]).shape\nassert got is not None, 'fill in your prediction for E[2]'\nassert tuple(got) == real, f'you predicted {got} but E[2] has shape {real}. One integer index picks a single row, which is a 1D array of d numbers.'"
+        },
+        {
+          "name": "shape of E[ids]",
+          "code": "import numpy as np\ngot = answers['E[ids]']\nreal = (E[ids]).shape\nassert got is not None, 'fill in your prediction for E[ids]'\nassert tuple(got) == real, f'you predicted {got} but E[ids] has shape {real}. An array of T indices picks T rows, stacked: (T, d).'"
+        },
+        {
+          "name": "shape of E[ids][1]",
+          "code": "import numpy as np\ngot = answers['E[ids][1]']\nreal = (E[ids][1]).shape\nassert got is not None, 'fill in your prediction for E[ids][1]'\nassert tuple(got) == real, f'you predicted {got} but E[ids][1] has shape {real}. E[ids] is (3, 4); indexing it with 1 picks one row of 4 numbers.'"
+        },
+        {
+          "name": "shape of np.eye(V)[ids]",
+          "code": "import numpy as np\ngot = answers['np.eye(V)[ids]']\nreal = (np.eye(V)[ids]).shape\nassert got is not None, 'fill in your prediction for np.eye(V)[ids]'\nassert tuple(got) == real, f'you predicted {got} but np.eye(V)[ids] has shape {real}. Each row of np.eye(V) is a one-hot vector of length V, and we pick T of them: (T, V).'"
+        },
+        {
+          "name": "shape of np.eye(V)[ids] @ E",
+          "code": "import numpy as np\ngot = answers['np.eye(V)[ids] @ E']\nreal = (np.eye(V)[ids] @ E).shape\nassert got is not None, 'fill in your prediction for np.eye(V)[ids] @ E'\nassert tuple(got) == real, f'you predicted {got} but np.eye(V)[ids] @ E has shape {real}. (T, V) @ (V, d) gives (T, d): the inner V cancels. Same shape as E[ids], because it is the same lookup.'"
+        }
+      ],
+      "hints": [
+        "Write the rule (a, b) @ (b, c) -> (a, c) at the top of your page and use it.",
+        "Indexing with an array keeps one axis for the array: E[ids] has len(ids) rows."
+      ],
+      "solution": "import numpy as np\n\nV, d = 6, 4                  # vocabulary size, embedding width\nE = np.zeros((V, d))         # the embedding table: one row per token\nids = np.array([0, 2, 3])    # \"the cat sat\" as token IDs, so T = 3\n\n# Predict each shape as a tuple, e.g. (2, 5), WITHOUT running anything first.\n# Then check yourself by printing the expression's .shape.\nanswers = {\n    \"E\": (6, 4),\n    \"ids\": (3,),\n    \"E[2]\": (4,),\n    \"E[ids]\": (3, 4),\n    \"E[ids][1]\": (4,),\n    \"np.eye(V)[ids]\": (3, 6),      # one-hot rows for the three tokens\n    \"np.eye(V)[ids] @ E\": (3, 4),\n}\n"
+    },
+    {
+      "id": "embed",
+      "title": "Two ways to embed a sentence",
+      "prompt": "<p>Write two functions that must give the same answer:</p><ul><li><code>one_hot(ids, V)</code> returns a <code>(T, V)</code> array of zeros with a 1 in row <code>t</code> at column <code>ids[t]</code>.</li><li><code>embed(ids, E)</code> returns the <code>(T, d)</code> matrix of rows of <code>E</code>, using indexing.</li></ul><p>The tests check that <code>one_hot(ids, V) @ E</code> equals <code>embed(ids, E)</code>: a lookup really is a matrix product.</p>",
+      "starter": "import numpy as np\n\ndef one_hot(ids, V):\n    T = len(ids)\n    out = np.zeros((T, V))\n    # TODO: for each position t, set out[t, ids[t]] = 1\n    return out\n\ndef embed(ids, E):\n    # TODO: pick the rows of E for these ids (one line with NumPy indexing)\n    pass\n",
+      "tests": [
+        {
+          "name": "one_hot shape and content",
+          "code": "import numpy as np\nout = one_hot([2, 0], 4)\nassert out.shape == (2, 4), f'expected shape (T, V) = (2, 4), got {out.shape}'\nassert np.array_equal(out, [[0, 0, 1, 0], [1, 0, 0, 0]]), f'row t should have a single 1 at column ids[t]; got\\n{out}'"
+        },
+        {
+          "name": "each row sums to 1",
+          "code": "import numpy as np\nout = one_hot([3, 3, 1], 5)\nassert np.allclose(out.sum(axis=1), 1), 'every one-hot row has exactly one 1, so each row should sum to 1'"
+        },
+        {
+          "name": "embed picks rows",
+          "code": "import numpy as np\nE = np.arange(12.0).reshape(6, 2)\nout = embed(np.array([0, 2, 3]), E)\nassert out is not None, 'embed returned None'\nassert out.shape == (3, 2), f'expected (T, d) = (3, 2), got {np.shape(out)}'\nassert np.array_equal(out, [[0, 1], [4, 5], [6, 7]]), f'expected rows 0, 2, 3 of E, got\\n{out}'"
+        },
+        {
+          "name": "lookup equals one-hot product",
+          "code": "import numpy as np\nrng = np.random.default_rng(0)\nE = rng.normal(size=(10, 4))\nids = np.array([1, 7, 7, 0, 9])\na = one_hot(ids, 10) @ E\nb = embed(ids, E)\nassert b is not None, 'embed returned None'\nassert np.allclose(a, b), 'one_hot(ids) @ E and E[ids] should be identical: the product keeps only the row where the 1 is'"
+        }
+      ],
+      "hints": [
+        "for t, i in enumerate(ids): out[t, i] = 1",
+        "NumPy lets you index with a whole array: E[ids]. You can also write out[np.arange(T), ids] = 1 for one_hot."
+      ],
+      "solution": "import numpy as np\n\ndef one_hot(ids, V):\n    T = len(ids)\n    out = np.zeros((T, V))\n    for t, i in enumerate(ids):\n        out[t, i] = 1\n    return out\n\ndef embed(ids, E):\n    return E[np.asarray(ids)]\n"
+    },
+    {
+      "id": "similar",
+      "title": "Nearest neighbours by cosine similarity",
+      "prompt": "<p>Write <code>most_similar(word, words, E, k)</code>: compare the row for <code>word</code> with every row of <code>E</code> using cosine similarity, and return the <code>k</code> most similar <b>other</b> words, best first.</p><p>Do it without a Python loop over rows: divide every row by its length (<code>np.linalg.norm(E, axis=1, keepdims=True)</code>) so all rows have length 1, and then one matrix-vector product gives every cosine at once.</p><pre>words = ['cat', 'kitten', 'dog', 'car', 'truck']\nmost_similar('cat', words, E, 2)   # ['kitten', 'dog'] for the toy table in the tests</pre>",
+      "starter": "import numpy as np\n\ndef most_similar(word, words, E, k):\n    # TODO 1: normalise every row of E to length 1 (shape stays (V, d))\n\n    # TODO 2: q = the normalised row for `word`; sims = normalised E @ q  -> shape (V,)\n\n    # TODO 3: sort indices by similarity, largest first (np.argsort(-sims)),\n    #         skip the word itself, and return the first k words\n    pass\n",
+      "tests": [
+        {
+          "name": "finds the neighbours",
+          "code": "import numpy as np\nwords=['cat','kitten','dog','car','truck']\nE=np.array([[1.0,0.1],[0.9,0.2],[0.7,0.6],[-0.2,1.0],[-0.3,0.9]])\nout=most_similar('cat',words,E,2)\nassert out == ['kitten','dog'], f'expected [kitten, dog], got {out}'"
+        },
+        {
+          "name": "excludes the word itself",
+          "code": "import numpy as np\nwords=['cat','kitten','dog','car','truck']\nE=np.array([[1.0,0.1],[0.9,0.2],[0.7,0.6],[-0.2,1.0],[-0.3,0.9]])\nout=most_similar('car',words,E,1)\nassert out == ['truck'], f'a word is always most similar to itself, so skip it; expected [truck], got {out}'"
+        },
+        {
+          "name": "length does not matter",
+          "code": "import numpy as np\nwords=['a','b','c']\nE=np.array([[1.0,0.0],[100.0,1.0],[0.0,0.5]])\nout=most_similar('c',words,E,1)\nassert out == ['b'], f'b is long but its direction is closer to c than a is; cosine ignores length. Got {out}. Did you normalise the rows?'"
+        },
+        {
+          "name": "returns k words",
+          "code": "import numpy as np\nrng=np.random.default_rng(1)\nE=rng.normal(size=(8,5))\nwords=[f'w{i}' for i in range(8)]\nout=most_similar('w3',words,E,4)\nassert isinstance(out,list) and len(out)==4, f'expected a list of 4 words, got {out}'\nassert 'w3' not in out, 'the query word should not be in its own neighbour list'"
+        }
+      ],
+      "hints": [
+        "En = E / np.linalg.norm(E, axis=1, keepdims=True). keepdims keeps the shape (V, 1) so the division broadcasts across each row.",
+        "i = words.index(word); sims = En @ En[i]",
+        "order = np.argsort(-sims); return [words[j] for j in order if j != i][:k]"
+      ],
+      "solution": "import numpy as np\n\ndef most_similar(word, words, E, k):\n    En = E / np.linalg.norm(E, axis=1, keepdims=True)\n    i = words.index(word)\n    sims = En @ En[i]\n    order = np.argsort(-sims)\n    return [words[j] for j in order if j != i][:k]\n"
+    }
+  ]
+}
