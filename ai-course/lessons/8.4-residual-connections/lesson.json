@@ -1,0 +1,126 @@
+{
+ "id": "8.4-residual-connections",
+ "module": 8,
+ "title": "Residual connections",
+ "summary": "Plain networks of 56 layers trained worse than networks of 20: the deeper ones were harder to optimise, not overfitting. A residual connection adds a block's input to its output, y = x + F(x), so the layers only learn the change F (the residual) and can pass x straight through by outputting zero. Because addition passes gradients through unchanged, ∂y/∂x = 1 + ∂F/∂x and the shortcut carries the learning signal back to every block. When shapes differ, the shortcut uses a small projection such as a 1×1 convolution.",
+ "video": "videos/8.4-residual-connections.mp4",
+ "llm_link": "Every transformer block reads the token vectors, computes an update with attention or a feed-forward network, and adds it back. The vectors flow along one path, the residual stream, with each block writing its contribution into it; without it, models dozens of blocks deep would be very hard to train.",
+ "key_ideas": [
+  "Degradation: deeper plain networks had higher training error, so the problem was optimisation, not overfitting (He et al., 2015).",
+  "Residual block: y = x + F(x). The layers learn only the change; F = 0 gives the identity.",
+  "Gradient: ∂y/∂x = 1 + ∂F/∂x, so the shortcut carries the signal back intact even when ∂F/∂x is tiny.",
+  "x and F(x) must have the same shape; otherwise project the shortcut (e.g. a 1×1 convolution with stride 2).",
+  "Transformers: every block adds its update into the residual stream."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: a residual block's layers output exactly zero for every input. What does the block output?",
+   "options": [
+    "Zero",
+    "Its input x, unchanged",
+    "2x",
+    "It cannot be computed"
+   ],
+   "answer": 1,
+   "explain": "y = x + F(x) = x + 0 = x: the block passes its input straight through."
+  },
+  {
+   "q": "For y = x + F(x), what is ∂y/∂x?",
+   "options": [
+    "∂F/∂x",
+    "1 + ∂F/∂x",
+    "x · ∂F/∂x",
+    "1"
+   ],
+   "answer": 1,
+   "explain": "Addition passes the gradient through unchanged, so the shortcut contributes 1 on top of the layers' own derivative."
+  },
+  {
+   "q": "A 56-layer plain network has higher TRAINING error than a 20-layer one. What does that tell you?",
+   "options": [
+    "It is overfitting",
+    "It is harder to optimise, since a deeper network could in principle copy the shallower one",
+    "It needs more data",
+    "Its learning rate is perfect"
+   ],
+   "answer": 1,
+   "explain": "Overfitting would show low training error and high validation error. Worse training error points to optimisation."
+  },
+  {
+   "q": "A block halves the image size and doubles the channels. How do we still add the shortcut?",
+   "options": [
+    "Skip the addition",
+    "Project the shortcut, e.g. with a 1×1 convolution of stride 2, so the shapes match",
+    "Add zeros to F(x)",
+    "Use a bigger learning rate"
+   ],
+   "answer": 1,
+   "explain": "x and F(x) must have the same shape to be added; a small projection makes them match."
+  },
+  {
+   "q": "What is the residual stream in a transformer?",
+   "options": [
+    "The token embeddings only",
+    "The single path of token vectors that every attention and feed-forward block reads from and adds its update to",
+    "A kind of attention head",
+    "The output logits"
+   ],
+   "answer": 1,
+   "explain": "Each block writes its contribution into the same stream, which is why deep stacks remain trainable."
+  }
+ ],
+ "problems": [
+  {
+   "id": "grad-paths",
+   "title": "Why the shortcut keeps gradients alive",
+   "prompt": "<p>Backprop through a chain multiplies local derivatives. Write two functions for a list <code>derivs</code> of each block's local derivative <code>dF/dx</code>:</p><ul><li><code>plain_grad(derivs)</code>: blocks compute <code>y = F(x)</code>, so the gradient reaching the input is the product of all <code>derivs</code>.</li><li><code>residual_grad(derivs)</code>: blocks compute <code>y = x + F(x)</code>, so each block contributes <code>1 + d</code>; return the product of those.</li></ul><p>Use plain loops (no NumPy).</p>",
+   "starter": "def plain_grad(derivs):\n    g = 1.0\n    # TODO: multiply by each d\n    return g\n\ndef residual_grad(derivs):\n    g = 1.0\n    # TODO: multiply by (1 + d) for each d\n    return g\n",
+   "tests": [
+    {
+     "name": "small example",
+     "code": "assert abs(plain_grad([0.5, 0.5]) - 0.25) < 1e-12, f'0.5 × 0.5 = 0.25, got {plain_grad([0.5, 0.5])}'\nassert abs(residual_grad([0.5, 0.5]) - 2.25) < 1e-12, f'1.5 × 1.5 = 2.25, got {residual_grad([0.5, 0.5])}'"
+    },
+    {
+     "name": "50 blocks with tiny derivatives",
+     "code": "d = [0.1] * 50\nassert plain_grad(d) < 1e-40, f'0.1 multiplied 50 times vanishes, got {plain_grad(d)}'\nassert residual_grad(d) > 1, f'each residual block contributes 1.1, so the signal survives; got {residual_grad(d)}'"
+    },
+    {
+     "name": "layers that output nothing",
+     "code": "assert plain_grad([0.0, 0.3, 0.7]) == 0.0, 'one dead layer kills the plain gradient'\nassert abs(residual_grad([0.0, 0.0, 0.0]) - 1.0) < 1e-12, 'with F = 0 every residual block is the identity, gradient 1'"
+    }
+   ],
+   "hints": [
+    "for d in derivs:\n    g *= d",
+    "for d in derivs:\n    g *= 1 + d",
+    "Compare: 0.1 ** 50 versus 1.1 ** 50."
+   ],
+   "solution": "def plain_grad(derivs):\n    g = 1.0\n    for d in derivs:\n        g *= d\n    return g\n\ndef residual_grad(derivs):\n    g = 1.0\n    for d in derivs:\n        g *= 1 + d\n    return g\n"
+  },
+  {
+   "id": "res-block",
+   "title": "A residual block in NumPy",
+   "prompt": "<p>Vectors here are 1-D arrays.</p><ul><li><code>residual_block(x, W1, W2)</code>: return <code>x + W2 @ relu(W1 @ x)</code>, where <code>relu(z) = np.maximum(z, 0)</code>. W1 is (h, d) and W2 is (d, h), so the output has x's shape.</li><li><code>residual_proj(x, W1, W2, P)</code>: when F changes the size (W2 is (d_out, h)), project the shortcut: return <code>P @ x + W2 @ relu(W1 @ x)</code> with P of shape (d_out, d).</li></ul>",
+   "starter": "import numpy as np\n\ndef relu(z):\n    return np.maximum(z, 0)\n\ndef residual_block(x, W1, W2):\n    # TODO: x + F(x)\n    return W2 @ relu(W1 @ x)\n\ndef residual_proj(x, W1, W2, P):\n    # TODO: P @ x + F(x)\n    return W2 @ relu(W1 @ x)\n",
+   "tests": [
+    {
+     "name": "zero layers give the identity",
+     "code": "import numpy as np\nx = np.array([1.0, -2.0, 3.0])\ny = residual_block(x, np.zeros((5, 3)), np.zeros((3, 5)))\nassert np.allclose(y, x), f'with W2 = 0, F(x) = 0 and the block must return x; got {y}'"
+    },
+    {
+     "name": "adds the update",
+     "code": "import numpy as np\nr = np.random.default_rng(0)\nx = r.normal(size=4); W1 = r.normal(size=(6, 4)); W2 = r.normal(size=(4, 6))\ny = residual_block(x, W1, W2)\nassert np.allclose(y, x + W2 @ np.maximum(W1 @ x, 0)), 'expected x + W2 @ relu(W1 @ x)'"
+    },
+    {
+     "name": "projection when shapes differ",
+     "code": "import numpy as np\nr = np.random.default_rng(1)\nx = r.normal(size=3); W1 = r.normal(size=(4, 3)); W2 = r.normal(size=(5, 4)); P = r.normal(size=(5, 3))\ny = residual_proj(x, W1, W2, P)\nassert y.shape == (5,), f'output should have the new size 5, got {y.shape}'\nassert np.allclose(y, P @ x + W2 @ np.maximum(W1 @ x, 0)), 'expected P @ x + W2 @ relu(W1 @ x)'"
+    }
+   ],
+   "hints": [
+    "F = W2 @ relu(W1 @ x)",
+    "return x + F",
+    "return P @ x + W2 @ relu(W1 @ x)"
+   ],
+   "solution": "import numpy as np\n\ndef relu(z):\n    return np.maximum(z, 0)\n\ndef residual_block(x, W1, W2):\n    return x + W2 @ relu(W1 @ x)\n\ndef residual_proj(x, W1, W2, P):\n    return P @ x + W2 @ relu(W1 @ x)\n"
+  }
+ ]
+}
