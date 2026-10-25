@@ -1,0 +1,153 @@
+{
+  "id": "3.5-maximum-likelihood",
+  "module": 3,
+  "title": "Maximum likelihood",
+  "summary": "Maximum likelihood picks the parameters under which the observed data is most probable. Because products of many small probabilities underflow, we maximise the log-likelihood, or equivalently minimise the negative log-likelihood (NLL), which becomes a loss. For a Gaussian the answer is the sample mean and the mean squared deviation, and Gaussian noise turns NLL into squared error.",
+  "video": "videos/3.5-maximum-likelihood.mp4",
+  "llm_link": "A language model is trained by maximum likelihood: its parameters are adjusted to make the training text as probable as possible, which means minimising the average of −log p(correct next token) over every position.",
+  "key_ideas": [
+    "Likelihood L(θ) = Π p(xᵢ | θ) for independent data points; choose θ to make it as large as possible.",
+    "log turns the product into a sum and never changes which θ wins, because it only ever increases.",
+    "NLL(θ) = −Σ log p(xᵢ | θ) is a loss: smaller is better.",
+    "Gaussian MLE: μ = mean of the data, σ² = average squared distance from that mean (divide by n).",
+    "With Gaussian noise of fixed σ, NLL equals a constant plus Σ (yᵢ − f(xᵢ))² / (2σ²), so least squares is maximum likelihood."
+  ],
+  "quiz": [
+    {
+      "q": "Why do we maximise log L(θ) instead of L(θ)?",
+      "options": [
+        "The log gives a different, better θ",
+        "Products of many small numbers underflow to 0; the log turns them into a sum and keeps the same maximiser",
+        "The log makes probabilities larger than 1",
+        "It is required by Bayes' rule"
+      ],
+      "answer": 1,
+      "explain": "log is strictly increasing, so the θ that maximises L also maximises log L. The sum of logs stays a reasonable size where the product would underflow."
+    },
+    {
+      "q": "Predict the result: data 3.1, 4.2, 4.6, 5.3, 6.3. What is the maximum likelihood estimate of μ for a Gaussian?",
+      "options": [
+        "4.6 (the median)",
+        "4.7 (the mean)",
+        "3.1",
+        "6.3"
+      ],
+      "answer": 1,
+      "explain": "For a Gaussian, the μ that maximises the likelihood is the sample mean: 23.5 / 5 = 4.7."
+    },
+    {
+      "q": "A Gaussian sits far to the right of all the data points. What happens to the likelihood?",
+      "options": [
+        "It is large, because the curve is tall somewhere",
+        "It is tiny, because every point lands in a thin tail and the product of small values is very small",
+        "It is exactly 0.5",
+        "It does not depend on where the curve sits"
+      ],
+      "answer": 1,
+      "explain": "Each factor p(xᵢ) is the curve's height at a data point. In the tails those heights are tiny, and multiplying them makes the product tinier still."
+    },
+    {
+      "q": "Fitting a line with squared-error loss is maximum likelihood under which assumption?",
+      "options": [
+        "The errors are Gaussian with a fixed width",
+        "The errors are all exactly zero",
+        "The data are uniformly distributed",
+        "There is only one data point"
+      ],
+      "answer": 0,
+      "explain": "−log of a Gaussian density is (y − f(x))² / (2σ²) plus a constant, so minimising the NLL is minimising the sum of squared errors."
+    },
+    {
+      "q": "During training, a language model gives the correct next tokens probabilities 0.5, 0.25 and 1.0 at three positions. What is the average NLL (natural log)?",
+      "options": [
+        "About 0.69",
+        "About 0.23",
+        "About 1.39",
+        "0"
+      ],
+      "answer": 0,
+      "explain": "−ln 0.5 = 0.693, −ln 0.25 = 1.386, −ln 1 = 0. Their average is 2.079 / 3 ≈ 0.69. This average is exactly the loss used to train LLMs."
+    }
+  ],
+  "problems": [
+    {
+      "id": "nll",
+      "title": "Negative log-likelihood of a Gaussian",
+      "prompt": "<p>Write <code>gaussian_nll(data, mu, sigma)</code> = −Σ log p(xᵢ | μ, σ), where p is the Gaussian density.</p><p>Do <b>not</b> multiply the densities and then take the log: compute each point's log-density directly, which never underflows:</p><pre>log p(x) = -log(sigma * sqrt(2*pi)) - (x - mu)**2 / (2 * sigma**2)</pre><pre>gaussian_nll([0.0], 0, 1)          # 0.9189...\ngaussian_nll([3.1, 4.2, 4.6, 5.3, 6.3], 4.7, 1.0)   # 7.464...</pre>",
+      "starter": "import math\n\ndef gaussian_nll(data, mu, sigma):\n    total = 0\n    for x in data:\n        # TODO: log_p = (the formula above)\n        # TODO: total -= log_p\n        pass\n    return total\n",
+      "tests": [
+        {
+          "name": "one point at the mean",
+          "code": "out = gaussian_nll([0.0], 0, 1)\nassert abs(out - 0.9189385332) < 1e-8, f'expected log(sqrt(2*pi)) = 0.91894, got {out}'"
+        },
+        {
+          "name": "the data from the video",
+          "code": "import math\nd = [3.1, 4.2, 4.6, 5.3, 6.3]\nexp = sum(math.log(math.sqrt(2*math.pi)) + (x - 4.7)**2 / 2 for x in d)\nout = gaussian_nll(d, 4.7, 1.0)\nassert abs(out - exp) < 1e-9, f'expected {exp:.4f}, got {out}. Remember the minus sign: NLL is positive here'"
+        },
+        {
+          "name": "far away is worse",
+          "code": "d = [3.1, 4.2, 4.6, 5.3, 6.3]\nassert gaussian_nll(d, 8.5, 1.0) > gaussian_nll(d, 4.7, 1.0), 'a Gaussian far from the data should have a larger NLL (smaller likelihood)'"
+        },
+        {
+          "name": "no underflow with many points",
+          "code": "import math\nout = gaussian_nll([10.0] * 2000, 0, 1)\nassert math.isfinite(out) and out > 1e5, f'2000 points far in the tail should give a large finite NLL, got {out}. Sum log-densities instead of multiplying densities'"
+        }
+      ],
+      "hints": [
+        "log_p = -math.log(sigma * math.sqrt(2 * math.pi)) - (x - mu) ** 2 / (2 * sigma ** 2)",
+        "total -= log_p, then return total after the loop"
+      ],
+      "solution": "import math\n\ndef gaussian_nll(data, mu, sigma):\n    total = 0\n    for x in data:\n        log_p = -math.log(sigma * math.sqrt(2 * math.pi)) - (x - mu) ** 2 / (2 * sigma ** 2)\n        total -= log_p\n    return total\n"
+    },
+    {
+      "id": "mle",
+      "title": "The Gaussian MLE",
+      "prompt": "<p>Write <code>gaussian_mle(data)</code> that returns <code>(mu, sigma)</code>, the maximum likelihood estimates: <code>mu</code> is the mean, and <code>sigma</code> is the square root of the average squared distance from <code>mu</code> (divide by <code>n</code>, not <code>n − 1</code>).</p><p>The tests check your answer the honest way: nudging <code>mu</code> or <code>sigma</code> in either direction must not lower the NLL. (<code>gaussian_nll</code> is provided.)</p>",
+      "starter": "import math\n\ndef gaussian_nll(data, mu, sigma):\n    return sum(math.log(sigma * math.sqrt(2 * math.pi)) + (x - mu) ** 2 / (2 * sigma ** 2) for x in data)\n\ndef gaussian_mle(data):\n    n = len(data)\n    # TODO 1: mu = average of data\n    # TODO 2: var = average of (x - mu) ** 2\n    # TODO 3: return mu, math.sqrt(var)\n    pass\n",
+      "tests": [
+        {
+          "name": "the video's data",
+          "code": "out = gaussian_mle([3.1, 4.2, 4.6, 5.3, 6.3])\nassert out is not None, 'returned None'\nmu, s = out\nassert abs(mu - 4.7) < 1e-9, f'mean is 4.7, got {mu}'\nassert abs(s**2 - 1.148) < 1e-9, f'average squared distance is 1.148, got sigma**2 = {s**2}. Divide by n, not n - 1'"
+        },
+        {
+          "name": "it really is the maximum",
+          "code": "d = [1.0, 2.0, 2.5, 4.0, 7.5, 8.0]\nmu, s = gaussian_mle(d)\nbest = gaussian_nll(d, mu, s)\nfor dm, ds in [(0.05, 0), (-0.05, 0), (0, 0.05), (0, -0.05)]:\n    assert gaussian_nll(d, mu + dm, s + ds) >= best - 1e-12, f'nudging mu by {dm} and sigma by {ds} lowered the NLL, so ({mu}, {s}) is not the MLE'"
+        },
+        {
+          "name": "constant data",
+          "code": "mu, s = gaussian_mle([2.0, 2.0, 2.0, 2.0, 2.000001])\nassert abs(mu - 2.0) < 1e-5, f'mean should be about 2, got {mu}'"
+        }
+      ],
+      "hints": [
+        "mu = sum(data) / n",
+        "var = sum((x - mu) ** 2 for x in data) / n"
+      ],
+      "solution": "import math\n\ndef gaussian_nll(data, mu, sigma):\n    return sum(math.log(sigma * math.sqrt(2 * math.pi)) + (x - mu) ** 2 / (2 * sigma ** 2) for x in data)\n\ndef gaussian_mle(data):\n    n = len(data)\n    mu = sum(data) / n\n    var = sum((x - mu) ** 2 for x in data) / n\n    return mu, math.sqrt(var)\n"
+    },
+    {
+      "id": "grid",
+      "title": "NLL for many μ at once (NumPy shapes)",
+      "prompt": "<p>Evaluate the NLL (with σ = 1) for a whole array of candidate means at once, and return the candidate with the smallest NLL.</p><p>Shapes: <code>data</code> has shape <code>(n,)</code> and <code>mus</code> has shape <code>(m,)</code>. <code>data[None, :] - mus[:, None]</code> has shape <code>(m, n)</code>: row j holds every data point minus candidate j. Square it, sum along <code>axis=1</code> (over the data points), and you have one number per candidate.</p><pre>mus = np.linspace(2, 8, 601)\nbest_mu(np.array([3.1, 4.2, 4.6, 5.3, 6.3]), mus)   # 4.7</pre><p>(With σ fixed, the constant log(σ√2π) terms do not change which μ wins, so you can drop them.)</p>",
+      "starter": "import numpy as np\n\ndef best_mu(data, mus):\n    # TODO 1: diffs = data[None, :] - mus[:, None]      # shape (m, n)\n    # TODO 2: nll = 0.5 * (diffs ** 2).sum(axis=1)        # shape (m,)\n    # TODO 3: return mus[np.argmin(nll)]\n    pass\n",
+      "tests": [
+        {
+          "name": "finds the mean",
+          "code": "import numpy as np\nout = best_mu(np.array([3.1, 4.2, 4.6, 5.3, 6.3]), np.linspace(2, 8, 601))\nassert out is not None, 'returned None'\nassert abs(out - 4.7) < 1e-9, f'the best mu on this grid is 4.7, got {out}'"
+        },
+        {
+          "name": "uneven data",
+          "code": "import numpy as np\nd = np.array([0.0, 0.0, 0.0, 10.0])\nout = best_mu(d, np.linspace(-5, 15, 2001))\nassert abs(out - 2.5) < 1e-9, f'the mean of [0, 0, 0, 10] is 2.5, got {out}. Did you sum over the data axis (axis=1)?'"
+        },
+        {
+          "name": "returns one number",
+          "code": "import numpy as np\nout = best_mu(np.array([1.0, 2.0]), np.array([0.0, 1.5, 3.0]))\nassert np.ndim(out) == 0, f'expected a single candidate, got something of shape {np.shape(out)}'"
+        }
+      ],
+      "hints": [
+        "Print diffs.shape to check it is (len(mus), len(data)).",
+        "np.argmin returns the index of the smallest entry; use it to index mus."
+      ],
+      "solution": "import numpy as np\n\ndef best_mu(data, mus):\n    diffs = data[None, :] - mus[:, None]\n    nll = 0.5 * (diffs ** 2).sum(axis=1)\n    return mus[np.argmin(nll)]\n"
+    }
+  ]
+}
