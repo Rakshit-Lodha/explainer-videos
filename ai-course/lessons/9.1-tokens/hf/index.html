@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+/* module 9 additions: token boxes, matrices, bars */
+.tok{position:absolute;padding:6px 16px;border:2px solid;border-radius:12px;white-space:nowrap;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1.25}
+.mat{position:absolute}
+.mc{position:absolute;text-align:center;border:1px solid;font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--ink)}
+.bar{position:absolute;border-radius:6px 6px 0 0}
+.note{position:absolute;font-size:40px;font-style:italic;line-height:1.3;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="175.33" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="175.33" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 9.1 Tokens</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="23.521"></div>
+  <div class="clip scene" id="S2" data-start="23.521" data-duration="34.257"></div>
+  <div class="clip scene" id="S3" data-start="57.778" data-duration="28.027"></div>
+  <div class="clip scene" id="S4" data-start="85.805" data-duration="36.134"></div>
+  <div class="clip scene" id="S5" data-start="121.939" data-duration="26.662"></div>
+  <div class="clip scene" id="S6" data-start="148.601" data-duration="26.729"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":23.521,"s3":57.778,"s4":85.805,"s5":121.939,"s6":148.601},"total":175.33,"cues":{"s1":[["everything",0.0],["a",0.69],["neural",0.815],["network",1.255],["does",1.756],["is",2.07],["arithmetic",2.258],["on",2.948],["numbers",3.137],["and",3.701],["a",3.952],["sentence",4.077],["is",4.642],["not",4.83],["a",5.081],["number",5.207],["so",6.149],["before",6.343],["a",6.797],["language",6.927],["model",7.51],["can",7.899],["read",8.159],["a",8.483],["single",8.612],["word",9.066],["the",9.917],["text",10.204],["has",10.564],["to",10.852],["be",11.068],["cut",11.284],["into",11.572],["pieces",11.932],["and",12.631],["every",12.872],["piece",13.233],["has",13.595],["to",13.835],["be",14.016],["given",14.197],["a",14.558],["number",14.678],["those",15.385],["pieces",15.758],["are",16.193],["called",16.442],["tokens",16.878],["and",17.793],["the",18.044],["choice",18.295],["of",18.735],["how",18.924],["to",19.175],["cut",19.364],["turns",19.615],["out",19.992],["to",20.243],["shape",20.432],["almost",20.809],["everything",21.249],["that",21.94],["comes",22.254],["after",22.631]],"s2":[["the",0.0],["simplest",0.262],["cut",0.851],["is",1.113],["one",1.309],["token",1.571],["per",1.964],["character",2.225],["we",3.093],["collect",3.273],["every",3.755],["distinct",4.117],["character",4.659],["that",5.261],["appears",5.563],["in",6.045],["the",6.225],["text",6.466],["sort",7.125],["them",7.282],["and",7.615],["give",7.801],["each",8.034],["one",8.267],["an",8.454],["index",8.594],["much",9.352],["like",9.648],["numbering",9.944],["the",10.536],["seats",10.772],["in",11.127],["a",11.305],["small",11.423],["theatre",11.778],["so",12.252],["that",12.429],["every",12.725],["guest",13.08],["has",13.435],["a",13.672],["fixed",13.791],["place",14.146],["the",14.879],["word",15.129],["hello",15.44],["then",15.814],["becomes",16.126],["a",16.625],["short",16.749],["list",17.123],["of",17.435],["seat",17.622],["numbers",17.933],["and",18.739],["decoding",18.971],["is",19.494],["just",19.668],["reading",19.958],["the",20.423],["seats",20.655],["back",21.004],["the",21.785],["vocabulary",21.965],["is",22.46],["tiny",22.595],["which",23.163],["is",23.708],["pleasant",23.981],["but",25.364],["every",25.594],["sentence",25.938],["becomes",26.454],["a",26.914],["very",27.028],["long",27.315],["sequence",27.602],["and",28.319],["the",28.547],["model",28.775],["has",29.118],["to",29.346],["spend",29.517],["its",29.86],["effort",30.088],["learning",30.488],["to",31.002],["spell",31.173],["before",31.515],["it",31.915],["can",32.086],["learn",32.315],["what",32.657],["words",32.943],["mean",33.285]],"s3":[["the",0.0],["opposite",0.242],["cut",0.788],["gives",1.03],["every",1.394],["whole",1.757],["word",2.121],["its",2.424],["own",2.666],["token",2.908],["sequences",3.773],["become",4.406],["short",4.849],["because",5.78],["one",6.191],["token",6.396],["now",6.704],["carries",6.909],["a",7.32],["lot",7.422],["of",7.627],["meaning",7.781],["but",8.618],["the",8.96],["vocabulary",9.303],["explodes",10.245],["since",11.266],["every",11.575],["tense",11.885],["plural",12.454],["and",12.918],["misspelling",13.182],["needs",13.977],["a",14.374],["seat",14.506],["of",14.837],["its",15.036],["own",15.3],["worse",15.814],["a",16.905],["word",17.033],["the",17.352],["model",17.608],["never",17.992],["saw",18.375],["during",18.631],["training",19.078],["has",19.653],["no",19.909],["seat",20.1],["at",20.42],["all",20.612],["and",21.44],["it",21.668],["can",21.838],["only",22.066],["be",22.35],["replaced",22.521],["by",23.033],["a",23.204],["placeholder",23.317],["that",24.0],["means",24.285],["unknown",24.626],["which",25.658],["throws",25.998],["its",26.395],["meaning",26.622],["away",27.077]],"s4":[["the",0.0],["method",0.267],["most",0.734],["language",1.067],["models",1.667],["use",2.134],["sits",2.401],["between",2.734],["these",3.268],["two",3.668],["and",4.384],["it",4.598],["is",4.758],["called",4.919],["byte",5.293],["pair",5.56],["encoding",5.827],["it",6.797],["starts",6.962],["from",7.348],["single",7.624],["characters",8.01],["counts",9.057],["every",9.488],["pair",9.858],["of",10.166],["neighbouring",10.35],["tokens",11.151],["in",11.583],["a",11.768],["large",11.891],["body",12.26],["of",12.568],["text",12.753],["and",13.581],["takes",13.813],["the",14.16],["most",14.392],["frequent",14.681],["pair",15.203],["which",15.954],["here",16.393],["is",16.759],["the",16.979],["letter",17.271],["t",17.783],["followed",17.929],["by",18.588],["the",18.807],["letter",19.1],["h",19.612],["that",20.177],["pair",20.54],["is",20.903],["fused",21.121],["into",21.556],["a",21.919],["brand",22.064],["new",22.499],["token",22.79],["every",23.574],["occurrence",23.903],["is",24.507],["rewritten",24.671],["and",25.686],["the",25.877],["counting",26.067],["starts",26.496],["again",26.829],["it",27.544],["works",27.745],["the",28.145],["way",28.413],["a",28.68],["stenographer",28.813],["invents",29.682],["shorthand",30.216],["the",31.4],["combinations",31.648],["she",32.453],["writes",32.701],["most",33.135],["often",33.445],["earn",33.816],["a",34.126],["symbol",34.25],["of",34.684],["their",34.87],["own",35.241]],"s5":[["repeat",0.0],["the",0.475],["merge",0.746],["many",1.153],["thousands",1.492],["of",2.171],["times",2.374],["and",2.781],["something",3.052],["useful",3.731],["emerges",4.205],["common",5.165],["words",5.608],["end",5.988],["up",6.241],["as",6.431],["a",6.621],["single",6.748],["token",7.191],["while",7.968],["a",8.323],["rare",8.441],["word",8.737],["is",9.033],["spelled",9.21],["out",9.683],["of",9.92],["a",10.098],["few",10.216],["familiar",10.452],["pieces",10.985],["so",11.849],["nothing",12.007],["is",12.426],["ever",12.583],["truly",12.845],["unknown",13.159],["modern",13.853],["tokenizers",14.301],["go",15.005],["one",15.198],["step",15.454],["further",15.774],["and",16.286],["start",16.543],["from",16.927],["raw",17.247],["bytes",17.503],["instead",17.887],["of",18.4],["characters",18.592],["so",19.849],["that",20.042],["any",20.365],["text",20.623],["at",20.945],["all",21.139],["including",21.822],["accents",22.446],["and",22.945],["emoji",23.195],["can",24.145],["be",24.347],["written",24.498],["with",24.901],["the",25.153],["starting",25.355],["pieces",25.809]],"s6":[["notice",0.0],["that",0.434],["a",0.743],["token's",0.867],["number",1.363],["is",1.797],["only",1.982],["a",2.292],["name",2.416],["tag",2.726],["token",3.558],["five",3.919],["hundred",4.22],["is",4.702],["not",4.882],["larger",5.123],["than",5.545],["token",5.846],["seven",6.207],["in",6.568],["any",6.749],["meaningful",6.989],["sense",7.651],["so",8.477],["the",8.661],["model",8.906],["cannot",9.274],["do",9.704],["useful",9.888],["arithmetic",10.317],["on",10.992],["the",11.176],["identifiers",11.422],["themselves",12.158],["what",13.153],["it",13.543],["needs",13.777],["instead",14.245],["is",14.869],["a",15.103],["rich",15.259],["list",15.649],["of",16.039],["numbers",16.273],["for",16.897],["every",17.209],["token",17.677],["a",18.509],["vector",18.637],["that",19.086],["can",19.407],["carry",19.663],["meaning",20.048],["and",21.066],["that",21.309],["is",21.614],["the",21.797],["subject",22.04],["of",22.527],["the",22.71],["next",22.953],["lesson",23.258],["on",24.042],["embeddings",24.253]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function lastScene(sid){tl.to($(sid.toUpperCase()),{opacity:1,duration:.5,ease:'none'},START[sid])}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+const PX=(x,y)=>[x,y];
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+/* ---- module 9 helpers ---- */
+/* label: hidden text centred on (x,y) */
+function label(parent,html,x,y,o){o=o||{};const d=el(parent,'lbl'+(o.mono?' mono':''),html,{color:o.color||C.ink,fontSize:(o.fs||40)+'px',fontStyle:o.italic?'italic':'normal'});place(d,x,y);return d}
+/* note: hidden wrapped paragraph with its top-left at (x,y) */
+function note(parent,html,x,y,w,o){o=o||{};return el(parent,'note',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,textAlign:o.align||'left',fontStyle:o.italic===false?'normal':'italic'})}
+/* token box centred on (x,y) */
+function tok(parent,html,x,y,o){o=o||{};const d=el(parent,'tok hid',html,{color:o.color||C.ink,borderColor:o.border||o.color||C.dim,fontSize:(o.fs||40)+'px',background:o.bg||'rgba(255,255,255,0.04)'});place(d,x,y);return d}
+function hexA(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+const heat=(v,col)=>hexA(col||C.blue,(0.06+0.86*Math.max(0,Math.min(1,v))).toFixed(3));
+/* matrix of cells centred on (cx,cy): o.vals (strings) and/or o.heat (0..1) */
+function matrix(parent,cx,cy,R,K,o){o=o||{};const cw=o.cw||52,ch=o.ch||cw,W=K*cw,H=R*ch;
+  const box=el(parent,'mat'+(o.hidden===false?'':' hid'),'',{left:(cx-W/2)+'px',top:(cy-H/2)+'px',width:W+'px',height:H+'px'});
+  const cells=[];for(let r=0;r<R;r++){const row=[];for(let c=0;c<K;c++){
+    const v=o.vals?o.vals[r][c]:'';const bg=o.heat?heat(o.heat[r][c],o.color):(o.fill||hexA(o.color||C.blue,.12));
+    row.push(el(box,'mc',v,{left:c*cw+'px',top:r*ch+'px',width:cw+'px',height:ch+'px',lineHeight:ch+'px',fontSize:(o.fs||Math.round(Math.min(cw,ch)*.4))+'px',background:bg,borderColor:o.line||'rgba(201,211,224,0.28)'}))}cells.push(row)}
+  return {box,cells,cx,cy,W,H,cw,ch,x0:cx-W/2,y0:cy-H/2,R,K}}
+/* highlight box around a block of matrix cells */
+function matHL(parent,m,r0,c0,r1,c1,color){return el(parent,'hl','',{left:(m.x0+c0*m.cw-5)+'px',top:(m.y0+r0*m.ch-5)+'px',width:((c1-c0+1)*m.cw+10)+'px',height:((r1-r0+1)*m.ch+10)+'px',borderColor:color,boxShadow:`0 0 20px ${color}66`})}
+/* quadratic curve with optional arrow head, drawn on with a dash offset */
+function curve(svg,x0,y0,x1,y1,o){o=o||{};const b=o.bend==null?-60:o.bend,dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy)||1;
+  const qx=(x0+x1)/2-dy/L*b,qy=(y0+y1)/2+dx/L*b;const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const p=svgEl('path',{d:`M${x0},${y0} Q${qx},${qy} ${x1},${y1}`,fill:'none',stroke:o.color||C.blue,'stroke-width':o.w||4,'stroke-linecap':'round','stroke-opacity':o.op==null?1:o.op},g);
+  const len=Math.max(1,p.getTotalLength());p.setAttribute('stroke-dasharray',len);p.setAttribute('stroke-dashoffset',len);
+  let head=null;if(o.head!==false){const tx=x1-qx,ty=y1-qy,tL=Math.hypot(tx,ty)||1,ux=tx/tL,uy=ty/tL,hl=o.hl||18,hw=hl*.55,bx=x1-ux*hl,by=y1-uy*hl;
+    head=svgEl('polygon',{points:`${x1},${y1} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`,fill:o.color||C.blue,'fill-opacity':o.op==null?1:o.op,opacity:0},g)}
+  return {g,p,len,head}}
+function drawCurve(c,time,d){tl.to(c.g,{autoAlpha:1,duration:.15},time);tl.to(c.p,{attr:{'stroke-dashoffset':0},duration:d||.8,ease:'power2.out'},time);if(c.head)tl.to(c.head,{opacity:1,duration:.2},time+(d||.8)*.8)}
+/* vertical bars (values 0..1) with a baseline at yBase; setBars tweens to new values */
+function bars(parent,x0,yBase,vals,o){o=o||{};const bw=o.bw||60,gap=o.gap||22,Hm=o.h||300;
+  const B={bw,gap,Hm,v:vals.slice(),items:[]};
+  vals.forEach((v,i)=>{const x=x0+i*(bw+gap);
+    const b=el(parent,'bar hid','',{left:x+'px',top:(yBase-Hm)+'px',width:bw+'px',height:Hm+'px',background:(o.colors?o.colors[i]:o.color)||C.blue,transformOrigin:'50% 100%'});
+    gsap.set(b,{scaleY:Math.max(.002,v)});
+    let t=null;if(o.values!==false){t=el(parent,'lbl mono',fmt(v,2),{color:C.ink,fontSize:(o.vfs||24)+'px'});place(t,x+bw/2,yBase-18);gsap.set(t,{y:-Hm*v})}
+    let lb=null;if(o.labels){lb=el(parent,'lbl mono',o.labels[i],{color:o.lcol||C.ink,fontSize:(o.lfs||30)+'px'});place(lb,x+bw/2,yBase+30)}
+    B.items.push({b,t,lb})});
+  return B}
+function barEls(B){const a=[];B.items.forEach(it=>{a.push(it.b);if(it.t)a.push(it.t);if(it.lb)a.push(it.lb)});return a}
+function setBars(B,time,d,vals){const from=B.v.slice(),p={k:0};
+  tl.to(p,{k:1,duration:d,ease:'power2.inOut',immediateRender:false,onUpdate:()=>{B.items.forEach((it,i)=>{const v=from[i]+(vals[i]-from[i])*p.k;
+    gsap.set(it.b,{scaleY:Math.max(.002,v)});if(it.t){gsap.set(it.t,{y:-B.Hm*v});it.t.textContent=fmt(v,2)}})}},time);B.v=vals.slice()}
+function softmaxJS(xs,T){T=T||1;const m=Math.max(...xs);const e=xs.map(x=>Math.exp((x-m)/T));const s=e.reduce((a,b)=>a+b,0);return e.map(x=>x/s)}
+/* type out the characters of an element's text, one span per character */
+function typeIn(d,time,per){const s=d.textContent;d.innerHTML=s.split('').map(ch=>`<span class="ch" style="opacity:0;visibility:hidden">${ch===' '?'&nbsp;':ch}</span>`).join('');
+  tl.to(d.querySelectorAll('.ch'),{autoAlpha:1,duration:.04,stagger:per||.05,ease:'none'},time)}
+function nextCap(S,html,time){const n=el(S,'cap',html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(n,time,.7);return n}
+
+/* ============ S1: a sentence has to become numbers ============ */
+(function(){const S=$('S1');const sid='s1';
+  const text='the cat sat on the mat',cw=38.4,fs=64,y=430;const x0=960-text.length*cw/2;
+  const line=el(S,'word mono',text,{color:C.ink,fontSize:fs+'px'});gsap.set(line,{x:x0,y:y-44});
+  typeIn(line,at(sid,.02),.06);
+  const neq=label(S,'a sentence is not a number',960,590,{fs:44,italic:true,color:C.dim});
+  show(neq,cue(sid,'sentence'),.5);fadeOut(neq,cue(sid,'so'),.4);
+  // word chips sit exactly where the words were, then spread apart
+  const words=text.split(' ');let p=0;const chips=[],ids=[464,3797,3332,319,464,2603];
+  const spread=[330,582,834,1086,1338,1590];
+  words.forEach((w,i)=>{const cx=x0+(p+w.length/2)*cw;p+=w.length+1;
+    const c=tok(S,w,cx,y,{fs:fs,color:C.ink,border:C.blue});c.style.padding='4px 10px';c.setAttribute('data-layout-allow-overlap','');
+    chips.push(c);
+    tl.to(c,{x:spread[i]-cx,duration:1,ease:'power3.inOut'},cue(sid,'pieces')+.1);
+    const n=label(S,String(ids[i]),spread[i],y+110,{fs:40,mono:true,color:C.yellow});show(n,cue(sid,'number',2)+i*.1,.4);
+  });
+  tl.to(chips,{autoAlpha:1,duration:.3},cue(sid,'cut'));tl.to(line,{autoAlpha:0,duration:.3},cue(sid,'cut'));
+  const tk=label(S,'tokens',960,700,{fs:56,italic:true,color:C.blue});show(tk,cue(sid,'tokens'),.5);
+  const q=el(S,'cap','but how should we <em>cut</em>?',{top:'860px',fontStyle:'italic',fontSize:'56px'});show(q,cue(sid,'choice'),.7);
+  const fine=label(S,'IDs here are made up for illustration',960,800,{fs:26,italic:true,color:C.dim});show(fine,cue(sid,'tokens')+.4,.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: one token per character ============ */
+(function(){const S=$('S2');const sid='s2';
+  const vocab=[' ','d','e','h','l','o','r','w'];
+  const src=label(S,'training text: <span class="mono" style="color:#e8edf3">"hello world"</span>',960,170,{fs:44,color:C.dim});show(src,at(sid,.01),.5);
+  const bw=110,vx0=960-(vocab.length-1)*bw/2,vy=330;
+  const seats=[],nums=[];
+  vocab.forEach((ch,i)=>{const x=vx0+i*bw;
+    const s=tok(S,ch===' '?'␣':ch,x,vy,{fs:48,color:C.ink,border:C.green});s.style.width='86px';s.style.textAlign='center';seats.push(s);
+    const n=label(S,String(i),x,vy+72,{fs:36,mono:true,color:C.yellow});nums.push(n)});
+  show(seats,cue(sid,'collect'),.4,{stagger:.08});
+  show(nums,cue(sid,'index'),.4,{stagger:.08});
+  const vl=label(S,'vocabulary',vx0-170,vy,{fs:34,italic:true,color:C.green});show(vl,cue(sid,'sort'),.5);
+  const th=label(S,'every character gets a fixed seat',960,470,{fs:36,italic:true,color:C.dim});show(th,cue(sid,'seats'),.5);fadeOut(th,cue(sid,'hello')-.3,.3);
+  // hello -> ids
+  const hw=['h','e','l','l','o'],hid=[3,2,4,4,5],hx0=960-2*120;
+  const hc=hw.map((ch,i)=>tok(S,ch,hx0+i*120,560,{fs:52,color:C.ink,border:C.blue}));
+  show(hc,cue(sid,'hello'),.4,{stagger:.06});
+  const arrows=layerSvg(S);
+  const hn=hid.map((v,i)=>{const a=mkArrow(arrows,PX,C.dim,3);setArrow(a,{x0:hx0+i*120,y0:605,x1:hx0+i*120,y1:605});grow(a,cue(sid,'list')+i*.08,.4,hx0+i*120,660);
+    const n=label(S,String(v),hx0+i*120,700,{fs:48,mono:true,color:C.yellow});show(n,cue(sid,'list')+.3+i*.08,.4);return n});
+  const enc=label(S,'encode',hx0-170,630,{fs:32,italic:true,color:C.dim});show(enc,cue(sid,'list'),.4);
+  const dec=label(S,'decode: read the seats back',960,780,{fs:34,italic:true,color:C.dim});show(dec,cue(sid,'decoding'),.5);
+  const tiny=label(S,'8 seats',vx0+(vocab.length-1)*bw+150,vy,{fs:36,italic:true,color:C.green});show(tiny,cue(sid,'tiny'),.5);
+  // a long sequence of small ids
+  const strip=el(S,'abs hid','',{left:'80px',top:'860px',width:'1760px',height:'60px',overflow:'hidden'});
+  const rnd=seedRand(3);let sx=0;for(let i=0;i<44;i++){const b=el(strip,'tok',String(Math.floor(rnd()*8)),{left:sx+'px',top:'4px',fontSize:'26px',color:C.yellow,borderColor:'#3a4452',padding:'2px 10px'});sx+=40}
+  tl.to([dec,...hc,...hn,enc],{autoAlpha:0,duration:.4},cue(sid,'sentence')-.2);
+  tl.to(arrows,{autoAlpha:0,duration:.4},cue(sid,'sentence')-.2);
+  fadeIn(strip,cue(sid,'long'),.6);
+  const longl=label(S,'a long sequence of tiny pieces',960,800,{fs:40,italic:true});show(longl,cue(sid,'sequence'),.5);
+  const spell=label(S,'the model must learn to spell first',960,660,{fs:44,italic:true,color:C.pink});show(spell,cue(sid,'spell'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: one token per word ============ */
+(function(){const S=$('S3');const sid='s3';
+  const ws=['the','cat','sat'],ids=['812','2041','5530'];
+  const wc=ws.map((w,i)=>tok(S,w,380+i*190,330,{fs:50,color:C.ink,border:C.blue}));
+  const wn=ids.map((v,i)=>label(S,v,380+i*190,445,{fs:36,mono:true,color:C.yellow}));
+  show(wc,cue(sid,'word'),.4,{stagger:.1});show(wn,cue(sid,'token'),.4,{stagger:.1});
+  const sh=label(S,'3 tokens instead of 11',570,500,{fs:38,italic:true,color:C.dim});show(sh,cue(sid,'short'),.5);
+  // the vocabulary explodes
+  const pool=['run','runs','running','ran','runner','cat','cats','dog','dogs','walk','walked','walking','teh','recieve','colour','color','happy','happier','happiest','sit','sat','sits','sitting','go','went','gone','going','mouse','mice','child','children','big','bigger','biggest'];
+  const rnd=seedRand(17);const vbox=[];
+  pool.forEach((w,i)=>{const col=i%5,row=Math.floor(i/5);const x=1080+col*165+(row%2)*40,y=200+row*82;
+    const c=tok(S,w,x,y,{fs:28,color:i%7===3?C.red:C.ink,border:'#3a4452'});vbox.push(c)});
+  const order=vbox.map((c,i)=>[rnd(),c]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+  show(order,cue(sid,'explodes'),.3,{stagger:.08});
+  const vlab=label(S,'every form needs its own seat',1480,800,{fs:36,italic:true,color:C.dim});show(vlab,cue(sid,'tense'),.5);
+  // unseen word
+  tl.to([...wc,...wn,sh],{autoAlpha:0,duration:.4},cue(sid,'worse'));
+  const nw=tok(S,'snorkelled',560,420,{fs:54,color:C.ink,border:C.red});show(nw,cue(sid,'word',2),.5);
+  const nq=label(S,'never seen in training',560,520,{fs:34,italic:true,color:C.red});show(nq,cue(sid,'never'),.4);
+  const unk=tok(S,'&lt;unk&gt;',560,660,{fs:54,color:C.dim,border:C.dim});
+  const ar=layerSvg(S);const a=mkArrow(ar,PX,C.dim,4);setArrow(a,{x0:560,y0:470,x1:560,y1:470});
+  tl.to(nq,{autoAlpha:0,duration:.3},cue(sid,'replaced')-.2);
+  grow(a,cue(sid,'replaced'),.5,560,610);show(unk,cue(sid,'placeholder'),.5);
+  const lost=label(S,'its meaning is thrown away',560,760,{fs:36,italic:true,color:C.dim});show(lost,cue(sid,'throws'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: byte pair encoding, one merge ============ */
+(function(){const S=$('S4');const sid='s4';
+  const title=label(S,'byte pair encoding',960,150,{fs:54,italic:true,color:C.blue});show(title,cue(sid,'byte'),.6);
+  const s='the this that then';const step=86,x0=960-(s.length-1)*step/2,y=330;
+  const ch=s.split('').map((c,i)=>{const t=tok(S,c===' '?'␣':c,x0+i*step,y,{fs:44,color:c===' '?C.dim:C.ink,border:'#3a4452'});t.style.width='70px';t.style.textAlign='center';return t});
+  show(ch,cue(sid,'single'),.3,{stagger:.03});
+  // pair tallies
+  const tally=[['t h',4],['␣ t',3],['h e',2],['others',1]];
+  const B=bars(S,700,800,tally.map(x=>x[1]/4),{bw:90,gap:70,h:250,color:C.blue,labels:tally.map(x=>x[0]),values:false,lfs:32});
+  B.items[0].b.style.background=C.yellow;
+  const cnt=tally.map((x,i)=>label(S,'×'+x[1],700+i*160+45,800-250*x[1]/4-28,{fs:32,mono:true,color:C.ink}));
+  tl.to(barEls(B),{autoAlpha:1,duration:.4,stagger:.04},cue(sid,'counts'));
+  show(cnt,cue(sid,'pair',2),.4,{stagger:.08});
+  const cl=label(S,'pair counts',520,680,{fs:34,italic:true,color:C.dim});show(cl,cue(sid,'counts'),.5);
+  // highlight every t-h pair
+  const thAt=[0,4,9,14];
+  const hls=thAt.map(i=>el(S,'hl','',{left:(x0+i*step-44)+'px',top:(y-42)+'px',width:(step+88)+'px',height:'84px',borderColor:C.yellow,boxShadow:`0 0 20px ${C.yellow}66`}));
+  fadeIn(hls,cue(sid,'t'),.4,.06);
+  // fuse: the h slides under the t, the t becomes "th", the rest closes ranks
+  const fuse=cue(sid,'fused');
+  const removed=new Set(thAt.map(i=>i+1));
+  let k=0;const nx=[];s.split('').forEach((c,i)=>{if(removed.has(i)){nx.push(null);return}nx.push(k++)});
+  const n2=k,x02=960-(n2-1)*step/2;
+  ch.forEach((t,i)=>{if(removed.has(i)){tl.to(t,{x:-step,autoAlpha:0,duration:.6,ease:'power2.in'},fuse);return}
+    tl.to(t,{x:(x02+nx[i]*step)-(x0+i*step),duration:.9,ease:'power2.inOut'},fuse+.5)});
+  thAt.forEach(i=>{const t=ch[i];const th=tok(S,'th',x0+i*step,y,{fs:44,color:C.yellow,border:C.yellow});th.style.width='70px';th.style.textAlign='center';th.setAttribute('data-layout-allow-overlap','');
+    gsap.set(th,{x:0});tl.to(th,{autoAlpha:1,duration:.4},fuse+.3);tl.to(t,{autoAlpha:0,duration:.3},fuse+.3);
+    tl.to(th,{x:(x02+nx[i]*step)-(x0+i*step),duration:.9,ease:'power2.inOut'},fuse+.5)});
+  fadeOut(hls,fuse,.3);
+  const rule=tok(S,'merge 1: &nbsp;t + h → th',1520,520,{fs:34,color:C.yellow,border:C.yellow});show(rule,cue(sid,'token'),.5);
+  // recount
+  const newt=[['␣ th',3],['th e',2],['th i',1],['others',1]];
+  tl.to(cnt,{autoAlpha:0,duration:.3},cue(sid,'counting')-.1);
+  setBars(B,cue(sid,'counting'),.8,newt.map(x=>x[1]/4));
+  const nl=newt.map((x,i)=>{const d=label(S,x[0],700+i*160+45,830,{fs:32,mono:true,color:C.ink});return d});
+  const ncnt=newt.map((x,i)=>label(S,'×'+x[1],700+i*160+45,800-250*x[1]/4-28,{fs:32,mono:true,color:C.ink}));
+  tl.to(B.items.map(it=>it.lb),{autoAlpha:0,duration:.3},cue(sid,'counting'));
+  show(nl,cue(sid,'counting')+.3,.4);show(ncnt,cue(sid,'again'),.4,{stagger:.06});
+  tl.to(B.items[0].b,{backgroundColor:C.blue,duration:.4},cue(sid,'counting'));
+  const sten=label(S,'frequent pairs earn a symbol of their own',960,940,{fs:40,italic:true,color:C.ink});show(sten,cue(sid,'stenographer'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: after many merges ============ */
+(function(){const S=$('S5');const sid='s5';
+  const mm=label(S,'after many thousands of merges',960,160,{fs:46,italic:true,color:C.dim});show(mm,at(sid,.01),.6);
+  const rows=[[['the'],C.blue],[['house'],C.blue],[['un','believ','ably'],C.yellow]];
+  const rowEls=[];
+  rows.forEach(([parts,col],r)=>{const y=300+r*120;let x=760;const els=[];
+    parts.forEach(p=>{const w=p.length*26+40;const t=tok(S,p,x+w/2,y,{fs:44,color:C.ink,border:col});x+=w+14;els.push(t)});rowEls.push(els)});
+  show([...rowEls[0],...rowEls[1]],cue(sid,'common'),.5,{stagger:.15});
+  const cl=label(S,'common word: one token',480,360,{fs:34,italic:true,color:C.blue});show(cl,cue(sid,'single'),.5);
+  show(rowEls[2],cue(sid,'rare'),.4,{stagger:.25});
+  const rl=label(S,'rare word: familiar pieces',480,540,{fs:34,italic:true,color:C.yellow});show(rl,cue(sid,'spelled'),.5);
+  const il=label(S,'(an illustrative split)',1440,540,{fs:26,italic:true,color:C.dim});show(il,cue(sid,'pieces'),.5);
+  // bytes
+  const bl=label(S,'start from bytes',960,680,{fs:42,italic:true,color:C.green});show(bl,cue(sid,'bytes'),.5);
+  const cafe=['c','a','f'].map((c,i)=>tok(S,c,700+i*100,800,{fs:44,color:C.ink,border:C.green}));
+  const eacute=tok(S,'é',1020,800,{fs:44,color:C.pink,border:C.pink});
+  show([...cafe,eacute],cue(sid,'any'),.4,{stagger:.08});
+  const by=[tok(S,'195',1140,800,{fs:36,color:C.pink,border:C.pink}),tok(S,'169',1260,800,{fs:36,color:C.pink,border:C.pink})];
+  const ar=layerSvg(S);const a=mkArrow(ar,PX,C.pink,4);setArrow(a,{x0:1060,y0:840,x1:1060,y1:840});
+  tl.to(eacute,{x:-20,duration:.4},cue(sid,'accents'));
+  show(by,cue(sid,'accents')+.3,.4,{stagger:.12});
+  const bnote=label(S,'é is two bytes in UTF-8, and every byte already has a seat',960,900,{fs:32,italic:true,color:C.dim});show(bnote,cue(sid,'written'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: an ID is a name tag, so we need vectors ============ */
+(function(){const S=$('S6');const sid='s6';
+  const t1=tok(S,'token 500',620,330,{fs:48,color:C.ink,border:C.blue}),t2=tok(S,'token 7',1060,330,{fs:48,color:C.ink,border:C.blue});
+  const gt=label(S,'&gt;',840,330,{fs:64,mono:true,color:C.ink});
+  show([t1,t2],cue(sid,'token'),.5,{stagger:.2});show(gt,cue(sid,'larger'),.4);
+  const svg=layerSvg(S);const x=svgEl('line',{x1:800,y1:370,x2:880,y2:290,stroke:C.red,'stroke-width':7,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(x,cue(sid,'not'),.3);
+  const tagl=label(S,'an ID is a name tag, not a quantity',840,450,{fs:40,italic:true,color:C.dim});show(tagl,cue(sid,'meaningful'),.5);
+  // each token gets a vector
+  const rnd=seedRand(9);const vals=[];for(let i=0;i<6;i++)vals.push(fmt(rnd()*2-1,2));vals.push('⋮');
+  const v=colvec(S,1500,520,vals,{fs:34,w:150,color:C.blue});
+  show(v.box,cue(sid,'list'),.7);
+  const ar=layerSvg(S);const a=mkArrow(ar,PX,C.blue,5);setArrow(a,{x0:1170,y0:360,x1:1170,y1:360});grow(a,cue(sid,'rich'),.6,1400,440);
+  const vl=label(S,'a vector that can carry meaning',1500,830,{fs:38,italic:true,color:C.blue});show(vl,cue(sid,'vector'),.5);
+  nextCap(S,'next &nbsp;·&nbsp; 9.2 &nbsp;Embeddings: meaning as direction',cue(sid,'next'));
+  lastScene(sid);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>
