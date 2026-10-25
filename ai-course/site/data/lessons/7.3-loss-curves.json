@@ -1,0 +1,135 @@
+{
+ "id": "7.3-loss-curves",
+ "module": 7,
+ "title": "Reading loss curves",
+ "summary": "A loss curve plots loss against training steps. A healthy curve drops steeply, then flattens into a slow decline, jittering because each mini-batch differs; a moving average shows the trend. The learning rate leaves fingerprints: too small gives a slow straight fall, too large bounces, climbs or turns into NaN. Training falling while validation rises is overfitting, and its validation minimum is where early stopping keeps the weights. For C classes a uniform guess starts at a cross-entropy of ln C.",
+ "video": "videos/7.3-loss-curves.mp4",
+ "llm_link": "Teams training large language models watch the same curves against tokens processed. Published training reports describe occasional sudden loss spikes in long runs, handled by restarting from an earlier checkpoint and skipping the batches that triggered them.",
+ "key_ideas": [
+  "Healthy: steep early drop, then a long slow decline; jitter comes from mini-batches. Smooth it with a moving average m ← βm + (1 − β)x.",
+  "Learning rate too small: slow, almost straight decline. Too large: bouncing, climbing, or NaN.",
+  "Training falls while validation rises: overfitting. The validation minimum is the early-stopping point.",
+  "Both curves high and flat: underfitting, a tiny learning rate, or a bug that blocks the gradient. A plateau followed by a drop can mean patience pays.",
+  "Expected starting loss for a uniform guess over C classes is ln C (about 2.30 for 10 classes)."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: a freshly initialised classifier over 100 classes guesses roughly uniformly. About what cross-entropy loss should the first step show?",
+   "options": [
+    "0.01",
+    "1.0",
+    "4.6",
+    "100"
+   ],
+   "answer": 2,
+   "explain": "Uniform guessing gives each class probability 1/100, so the loss is −ln(1/100) = ln 100 ≈ 4.6."
+  },
+  {
+   "q": "Training loss keeps falling, but validation loss has been rising for several epochs. What is happening?",
+   "options": [
+    "Underfitting",
+    "Overfitting: the model is memorising training examples",
+    "The learning rate is too small",
+    "The data is shuffled"
+   ],
+   "answer": 1,
+   "explain": "Gains on the training set no longer carry over to new data; early stopping would keep the weights from the validation minimum."
+  },
+  {
+   "q": "The loss bounces wildly and then becomes NaN. Which change is the most likely first fix?",
+   "options": [
+    "Raise the learning rate",
+    "Lower the learning rate",
+    "Train for more epochs",
+    "Add more layers"
+   ],
+   "answer": 1,
+   "explain": "Steps that overshoot the valley make the loss bounce and blow up; a smaller learning rate takes smaller steps."
+  },
+  {
+   "q": "Why is a raw training-loss curve jagged even when training is healthy?",
+   "options": [
+    "The model is broken",
+    "Each step uses a different mini-batch, some easier than others",
+    "The loss function is random",
+    "Validation data is mixed in"
+   ],
+   "answer": 1,
+   "explain": "Mini-batch losses vary from batch to batch; a moving average reveals the trend underneath."
+  },
+  {
+   "q": "A long language-model run shows a sudden loss spike. What do published reports describe doing?",
+   "options": [
+    "Ignore it",
+    "Restart from an earlier checkpoint and skip the batches that triggered it",
+    "Delete the model",
+    "Double the learning rate"
+   ],
+   "answer": 1,
+   "explain": "Rolling back to a checkpoint and skipping the offending data is the remedy those reports describe."
+  }
+ ],
+ "problems": [
+  {
+   "id": "ema",
+   "title": "Smooth a loss curve",
+   "prompt": "<p>Write <code>ema(values, beta=0.9)</code>, the exponential moving average used to smooth loss curves. Start with <code>m = values[0]</code>; for each value <code>v</code> (including the first), update <code>m = beta * m + (1 - beta) * v</code> and append <code>m</code> to the output. Return a list as long as <code>values</code>.</p><pre>ema([1.0, 0.0], beta=0.5)   # [1.0, 0.5]</pre>",
+   "starter": "def ema(values, beta=0.9):\n    out = []\n    # TODO: m starts at values[0]; for each v: m = beta * m + (1 - beta) * v; append m\n    return out\n",
+   "tests": [
+    {
+     "name": "small example",
+     "code": "r = ema([1.0, 0.0], beta=0.5)\nassert len(r) == 2 and abs(r[0] - 1.0) < 1e-12 and abs(r[1] - 0.5) < 1e-12, f'expected [1.0, 0.5], got {r}'"
+    },
+    {
+     "name": "same length as the input",
+     "code": "r = ema([3, 1, 4, 1, 5, 9, 2, 6])\nassert len(r) == 8, f'one smoothed value per input, expected 8, got {len(r)}'"
+    },
+    {
+     "name": "smoother than the raw values",
+     "code": "vals = [2 + (0.5 if i % 2 else -0.5) for i in range(50)]\nr = ema(vals, 0.9)\nraw = max(abs(a - b) for a, b in zip(vals, vals[1:]))\nsm = max(abs(a - b) for a, b in zip(r[10:], r[11:]))\nassert sm < raw / 5, f'the average should jump far less than the raw values ({raw:.2f}); got jumps of {sm:.2f}'\nassert abs(r[-1] - 2) < 0.1, f'the average should settle near the trend 2.0, got {r[-1]:.3f}'"
+    }
+   ],
+   "hints": [
+    "m = values[0]",
+    "for v in values:\n    m = beta * m + (1 - beta) * v\n    out.append(m)",
+    "A larger beta remembers more of the past and gives a smoother line."
+   ],
+   "solution": "def ema(values, beta=0.9):\n    out = []\n    m = values[0]\n    for v in values:\n        m = beta * m + (1 - beta) * v\n        out.append(m)\n    return out\n"
+  },
+  {
+   "id": "diagnose",
+   "title": "Starting loss and early stopping",
+   "prompt": "<p>Two small tools for reading curves.</p><ul><li><code>expected_start_loss(C)</code>: the cross-entropy of a uniform guess over C classes, <code>ln C</code>.</li><li><code>early_stopping(val, patience)</code>: walk through the validation losses epoch by epoch, tracking the best (lowest) one. Count epochs since the last improvement; when that count reaches <code>patience</code>, stop. Return <code>(best_epoch, stop_epoch)</code>, both 0-based. If patience never runs out, <code>stop_epoch</code> is the last epoch.</li></ul><pre>early_stopping([3.0, 2.0, 1.5, 1.6, 1.7, 1.8], patience=2)   # (2, 4)</pre>",
+   "starter": "import math\n\ndef expected_start_loss(C):\n    # TODO: ln C\n    return 0.0\n\ndef early_stopping(val, patience):\n    # TODO: track best value and epoch, and epochs since improvement\n    return 0, len(val) - 1\n",
+   "tests": [
+    {
+     "name": "ten classes",
+     "code": "assert abs(expected_start_loss(10) - 2.302585) < 1e-5, f'ln 10 ≈ 2.3026, got {expected_start_loss(10)}'"
+    },
+    {
+     "name": "uniform guess matches cross-entropy",
+     "code": "import math\nC = 37\nassert abs(expected_start_loss(C) - (-math.log(1 / C))) < 1e-9, 'a uniform guess puts 1/C on the true class, so the loss is −ln(1/C) = ln C'"
+    },
+    {
+     "name": "the example",
+     "code": "r = early_stopping([3.0, 2.0, 1.5, 1.6, 1.7, 1.8], patience=2)\nassert tuple(r) == (2, 4), f'best is epoch 2 (1.5); epochs 3 and 4 do not improve, so stop at 4. Got {r}'"
+    },
+    {
+     "name": "patience never runs out",
+     "code": "r = early_stopping([5, 4, 3, 2, 1], patience=3)\nassert tuple(r) == (4, 4), f'always improving: best and stop are the last epoch, got {r}'"
+    },
+    {
+     "name": "a later improvement resets the count",
+     "code": "r = early_stopping([2.0, 2.1, 1.9, 2.0, 2.2, 2.3, 1.0], patience=3)\nassert tuple(r) == (2, 5), f'epoch 2 resets the count, then 3, 4, 5 fail to improve: stop at 5 before seeing epoch 6. Got {r}'"
+    }
+   ],
+   "hints": [
+    "return math.log(C)",
+    "best, best_epoch, waited = float('inf'), 0, 0\nfor epoch, v in enumerate(val): ...",
+    "If v < best: update best and best_epoch and set waited = 0; otherwise waited += 1 and if waited == patience: return best_epoch, epoch"
+   ],
+   "solution": "import math\n\ndef expected_start_loss(C):\n    return math.log(C)\n\ndef early_stopping(val, patience):\n    best, best_epoch, waited = float('inf'), 0, 0\n    for epoch, v in enumerate(val):\n        if v < best:\n            best, best_epoch, waited = v, epoch, 0\n        else:\n            waited += 1\n            if waited == patience:\n                return best_epoch, epoch\n    return best_epoch, len(val) - 1\n"
+  }
+ ],
+ "poster": "videos/7.3-loss-curves.jpg"
+}
