@@ -1,0 +1,100 @@
+{
+  "id": "2.1-derivative",
+  "module": 2,
+  "title": "Derivative: slope of a zoomed-in curve",
+  "summary": "The derivative is the slope of a curve at a point: the limit of rise over run as the run shrinks to zero, or equivalently the slope of the straight line a smooth curve becomes when you zoom in far enough. For x² it is 2x, and it can be checked numerically with a tiny step on either side.",
+  "video": "videos/2.1-derivative.mp4",
+  "llm_link": "Training a language model asks, for every weight, how much the loss changes when that weight is nudged: a derivative. The sign says which way to move the weight so the next-word prediction gets a little less wrong.",
+  "key_ideas": [
+    "Secant slope through (x, f(x)) and (x + h, f(x + h)) is rise / run = (f(x + h) − f(x)) / h.",
+    "As h shrinks to 0, the secant turns into the tangent; its slope is the derivative f′(x).",
+    "Zoomed in far enough, a smooth curve looks straight; the derivative is the slope of that line.",
+    "For f(x) = x²: (f(x + h) − f(x)) / h = 2x + h → 2x.",
+    "f′ is itself a function: positive where f rises, negative where it falls, zero at peaks and valley bottoms. Numerically, f′(x) ≈ (f(x + h) − f(x − h)) / 2h."
+  ],
+  "quiz": [
+    {
+      "q": "What does the derivative of f at x = 3 tell you?",
+      "options": ["The value of f at 3", "How fast f changes per unit change in x, right at x = 3", "The area under f up to 3", "The average of f between 0 and 3"],
+      "answer": 1,
+      "explain": "It is the local rate of change: the slope of the curve at that point. A small nudge Δx changes f by about f′(3)·Δx."
+    },
+    {
+      "q": "Predict the result: the derivative of f(x) = x² at x = −2.",
+      "options": ["4", "−4", "−2", "0"],
+      "answer": 1,
+      "explain": "f′(x) = 2x, so f′(−2) = −4. The curve is falling steeply there, on the left wall of the bowl."
+    },
+    {
+      "q": "The secant through x = 1 and x = 1 + h on y = x² has slope 2 + h. What happens as h → 0?",
+      "options": ["The slope grows without limit", "The slope approaches 2, the tangent's slope", "The slope becomes 0", "The secant disappears, so there is no slope"],
+      "answer": 1,
+      "explain": "The second point slides onto the first and the secant settles onto the tangent. Its slope 2 + h approaches 2 = f′(1)."
+    },
+    {
+      "q": "Where does a smooth function's derivative equal zero?",
+      "options": ["Wherever the function equals zero", "Only at x = 0", "Where the curve turns around, such as at the bottom of a valley or the top of a peak", "Nowhere, for a smooth function"],
+      "answer": 2,
+      "explain": "At a turning point the tangent is flat. That is where a minimum can hide, which is why training looks for places where slopes vanish."
+    },
+    {
+      "q": "During training, the derivative of the loss with respect to one weight is +0.3. To reduce the loss, the weight should…",
+      "options": ["increase a little", "decrease a little", "stay the same", "be set to 0.3"],
+      "answer": 1,
+      "explain": "A positive slope means increasing the weight increases the loss, so a small step in the opposite direction (decreasing it) lowers the loss. Every weight in a language model is updated this way."
+    }
+  ],
+  "problems": [
+    {
+      "id": "numderiv",
+      "title": "Numerical derivative",
+      "prompt": "<p>Write <code>num_deriv(f, x, h=1e-5)</code> that estimates <code>f′(x)</code> with a tiny step on <b>either side</b> of x:</p><pre>(f(x + h) - f(x - h)) / (2 * h)</pre><p>This central difference is more accurate than the one-sided rise over run from the video.</p><pre>num_deriv(lambda x: x**2, 3.0)   # about 6.0</pre>",
+      "starter": "def num_deriv(f, x, h=1e-5):\n    # TODO: evaluate f at x + h and at x - h, take the difference,\n    #       and divide by the width of the step, 2*h\n    pass\n",
+      "tests": [
+        {"name": "slope of x² at 3", "code": "out = num_deriv(lambda x: x**2, 3.0)\nassert out is not None, 'num_deriv returned None. Did you forget return?'\nassert abs(out - 6) < 1e-6, f'f(x) = x² has slope 2x = 6 at x = 3, got {out}'"},
+        {"name": "bottom of the bowl is flat", "code": "out = num_deriv(lambda x: x**2, 0.0)\nassert abs(out) < 1e-6, f'the slope of x² at 0 is 0, got {out}'"},
+        {"name": "divides by 2h, not h", "code": "out = num_deriv(lambda x: 5 * x, 1.0)\nassert abs(out - 5) < 1e-6, f'a straight line 5x has slope 5 everywhere, got {out}. If you got 10, divide by 2*h: the two points are 2h apart'"},
+        {"name": "works for sin", "code": "import math\nout = num_deriv(math.sin, 0.0)\nassert abs(out - 1) < 1e-6, f'sin has slope cos(0) = 1 at 0, got {out}'"},
+        {"name": "uses the h it is given", "code": "out = num_deriv(lambda x: x**3, 1.0, h=0.1)\nassert abs(out - 3.01) < 1e-9, f'with h = 0.1 the central difference of x³ at 1 is (1.331 - 0.729) / 0.2 = 3.01, got {out}'"}
+      ],
+      "hints": [
+        "return (f(x + h) - f(x - h)) / (2 * h)",
+        "f is a function you call, like f(2.0). lambda x: x**2 is a function written in one line."
+      ],
+      "solution": "def num_deriv(f, x, h=1e-5):\n    return (f(x + h) - f(x - h)) / (2 * h)\n"
+    },
+    {
+      "id": "secants",
+      "title": "Watch the secant become the tangent",
+      "prompt": "<p>Write <code>secant_slopes(f, x, hs)</code> that returns a list with the one-sided rise over run <code>(f(x + h) - f(x)) / h</code> for every <code>h</code> in <code>hs</code>.</p><p>For <code>f(x) = x²</code> at <code>x = 1</code> the video showed the slope is <code>2 + h</code>, so with <code>hs = [1, 0.1, 0.01]</code> you should get roughly <code>[3, 2.1, 2.01]</code>, closing in on the derivative 2.</p>",
+      "starter": "def secant_slopes(f, x, hs):\n    slopes = []\n    # TODO: for each h in hs, append (f(x + h) - f(x)) / h\n    return slopes\n",
+      "tests": [
+        {"name": "x² at 1", "code": "out = secant_slopes(lambda x: x**2, 1.0, [1, 0.1, 0.01])\nassert len(out) == 3, f'expected one slope per h (3), got {len(out)}'\nassert all(abs(a - b) < 1e-9 for a, b in zip(out, [3, 2.1, 2.01])), f'the slope is 2 + h, so expected [3, 2.1, 2.01], got {out}'"},
+        {"name": "closes in on the derivative", "code": "out = secant_slopes(lambda x: x**3, 2.0, [0.1, 0.01, 0.001])\ngaps = [abs(s - 12) for s in out]\nassert gaps[0] > gaps[1] > gaps[2], f'as h shrinks the slopes should approach f\\'(2) = 12, got {out}'"},
+        {"name": "negative h works too", "code": "out = secant_slopes(lambda x: x**2, 1.0, [-0.5])\nassert abs(out[0] - 1.5) < 1e-9, f'with h = -0.5 the second point is to the left; slope = 2 + h = 1.5, got {out}'"}
+      ],
+      "hints": [
+        "for h in hs: slopes.append((f(x + h) - f(x)) / h)",
+        "Or in one line: return [(f(x + h) - f(x)) / h for h in hs]"
+      ],
+      "solution": "def secant_slopes(f, x, hs):\n    return [(f(x + h) - f(x)) / h for h in hs]\n"
+    },
+    {
+      "id": "gradcheck",
+      "title": "A derivative checker (NumPy)",
+      "prompt": "<p>When you write a derivative by hand, check it numerically. Write <code>deriv_check(f, df, xs, h=1e-5)</code>:</p><ul><li><code>xs</code> is a NumPy array of test points;</li><li><code>f</code> and <code>df</code> work on whole arrays (NumPy applies them entry by entry);</li><li>return the largest absolute difference between <code>df(xs)</code> and the central difference <code>(f(xs + h) - f(xs - h)) / (2h)</code>, as a float.</li></ul><p>A correct <code>df</code> gives a tiny number; a wrong one gives a big one.</p>",
+      "starter": "import numpy as np\n\ndef deriv_check(f, df, xs, h=1e-5):\n    # TODO 1: numeric = (f(xs + h) - f(xs - h)) / (2 * h)   (one value per point)\n    # TODO 2: return float(np.max(np.abs(numeric - df(xs))))\n    pass\n",
+      "tests": [
+        {"name": "correct derivative passes", "code": "import numpy as np\nxs = np.linspace(-3, 3, 13)\nout = deriv_check(lambda x: x**2, lambda x: 2*x, xs)\nassert out is not None, 'deriv_check returned None'\nassert out < 1e-6, f'2x is the right derivative of x², so the gap should be tiny, got {out}'"},
+        {"name": "wrong derivative is caught", "code": "import numpy as np\nxs = np.linspace(-3, 3, 13)\nout = deriv_check(lambda x: x**2, lambda x: x, xs)\nassert out > 1, f'x is NOT the derivative of x²: at x = 3 the gap is 6 - 3 = 3, so expected about 3, got {out}'"},
+        {"name": "works for sin", "code": "import numpy as np\nxs = np.linspace(0, 6, 25)\nout = deriv_check(np.sin, np.cos, xs)\nassert out < 1e-6, f'cos is the derivative of sin, expected a tiny gap, got {out}'"},
+        {"name": "returns a float", "code": "import numpy as np\nout = deriv_check(lambda x: x**2, lambda x: 2*x, np.array([1.0, 2.0]))\nassert isinstance(out, float), f'return a plain float (wrap it in float(...)), got {type(out).__name__}'"}
+      ],
+      "hints": [
+        "Because xs is an array, xs + h shifts every point at once, and f(xs + h) is an array too. No loop needed.",
+        "return float(np.max(np.abs(numeric - df(xs))))"
+      ],
+      "solution": "import numpy as np\n\ndef deriv_check(f, df, xs, h=1e-5):\n    numeric = (f(xs + h) - f(xs - h)) / (2 * h)\n    return float(np.max(np.abs(numeric - df(xs))))\n"
+    }
+  ]
+}
