@@ -1,0 +1,130 @@
+{
+  "id": "6.8-normalization",
+  "module": 6,
+  "title": "Normalization (batch norm, layer norm)",
+  "summary": "Normalisation re-centres and rescales numbers inside a network: subtract the mean, divide by the standard deviation (plus a tiny ε), then apply a learned scale γ and shift β. Batch norm does this per feature across the batch; layer norm does it per example (per token) across its features, which is what transformers use.",
+  "video": "videos/6.8-normalization.mp4",
+  "llm_link": "Every transformer block contains layer normalisation. GPT-2 puts it at the entrance of each sub-block (pre-norm), and many recent models such as LLaMA use RMSNorm, which skips the mean and divides by the root mean square.",
+  "key_ideas": [
+    "x̂ = (x − μ) / √(σ² + ε), then y = γ·x̂ + β with learned γ and β.",
+    "Batch norm: statistics per feature, across the examples in the batch (columns). Needs running averages at test time; struggles with small batches.",
+    "Layer norm: statistics per example, across its own features (rows). No batch dependence; each token is normalised on its own.",
+    "Why it helps is debated (the original 'internal covariate shift' story vs a smoother loss landscape), but normalised networks train faster and tolerate larger learning rates.",
+    "RMSNorm: y = γ · x / √(mean(x²) + ε), no mean subtraction."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: layer-normalise [2, 4, 6] (γ = 1, β = 0, ignore ε). What do you get?",
+      "options": [
+        "[0, 0.5, 1]",
+        "[−1.22, 0, 1.22]",
+        "[−1, 0, 1]",
+        "[0.17, 0.33, 0.5]"
+      ],
+      "answer": 1,
+      "explain": "Mean 4, standard deviation √(8/3) ≈ 1.63, so (2 − 4)/1.63 ≈ −1.22, 0, and +1.22."
+    },
+    {
+      "q": "A batch has shape (batch, features). Along which axis does batch norm compute its mean?",
+      "options": [
+        "Across the batch, for each feature (axis 0)",
+        "Across the features, for each example (axis 1)",
+        "Over the whole array at once",
+        "It does not compute a mean"
+      ],
+      "answer": 0,
+      "explain": "Batch norm takes one feature (a column) and averages it over the examples in the batch. Layer norm does the rows."
+    },
+    {
+      "q": "Why do normalisation layers include learned γ and β?",
+      "options": [
+        "To make the output exactly zero",
+        "So the network can restore any centre and scale it actually needs",
+        "To replace the weights",
+        "To slow training down"
+      ],
+      "answer": 1,
+      "explain": "Normalisation forces mean 0 and spread 1; γ and β let the network undo that where a different scale is useful."
+    },
+    {
+      "q": "Why do transformers use layer norm rather than batch norm?",
+      "options": [
+        "Layer norm is older",
+        "Each token is normalised on its own, so nothing depends on the batch and training matches inference",
+        "Batch norm cannot be differentiated",
+        "Layer norm has no parameters"
+      ],
+      "answer": 1,
+      "explain": "Sequences vary in length and batches can be small; per-token statistics avoid tying examples together."
+    },
+    {
+      "q": "What does RMSNorm (used in LLaMA) leave out compared with layer norm?",
+      "options": [
+        "The division",
+        "Subtracting the mean",
+        "The learned scale γ",
+        "The ε"
+      ],
+      "answer": 1,
+      "explain": "It divides by the root mean square of the features and multiplies by γ, without re-centring."
+    }
+  ],
+  "problems": [
+    {
+      "id": "normalize",
+      "title": "Normalise a list",
+      "prompt": "<p>Write <code>normalize(xs, eps=1e-5)</code> for a plain list: subtract the mean, then divide by <code>sqrt(variance + eps)</code>, where variance is the mean of the squared deviations.</p><pre>normalize([2, 4, 6])   # about [-1.2247, 0.0, 1.2247]</pre><p>Σ reminder: the mean is <code>sum(xs) / len(xs)</code>; the variance is the mean of <code>(x - mean) ** 2</code> over the same list (one loop or comprehension, not a nested one).</p>",
+      "starter": "import math\n\ndef normalize(xs, eps=1e-5):\n    # TODO 1: mean\n    # TODO 2: variance = average of (x - mean) ** 2\n    # TODO 3: return [(x - mean) / sqrt(variance + eps) for each x]\n    return xs\n",
+      "tests": [
+        {
+          "name": "the quiz example",
+          "code": "out = normalize([2, 4, 6])\nwant = [-1.2247, 0.0, 1.2247]\nassert all(abs(a - b) < 1e-3 for a, b in zip(out, want)), f'expected about {want}, got {out}'"
+        },
+        {
+          "name": "result has mean 0 and spread 1",
+          "code": "out = normalize([3.0, 10.0, -4.0, 7.5, 0.5])\nm = sum(out) / len(out)\nv = sum((x - m) ** 2 for x in out) / len(out)\nassert abs(m) < 1e-9, f'mean should be 0, got {m}'\nassert abs(v - 1) < 1e-4, f'variance should be 1, got {v}'"
+        },
+        {
+          "name": "constant input does not crash",
+          "code": "out = normalize([5.0, 5.0, 5.0])\nassert all(abs(x) < 1e-9 for x in out), f'all-equal inputs have zero spread; eps keeps the division safe and the output is 0, got {out}'"
+        }
+      ],
+      "hints": [
+        "mean = sum(xs) / len(xs)",
+        "var = sum((x - mean) ** 2 for x in xs) / len(xs)",
+        "return [(x - mean) / math.sqrt(var + eps) for x in xs]"
+      ],
+      "solution": "import math\n\ndef normalize(xs, eps=1e-5):\n    mean = sum(xs) / len(xs)\n    var = sum((x - mean) ** 2 for x in xs) / len(xs)\n    return [(x - mean) / math.sqrt(var + eps) for x in xs]\n"
+    },
+    {
+      "id": "norms-numpy",
+      "title": "Batch norm, layer norm, RMSNorm (NumPy)",
+      "prompt": "<p><code>X</code> has shape <b>(batch, features)</b>. Write three functions that return an array of the same shape:</p><ul><li><code>batch_norm(X, gamma, beta, eps=1e-5)</code>: mean and variance over <b>axis 0</b> (each feature, across the batch)</li><li><code>layer_norm(X, gamma, beta, eps=1e-5)</code>: over <b>axis 1</b> (each example, across its features)</li><li><code>rms_norm(X, gamma, eps=1e-5)</code>: <code>X / sqrt(mean(X**2, axis 1) + eps) * gamma</code></li></ul><p>Use <code>keepdims=True</code> so the statistics broadcast back against X. <code>gamma</code> and <code>beta</code> have shape (features,).</p>",
+      "starter": "import numpy as np\n\ndef batch_norm(X, gamma, beta, eps=1e-5):\n    # TODO: mu = X.mean(axis=0, keepdims=True); var = X.var(axis=0, keepdims=True)\n    return X\n\ndef layer_norm(X, gamma, beta, eps=1e-5):\n    # TODO: the same over axis=1\n    return X\n\ndef rms_norm(X, gamma, eps=1e-5):\n    # TODO: divide by sqrt(mean of squares over axis=1 + eps), times gamma\n    return X\n",
+      "tests": [
+        {
+          "name": "batch norm: each column has mean 0, std 1",
+          "code": "import numpy as np\nX = np.random.default_rng(0).normal(3, 5, size=(32, 4))\nY = batch_norm(X, np.ones(4), np.zeros(4))\nassert Y.shape == X.shape, f'shape should stay {X.shape}, got {Y.shape}'\nassert np.allclose(Y.mean(axis=0), 0, atol=1e-6), f'column means should be 0, got {Y.mean(axis=0)}'\nassert np.allclose(Y.std(axis=0), 1, atol=1e-3), f'column stds should be 1, got {Y.std(axis=0)}. Did you use axis=0?'"
+        },
+        {
+          "name": "layer norm: each row has mean 0, std 1",
+          "code": "import numpy as np\nX = np.random.default_rng(1).normal(-2, 4, size=(6, 16))\nY = layer_norm(X, np.ones(16), np.zeros(16))\nassert np.allclose(Y.mean(axis=1), 0, atol=1e-6), f'row means should be 0, got {Y.mean(axis=1)}'\nassert np.allclose(Y.std(axis=1), 1, atol=1e-3), f'row stds should be 1, got {Y.std(axis=1)}. Did you use axis=1 with keepdims=True?'"
+        },
+        {
+          "name": "gamma and beta are applied",
+          "code": "import numpy as np\nX = np.array([[2.0, 4.0, 6.0]])\nY = layer_norm(X, np.array([2.0, 2.0, 2.0]), np.array([1.0, 1.0, 1.0]))\nassert np.allclose(Y, [[1 - 2.4495, 1, 1 + 2.4495]], atol=1e-3), f'expected gamma * x_hat + beta = [[-1.449, 1, 3.449]], got {Y}'"
+        },
+        {
+          "name": "rms norm",
+          "code": "import numpy as np\nX = np.array([[3.0, 4.0]])\nY = rms_norm(X, np.ones(2))\nr = np.sqrt((9 + 16) / 2)\nassert np.allclose(Y, [[3 / r, 4 / r]], atol=1e-4), f'RMS of [3, 4] is {r:.4f}, so expected {[3 / r, 4 / r]}, got {Y}'"
+        }
+      ],
+      "hints": [
+        "mu = X.mean(axis=1, keepdims=True); var = X.var(axis=1, keepdims=True)",
+        "return gamma * (X - mu) / np.sqrt(var + eps) + beta",
+        "rms = np.sqrt((X ** 2).mean(axis=1, keepdims=True) + eps); return X / rms * gamma"
+      ],
+      "solution": "import numpy as np\n\ndef batch_norm(X, gamma, beta, eps=1e-5):\n    mu = X.mean(axis=0, keepdims=True)\n    var = X.var(axis=0, keepdims=True)\n    return gamma * (X - mu) / np.sqrt(var + eps) + beta\n\ndef layer_norm(X, gamma, beta, eps=1e-5):\n    mu = X.mean(axis=1, keepdims=True)\n    var = X.var(axis=1, keepdims=True)\n    return gamma * (X - mu) / np.sqrt(var + eps) + beta\n\ndef rms_norm(X, gamma, eps=1e-5):\n    rms = np.sqrt((X ** 2).mean(axis=1, keepdims=True) + eps)\n    return X / rms * gamma\n"
+    }
+  ]
+}

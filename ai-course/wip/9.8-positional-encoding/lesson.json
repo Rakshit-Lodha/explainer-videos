@@ -1,0 +1,179 @@
+{
+  "id": "9.8-positional-encoding",
+  "module": 9,
+  "title": "Positional encoding",
+  "summary": "Attention has no sense of order: shuffling the tokens just shuffles the outputs. So a position vector is added to each token's embedding before the first layer. It can be learned (a second table with one row per position, as in GPT-2) or fixed sine and cosine waves of many frequencies (the original transformer), where a fixed offset is a fixed rotation.",
+  "video": "videos/9.8-positional-encoding.mp4",
+  "llm_link": "Every LLM injects position somehow. GPT-2 adds learned position vectors, so its context length is fixed by the size of that table; many recent models use rotary position embeddings, which rotate queries and keys by a position-dependent angle inside attention.",
+  "key_ideas": [
+    "Without positions, attention treats the input as a set: \"dog bites man\" and \"man bites dog\" look the same.",
+    "Input to the first layer: x_t = E[token_t] + P[t], same width d, added rather than appended.",
+    "Learned positions: a (block_size, d) table, trained like embeddings; it cannot go past its last row.",
+    "Sinusoidal positions: sin and cos pairs at geometrically spaced frequencies, like the hands of a clock.",
+    "Moving k positions forward rotates each (sin, cos) pair by a fixed angle, so relative offsets are easy to use."
+  ],
+  "quiz": [
+    {
+      "q": "tok_emb is (65, 32) and pos_emb is (128, 32). For a text of 10 tokens, predict the shape of tok_emb[ids] + pos_emb[:10].",
+      "options": [
+        "(10, 64)",
+        "(10, 32)",
+        "(128, 32)",
+        "(65, 10)"
+      ],
+      "answer": 1,
+      "explain": "Both terms are (10, 32): ten rows, one per token, each of width 32. Adding keeps the width."
+    },
+    {
+      "q": "Why can a model with learned position embeddings of 1024 rows not directly read a 2000-token text?",
+      "options": [
+        "Attention is too slow",
+        "There is no position vector for positions 1024 and beyond",
+        "The tokenizer refuses",
+        "Softmax overflows"
+      ],
+      "answer": 1,
+      "explain": "The table has exactly one row per position it was trained with. Later positions have no vector at all."
+    },
+    {
+      "q": "Predict the result: the first two entries of the sinusoidal encoding at position t = 0.",
+      "options": [
+        "[0, 0]",
+        "[1, 1]",
+        "[0, 1]",
+        "[1, 0]"
+      ],
+      "answer": 2,
+      "explain": "sin(0) = 0 and cos(0) = 1. Every sine column is 0 and every cosine column is 1 at position 0."
+    },
+    {
+      "q": "In the clock analogy, what plays the role of the hour hand?",
+      "options": [
+        "The fastest wave",
+        "The slowest wave, which separates positions far apart",
+        "The token embedding",
+        "The attention weights"
+      ],
+      "answer": 1,
+      "explain": "Fast waves change a lot between neighbours; slow waves change only over long distances, so together they give every position a unique reading."
+    },
+    {
+      "q": "Without any positional information, what happens to a GPT's attention if you reverse the order of a prompt (ignoring the causal mask)?",
+      "options": [
+        "The outputs are reversed in the same way, so word order carries no meaning",
+        "The model crashes",
+        "The outputs are unchanged",
+        "Only the first token changes"
+      ],
+      "answer": 0,
+      "explain": "Attention without positions is permutation-equivariant: permuting the inputs permutes the outputs identically. Order only matters once position vectors are added."
+    }
+  ],
+  "problems": [
+    {
+      "id": "shapes",
+      "title": "Shape drill: positions and broadcasting",
+      "prompt": "<p>Predict each shape. Two of these use <b>broadcasting</b>: when two arrays have different shapes, NumPy stretches any axis of length 1 (or a missing leading axis) to match the other array.</p><p><code>a[:, None]</code> inserts a new axis, turning a <code>(T,)</code> vector into a <code>(T, 1)</code> column.</p>",
+      "starter": "import numpy as np\n\nV, d, T_max = 8, 6, 16\ntok_emb = np.zeros((V, d))           # one row per token\npos_emb = np.zeros((T_max, d))       # one row per position\nids = np.array([3, 1, 4, 4, 0])      # a 5-token text\nT = len(ids)\npos = np.arange(T)                   # positions 0..T-1\nfreq = np.ones(d // 2)               # one frequency per sine/cosine pair\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"tok_emb[ids]\": None,\n    \"pos_emb[:T]\": None,\n    \"tok_emb[ids] + pos_emb[:T]\": None,\n    \"tok_emb[ids] + pos_emb[0]\": None,\n    \"pos[:, None]\": None,\n    \"pos[:, None] * freq[None, :]\": None,\n}\n",
+      "tests": [
+        {
+          "name": "shape of tok_emb[ids]",
+          "code": "import numpy as np\ngot = answers['tok_emb[ids]']\nreal = np.shape(tok_emb[ids])\nassert got is not None, 'fill in your prediction for tok_emb[ids]'\nassert tuple(got) == tuple(real), f'you predicted {got} but tok_emb[ids] has shape {real}. Five IDs pick five rows of width d.'"
+        },
+        {
+          "name": "shape of pos_emb[:T]",
+          "code": "import numpy as np\ngot = answers['pos_emb[:T]']\nreal = np.shape(pos_emb[:T])\nassert got is not None, 'fill in your prediction for pos_emb[:T]'\nassert tuple(got) == tuple(real), f'you predicted {got} but pos_emb[:T] has shape {real}. Slicing keeps the first T rows of the position table: one per position in this text.'"
+        },
+        {
+          "name": "shape of tok_emb[ids] + pos_emb[:T]",
+          "code": "import numpy as np\ngot = answers['tok_emb[ids] + pos_emb[:T]']\nreal = np.shape(tok_emb[ids] + pos_emb[:T])\nassert got is not None, 'fill in your prediction for tok_emb[ids] + pos_emb[:T]'\nassert tuple(got) == tuple(real), f'you predicted {got} but tok_emb[ids] + pos_emb[:T] has shape {real}. Two (T, d) arrays add entry by entry: row t gets the embedding of token t plus position vector t.'"
+        },
+        {
+          "name": "shape of tok_emb[ids] + pos_emb[0]",
+          "code": "import numpy as np\ngot = answers['tok_emb[ids] + pos_emb[0]']\nreal = np.shape(tok_emb[ids] + pos_emb[0])\nassert got is not None, 'fill in your prediction for tok_emb[ids] + pos_emb[0]'\nassert tuple(got) == tuple(real), f'you predicted {got} but tok_emb[ids] + pos_emb[0] has shape {real}. Broadcasting: a (d,) row is added to every row of a (T, d) array, so the shape stays (T, d). (Every token would get position 0, which is a bug, but a silent one.)'"
+        },
+        {
+          "name": "shape of pos[:, None]",
+          "code": "import numpy as np\ngot = answers['pos[:, None]']\nreal = np.shape(pos[:, None])\nassert got is not None, 'fill in your prediction for pos[:, None]'\nassert tuple(got) == tuple(real), f'you predicted {got} but pos[:, None] has shape {real}. Indexing with None inserts a new axis of length 1, turning (T,) into a column (T, 1).'"
+        },
+        {
+          "name": "shape of pos[:, None] * freq[None, :]",
+          "code": "import numpy as np\ngot = answers['pos[:, None] * freq[None, :]']\nreal = np.shape(pos[:, None] * freq[None, :])\nassert got is not None, 'fill in your prediction for pos[:, None] * freq[None, :]'\nassert tuple(got) == tuple(real), f'you predicted {got} but pos[:, None] * freq[None, :] has shape {real}. (T, 1) times (1, d/2) broadcasts to (T, d/2): every position times every frequency. This is the angle table for sinusoidal encodings.'"
+        }
+      ],
+      "hints": [
+        "(T, d) + (d,) broadcasts the row to every one of the T rows.",
+        "(T, 1) * (1, k) gives (T, k): an outer product."
+      ],
+      "solution": "import numpy as np\n\nV, d, T_max = 8, 6, 16\ntok_emb = np.zeros((V, d))           # one row per token\npos_emb = np.zeros((T_max, d))       # one row per position\nids = np.array([3, 1, 4, 4, 0])      # a 5-token text\nT = len(ids)\npos = np.arange(T)                   # positions 0..T-1\nfreq = np.ones(d // 2)               # one frequency per sine/cosine pair\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"tok_emb[ids]\": (5, 6),\n    \"pos_emb[:T]\": (5, 6),\n    \"tok_emb[ids] + pos_emb[:T]\": (5, 6),\n    \"tok_emb[ids] + pos_emb[0]\": (5, 6),\n    \"pos[:, None]\": (5, 1),\n    \"pos[:, None] * freq[None, :]\": (5, 3),\n}\n"
+    },
+    {
+      "id": "sinusoidal",
+      "title": "Sinusoidal positional encoding",
+      "prompt": "<p>Write <code>sinusoidal(T, d)</code> from the original transformer paper:</p><p style=\"text-align:center\"><code>PE[t, 2i] = sin(t / 10000**(2i/d))</code> &nbsp; and &nbsp; <code>PE[t, 2i+1] = cos(t / 10000**(2i/d))</code></p><p>Use broadcasting instead of loops: a column of positions <code>(T, 1)</code> times a row of frequencies <code>(d/2,)</code> gives the whole angle table at once. <code>pe[:, 0::2]</code> selects the even columns and <code>pe[:, 1::2]</code> the odd ones.</p>",
+      "starter": "import numpy as np\n\ndef sinusoidal(T, d):\n    \"\"\"Fixed positional encodings of the original transformer, shape (T, d), d even.\n    PE[t, 2i] = sin(t / 10000**(2i/d)),  PE[t, 2i+1] = cos(t / 10000**(2i/d))\"\"\"\n    pe = np.zeros((T, d))\n    # TODO 1: pos = the positions 0..T-1 as a column, shape (T, 1)\n    # TODO 2: freq = 1 / 10000**(2i/d) for i = 0 .. d/2 - 1, shape (d/2,)\n    # TODO 3: angles = pos * freq   -> (T, d/2) by broadcasting\n    # TODO 4: put np.sin(angles) in the even columns (pe[:, 0::2]) and np.cos(angles) in the odd ones (pe[:, 1::2])\n    return pe\n",
+      "tests": [
+        {
+          "name": "shape",
+          "code": "import numpy as np\nout=sinusoidal(10,8)\nassert out.shape==(10,8), f'expected (T, d) = (10, 8), got {out.shape}'"
+        },
+        {
+          "name": "position 0 is [0, 1, 0, 1, ...]",
+          "code": "import numpy as np\nout=sinusoidal(4,6)\nassert np.allclose(out[0],[0,1,0,1,0,1]), f'at t = 0 every sin is 0 and every cos is 1, got {out[0].round(3)}'"
+        },
+        {
+          "name": "matches the formula",
+          "code": "import numpy as np\ndef _pe(T,d):\n    p=np.zeros((T,d))\n    for t in range(T):\n        for i in range(d//2):\n            a=t/10000**(2*i/d)\n            p[t,2*i]=np.sin(a);p[t,2*i+1]=np.cos(a)\n    return p\nout=sinusoidal(12,8)\nassert np.allclose(out,_pe(12,8)), 'values differ from the formula. Check the frequency 1 / 10000**(2i/d) with 2i = 0, 2, 4, ... and that sin goes in even columns, cos in odd ones.'"
+        },
+        {
+          "name": "first pair is the fastest wave",
+          "code": "import numpy as np\nout=sinusoidal(3,8)\nassert np.isclose(out[1,0],np.sin(1.0)), f'the first pair has frequency 1, so PE[1, 0] = sin(1) = {np.sin(1):.4f}; got {out[1,0]:.4f}'"
+        },
+        {
+          "name": "every position gets a different vector",
+          "code": "import numpy as np\nout=sinusoidal(50,16)\nD=((out[:,None,:]-out[None,:,:])**2).sum(-1)+np.eye(50)\nassert D.min()>1e-6, 'two positions got identical encodings'"
+        }
+      ],
+      "hints": [
+        "pos = np.arange(T)[:, None]",
+        "freq = 1.0 / 10000 ** (np.arange(0, d, 2) / d)",
+        "angles = pos * freq; pe[:, 0::2] = np.sin(angles); pe[:, 1::2] = np.cos(angles)"
+      ],
+      "solution": "import numpy as np\n\ndef sinusoidal(T, d):\n    \"\"\"Fixed positional encodings of the original transformer, shape (T, d), d even.\n    PE[t, 2i] = sin(t / 10000**(2i/d)),  PE[t, 2i+1] = cos(t / 10000**(2i/d))\"\"\"\n    pe = np.zeros((T, d))\n    pos = np.arange(T)[:, None]\n    freq = 1.0 / 10000 ** (np.arange(0, d, 2) / d)\n    angles = pos * freq\n    pe[:, 0::2] = np.sin(angles)\n    pe[:, 1::2] = np.cos(angles)\n    return pe\n"
+    },
+    {
+      "id": "inputs",
+      "title": "Token plus position (GPT, step 6)",
+      "prompt": "<p>Our GPT uses learned positions, like GPT-2. Write <code>gpt_inputs(ids, tok_emb, pos_emb)</code> returning <code>tok_emb[ids] + pos_emb[:T]</code>, and raise a <code>ValueError</code> when the text is longer than the position table (the model has no vector for those positions).</p><p>Reminder of the syntax: <code>raise ValueError(\"message\")</code>.</p><p>One test checks the payoff: the two <code>l</code>s in <code>hello</code> used to get identical vectors; with positions added they differ.</p>",
+      "starter": "import numpy as np\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.7) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, block_size = 8, 16                           # block_size: the longest context the model accepts\ntok_emb = rng.normal(size=(len(vocab), d))      # (V, d)\npos_emb = rng.normal(size=(block_size, d))      # (block_size, d), learned like tok_emb\n\n# ---- step 6: token + position (this lesson) ----\ndef gpt_inputs(ids, tok_emb, pos_emb):\n    \"\"\"(T,) token IDs -> (T, d) inputs: token embedding plus the position row for where each token sits.\n    Raise a ValueError if the text is longer than the position table.\"\"\"\n    ids = np.asarray(ids)\n    T = len(ids)\n    # TODO 1: if T is larger than the number of rows in pos_emb, raise ValueError(\"text longer than block_size\")\n    # TODO 2: return tok_emb[ids] + pos_emb[:T]\n    pass\n",
+      "tests": [
+        {
+          "name": "shape and value",
+          "code": "import numpy as np\nids=encode('hello')\nout=gpt_inputs(ids,tok_emb,pos_emb)\nassert out is not None, 'gpt_inputs returned None'\nassert out.shape==(5,8), f'expected (T, d) = (5, 8), got {out.shape}'\nassert np.allclose(out,tok_emb[ids]+pos_emb[:5]), 'row t should be tok_emb[ids[t]] + pos_emb[t]'"
+        },
+        {
+          "name": "repeated characters now differ",
+          "code": "import numpy as np\nout=gpt_inputs(encode('hello'),tok_emb,pos_emb)\nassert not np.allclose(out[2],out[3]), 'the two l characters sit at positions 2 and 3, so their inputs should differ'"
+        },
+        {
+          "name": "not every token gets position 0",
+          "code": "import numpy as np\nids=encode('hello')\nout=gpt_inputs(ids,tok_emb,pos_emb)\nassert not np.allclose(out,tok_emb[ids]+pos_emb[0]), 'it looks like every token got pos_emb[0]: broadcasting hid the bug. Use pos_emb[:T].'"
+        },
+        {
+          "name": "too long raises ValueError",
+          "code": "import numpy as np\ntry:\n    gpt_inputs([0]*17,tok_emb,pos_emb)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('a 17-token text does not fit a 16-row position table: raise ValueError(\"...\")')"
+        },
+        {
+          "name": "exactly block_size is fine",
+          "code": "import numpy as np\nout=gpt_inputs([0]*16,tok_emb,pos_emb)\nassert out.shape==(16,8), 'a text of exactly block_size tokens should still work'"
+        }
+      ],
+      "hints": [
+        "T = len(ids); compare it with len(pos_emb).",
+        "if T > len(pos_emb): raise ValueError(\"text longer than block_size\")",
+        "return tok_emb[ids] + pos_emb[:T]"
+      ],
+      "solution": "import numpy as np\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.7) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, block_size = 8, 16                           # block_size: the longest context the model accepts\ntok_emb = rng.normal(size=(len(vocab), d))      # (V, d)\npos_emb = rng.normal(size=(block_size, d))      # (block_size, d), learned like tok_emb\n\n# ---- step 6: token + position (this lesson) ----\ndef gpt_inputs(ids, tok_emb, pos_emb):\n    \"\"\"(T,) token IDs -> (T, d) inputs: token embedding plus the position row for where each token sits.\n    Raise a ValueError if the text is longer than the position table.\"\"\"\n    ids = np.asarray(ids)\n    T = len(ids)\n    if T > len(pos_emb):\n        raise ValueError(\"text longer than block_size\")\n    return tok_emb[ids] + pos_emb[:T]\n"
+    }
+  ]
+}

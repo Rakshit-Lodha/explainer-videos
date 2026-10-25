@@ -1,0 +1,101 @@
+{
+  "id": "12.1-mdp",
+  "module": 12,
+  "title": "Agents, rewards and Markov decision processes",
+  "summary": "In reinforcement learning an agent observes a state, takes an action, and receives a reward and a new state. It aims to maximise the return, the discounted sum of future rewards. A Markov decision process (states, actions, transition probabilities, rewards, discount) assumes the next step depends only on the current state and action. A policy's value function satisfies the Bellman equation, so values can be computed by repeated sweeps.",
+  "video": "videos/12.1-mdp.mp4",
+  "llm_link": "RLHF frames text generation as an MDP: the state is the prompt plus the tokens so far, each action is a token, and the reward model gives a reward when the response ends. The KL penalty from lesson 10.3 is often applied per token as a small extra reward.",
+  "key_ideas": [
+    "Loop: state s_t → action a_t → reward r_{t+1} and next state s_{t+1}.",
+    "Return: G_t = r_{t+1} + γ·r_{t+2} + γ²·r_{t+3} + … with discount 0 ≤ γ < 1 (keeps infinite sums finite, prefers sooner rewards).",
+    "Markov property: P(s_{t+1}, r_{t+1} | s_t, a_t) does not depend on earlier history.",
+    "MDP = (S, A, P(s' | s, a), R, γ). Policy π(a | s): a probability for each action in each state.",
+    "Value of a policy: V^π(s) = expected return starting from s and following π.",
+    "Bellman equation: V^π(s) = Σ_a π(a|s) Σ_{s'} P(s'|s,a)·[R + γ·V^π(s')]. Iterating it (policy evaluation) converges; taking a max over actions instead gives value iteration and the optimal values."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: rewards [0, 0, 1] arrive on the next three steps and γ = 0.9. What is the return?",
+      "options": ["1.0", "0.81", "0.9", "2.71"],
+      "answer": 1,
+      "explain": "G = 0 + 0.9·0 + 0.9²·1 = 0.81. The reward two steps after the first is discounted twice."
+    },
+    {
+      "q": "Which of these states is Markov?",
+      "options": ["One frame of a ball game, without the ball's velocity", "A chess position (with whose turn it is, castling and en passant rights)", "The last word of a sentence alone", "Yesterday's weather only"],
+      "answer": 1,
+      "explain": "The full chess position contains everything needed to predict what can happen next; a single frame hides the ball's motion."
+    },
+    {
+      "q": "What does a discount factor near 0 make the agent do?",
+      "options": ["Plan far ahead", "Care almost only about the immediate reward", "Ignore rewards", "Explore randomly"],
+      "answer": 1,
+      "explain": "Every future reward is multiplied by γ^k, which vanishes quickly when γ is small."
+    },
+    {
+      "q": "The Bellman equation expresses the value of a state in terms of…",
+      "options": ["The values of all states summed", "The immediate reward plus γ times the value of the next state, averaged over actions and transitions", "The number of steps to the goal only", "The policy's entropy"],
+      "answer": 1,
+      "explain": "V(s) = E[r + γ·V(s')]: one step of lookahead, with the rest of the future folded into V(s')."
+    },
+    {
+      "q": "In RLHF viewed as an MDP, what is an action?",
+      "options": ["A whole response", "Generating one token", "Updating the reward model", "A human rating"],
+      "answer": 1,
+      "explain": "The policy is the language model; at each step it picks the next token given the state (prompt plus text so far)."
+    }
+  ],
+  "problems": [
+    {
+      "id": "return",
+      "title": "The discounted return",
+      "prompt": "<p>Write <code>discounted_return(rewards, gamma)</code>: <code>rewards</code> is the list r₁, r₂, r₃, … received after the current moment. Return <code>Σ gamma**k * rewards[k]</code> (k starting at 0).</p><pre>discounted_return([0, 0, 1], 0.9)   # 0.81\ndiscounted_return([1, 1, 1], 0.5)   # 1.75</pre>",
+      "starter": "def discounted_return(rewards, gamma):\n    total = 0.0\n    # TODO: add each reward times gamma to the power of its position\n    return total\n",
+      "tests": [
+        {"name": "delayed reward", "code": "out = discounted_return([0, 0, 1], 0.9)\nassert abs(out - 0.81) < 1e-12, f'expected 0.9**2 * 1 = 0.81, got {out}. The first reward is multiplied by gamma**0 = 1.'"},
+        {"name": "three ones", "code": "out = discounted_return([1, 1, 1], 0.5)\nassert abs(out - 1.75) < 1e-12, f'expected 1 + 0.5 + 0.25 = 1.75, got {out}'"},
+        {"name": "gamma = 0 is short-sighted", "code": "out = discounted_return([2, 100, 100], 0.0)\nassert out == 2, f'with gamma = 0 only the first reward counts, got {out}'"},
+        {"name": "long runs stay finite", "code": "out = discounted_return([1] * 2000, 0.99)\nassert abs(out - (1 - 0.99**2000) / 0.01) < 1e-6, f'a geometric series: expected about 100, got {out}'"}
+      ],
+      "hints": [
+        "for k, r in enumerate(rewards): total += gamma ** k * r"
+      ],
+      "solution": "def discounted_return(rewards, gamma):\n    total = 0.0\n    for k, r in enumerate(rewards):\n        total += gamma ** k * r\n    return total\n"
+    },
+    {
+      "id": "evaluate",
+      "title": "Policy evaluation on a corridor",
+      "prompt": "<p>A corridor has states <code>0 … n−1</code>. States 0 and n−1 are terminal: stepping into 0 pays −1, stepping into n−1 pays +1, every other step pays 0, and a terminal state's value is 0. In each non-terminal state the policy moves right with probability <code>p_right</code> and left otherwise.</p><p>Write <code>evaluate(n, p_right, gamma, sweeps=500)</code>: start with <code>V = [0]*n</code> and repeat the Bellman update for every non-terminal state:</p><p><code>V[s] = p·(r(s+1) + γ·V[s+1]) + (1−p)·(r(s−1) + γ·V[s−1])</code></p><p>Return the list V. <code>reward(s2)</code> is provided.</p>",
+      "starter": "def reward(s2, n):\n    if s2 == 0:\n        return -1.0\n    if s2 == n - 1:\n        return 1.0\n    return 0.0\n\ndef evaluate(n, p_right, gamma, sweeps=500):\n    V = [0.0] * n\n    for _ in range(sweeps):\n        for s in range(1, n - 1):\n            # TODO: Bellman update for state s (terminal values stay 0)\n            pass\n    return V\n",
+      "tests": [
+        {"name": "symmetric random walk", "code": "V = evaluate(5, 0.5, 1.0)\nassert abs(V[2]) < 1e-6, f'the middle of a fair walk between -1 and +1 is worth 0, got {V[2]}'\nassert abs(V[1] + 0.5) < 1e-3 and abs(V[3] - 0.5) < 1e-3, f'with gamma = 1 the values are [0, -0.5, 0, 0.5, 0], got {[round(v,3) for v in V]}'"},
+        {"name": "terminals stay zero", "code": "V = evaluate(6, 0.7, 0.9)\nassert V[0] == 0 and V[-1] == 0, 'terminal states have no future, so their value must stay 0'"},
+        {"name": "matches a linear solve", "code": "import numpy as np\nn, p, g = 7, 0.8, 0.9\nV = evaluate(n, p, g)\nA = np.eye(n); b = np.zeros(n)\nfor s in range(1, n - 1):\n    A[s, s + 1] -= p * g; A[s, s - 1] -= (1 - p) * g\n    b[s] = p * reward(s + 1, n) + (1 - p) * reward(s - 1, n)\nexp = np.linalg.solve(A, b)\nassert np.allclose(V, exp, atol=1e-6), f'expected {np.round(exp,4)}, got {np.round(V,4)}. Check both terms: reward of the next state plus gamma times its value.'"},
+        {"name": "always going right", "code": "V = evaluate(5, 1.0, 0.9)\nassert abs(V[1] - 0.81) < 1e-9, f'from state 1, always right reaches +1 in 3 steps: 0.9**2 = 0.81, got {V[1]}'"}
+      ],
+      "hints": [
+        "right = reward(s + 1, n) + gamma * V[s + 1]",
+        "left = reward(s - 1, n) + gamma * V[s - 1]",
+        "V[s] = p_right * right + (1 - p_right) * left"
+      ],
+      "solution": "def reward(s2, n):\n    if s2 == 0:\n        return -1.0\n    if s2 == n - 1:\n        return 1.0\n    return 0.0\n\ndef evaluate(n, p_right, gamma, sweeps=500):\n    V = [0.0] * n\n    for _ in range(sweeps):\n        for s in range(1, n - 1):\n            right = reward(s + 1, n) + gamma * V[s + 1]\n            left = reward(s - 1, n) + gamma * V[s - 1]\n            V[s] = p_right * right + (1 - p_right) * left\n    return V\n"
+    },
+    {
+      "id": "vi",
+      "title": "Value iteration: the best policy",
+      "prompt": "<p>Same corridor, but now each step costs <code>step_cost</code> (added to the reward of every move) and the agent <b>chooses</b> left or right deterministically. Value iteration replaces the average over the policy with a max over actions:</p><p><code>V[s] = max(r(s+1) + c + γ·V[s+1],  r(s−1) + c + γ·V[s−1])</code></p><p>Write <code>value_iteration(n, gamma, step_cost, sweeps=500)</code> returning <code>(V, policy)</code>, where <code>policy[s]</code> is <code>'R'</code> or <code>'L'</code> for non-terminal states (the better action, ties to 'R') and <code>None</code> for terminals.</p>",
+      "starter": "def reward(s2, n):\n    if s2 == 0:\n        return -1.0\n    if s2 == n - 1:\n        return 1.0\n    return 0.0\n\ndef value_iteration(n, gamma, step_cost, sweeps=500):\n    V = [0.0] * n\n    for _ in range(sweeps):\n        for s in range(1, n - 1):\n            # TODO: V[s] = best of the two one-step lookaheads\n            pass\n    policy = [None] * n\n    # TODO: for each non-terminal s, 'R' if going right is at least as good, else 'L'\n    return V, policy\n",
+      "tests": [
+        {"name": "go towards +1", "code": "V, pol = value_iteration(6, 0.9, 0.0)\nassert pol[1:-1] == ['R'] * 4, f'with no step cost the best move everywhere is towards +1, got {pol}'\nassert pol[0] is None and pol[-1] is None, 'terminal states have no action'"},
+        {"name": "values decay by gamma", "code": "V, pol = value_iteration(6, 0.9, 0.0)\nassert abs(V[4] - 1.0) < 1e-9 and abs(V[3] - 0.9) < 1e-9 and abs(V[2] - 0.81) < 1e-9, f'one step from the goal is 1, then 0.9, 0.81, ... ; got {[round(v,3) for v in V]}'"},
+        {"name": "a costly long walk can make the pit better", "code": "V, pol = value_iteration(12, 0.95, -0.3)\nassert pol[1] == 'L', f'next to the pit, with each step costing 0.3 and the goal 10 steps away, ending now (-1.3) beats walking; got {pol}'\nassert pol[-2] == 'R', 'next to the goal you should still step into it'"}
+      ],
+      "hints": [
+        "right = reward(s + 1, n) + step_cost + gamma * V[s + 1]; left likewise with s - 1",
+        "V[s] = max(right, left)",
+        "After the sweeps compute right and left again for each s and pick 'R' if right >= left."
+      ],
+      "solution": "def reward(s2, n):\n    if s2 == 0:\n        return -1.0\n    if s2 == n - 1:\n        return 1.0\n    return 0.0\n\ndef value_iteration(n, gamma, step_cost, sweeps=500):\n    V = [0.0] * n\n    def q(s, s2):\n        return reward(s2, n) + step_cost + gamma * V[s2]\n    for _ in range(sweeps):\n        for s in range(1, n - 1):\n            V[s] = max(q(s, s + 1), q(s, s - 1))\n    policy = [None] * n\n    for s in range(1, n - 1):\n        policy[s] = 'R' if q(s, s + 1) >= q(s, s - 1) else 'L'\n    return V, policy\n"
+    }
+  ]
+}

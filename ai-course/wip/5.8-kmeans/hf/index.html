@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<title>&nbsp; 5.8 k-means clustering</title>
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="190.38" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="190.38" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 5.8 k-means clustering</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="26.672"></div>
+  <div class="clip scene" id="S2" data-start="26.672" data-duration="26.406"></div>
+  <div class="clip scene" id="S3" data-start="53.078" data-duration="19.138"></div>
+  <div class="clip scene" id="S4" data-start="72.216" data-duration="32.738"></div>
+  <div class="clip scene" id="S5" data-start="104.954" data-duration="27.43"></div>
+  <div class="clip scene" id="S6" data-start="132.384" data-duration="31.355"></div>
+  <div class="clip scene" id="S7" data-start="163.739" data-duration="26.641"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":26.672,"s3":53.078,"s4":72.216,"s5":104.954,"s6":132.384,"s7":163.739},"total":190.38,"cues":{"s1":[["so",0.0],["far",0.203],["every",0.473],["example",0.879],["came",1.419],["with",1.757],["an",2.095],["answer",2.298],["attached",2.771],["a",3.775],["price",3.843],["or",4.047],["a",4.149],["label",4.218],["often",4.734],["there",5.15],["is",5.565],["no",5.773],["answer",5.98],["at",6.465],["all",6.672],["only",7.018],["data",7.364],["customers",8.194],["described",9.067],["by",9.94],["what",10.202],["they",10.638],["buy",11.075],["or",11.868],["points",12.032],["scattered",12.414],["on",12.96],["a",13.123],["plane",13.233],["we",13.966],["may",14.137],["still",14.365],["suspect",14.707],["the",15.164],["data",15.392],["falls",15.677],["into",16.019],["natural",16.305],["groups",16.761],["and",17.357],["finding",17.582],["those",18.033],["groups",18.371],["without",18.765],["being",19.216],["told",19.554],["what",19.836],["they",20.118],["are",20.399],["is",20.625],["called",20.794],["clustering",21.188],["the",22.245],["simplest",22.528],["and",23.165],["most",23.448],["widely",23.801],["used",24.297],["method",24.65],["is",25.145],["k",25.358],["means",25.499]],"s2":[["the",0.0],["algorithm",0.262],["alternates",0.917],["two",1.638],["easy",1.9],["steps",2.227],["first",2.997],["place",3.726],["k",4.092],["centres",4.213],["somewhere",4.701],["for",5.678],["example",5.933],["on",6.443],["k",6.634],["randomly",6.762],["chosen",7.335],["points",7.782],["then",8.671],["assign",8.976],["every",9.403],["point",9.769],["to",10.135],["its",10.318],["nearest",10.562],["centre",11.05],["which",12.006],["colours",12.395],["the",12.915],["data",13.175],["into",13.5],["k",13.825],["groups",13.955],["next",14.802],["move",15.462],["each",15.75],["centre",16.038],["to",16.442],["the",16.615],["mean",16.846],["of",17.134],["the",17.307],["points",17.538],["assigned",17.942],["to",18.461],["it",18.634],["the",19.026],["centre",19.229],["of",19.584],["mass",19.736],["of",19.989],["its",20.141],["group",20.344],["then",21.185],["assign",21.437],["again",21.789],["move",22.645],["again",22.929],["and",23.749],["repeat",24.009],["until",24.463],["nothing",24.853],["changes",25.372]],"s3":[["watch",0.0],["the",0.355],["centres",0.592],["drift",1.065],["after",1.887],["the",2.191],["first",2.393],["assignment",2.697],["they",3.254],["sit",3.507],["in",3.709],["awkward",3.861],["places",4.266],["but",5.196],["each",5.388],["move",5.628],["pulls",5.868],["them",6.156],["toward",6.396],["the",6.732],["middle",6.924],["of",7.259],["a",7.403],["group",7.499],["which",8.274],["changes",8.674],["which",9.207],["points",9.607],["are",10.074],["closest",10.34],["which",11.065],["pulls",11.295],["them",11.524],["further",11.716],["within",12.406],["a",12.749],["few",12.847],["rounds",13.043],["they",13.386],["settle",13.631],["each",14.547],["one",14.808],["in",15.017],["the",15.174],["heart",15.383],["of",15.696],["a",15.853],["cluster",15.958],["and",16.974],["the",17.195],["colours",17.416],["stop",17.858],["changing",18.135]],"s4":[["there",0.0],["is",0.315],["a",0.473],["reason",0.578],["it",0.946],["always",1.104],["settles",1.472],["k",2.289],["means",2.411],["is",2.779],["minimising",2.963],["a",3.637],["single",3.76],["quantity",4.189],["the",5.243],["total",5.48],["squared",5.835],["distance",6.309],["from",6.842],["each",7.138],["point",7.434],["to",7.789],["its",7.966],["own",8.203],["centre",8.44],["sometimes",9.415],["called",10.399],["the",11.088],["inertia",11.482],["the",12.521],["assignment",12.781],["step",13.495],["can",13.819],["only",14.079],["lower",14.404],["it",14.793],["because",15.178],["each",15.556],["point",15.793],["picks",16.077],["its",16.36],["closest",16.549],["centre",16.928],["and",17.759],["the",18.005],["update",18.251],["step",18.681],["can",18.989],["only",19.235],["lower",19.542],["it",19.911],["because",20.535],["the",20.998],["mean",21.229],["is",21.518],["exactly",21.691],["the",22.153],["spot",22.384],["that",22.673],["minimises",22.962],["squared",23.54],["distance",24.002],["to",24.522],["a",24.695],["group",24.811],["a",25.637],["quantity",25.795],["that",26.508],["never",26.904],["rises",27.379],["and",27.854],["cannot",28.171],["fall",28.725],["below",29.121],["zero",29.596],["must",29.992],["eventually",30.388],["stop",31.259],["moving",31.655]],"s5":[["settling",0.0],["is",0.494],["not",0.658],["the",0.878],["same",1.097],["as",1.372],["succeeding",1.536],["though",2.348],["the",2.821],["method",3.104],["finds",3.599],["a",4.023],["local",4.165],["minimum",4.589],["and",5.348],["a",5.676],["poor",5.84],["start",6.25],["such",6.961],["as",7.222],["two",7.378],["centres",7.587],["placed",8.003],["inside",8.368],["the",8.733],["same",8.941],["cluster",9.201],["can",10.05],["leave",10.297],["a",10.668],["bad",10.792],["answer",11.04],["that",11.473],["the",11.782],["two",12.03],["steps",12.277],["can",12.648],["never",12.896],["escape",13.267],["the",14.032],["standard",14.293],["remedy",14.88],["is",15.336],["a",15.532],["smarter",15.663],["start",16.184],["called",16.575],["k",17.032],["means",17.162],["plus",17.554],["plus",17.88],["which",18.87],["spreads",19.179],["the",19.592],["initial",19.798],["centres",20.21],["apart",20.622],["combined",21.533],["with",22.017],["several",22.286],["runs",22.716],["from",22.984],["different",23.253],["starts",23.791],["keeping",24.695],["the",25.111],["one",25.319],["with",25.527],["the",25.787],["lowest",25.995],["inertia",26.359]],"s6":[["you",0.0],["also",0.22],["have",0.495],["to",0.77],["choose",0.935],["k",1.32],["yourself",1.43],["plotting",2.337],["the",2.851],["inertia",3.079],["against",3.536],["k",3.993],["gives",4.107],["a",4.45],["curve",4.564],["that",4.907],["always",5.192],["falls",5.592],["since",6.438],["more",6.797],["centres",7.095],["always",7.573],["fit",7.99],["more",8.229],["tightly",8.528],["but",9.541],["it",9.806],["often",10.006],["bends",10.404],["at",10.803],["an",11.002],["elbow",11.201],["where",11.6],["adding",11.998],["centres",12.463],["stops",12.995],["paying",13.393],["off",13.858],["and",14.471],["remember",14.678],["what",15.143],["the",15.402],["method",15.609],["assumes",15.971],["because",16.765],["every",17.232],["point",17.582],["goes",17.933],["to",18.224],["the",18.4],["nearest",18.633],["centre",19.1],["the",19.925],["boundaries",20.251],["between",21.145],["clusters",21.796],["are",22.528],["straight",22.853],["lines",23.585],["so",24.305],["k",24.397],["means",24.459],["works",24.644],["best",24.828],["on",24.982],["round",25.075],["similarly",25.609],["sized",26.282],["groups",26.686],["and",27.564],["it",27.816],["struggles",28.005],["with",28.636],["long",28.951],["curved",29.329],["or",29.771],["nested",29.96],["shapes",30.401]],"s7":[["clustering",0.0],["quietly",0.752],["powers",1.3],["the",1.778],["search",2.052],["behind",2.531],["many",3.009],["language",3.351],["model",3.967],["applications",4.377],["vector",5.602],["databases",6.026],["often",6.631],["run",6.994],["k",7.236],["means",7.357],["over",7.72],["millions",8.022],["of",8.567],["embeddings",8.748],["so",9.686],["that",9.88],["a",10.204],["query",10.334],["is",10.723],["compared",10.918],["only",11.502],["with",11.826],["the",12.15],["few",12.41],["clusters",12.669],["nearest",13.253],["to",13.772],["it",13.966],["and",14.777],["some",15.016],["compress",15.316],["each",15.856],["embedding",16.156],["by",16.755],["storing",16.935],["the",17.415],["indices",17.655],["of",18.134],["nearby",18.314],["centres",18.734],["instead",19.214],["of",19.693],["the",19.873],["full",20.113],["vector",20.413],["next",21.03],["we",21.461],["put",21.67],["principal",21.949],["component",22.647],["analysis",23.345],["into",23.973],["practice",24.322]]}}/*END*/;
+const IDS=["s1", "s2", "s3", "s4", "s5", "s6", "s7"];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers for plots, equations and code panels (module 5 and 7 lessons) ---- */
+/* axes: plain x/y axes for a plot region, with optional axis captions */
+function axes(svg,P,x0,x1,y0,y1,o){o=o||{};const g=svgEl('g',{},svg);
+  if(o.grid){for(let x=Math.ceil(x0);x<=x1;x+=(o.step||1)){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.4,opacity:.45},g)}
+    for(let y=Math.ceil(y0);y<=y1;y+=(o.step||1)){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.grid,'stroke-width':1.4,opacity:.45},g)}}
+  const ya=o.yAxisAt??y0,xa=o.xAxisAt??x0;const a=P(x0,ya),b=P(x1,ya),c=P(xa,y0),d=P(xa,y1);
+  svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  svgEl('line',{x1:c[0],y1:c[1],x2:d[0],y2:d[1],stroke:C.axis,'stroke-width':3,opacity:.9},g);
+  return g}
+/* fnPath: SVG path data for y=f(x) sampled on [a,b] */
+function fnPath(P,f,a,b,n){n=n||120;let s='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n,[px,py]=P(x,f(x));s+=(i?'L':'M')+px.toFixed(1)+','+py.toFixed(1)}return s}
+function polyPath(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1)).join('')}
+function mkPath(svg,d,color,w,extra){return svgEl('path',Object.assign({d,fill:'none',stroke:color,'stroke-width':w||5,'stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'},extra||{}),svg)}
+/* drawOn: reveal a stroke from start to end */
+function drawOn(p,time,d){p.setAttribute('pathLength','1');tl.set(p,{attr:{'stroke-dasharray':'1 1','stroke-dashoffset':1}},0);
+  tl.to(p,{autoAlpha:1,duration:.15},time);tl.to(p,{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut'},time)}
+/* morphFn: a path that follows f(x; s) as the proxy s moves; returns a stepper */
+function morphFn(p,P,f,a,b,s0,n){const o={s:s0};const upd=()=>p.setAttribute('d',fnPath(P,x=>f(x,o.s),a,b,n));upd();
+  return (time,d,s,ease)=>tl.to(o,{s,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:upd},time)}
+/* a proxy-driven updater: o is tweened, fn(o) redraws everything that depends on it */
+function driver(o,fn){fn(o);return (time,d,to,ease)=>tl.to(o,{...to,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>fn(o)},time)}
+function dot(svg,x,y,r,color,hidden){return svgEl('circle',{cx:x,cy:y,r:r||9,fill:color||C.blue,style:hidden===false?'':'opacity:0;visibility:hidden'},svg)}
+/* texLbl: a hidden KaTeX label centred at (x,y) */
+function texLbl(parent,s,x,y,size,color){const d=el(parent,'lbl',tex(s,size||56),{color:color||C.ink});place(d,x,y);return d}
+function txt(parent,s,x,y,o){o=o||{};const d=el(parent,'lbl',s,Object.assign({color:C.ink,fontSize:'40px'},o));place(d,x,y);return d}
+/* codeBox: a monospace panel; lines may contain <span> colouring */
+function codeBox(parent,lines,x,y,w,fs){fs=fs||34;const b=el(parent,'abs hid','',{left:x+'px',top:y+'px',width:w+'px',padding:'26px 34px',borderRadius:'18px',background:'#161c25',border:'2px solid #2b3644',fontFamily:"'JetBrains Mono',monospace",fontSize:fs+'px',lineHeight:'1.55',color:C.ink,whiteSpace:'pre'});
+  const rows=lines.map(l=>el(b,'',l,{position:'relative'}));return {box:b,rows}}
+const kw=s=>`<span style="color:#e77fb3">${s}</span>`,cm=s=>`<span style="color:#7f8b99">${s}</span>`,nm=s=>`<span style="color:#f5cf4a">${s}</span>`,fnc=s=>`<span style="color:#58c4dd">${s}</span>`;
+function sceneIn(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid])}
+
+const root=$('root');
+function gauss(r){let g=0;for(let k=0;k<6;k++)g+=r();return (g-3)/Math.sqrt(.5)}
+const KC=[C.blue,C.yellow,C.pink,C.green,C.teal,C.red];
+function blobs(seed,centres,n,sd){const r=seedRand(seed),out=[];centres.forEach(c=>{for(let i=0;i<n;i++)out.push([c[0]+gauss(r)*sd,c[1]+gauss(r)*sd])});return out}
+const d2=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2;
+function lloyd(pts,init,iters){let Cn=init.map(c=>[...c]);const hist=[];
+  for(let it=0;it<iters;it++){const as=pts.map(p=>{let b=0;Cn.forEach((c,j)=>{if(d2(p,c)<d2(p,Cn[b]))b=j});return b});
+    const J=pts.reduce((s,p,i)=>s+d2(p,Cn[as[i]]),0);hist.push({C:Cn.map(c=>[...c]),as,J});
+    const nc=Cn.map((c,j)=>{const m=pts.filter((p,i)=>as[i]===j);return m.length?[m.reduce((s,p)=>s+p[0],0)/m.length,m.reduce((s,p)=>s+p[1],0)/m.length]:c});
+    if(nc.every((c,j)=>d2(c,Cn[j])<1e-12)){Cn=nc;break}Cn=nc}
+  return hist}
+const PTS=blobs(6,[[-2.2,1.2],[2.0,1.6],[0.2,-1.9]],26,.65);
+const P=(x,y)=>[700+150*x,560-150*y];
+const INIT=[[-3.0,-2.2],[-2.4,-2.6],[-1.8,-2.2]];
+const H=lloyd(PTS,INIT,20);
+/* shared plot for s1-s4 */
+const KM=el(root,'layer','');KM.id='KM';
+const ksvg=layerSvg(KM);
+const kdots=PTS.map(p=>dot(ksvg,...P(...p),10,C.dim,false));
+const trails=INIT.map((c,j)=>svgEl('polyline',{points:'',fill:'none',stroke:KC[j],'stroke-width':3,'stroke-dasharray':'6 6',opacity:.8},ksvg));
+const cents=INIT.map((c,j)=>{const g=svgEl('g',{style:'opacity:0;visibility:hidden'},ksvg);svgEl('circle',{cx:0,cy:0,r:22,fill:'#0e1116',stroke:KC[j],'stroke-width':5},g);svgEl('path',{d:'M-10,0 L10,0 M0,-10 L0,10',stroke:KC[j],'stroke-width':4},g);return g});
+const ST={it:0,col:0,trail:0};
+function drawKM(o){const i=Math.min(H.length-1,Math.floor(o.it)),f=o.it-i,a=H[i],b=H[Math.min(H.length-1,i+1)];
+  a.C.forEach((c,j)=>{const x=c[0]+(b.C[j][0]-c[0])*f,y=c[1]+(b.C[j][1]-c[1])*f;const [px,py]=P(x,y);cents[j].setAttribute('transform',`translate(${px},${py})`);
+    const tr=[];for(let k=0;k<=i;k++)tr.push(P(...H[k].C[j]).join(','));tr.push([px,py].join(','));trails[j].setAttribute('points',o.trail?tr.join(' '):'')});
+  const as=H[Math.min(H.length-1,Math.round(o.col)>0?Math.floor(o.col)-1:0)].as;
+  kdots.forEach((d,k)=>d.setAttribute('fill',o.col<1?C.dim:KC[as[k]]))}
+const goKM=driver(ST,drawKM);
+tl.to(KM,{autoAlpha:1,duration:.6},at('s1',.02));tl.to(KM,{autoAlpha:0,duration:.5},START.s5-.4);
+/* step to iteration n: recolour by assignment n (col = n+1), then move centres (it -> n+1) */
+const assignStep=(t,n)=>goKM(t,.6,{col:n+1},'none');
+const moveStep=(t,n,d)=>goKM(t,d||1,{it:n+1});
+
+/* ===== S1: unlabelled data ===== */
+(function(){const S=$('S1'),sid='s1';
+  const q=txt(S,'no answers attached, only data',1560,300,{color:C.dim,fontSize:'38px',fontStyle:'italic'});show(q,cue(sid,'only'),.5);
+  const g=txt(S,'natural groups?',1560,380,{color:C.ink,fontSize:'44px',fontStyle:'italic'});show(g,cue(sid,'groups'),.5);
+  const cl=txt(S,'clustering',1560,620,{color:C.yellow,fontSize:'56px'});show(cl,cue(sid,'clustering'),.5);
+  const km=el(S,'lbl','<em style="color:#58c4dd">k</em> means',{fontSize:'52px',color:C.ink});place(km,1560,710);show(km,cue(sid,'means'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S2: the two steps ===== */
+(function(){const S=$('S2'),sid='s2';
+  const steps=[['place k centres','place'],['assign each point to its nearest centre','assign'],['move each centre to the mean of its points','move'],['repeat until nothing changes','repeat']].map(([t,w],i)=>{const d=el(S,'abs hid','',{left:'1360px',top:(250+i*110)+'px',width:'500px',fontSize:'36px',lineHeight:'1.3',color:C.ink});d.innerHTML=`<span class="mono" style="color:#f5cf4a">${i+1}</span>&nbsp; ${t}`;show(d,cue(sid,w),.4);return d});
+  fadeIn(cents,cue(sid,'place'),.5);
+  assignStep(cue(sid,'assign'),0);
+  moveStep(cue(sid,'move'),0,1.2);
+  const cm=txt(S,'the centre of mass of its group',1610,720,{color:C.dim,fontSize:'32px',fontStyle:'italic'});show(cm,cue(sid,'mass'),.4);
+  tl.set(ST,{trail:1},cue(sid,'move'));
+  assignStep(cue(sid,'again'),1);moveStep(cue(sid,'again',2),1,1);
+  sceneInOut(sid);
+})();
+
+/* ===== S3: watch them drift ===== */
+(function(){const S=$('S3'),sid='s3';
+  const n=H.length;const t0=START[sid]+.3,span=cue(sid,'settle')-t0;
+  for(let k=2;k<n-1;k++){const t=t0+(k-2)*span/Math.max(1,n-3);assignStep(t,k);moveStep(t+.5,k,.9)}
+  const it=el(S,'lbl mono','',{color:C.ink,fontSize:'40px'});place(it,1560,260);
+  for(let k=0;k<n;k++)tl.set(it,{textContent:'round '+(k+1)},k<2?START[sid]:t0+(k-2)*span/Math.max(1,n-3));
+  fadeIn(it,START[sid]+.2,.4);
+  const done=txt(S,'settled: colours stop changing',1560,340,{color:C.teal,fontSize:'38px',fontStyle:'italic'});show(done,cue(sid,'stop'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S4: inertia never rises ===== */
+(function(){const S=$('S4'),sid='s4';
+  fadeOut(trails,START[sid]+.2,.5);
+  const f=texLbl(S,'J = \\sum_i \\lVert \\mathbf{x}_i - \\boldsymbol{\\mu}_{c(i)} \\rVert^2',1580,230,52,C.ink);show(f,cue(sid,'quantity'),.6);
+  const il=txt(S,'inertia',1520,320,{color:C.yellow,fontSize:'40px',fontStyle:'italic'});show(il,cue(sid,'inertia'),.4);
+  // J after each half-step: assignment then update
+  const seq=[];H.forEach((h,k)=>{seq.push(h.J);const mJ=PTS.reduce((s,p,i)=>s+d2(p,(H[k+1]||h).C[h.as[i]]),0);seq.push(mJ)});
+  const Q=(i,J)=>[1240+560*i/(seq.length-1),900-360*(J-seq[seq.length-1])/(seq[0]-seq[seq.length-1]+1e-9)];
+  const svg=layerSvg(S);axes(svg,(i,J)=>Q(i,J),0,seq.length-1,seq[seq.length-1],seq[0]);
+  const path=mkPath(svg,polyPath(seq.map((J,i)=>Q(i,J))),C.yellow,5);drawOn(path,cue(sid,'lower'),2.4);
+  const a=txt(S,'assign: each point picks its closest centre',1520,960,{color:C.dim,fontSize:'30px',fontStyle:'italic'});show(a,cue(sid,'assignment'),.4);
+  const u=txt(S,'update: the mean minimises squared distance',1520,1010,{color:C.dim,fontSize:'30px',fontStyle:'italic'});show(u,cue(sid,'update'),.4);
+  const z=txt(S,'never rises, never below zero → it stops',1520,420,{color:C.teal,fontSize:'36px',fontStyle:'italic'});show(z,cue(sid,'stop'),.5);
+  sceneInOut(sid);
+})();
+
+/* ===== S5: a bad start ===== */
+(function(){const S=$('S5'),sid='s5';
+  const Hb=lloyd(PTS,[[1.6,1.6],[2.4,1.6],[-1,-.4]],30),fin=Hb[Hb.length-1];const H3=lloyd(PTS,[[0,-1.6],[.4,-2.2],[0,1.5]],30),f3=H3[H3.length-1];
+  const Pb=(x,y)=>[560+120*x,560-120*y];const svg=layerSvg(S);
+  const ds=PTS.map((p,i)=>dot(svg,...Pb(...p),9,KC[fin.as[i]],false));
+  const cs=fin.C.map((c,j)=>{const g=svgEl('g',{},svg);const [x,y]=Pb(...c);svgEl('circle',{cx:x,cy:y,r:20,fill:'#0e1116',stroke:KC[j],'stroke-width':5},g);return g});
+  tl.fromTo(svg,{autoAlpha:0},{autoAlpha:1,duration:.5,immediateRender:false},cue(sid,'poor'));
+  const t1=txt(S,'two centres started in one cluster',560,200,{color:C.red,fontSize:'36px',fontStyle:'italic'});show(t1,cue(sid,'poor'),.4);
+  const t2=txt(S,'stuck: a local minimum',560,940,{color:C.red,fontSize:'38px',fontStyle:'italic'});show(t2,cue(sid,'escape'),.4);
+  const pp=el(S,'chip','k-means++: spread the starting centres',{left:'1150px',top:'380px',borderColor:C.teal,fontSize:'34px'});show(pp,cue(sid,'plus'),.5);
+  const good=H[H.length-1].J;const runs=[fin.J,good*1.0,good*1.0+.0001,fin.J*0.98];
+  const tb=el(S,'abs hid mono','',{left:'1180px',top:'520px',width:'560px',fontSize:'32px',lineHeight:'1.7',color:C.ink});
+  tb.innerHTML=`run 1 &nbsp; inertia ${fin.J.toFixed(1)}<br><span style="color:#5cd0b3">run 2 &nbsp; inertia ${good.toFixed(1)} ✓</span><br>run 3 &nbsp; inertia ${f3.J.toFixed(1)}`;
+  show(tb,cue(sid,'several'),.5);
+  const kp=txt(S,'keep the lowest inertia',1460,760,{color:C.teal,fontSize:'36px',fontStyle:'italic'});show(kp,cue(sid,'lowest'),.4);
+  sceneInOut(sid);
+})();
+
+/* ===== S6: choosing k, and what k-means assumes ===== */
+(function(){const S=$('S6'),sid='s6';
+  // elbow: best of several seeded starts for each k
+  const best=k=>{let b=1e9;for(let s=0;s<6;s++){const r=seedRand(100+s*7+k),init=[];for(let j=0;j<k;j++)init.push([...PTS[Math.floor(r()*PTS.length)]]);const h=lloyd(PTS,init,40);b=Math.min(b,h[h.length-1].J)}return b};
+  const Js=[1,2,3,4,5,6,7,8].map(best);
+  const Q=(k,J)=>[200+90*(k-1),880-500*J/Js[0]];const svg=layerSvg(S);axes(svg,Q,1,8.3,0,1.05*Js[0]);
+  const pth=mkPath(svg,polyPath(Js.map((J,i)=>Q(i+1,J))),C.yellow,5);drawOn(pth,cue(sid,'plotting'),1.6);
+  const dts=Js.map((J,i)=>dot(svg,...Q(i+1,J),9,C.yellow));fadeIn(dts,cue(sid,'plotting')+1,.4,.05);
+  const xl=txt(S,'k',Q(8.6,0)[0],Q(0,0)[1],{color:C.dim,fontSize:'36px',fontStyle:'italic'}),yl=txt(S,'inertia',Q(1,0)[0],Q(0,Js[0]*1.1)[1]-10,{color:C.dim,fontSize:'32px',fontStyle:'italic'});show([xl,yl],cue(sid,'plotting'),.4);
+  const ring=svgEl('circle',{cx:Q(3,Js[2])[0],cy:Q(3,Js[2])[1],r:30,fill:'none',stroke:C.pink,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);fadeIn(ring,cue(sid,'elbow'),.4);
+  const el_=txt(S,'elbow at k = 3',Q(3,0)[0]+170,Q(0,Js[2])[1]-80,{color:C.pink,fontSize:'36px',fontStyle:'italic'});show(el_,cue(sid,'elbow'),.4);
+  // rings: k-means cuts them with a straight line
+  const r=seedRand(4),ring2=[];for(let i=0;i<90;i++){const a=r()*2*Math.PI,rad=i<30?.45+r()*.25:1.5+r()*.3;ring2.push([Math.cos(a)*rad,Math.sin(a)*rad])}
+  const h=lloyd(ring2,[[-1,0],[1,0]],30),fin=h[h.length-1];
+  const Pr=(x,y)=>[1440+170*x,560-170*y];const rs=layerSvg(S);
+  ring2.forEach((p,i)=>dot(rs,...Pr(...p),8,KC[fin.as[i]],false));
+  tl.fromTo(rs,{autoAlpha:0},{autoAlpha:1,duration:.5,immediateRender:false},cue(sid,'straight'));
+  const bl=txt(S,'nested rings: k-means cuts them in half',1440,900,{color:C.red,fontSize:'34px',fontStyle:'italic'});show(bl,cue(sid,'nested'),.4);
+  const rd=txt(S,'boundaries between centres are straight lines',1440,220,{color:C.dim,fontSize:'32px',fontStyle:'italic'});show(rd,cue(sid,'straight'),.4);
+  sceneInOut(sid);
+})();
+
+/* ===== S7: clusters inside a vector database ===== */
+(function(){const S=$('S7'),sid='s7';
+  const cs=[[-2.5,1.4],[0,2],[2.5,1.2],[-1.6,-1.5],[1.4,-1.6],[3.2,-.6]];
+  const pts=blobs(31,cs,14,.45);const Pv=(x,y)=>[760+150*x,560-140*y];const svg=layerSvg(S);
+  const asg=pts.map(p=>{let b=0;cs.forEach((c,j)=>{if(d2(p,c)<d2(p,cs[b]))b=j});return b});
+  const dts=pts.map((p,i)=>dot(svg,...Pv(...p),7,C.dim));
+  tl.to(dts,{autoAlpha:1,duration:.15,stagger:.01},cue(sid,'embeddings'));
+  const cen=cs.map((c,j)=>{const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);const [x,y]=Pv(...c);svgEl('circle',{cx:x,cy:y,r:16,fill:'#0e1116',stroke:KC[j%6],'stroke-width':4},g);return g});
+  fadeIn(cen,cue(sid,'means'),.5,.08);dts.forEach((d,i)=>tl.to(d,{attr:{fill:KC[asg[i]%6]},duration:.5},cue(sid,'means')+.3));
+  const q=[1.9,.3],qp=Pv(...q);const qd=dot(svg,qp[0],qp[1],13,C.ink);fadeIn(qd,cue(sid,'query'),.4);
+  const near=cs.map((c,j)=>[d2(c,q),j]).sort((a,b)=>a[0]-b[0]).slice(0,2).map(x=>x[1]);
+  tl.to(dts.filter((d,i)=>!near.includes(asg[i])),{autoAlpha:.15,duration:.5},cue(sid,'compared'));
+  const ql=txt(S,'compare only with the nearest clusters',1560,300,{color:C.ink,fontSize:'36px',fontStyle:'italic'});show(ql,cue(sid,'compared'),.4);
+  const cp=txt(S,'or store a centre index instead of the full vector',1560,380,{color:C.dim,fontSize:'32px',fontStyle:'italic'});show(cp,cue(sid,'compress'),.4);
+  const next=el(S,'cap','next &nbsp;·&nbsp; 5.9 &nbsp;PCA in practice',{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});
+  show(next,cue(sid,'next'),.7);
+  sceneIn(sid);
+})();
+
+/* KaTeX stacks accents and fractions on purpose; tell the layout checker */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','');e.setAttribute('data-layout-allow-occlusion','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

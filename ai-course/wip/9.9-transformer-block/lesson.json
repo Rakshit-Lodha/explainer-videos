@@ -1,0 +1,187 @@
+{
+  "id": "9.9-transformer-block",
+  "module": 9,
+  "title": "The transformer block",
+  "summary": "A transformer block has two halves: multi-head attention, where tokens exchange information, and an MLP (widen to 4d, GELU, project back) applied to each token separately. Each half adds its output to a residual stream instead of replacing it, and reads a layer-normalised copy of the stream first (pre-norm, as in GPT-2). A block maps (T, d) to (T, d), so blocks stack.",
+  "video": "videos/9.9-transformer-block.mp4",
+  "llm_link": "A GPT is token and position embeddings, a stack of these blocks (12 in GPT-2 small, far more in large models), a final layer norm and one matrix that scores every vocabulary token. Almost all of a model's parameters live in the attention and MLP weights of its blocks.",
+  "key_ideas": [
+    "Attention = communication between positions; MLP = computation at each position, the same network for every token.",
+    "MLP: (T, d) → (T, 4d) → GELU → (T, d).",
+    "Residual stream: x = x + sublayer(...). Layers add notes rather than overwrite, and gradients flow straight through the additions.",
+    "Layer norm: per token, subtract the mean, divide by the standard deviation, then apply learned γ and β.",
+    "Pre-norm block: x = x + Attn(LN₁(x)); x = x + MLP(LN₂(x)). Input and output are both (T, d)."
+  ],
+  "quiz": [
+    {
+      "q": "d = 768 and T = 20. Predict the shape of the MLP's hidden layer inside one block.",
+      "options": [
+        "(20, 768)",
+        "(20, 3072)",
+        "(768, 3072)",
+        "(20, 20)"
+      ],
+      "answer": 1,
+      "explain": "The MLP widens each token's vector to 4d = 3072, so the hidden activations are (T, 4d) = (20, 3072). It then projects back to (20, 768)."
+    },
+    {
+      "q": "Which half of the block lets information move between different tokens?",
+      "options": [
+        "The MLP",
+        "Layer norm",
+        "Attention",
+        "The residual addition"
+      ],
+      "answer": 2,
+      "explain": "Only attention mixes rows of the stream. The MLP and layer norm act on each token's row separately."
+    },
+    {
+      "q": "Predict the result: layer norm (γ = 1, β = 0) applied to the row [1, 3] gives roughly…",
+      "options": [
+        "[0.25, 0.75]",
+        "[−1, 1]",
+        "[1, 3]",
+        "[0, 2]"
+      ],
+      "answer": 1,
+      "explain": "The mean is 2 and the standard deviation is 1, so (x − 2) / 1 = [−1, 1]: centred with spread 1."
+    },
+    {
+      "q": "If every weight in a block's attention output projection and MLP output layer were zero, what would the block do?",
+      "options": [
+        "Output all zeros",
+        "Return its input unchanged, thanks to the residual connections",
+        "Output random numbers",
+        "Crash"
+      ],
+      "answer": 1,
+      "explain": "Each half adds its update to the stream. With zero updates, x + 0 + 0 = x. This is one reason deep residual stacks are easy to start training."
+    },
+    {
+      "q": "Why can a GPT stack dozens of identical-shaped blocks?",
+      "options": [
+        "Each block shrinks the sequence",
+        "Each block maps a (T, d) stream to a (T, d) stream, so outputs fit the next block's input",
+        "The blocks share one set of weights",
+        "Layer norm removes the need for residuals"
+      ],
+      "answer": 1,
+      "explain": "Matching input and output shapes, plus residual connections and layer norm for stable training, let the same design be repeated many times. Each block still has its own weights."
+    }
+  ],
+  "problems": [
+    {
+      "id": "shapes",
+      "title": "Shape drill: inside a block",
+      "prompt": "<p>Predict each shape. This drill mixes matrix products with two kinds of broadcasting you will meet in layer norm: a <code>(T, 1)</code> column against a <code>(T, d)</code> matrix, and a <code>(d,)</code> row against a <code>(T, d)</code> matrix.</p>",
+      "starter": "import numpy as np\n\nT, d = 5, 8\nx  = np.zeros((T, d))            # the residual stream\nW1 = np.zeros((d, 4 * d)); b1 = np.zeros(4 * d)\nW2 = np.zeros((4 * d, d)); b2 = np.zeros(d)\nh  = x @ W1 + b1                 # MLP hidden layer\nmu = x.mean(axis=-1, keepdims=True)\ngamma = np.ones(d)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"W1\": None,\n    \"x @ W1\": None,\n    \"h\": None,\n    \"h @ W2 + b2\": None,\n    \"mu\": None,\n    \"(x - mu) * gamma\": None,\n    \"x + (h @ W2 + b2)\": None,\n}\n",
+      "tests": [
+        {
+          "name": "shape of W1",
+          "code": "import numpy as np\ngot = answers['W1']\nreal = np.shape(W1)\nassert got is not None, 'fill in your prediction for W1'\nassert tuple(got) == tuple(real), f'you predicted {got} but W1 has shape {real}. The first MLP layer widens d = 8 to 4d = 32.'"
+        },
+        {
+          "name": "shape of x @ W1",
+          "code": "import numpy as np\ngot = answers['x @ W1']\nreal = np.shape(x @ W1)\nassert got is not None, 'fill in your prediction for x @ W1'\nassert tuple(got) == tuple(real), f'you predicted {got} but x @ W1 has shape {real}. (T, d) @ (d, 4d) gives (T, 4d): every token is widened independently.'"
+        },
+        {
+          "name": "shape of h",
+          "code": "import numpy as np\ngot = answers['h']\nreal = np.shape(h)\nassert got is not None, 'fill in your prediction for h'\nassert tuple(got) == tuple(real), f'you predicted {got} but h has shape {real}. Adding a (4d,) bias broadcasts across the T rows, so the shape stays (T, 4d).'"
+        },
+        {
+          "name": "shape of h @ W2 + b2",
+          "code": "import numpy as np\ngot = answers['h @ W2 + b2']\nreal = np.shape(h @ W2 + b2)\nassert got is not None, 'fill in your prediction for h @ W2 + b2'\nassert tuple(got) == tuple(real), f'you predicted {got} but h @ W2 + b2 has shape {real}. (T, 4d) @ (4d, d) gives (T, d): back to the model width.'"
+        },
+        {
+          "name": "shape of mu",
+          "code": "import numpy as np\ngot = answers['mu']\nreal = np.shape(mu)\nassert got is not None, 'fill in your prediction for mu'\nassert tuple(got) == tuple(real), f'you predicted {got} but mu has shape {real}. The mean over the last axis, one per token; keepdims keeps it as a column so it can broadcast back.'"
+        },
+        {
+          "name": "shape of (x - mu) * gamma",
+          "code": "import numpy as np\ngot = answers['(x - mu) * gamma']\nreal = np.shape((x - mu) * gamma)\nassert got is not None, 'fill in your prediction for (x - mu) * gamma'\nassert tuple(got) == tuple(real), f'you predicted {got} but (x - mu) * gamma has shape {real}. (T, d) minus (T, 1) broadcasts across columns; times (d,) broadcasts across rows.'"
+        },
+        {
+          "name": "shape of x + (h @ W2 + b2)",
+          "code": "import numpy as np\ngot = answers['x + (h @ W2 + b2)']\nreal = np.shape(x + (h @ W2 + b2))\nassert got is not None, 'fill in your prediction for x + (h @ W2 + b2)'\nassert tuple(got) == tuple(real), f'you predicted {got} but x + (h @ W2 + b2) has shape {real}. The residual addition needs both sides to be (T, d), and so the block keeps the shape of its input.'"
+        }
+      ],
+      "hints": [
+        "4 * d = 32.",
+        "keepdims=True keeps the reduced axis with length 1."
+      ],
+      "solution": "import numpy as np\n\nT, d = 5, 8\nx  = np.zeros((T, d))            # the residual stream\nW1 = np.zeros((d, 4 * d)); b1 = np.zeros(4 * d)\nW2 = np.zeros((4 * d, d)); b2 = np.zeros(d)\nh  = x @ W1 + b1                 # MLP hidden layer\nmu = x.mean(axis=-1, keepdims=True)\ngamma = np.ones(d)\n\n# Predict each shape as a tuple, e.g. (4, 3), BEFORE printing anything.\n# Then check yourself with print(<expression>.shape).\nanswers = {\n    \"W1\": (8, 32),\n    \"x @ W1\": (5, 32),\n    \"h\": (5, 32),\n    \"h @ W2 + b2\": (5, 8),\n    \"mu\": (5, 1),\n    \"(x - mu) * gamma\": (5, 8),\n    \"x + (h @ W2 + b2)\": (5, 8),\n}\n"
+    },
+    {
+      "id": "layernorm",
+      "title": "Layer normalisation",
+      "prompt": "<p>Write <code>layer_norm(x, gamma, beta, eps=1e-5)</code> for a <code>(T, d)</code> array. For each row separately: subtract its mean, divide by <code>sqrt(variance + eps)</code>, then multiply by <code>gamma</code> and add <code>beta</code> (both of shape <code>(d,)</code>).</p><p><code>eps</code> is a tiny number that stops a division by zero when a row is constant.</p>",
+      "starter": "import numpy as np\n\ndef layer_norm(x, gamma, beta, eps=1e-5):\n    \"\"\"Normalise each row (token) of x to mean 0 and variance 1, then scale by gamma and shift by beta.\"\"\"\n    # TODO 1: mean of each row, shape (T, 1)        (axis=-1, keepdims=True)\n    # TODO 2: variance of each row, shape (T, 1)    (np.var or ((x - mean)**2).mean(...))\n    # TODO 3: (x - mean) / np.sqrt(var + eps), then * gamma + beta\n    pass\n",
+      "tests": [
+        {
+          "name": "each row has mean 0 and spread 1",
+          "code": "import numpy as np\nx=np.random.default_rng(0).normal(3,5,size=(4,16))\nout=layer_norm(x,np.ones(16),np.zeros(16))\nassert out is not None, 'layer_norm returned None'\nassert out.shape==x.shape, f'the shape must not change, got {out.shape}'\nassert np.allclose(out.mean(axis=1),0,atol=1e-6), f'every row should have mean 0, got {out.mean(axis=1).round(4)}. Normalise along axis=-1 (per token), not over the whole array.'\nassert np.allclose(out.std(axis=1),1,atol=1e-3), f'every row should have standard deviation 1, got {out.std(axis=1).round(4)}'"
+        },
+        {
+          "name": "small example",
+          "code": "import numpy as np\nout=layer_norm(np.array([[1.0,3.0]]),np.ones(2),np.zeros(2))\nassert np.allclose(out,[[-1,1]],atol=1e-4), f'[1, 3] has mean 2 and standard deviation 1, so the result is about [-1, 1]; got {out}'"
+        },
+        {
+          "name": "gamma scales, beta shifts",
+          "code": "import numpy as np\nout=layer_norm(np.array([[1.0,3.0]]),np.array([2.0,3.0]),np.array([10.0,0.0]))\nassert np.allclose(out,[[8,3]],atol=1e-3), f'expected [-1*2 + 10, 1*3 + 0] = [8, 3], got {out}'"
+        },
+        {
+          "name": "rows are independent",
+          "code": "import numpy as np\nx=np.array([[1.0,2.0,3.0],[100.0,200.0,300.0]])\nout=layer_norm(x,np.ones(3),np.zeros(3))\nassert np.allclose(out[0],out[1],atol=1e-4), 'both rows have the same pattern, so after per-row normalisation they should be identical'"
+        },
+        {
+          "name": "constant row does not divide by zero",
+          "code": "import numpy as np\nout=layer_norm(np.full((1,4),7.0),np.ones(4),np.zeros(4))\nassert np.all(np.isfinite(out)), 'a constant row has variance 0; adding eps inside the square root keeps the result finite'"
+        }
+      ],
+      "hints": [
+        "mean = x.mean(axis=-1, keepdims=True)",
+        "var = x.var(axis=-1, keepdims=True)",
+        "return (x - mean) / np.sqrt(var + eps) * gamma + beta"
+      ],
+      "solution": "import numpy as np\n\ndef layer_norm(x, gamma, beta, eps=1e-5):\n    \"\"\"Normalise each row (token) of x to mean 0 and variance 1, then scale by gamma and shift by beta.\"\"\"\n    mean = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    return (x - mean) / np.sqrt(var + eps) * gamma + beta\n"
+    },
+    {
+      "id": "block",
+      "title": "A transformer block (GPT, step 7)",
+      "prompt": "<p>Assemble a pre-norm transformer block from the pieces you built. The starter contains multi-head attention (9.7), <code>layer_norm</code>, <code>gelu</code>, the GPT inputs (9.8) and a dict <code>p</code> holding one block's weights.</p><ul><li><code>mlp(x, p)</code>: <code>gelu(x @ W1 + b1) @ W2 + b2</code>.</li><li><code>transformer_block(x, p, n_heads)</code>: <code>x = x + attention(LN1(x))</code>, then <code>x = x + mlp(LN2(x))</code>.</li></ul><p>Then try stacking: <code>for _ in range(4): x = transformer_block(x, init_block(rng, d), n_heads)</code>. The shape never changes.</p>",
+      "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef causal_mask(T):\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef attend(Q, K, V):\n    T, dk = Q.shape\n    return softmax(Q @ K.T / np.sqrt(dk) + causal_mask(T)) @ V\n\ndef multi_head_attention(x, Wq, Wk, Wv, Wo, n_heads):          # lesson 9.7\n    Q, K, V = x @ Wq, x @ Wk, x @ Wv\n    dh = Q.shape[1] // n_heads\n    outs = [attend(Q[:, k*dh:(k+1)*dh], K[:, k*dh:(k+1)*dh], V[:, k*dh:(k+1)*dh]) for k in range(n_heads)]\n    return np.concatenate(outs, axis=1) @ Wo\n\ndef layer_norm(x, gamma, beta, eps=1e-5):                       # this lesson, problem 2\n    mean = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    return (x - mean) / np.sqrt(var + eps) * gamma + beta\n\ndef gelu(x):\n    \"\"\"The smooth ReLU used in GPT-2 (tanh approximation).\"\"\"\n    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * x**3)))\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.8) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, n_heads, block_size = 8, 2, 16\ntok_emb = rng.normal(size=(len(vocab), d))\npos_emb = rng.normal(size=(block_size, d)) * 0.1\nids = np.array(encode(\"hello\"))\nx = tok_emb[ids] + pos_emb[:len(ids)]                          # (T, d): the residual stream\n\ndef init_block(rng, d):\n    \"\"\"One block's weights in a dict (a real model learns these).\"\"\"\n    s = 1 / np.sqrt(d)\n    return {\"ln1_g\": np.ones(d), \"ln1_b\": np.zeros(d),\n            \"Wq\": rng.normal(size=(d, d)) * s, \"Wk\": rng.normal(size=(d, d)) * s,\n            \"Wv\": rng.normal(size=(d, d)) * s, \"Wo\": rng.normal(size=(d, d)) * s,\n            \"ln2_g\": np.ones(d), \"ln2_b\": np.zeros(d),\n            \"W1\": rng.normal(size=(d, 4 * d)) * s, \"b1\": np.zeros(4 * d),\n            \"W2\": rng.normal(size=(4 * d, d)) / np.sqrt(4 * d), \"b2\": np.zeros(d)}\np = init_block(rng, d)\n\n# ---- step 7: the transformer block (this lesson) ----\ndef mlp(x, p):\n    \"\"\"Widen to 4d, GELU, project back to d.\"\"\"\n    # TODO: gelu(x @ p[\"W1\"] + p[\"b1\"]) @ p[\"W2\"] + p[\"b2\"]\n    pass\n\ndef transformer_block(x, p, n_heads):\n    \"\"\"Pre-norm block: x + attention(LN1(x)), then x + MLP(LN2(x)). Returns (T, d).\"\"\"\n    # TODO 1: x = x + multi_head_attention(layer_norm(x, p[\"ln1_g\"], p[\"ln1_b\"]), p[\"Wq\"], p[\"Wk\"], p[\"Wv\"], p[\"Wo\"], n_heads)\n    # TODO 2: x = x + mlp(layer_norm(x, p[\"ln2_g\"], p[\"ln2_b\"]), p)\n    # TODO 3: return x\n    pass\n",
+      "tests": [
+        {
+          "name": "mlp shape",
+          "code": "import numpy as np\nout=mlp(x,p)\nassert out is not None, 'mlp returned None'\nassert out.shape==(5,8), f'the MLP must return (T, d) = (5, 8), got {np.shape(out)}'"
+        },
+        {
+          "name": "block keeps the shape",
+          "code": "import numpy as np\nout=transformer_block(x,p,n_heads)\nassert out is not None, 'transformer_block returned None'\nassert out.shape==x.shape, f'a block maps (T, d) to (T, d), got {np.shape(out)}'"
+        },
+        {
+          "name": "matches the pre-norm formula",
+          "code": "import numpy as np\ndef _ref(x,p,h):\n    a=x+multi_head_attention(layer_norm(x,p['ln1_g'],p['ln1_b']),p['Wq'],p['Wk'],p['Wv'],p['Wo'],h)\n    n=layer_norm(a,p['ln2_g'],p['ln2_b'])\n    return a+gelu(n@p['W1']+p['b1'])@p['W2']+p['b2']\nout=transformer_block(x,p,n_heads)\nassert np.allclose(out,_ref(x,p,n_heads)), 'result differs from x + Attn(LN1(x)) followed by x + MLP(LN2(x)). Check that the MLP reads the stream after the attention update, and that both sublayers get a layer-normed input.'"
+        },
+        {
+          "name": "residuals: zero updates leave x unchanged",
+          "code": "import numpy as np\nq=dict(p); q['Wo']=np.zeros((8,8)); q['W2']=np.zeros((32,8))\nout=transformer_block(x,q,n_heads)\nassert np.allclose(out,x), 'with zero output weights both updates are 0, so the block should return x itself. Did you add the updates to x (residual), or replace x?'"
+        },
+        {
+          "name": "still causal",
+          "code": "import numpy as np\na=transformer_block(x,p,n_heads)\nx2=x.copy();x2[-1]+=3\nb=transformer_block(x2,p,n_heads)\nassert np.allclose(a[:-1],b[:-1]), 'changing the last token changed earlier rows: the attention inside the block must stay causal'"
+        },
+        {
+          "name": "blocks stack",
+          "code": "import numpy as np\nr=np.random.default_rng(5)\ny=x\nfor _ in range(3):\n    y=transformer_block(y,init_block(r,8),n_heads)\nassert y.shape==(5,8) and np.all(np.isfinite(y)), 'three stacked blocks should still give a finite (5, 8) stream'"
+        }
+      ],
+      "hints": [
+        "mlp: return gelu(x @ p['W1'] + p['b1']) @ p['W2'] + p['b2']",
+        "Two lines in the block, each of the form x = x + sublayer(layer_norm(x, ...)).",
+        "The second line must use the x that already includes the attention update."
+      ],
+      "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    e = np.exp(x - x.max(axis=axis, keepdims=True))\n    return e / e.sum(axis=axis, keepdims=True)\n\ndef causal_mask(T):\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef attend(Q, K, V):\n    T, dk = Q.shape\n    return softmax(Q @ K.T / np.sqrt(dk) + causal_mask(T)) @ V\n\ndef multi_head_attention(x, Wq, Wk, Wv, Wo, n_heads):          # lesson 9.7\n    Q, K, V = x @ Wq, x @ Wk, x @ Wv\n    dh = Q.shape[1] // n_heads\n    outs = [attend(Q[:, k*dh:(k+1)*dh], K[:, k*dh:(k+1)*dh], V[:, k*dh:(k+1)*dh]) for k in range(n_heads)]\n    return np.concatenate(outs, axis=1) @ Wo\n\ndef layer_norm(x, gamma, beta, eps=1e-5):                       # this lesson, problem 2\n    mean = x.mean(axis=-1, keepdims=True)\n    var = x.var(axis=-1, keepdims=True)\n    return (x - mean) / np.sqrt(var + eps) * gamma + beta\n\ndef gelu(x):\n    \"\"\"The smooth ReLU used in GPT-2 (tanh approximation).\"\"\"\n    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * x**3)))\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.8) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, n_heads, block_size = 8, 2, 16\ntok_emb = rng.normal(size=(len(vocab), d))\npos_emb = rng.normal(size=(block_size, d)) * 0.1\nids = np.array(encode(\"hello\"))\nx = tok_emb[ids] + pos_emb[:len(ids)]                          # (T, d): the residual stream\n\ndef init_block(rng, d):\n    \"\"\"One block's weights in a dict (a real model learns these).\"\"\"\n    s = 1 / np.sqrt(d)\n    return {\"ln1_g\": np.ones(d), \"ln1_b\": np.zeros(d),\n            \"Wq\": rng.normal(size=(d, d)) * s, \"Wk\": rng.normal(size=(d, d)) * s,\n            \"Wv\": rng.normal(size=(d, d)) * s, \"Wo\": rng.normal(size=(d, d)) * s,\n            \"ln2_g\": np.ones(d), \"ln2_b\": np.zeros(d),\n            \"W1\": rng.normal(size=(d, 4 * d)) * s, \"b1\": np.zeros(4 * d),\n            \"W2\": rng.normal(size=(4 * d, d)) / np.sqrt(4 * d), \"b2\": np.zeros(d)}\np = init_block(rng, d)\n\n# ---- step 7: the transformer block (this lesson) ----\ndef mlp(x, p):\n    \"\"\"Widen to 4d, GELU, project back to d.\"\"\"\n    return gelu(x @ p[\"W1\"] + p[\"b1\"]) @ p[\"W2\"] + p[\"b2\"]\n\ndef transformer_block(x, p, n_heads):\n    \"\"\"Pre-norm block: x + attention(LN1(x)), then x + MLP(LN2(x)). Returns (T, d).\"\"\"\n    x = x + multi_head_attention(layer_norm(x, p[\"ln1_g\"], p[\"ln1_b\"]), p[\"Wq\"], p[\"Wk\"], p[\"Wv\"], p[\"Wo\"], n_heads)\n    x = x + mlp(layer_norm(x, p[\"ln2_g\"], p[\"ln2_b\"]), p)\n    return x\n"
+    }
+  ]
+}

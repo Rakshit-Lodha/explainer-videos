@@ -1,0 +1,167 @@
+{
+  "id": "9.6-scaled-attention",
+  "module": 9,
+  "title": "Softmax and scaled dot-product attention",
+  "summary": "Softmax exponentiates and normalises, so only differences between scores matter; subtracting the maximum first prevents overflow. Dot products of d_k-wide random vectors have a spread of about √d_k, which saturates softmax, so scores are divided by √d_k. A causal mask adds −∞ above the diagonal so each token attends only to itself and earlier tokens: softmax(QKᵀ/√d_k + M) V.",
+  "video": "videos/9.6-scaled-attention.mp4",
+  "llm_link": "This is the exact attention formula inside GPT-style models. The causal mask is what lets a model train on every next-token prediction in a passage in one parallel pass, and it is also why, during generation, a token never changes once it has been produced.",
+  "key_ideas": [
+    "softmax(s + c) = softmax(s): only differences matter, so subtract max(s) for numerical safety.",
+    "Multiplying scores by a large number makes softmax nearly one-hot; shrinking them makes it nearly uniform.",
+    "q · k with d_k random unit-variance entries has a standard deviation of about √d_k; dividing by √d_k brings it back to about 1.",
+    "Causal mask: −∞ above the diagonal before softmax gives exactly zero weight to future tokens; rows still sum to 1.",
+    "Five steps: Q Kᵀ, ÷ √d_k, + mask, softmax each row, × V."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: softmax([1001, 1000]) (rounded).",
+      "options": [
+        "[1.0, 0.0]",
+        "[0.73, 0.27]",
+        "[0.5, 0.5]",
+        "It overflows and has no answer"
+      ],
+      "answer": 1,
+      "explain": "Only the difference matters: it equals softmax([1, 0]) = [e/(e+1), 1/(e+1)] ≈ [0.73, 0.27]. A naive implementation overflows, which is why we subtract the maximum first."
+    },
+    {
+      "q": "q and k have 256 entries each, all random with variance 1. Roughly how large is a typical q · k?",
+      "options": [
+        "About 1",
+        "About 16",
+        "About 256",
+        "About 0.06"
+      ],
+      "answer": 1,
+      "explain": "The variance of a sum of 256 independent unit-variance products is 256, so the standard deviation is √256 = 16. Dividing by √d_k = 16 brings it back to about 1."
+    },
+    {
+      "q": "Why is a saturated (nearly one-hot) softmax bad at the start of training?",
+      "options": [
+        "It uses more memory",
+        "Its gradient is almost zero, so the attention weights barely learn",
+        "It makes the rows sum to more than 1",
+        "It breaks the causal mask"
+      ],
+      "answer": 1,
+      "explain": "When one weight is close to 1 and the rest close to 0, small changes to the scores barely change the output, so very little gradient flows back to W_Q and W_K."
+    },
+    {
+      "q": "With a causal mask on a 4-token sequence, how many nonzero weights does the third row of A have?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": 2,
+      "explain": "Token 3 may attend to tokens 1, 2 and itself. The fourth entry is masked to −∞ before softmax and becomes exactly 0."
+    },
+    {
+      "q": "Why does a GPT need the causal mask during training?",
+      "options": [
+        "To make attention faster",
+        "Because every position is trained to predict the next token in parallel, and it must not see that token",
+        "To stop the model attending to padding",
+        "Because softmax cannot handle long sequences"
+      ],
+      "answer": 1,
+      "explain": "All T next-token predictions are made in one pass. Without the mask, position t could simply copy token t + 1 from the input instead of predicting it."
+    }
+  ],
+  "problems": [
+    {
+      "id": "softmax",
+      "title": "A numerically stable softmax",
+      "prompt": "<p>Write <code>softmax(x, axis=-1)</code> yourself. Subtract the maximum along <code>axis</code> before exponentiating (it changes nothing mathematically, but stops <code>np.exp(1000)</code> from overflowing), then divide by the sum along the same axis.</p><p>Use <code>keepdims=True</code> in <code>max</code> and <code>sum</code>, so a <code>(T, T)</code> table minus its row maxima, shape <code>(T, 1)</code>, broadcasts correctly.</p>",
+      "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    # TODO 1: subtract the largest entry along `axis` (use keepdims=True so the shapes line up)\n    # TODO 2: exponentiate\n    # TODO 3: divide by the sum along `axis` (keepdims=True again)\n    pass\n",
+      "tests": [
+        {
+          "name": "small example",
+          "code": "import numpy as np\nout=softmax(np.array([2.0,1.0,0.1]))\nassert out is not None, 'softmax returned None'\nassert np.allclose(out,[0.659,0.242,0.099],atol=1e-3), f'expected about [0.659, 0.242, 0.099], got {out}'"
+        },
+        {
+          "name": "sums to 1",
+          "code": "import numpy as np\nout=softmax(np.array([3.0,-1.0,0.5,0.5]))\nassert abs(out.sum()-1)<1e-9, f'weights must sum to 1, got {out.sum()}'"
+        },
+        {
+          "name": "no overflow for large scores",
+          "code": "import numpy as np\nout=softmax(np.array([1000.0,1001.0,999.0]))\nassert np.all(np.isfinite(out)), f'got {out}: np.exp(1000) overflows to inf. Subtract the maximum first.'\nassert np.allclose(out,softmax(np.array([-1.0,0.0,-2.0]))), 'adding a constant to every score should not change the weights'"
+        },
+        {
+          "name": "works on each row of a table",
+          "code": "import numpy as np\nS=np.array([[1.0,2.0,3.0],[0.0,0.0,0.0]])\nout=softmax(S,axis=-1)\nassert out.shape==(2,3), f'shape should be unchanged, got {out.shape}'\nassert np.allclose(out.sum(axis=1),1), f'each row should sum to 1, got {out.sum(axis=1)}. Did you use keepdims=True and the right axis?'\nassert np.allclose(out[1],1/3), 'equal scores give equal weights'"
+        },
+        {
+          "name": "handles -inf (masked entries)",
+          "code": "import numpy as np\nout=softmax(np.array([0.5,-np.inf,1.0]))\nassert out[1]==0 and np.isclose(out.sum(),1), f'a score of -inf must get weight exactly 0, got {out}'"
+        }
+      ],
+      "hints": [
+        "m = x.max(axis=axis, keepdims=True)",
+        "e = np.exp(x - m); return e / e.sum(axis=axis, keepdims=True)"
+      ],
+      "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    shifted = x - x.max(axis=axis, keepdims=True)   # largest entry becomes 0: no overflow\n    e = np.exp(shifted)\n    return e / e.sum(axis=axis, keepdims=True)\n"
+    },
+    {
+      "id": "spread",
+      "title": "Measure why we divide by √d_k",
+      "prompt": "<p>Check the scaling argument by experiment. <code>score_spread(d_k)</code> draws many random query and key vectors with standard-normal entries and returns the standard deviation of their dot products. Fill it in, then <b>predict before printing</b>: what should <code>score_spread(64)</code> be? And with <code>scaled=True</code>?</p><p>Row-wise dot products of two <code>(n, d_k)</code> arrays: <code>(q * k).sum(axis=1)</code> multiplies matching entries and sums each row, giving shape <code>(n,)</code>.</p>",
+      "starter": "import numpy as np\n\ndef score_spread(d_k, n=20000, seed=0, scaled=False):\n    \"\"\"Standard deviation of q . k for n random pairs of vectors whose entries are standard normal.\n    If scaled is True, divide each score by sqrt(d_k) first.\"\"\"\n    rng = np.random.default_rng(seed)\n    q = rng.normal(size=(n, d_k))\n    k = rng.normal(size=(n, d_k))\n    # TODO 1: one dot product per row: multiply q and k entry by entry, then sum along axis 1  -> shape (n,)\n    # TODO 2: if scaled, divide the scores by np.sqrt(d_k)\n    # TODO 3: return the standard deviation of the scores (np.std)\n    pass\n\n# Once it works, predict and then print: score_spread(1), score_spread(16), score_spread(64), score_spread(64, scaled=True)\n",
+      "tests": [
+        {
+          "name": "d_k = 1 has spread about 1",
+          "code": "s=score_spread(1)\nassert s is not None, 'return np.std(scores)'\nassert 0.9<s<1.1, f'for one dimension q*k has standard deviation about 1, got {s:.3f}'"
+        },
+        {
+          "name": "spread grows like the square root of d_k",
+          "code": "import numpy as np\ns=score_spread(64)\nassert 7.2<s<8.8, f'the variance of a sum of 64 unit-variance terms is 64, so the spread should be about sqrt(64) = 8; got {s:.2f}'\ns16=score_spread(16)\nassert 3.6<s16<4.4, f'for d_k = 16 expect about 4, got {s16:.2f}'"
+        },
+        {
+          "name": "scaling brings it back to about 1",
+          "code": "for dk in (4,64,256):\n    s=score_spread(dk,scaled=True)\n    assert 0.9<s<1.1, f'after dividing by sqrt(d_k) the spread should be about 1 for every width; d_k = {dk} gave {s:.3f}'"
+        }
+      ],
+      "hints": [
+        "scores = (q * k).sum(axis=1)",
+        "if scaled: scores = scores / np.sqrt(d_k)",
+        "return np.std(scores)"
+      ],
+      "solution": "import numpy as np\n\ndef score_spread(d_k, n=20000, seed=0, scaled=False):\n    \"\"\"Standard deviation of q . k for n random pairs of vectors whose entries are standard normal.\n    If scaled is True, divide each score by sqrt(d_k) first.\"\"\"\n    rng = np.random.default_rng(seed)\n    q = rng.normal(size=(n, d_k))\n    k = rng.normal(size=(n, d_k))\n    scores = (q * k).sum(axis=1)\n    if scaled:\n        scores = scores / np.sqrt(d_k)\n    return np.std(scores)\n\n# Once it works, predict and then print: score_spread(1), score_spread(16), score_spread(64), score_spread(64, scaled=True)\n"
+    },
+    {
+      "id": "causal",
+      "title": "Causal scaled attention (GPT, step 4)",
+      "prompt": "<p>Turn last lesson's attention head into the real thing. Your stable <code>softmax</code> and the GPT so far are in the starter.</p><ol><li><code>causal_mask(T)</code>: a <code>(T, T)</code> array with 0 on and below the diagonal and <code>-np.inf</code> above it.</li><li><code>causal_attention(X, Wq, Wk, Wv)</code>: returns <code>(out, A)</code> with <code>A = softmax(Q @ K.T / sqrt(d_k) + mask)</code> on each row and <code>out = A @ V</code>.</li></ol><p>Careful: <code>0 * -np.inf</code> is <code>nan</code>, so do not build the mask by multiplying. <code>np.triu(..., k=1)</code> keeps the part strictly above the diagonal and puts zeros elsewhere.</p>",
+      "starter": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    shifted = x - x.max(axis=axis, keepdims=True)   # largest entry becomes 0: no overflow\n    e = np.exp(shifted)\n    return e / e.sum(axis=axis, keepdims=True)\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.5) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, d_k = 8, 4\nE = rng.normal(size=(len(vocab), d))           # embedding table (V, d)\nX = E[np.array(encode(\"hello\"))]               # (T, d) = (5, 8)\nWq = rng.normal(size=(d, d_k))\nWk = rng.normal(size=(d, d_k))\nWv = rng.normal(size=(d, d_k))\n\n# ---- step 4: scaled, causal attention (this lesson) ----\ndef causal_mask(T):\n    \"\"\"(T, T) array: 0 on and below the diagonal, -inf above it.\"\"\"\n    # TODO: hint: np.triu(np.full((T, T), -np.inf), k=1)\n    pass\n\ndef causal_attention(X, Wq, Wk, Wv):\n    \"\"\"Returns (out, A) with A = softmax(Q Kᵀ / sqrt(d_k) + mask) and out = A V.\"\"\"\n    # TODO 1: Q, K, V\n    # TODO 2: S = Q @ K.T / np.sqrt(d_k)  (d_k is the width of Q)\n    # TODO 3: add causal_mask(T), softmax each row, multiply by V\n    pass\n",
+      "tests": [
+        {
+          "name": "the mask",
+          "code": "import numpy as np\nm=causal_mask(3)\nassert m is not None, 'causal_mask returned None'\nexp=np.array([[0,-np.inf,-np.inf],[0,0,-np.inf],[0,0,0]])\nassert np.array_equal(m,exp), f'expected 0 on and below the diagonal and -inf above it, got\\n{m}'"
+        },
+        {
+          "name": "future weights are exactly zero",
+          "code": "import numpy as np\nr=causal_attention(X,Wq,Wk,Wv)\nassert r is not None, 'return (out, A)'\nout,A=r\nassert np.all(np.triu(A,k=1)==0), f'every weight above the diagonal must be 0 (no peeking at later tokens), got\\n{A.round(2)}'\nassert np.allclose(A.sum(axis=1),1), 'each row must still sum to 1'"
+        },
+        {
+          "name": "the first token only sees itself",
+          "code": "import numpy as np\nout,A=causal_attention(X,Wq,Wk,Wv)\nassert np.isclose(A[0,0],1), 'row 0 can only attend to token 0, so its weight there must be 1'\nassert np.allclose(out[0],(X@Wv)[0]), 'so the first output must equal the first value vector'"
+        },
+        {
+          "name": "scaled by sqrt(d_k)",
+          "code": "import numpy as np\ndef _ref(X,Wq,Wk,Wv):\n    Q,K,V=X@Wq,X@Wk,X@Wv\n    T=len(X)\n    S=Q@K.T/np.sqrt(Q.shape[1])\n    S=np.where(np.tril(np.ones((T,T)))==1,S,-np.inf)\n    e=np.exp(S-S.max(1,keepdims=True))\n    A=e/e.sum(1,keepdims=True)\n    return A@V,A\nout,A=causal_attention(X,Wq,Wk,Wv)\nro,rA=_ref(X,Wq,Wk,Wv)\nassert np.allclose(A,rA), 'A does not match softmax(Q K^T / sqrt(d_k) + mask). Did you divide by the square root of the query width (4)?'\nassert np.allclose(out,ro), 'out should be A @ V'"
+        },
+        {
+          "name": "changing a later token cannot change earlier outputs",
+          "code": "import numpy as np\nout1,_=causal_attention(X,Wq,Wk,Wv)\nX2=X.copy(); X2[4]=X2[4]+10\nout2,_=causal_attention(X2,Wq,Wk,Wv)\nassert np.allclose(out1[:4],out2[:4]), 'outputs 0-3 changed when only token 4 changed: information is leaking from the future'"
+        }
+      ],
+      "hints": [
+        "np.triu(np.full((T, T), -np.inf), k=1)",
+        "T, dk = Q.shape; S = Q @ K.T / np.sqrt(dk) + causal_mask(T)",
+        "A = softmax(S, axis=-1); return A @ V, A"
+      ],
+      "solution": "import numpy as np\n\ndef softmax(x, axis=-1):\n    x = np.asarray(x, dtype=float)\n    shifted = x - x.max(axis=axis, keepdims=True)   # largest entry becomes 0: no overflow\n    e = np.exp(shifted)\n    return e / e.sum(axis=axis, keepdims=True)\n\n# ---- the character-level GPT so far (lessons 9.1 to 9.5) ----\ntext = \"hello world\"\nvocab = sorted(set(text))\nstoi = {ch: i for i, ch in enumerate(vocab)}\ndef encode(s):\n    return [stoi[ch] for ch in s]\n\nrng = np.random.default_rng(0)\nd, d_k = 8, 4\nE = rng.normal(size=(len(vocab), d))           # embedding table (V, d)\nX = E[np.array(encode(\"hello\"))]               # (T, d) = (5, 8)\nWq = rng.normal(size=(d, d_k))\nWk = rng.normal(size=(d, d_k))\nWv = rng.normal(size=(d, d_k))\n\n# ---- step 4: scaled, causal attention (this lesson) ----\ndef causal_mask(T):\n    \"\"\"(T, T) array: 0 on and below the diagonal, -inf above it.\"\"\"\n    return np.triu(np.full((T, T), -np.inf), k=1)\n\ndef causal_attention(X, Wq, Wk, Wv):\n    \"\"\"Returns (out, A) with A = softmax(Q Kᵀ / sqrt(d_k) + mask) and out = A V.\"\"\"\n    Q, K, V = X @ Wq, X @ Wk, X @ Wv\n    T, dk = Q.shape\n    S = Q @ K.T / np.sqrt(dk) + causal_mask(T)\n    A = softmax(S, axis=-1)\n    return A @ V, A\n"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "id": "5.8-kmeans",
+  "module": 5,
+  "title": "k-means clustering",
+  "summary": "k-means finds k groups in unlabelled data by alternating two steps: assign every point to its nearest centre, then move each centre to the mean of its points. Each step can only lower the inertia (total squared distance to the assigned centres), so it converges, but possibly to a poor local minimum, which smarter starts (k-means++) and several runs guard against. Choose k with an elbow plot, and remember k-means assumes round, similarly sized clusters.",
+  "video": "videos/5.8-kmeans.mp4",
+  "llm_link": "Vector databases used for retrieval often run k-means over millions of embeddings: a query is compared only with the points in the few nearest clusters (an inverted-file index), and product quantisation compresses vectors by storing indices of nearby k-means centres.",
+  "key_ideas": [
+    "Clustering is unsupervised: there are no labels, only data, and the method looks for natural groups.",
+    "k-means: assign each point to its nearest centre, move each centre to the mean of its points, repeat until nothing changes.",
+    "Inertia J = Σ‖xᵢ − μ_c(i)‖² never increases at either step, and it cannot go below 0, so the algorithm stops.",
+    "It can stop in a local minimum. k-means++ spreads the initial centres; run several times and keep the lowest inertia.",
+    "Choose k at the elbow of inertia versus k. Boundaries are straight lines between centres, so curved or nested clusters defeat it."
+  ],
+  "quiz": [
+    {
+      "q": "In the update step, where does each centre move?",
+      "options": [
+        "To the point farthest from it",
+        "To the mean of the points currently assigned to it",
+        "To the origin",
+        "To a random point"
+      ],
+      "answer": 1,
+      "explain": "The mean is the single location that minimises the total squared distance to a group of points, so this step can only lower the inertia."
+    },
+    {
+      "q": "Predict the result: a centre is assigned the points (0, 0), (2, 0) and (4, 6). Where does it move?",
+      "options": [
+        "(2, 2)",
+        "(3, 3)",
+        "(0, 0)",
+        "(2, 0)"
+      ],
+      "answer": 0,
+      "explain": "The mean is ((0 + 2 + 4)/3, (0 + 0 + 6)/3) = (2, 2)."
+    },
+    {
+      "q": "Why does the inertia plotted against k always go down as k grows?",
+      "options": [
+        "Because k-means is broken for large k",
+        "Because more centres can always sit closer to the points (with k = n every point is its own centre and J = 0)",
+        "Because the data changes",
+        "It does not; it goes up"
+      ],
+      "answer": 1,
+      "explain": "That is why you look for an elbow, where adding centres stops paying off, instead of the minimum."
+    },
+    {
+      "q": "Two runs of k-means on the same data give inertias 278 and 73. What should you do?",
+      "options": [
+        "Average the two clusterings",
+        "Keep the run with inertia 73: the other got stuck in a poor local minimum",
+        "Keep 278 because it is more cautious",
+        "Increase k until both agree"
+      ],
+      "answer": 1,
+      "explain": "Different starts can end in different local minima. The objective tells you which is better: lower inertia means tighter clusters."
+    },
+    {
+      "q": "How do many vector databases use k-means to speed up retrieval for LLM applications?",
+      "options": [
+        "They cluster the embeddings and compare a query only with points in the nearest clusters",
+        "They train the language model with k-means",
+        "They use k-means to tokenise text",
+        "They do not; k-means is unrelated"
+      ],
+      "answer": 0,
+      "explain": "An inverted-file (IVF) index assigns every stored vector to a k-means centre. At query time only the closest few clusters are searched, trading a little accuracy for a big speed-up."
+    }
+  ],
+  "problems": [
+    {
+      "id": "assign",
+      "title": "Assign and update with plain lists",
+      "prompt": "<p>Points and centres are lists of <code>[x, y]</code> pairs. Write</p><ul><li><code>assign(points, centres)</code>: a list with, for each point, the index of its nearest centre (squared distance is enough, no square root needed).</li><li><code>update(points, labels, k)</code>: a list of k new centres, each the mean of the points with that label. If a cluster is empty, put its centre at <code>[0.0, 0.0]</code>.</li></ul>",
+      "starter": "def sqdist(a, b):\n    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2\n\ndef assign(points, centres):\n    labels = []\n    for p in points:\n        # TODO: index of the centre with the smallest sqdist to p\n        pass\n    return labels\n\ndef update(points, labels, k):\n    centres = []\n    for j in range(k):\n        # TODO: mean x and mean y of the points whose label is j\n        pass\n    return centres\n",
+      "tests": [
+        {
+          "name": "assign to nearest",
+          "code": "out = assign([[0, 0], [10, 10], [9, 8]], [[1, 1], [10, 9]])\nassert out == [0, 1, 1], f'expected [0, 1, 1], got {out}'"
+        },
+        {
+          "name": "update to the mean",
+          "code": "out = update([[0, 0], [2, 0], [4, 6]], [0, 0, 0], 1)\nassert len(out) == 1 and abs(out[0][0] - 2) < 1e-12 and abs(out[0][1] - 2) < 1e-12, f'the mean of (0,0), (2,0), (4,6) is (2, 2), got {out}'"
+        },
+        {
+          "name": "two clusters",
+          "code": "pts = [[0, 0], [0, 2], [10, 0], [12, 0]]\nout = update(pts, [0, 0, 1, 1], 2)\nassert [list(map(float, c)) for c in out] == [[0.0, 1.0], [11.0, 0.0]], f'expected [[0, 1], [11, 0]], got {out}'"
+        },
+        {
+          "name": "empty cluster does not crash",
+          "code": "try:\n    out = update([[1, 1]], [0], 2)\nexcept ZeroDivisionError:\n    raise AssertionError('cluster 1 has no points: avoid dividing by zero and use [0.0, 0.0]')\nassert out[1] == [0.0, 0.0], f'an empty cluster should get [0.0, 0.0], got {out[1]}'"
+        }
+      ],
+      "hints": [
+        "assign: labels.append(min(range(len(centres)), key=lambda j: sqdist(p, centres[j])))",
+        "update: members = [p for p, l in zip(points, labels) if l == j]",
+        "if not members: centres.append([0.0, 0.0]) else: centres.append([sum(p[0] for p in members) / len(members), sum(p[1] for p in members) / len(members)])"
+      ],
+      "solution": "def sqdist(a, b):\n    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2\n\ndef assign(points, centres):\n    labels = []\n    for p in points:\n        labels.append(min(range(len(centres)), key=lambda j: sqdist(p, centres[j])))\n    return labels\n\ndef update(points, labels, k):\n    centres = []\n    for j in range(k):\n        members = [p for p, l in zip(points, labels) if l == j]\n        if not members:\n            centres.append([0.0, 0.0])\n        else:\n            centres.append([sum(p[0] for p in members) / len(members), sum(p[1] for p in members) / len(members)])\n    return centres\n"
+    },
+    {
+      "id": "kmeans",
+      "title": "k-means in NumPy",
+      "prompt": "<p>The starter makes 120 synthetic points in three blobs. Write <code>kmeans(X, init, iters)</code> that starts from the centres <code>init</code> (shape <code>(k, 2)</code>) and repeats the two steps <code>iters</code> times (or until the centres stop moving). Return <code>(centres, labels, inertia)</code>.</p><p>Broadcasting does the assignment in one line: <code>X[:, None, :] - C[None, :, :]</code> has shape <code>(n, k, 2)</code>; square, sum over the last axis to get an <code>(n, k)</code> table of squared distances, then <code>argmin(axis=1)</code>.</p><p>Then try a bad start, such as two centres inside the same blob, and compare inertias.</p>",
+      "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\nX = np.vstack([rng.normal(c, 0.5, size=(40, 2)) for c in ([-2, 1], [2, 1.5], [0, -2])])   # shape (120, 2)\n\ndef kmeans(X, init, iters=50):\n    C = np.array(init, dtype=float)\n    for _ in range(iters):\n        # TODO 1: D = squared distances, shape (n, k); labels = D.argmin(axis=1)\n        # TODO 2: new C: mean of X[labels == j] for each j (keep the old centre if a cluster is empty)\n        # TODO 3: stop early if the centres did not move\n        pass\n    labels = np.zeros(len(X), dtype=int)\n    inertia = 0.0\n    return C, labels, inertia\n",
+      "tests": [
+        {
+          "name": "finds the three blobs",
+          "code": "C, labels, J = kmeans(X, X[[0, 40, 80]])\ntrue = np.array([[-2, 1], [2, 1.5], [0, -2]])\nfor t in true:\n    assert np.min(np.linalg.norm(C - t, axis=1)) < 0.3, f'expected a centre near {t}, got centres {np.round(C, 2)}'"
+        },
+        {
+          "name": "labels and inertia agree",
+          "code": "C, labels, J = kmeans(X, X[[0, 40, 80]])\nassert np.shape(labels) == (120,), f'one label per point, got shape {np.shape(labels)}'\nJ2 = ((X - C[labels]) ** 2).sum()\nassert abs(J - J2) < 1e-6 and J > 0, f'inertia should be the total squared distance to the assigned centres ({J2:.3f}), got {J}'"
+        },
+        {
+          "name": "a bad start ends worse",
+          "code": "_, _, good = kmeans(X, X[[0, 40, 80]])\n_, _, bad = kmeans(X, np.array([X[40], X[41], [-1.0, -0.5]]))\nassert bad > 1.5 * good, f'two centres in one blob and one between the other two should get stuck with higher inertia ({bad:.1f} vs {good:.1f}); compute inertia from the final centres and labels'"
+        }
+      ],
+      "hints": [
+        "D = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=-1); labels = D.argmin(axis=1)",
+        "newC = np.array([X[labels == j].mean(axis=0) if np.any(labels == j) else C[j] for j in range(len(C))])",
+        "if np.allclose(newC, C): break, then C = newC. After the loop, recompute labels and inertia = ((X - C[labels]) ** 2).sum()"
+      ],
+      "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\nX = np.vstack([rng.normal(c, 0.5, size=(40, 2)) for c in ([-2, 1], [2, 1.5], [0, -2])])   # shape (120, 2)\n\ndef kmeans(X, init, iters=50):\n    C = np.array(init, dtype=float)\n    for _ in range(iters):\n        D = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=-1)\n        labels = D.argmin(axis=1)\n        newC = np.array([X[labels == j].mean(axis=0) if np.any(labels == j) else C[j] for j in range(len(C))])\n        if np.allclose(newC, C):\n            break\n        C = newC\n    D = ((X[:, None, :] - C[None, :, :]) ** 2).sum(axis=-1)\n    labels = D.argmin(axis=1)\n    inertia = ((X - C[labels]) ** 2).sum()\n    return C, labels, inertia\n"
+    }
+  ]
+}
