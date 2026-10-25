@@ -1,0 +1,102 @@
+{
+  "id": "1.6-dot-product-projection",
+  "module": 1,
+  "title": "Dot product and projection (similarity)",
+  "summary": "The dot product has a picture: the shadow (projection) of one arrow on the line through the other, multiplied by the other's length. The shadow is long when the arrows agree, zero at a right angle and negative when they point apart, and with unit vectors it is the cosine of the angle.",
+  "video": "videos/1.6-dot-product-projection.mp4",
+  "llm_link": "Attention scores are dot products: each token's query vector is dotted with every other token's key vector, and a long shadow means that token gets listened to. Embedding search ranks documents by the same shadow, scaled to unit length (cosine similarity).",
+  "key_ideas": [
+    "Projection of v onto w: the length of v's shadow on the line through w, light shining at right angles to that line.",
+    "v · w = (shadow of v on w) × |w|. Same direction: large and positive; perpendicular: 0; more than 90° apart: negative.",
+    "Why multiply-and-add works: shadows add, so v · w = x(î · w) + y(ĵ · w) = x·w₁ + y·w₂.",
+    "If |w| = 1 the dot product is the shadow itself; with both arrows of length 1 it is cos θ, which is why cosine similarity divides by both lengths.",
+    "proj = (v·w / w·w) w, and the leftover v − proj is perpendicular to w (the fact behind least squares)."
+  ],
+  "quiz": [
+    {
+      "q": "v = [3, 4] and w = [1, 0]. How long is v's shadow on the line through w?",
+      "options": ["5", "4", "3", "1"],
+      "answer": 2,
+      "explain": "w points along the x-axis and has length 1, so the shadow is just v's x-step: v · w / |w| = 3 / 1 = 3."
+    },
+    {
+      "q": "Predict the result: [2, 1] · [−1, 2]",
+      "options": ["0", "4", "−3", "3"],
+      "answer": 0,
+      "explain": "2·(−1) + 1·2 = 0. The arrows are at a right angle, so the shadow of one on the other has no length."
+    },
+    {
+      "q": "The dot product of two vectors is negative. What does that say about them?",
+      "options": ["One of them has negative length", "They are more than 90° apart, so the shadow falls behind the origin", "They are perpendicular", "They point the same way"],
+      "answer": 1,
+      "explain": "Lengths are never negative; the sign comes from the shadow. When v turns more than a right angle away from w, its shadow lands on the far side of the origin."
+    },
+    {
+      "q": "Why does cosine similarity divide v · w by |v| |w|?",
+      "options": ["To make the computation faster", "So that only direction matters: the result becomes the shadow of one unit arrow on another, cos θ", "Because the dot product is otherwise always positive", "To turn it into a distance"],
+      "answer": 1,
+      "explain": "Dividing by both lengths is the same as shrinking both arrows to length 1 first. Then the shadow is exactly cos θ, and a long document is not favoured just for being long."
+    },
+    {
+      "q": "In attention, a query q = [1, 0] is compared with keys k₁ = [0.9, 0.1], k₂ = [0, 1], k₃ = [−1, 0]. Which key gets the highest raw score q · k?",
+      "options": ["k₁", "k₂", "k₃", "They tie"],
+      "answer": 0,
+      "explain": "The scores are 0.9, 0 and −1. k₁ points almost along q, so its shadow on q is longest; k₂ is perpendicular (0) and k₃ points the opposite way (negative)."
+    }
+  ],
+  "problems": [
+    {
+      "id": "project",
+      "title": "Project one vector onto another",
+      "prompt": "<p>Write <code>dot(v, w)</code> and <code>project(v, w)</code> for plain Python lists.</p><p><code>project</code> returns the shadow of <code>v</code> on the line through <code>w</code>, as a vector: <code>(v·w / w·w) · w</code>. Projecting onto the zero vector makes no sense, so raise <code>ValueError</code> if <code>w</code> is all zeros.</p><pre>project([2, 2], [3, 0])   # [2.0, 0.0]\nproject([2, 1], [-1, 2])  # [0.0, 0.0]  (perpendicular)\nproject([1, 3], [1, 1])   # [2.0, 2.0]</pre>",
+      "starter": "def dot(v, w):\n    # TODO: multiply matching entries and add them up (zip pairs them)\n    pass\n\ndef project(v, w):\n    # TODO 1: ww = dot(w, w); if ww == 0, raise ValueError(\"cannot project onto the zero vector\")\n    # TODO 2: k = dot(v, w) / ww   (how many copies of w the shadow is)\n    # TODO 3: return [k * x for x in w]\n    pass\n",
+      "tests": [
+        {"name": "dot works", "code": "out = dot([1, 2, 3], [4, 5, 6])\nassert out == 32, f'expected 1*4 + 2*5 + 3*6 = 32, got {out}'"},
+        {"name": "onto an axis", "code": "out = project([2, 2], [3, 0])\nassert out is not None, 'project returned None. Did you forget return?'\nassert [round(x, 9) for x in out] == [2, 0], f'the shadow of [2, 2] on the x-axis is [2, 0], got {out}. Did you divide by w·w, not by |w|?'"},
+        {"name": "perpendicular gives zero", "code": "out = project([2, 1], [-1, 2])\nassert all(abs(x) < 1e-12 for x in out), f'[2, 1] and [-1, 2] are at a right angle, so the shadow is [0, 0]; got {out}'"},
+        {"name": "general case", "code": "out = project([1, 3], [1, 1])\nassert all(abs(a - b) < 1e-9 for a, b in zip(out, [2, 2])), f'expected [2.0, 2.0] (v·w = 4, w·w = 2, so 2 copies of w); got {out}'"},
+        {"name": "length of w does not matter", "code": "a = project([1, 3], [1, 1]); b = project([1, 3], [5, 5])\nassert all(abs(x - y) < 1e-9 for x, y in zip(a, b)), f'projecting onto [1,1] and [5,5] must give the same shadow (same line), got {a} and {b}. Divide by w·w so the length of w cancels'"},
+        {"name": "zero vector is rejected", "code": "try:\n    project([1, 2], [0, 0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('expected ValueError for w = [0, 0]: there is no line to cast a shadow on')"}
+      ],
+      "hints": [
+        "dot: return sum(a * b for a, b in zip(v, w))",
+        "The shadow vector points along w, so it is some number k times w. k = dot(v, w) / dot(w, w).",
+        "raise ValueError(\"...\") is the syntax: ValueError is called like a function."
+      ],
+      "solution": "def dot(v, w):\n    return sum(a * b for a, b in zip(v, w))\n\ndef project(v, w):\n    ww = dot(w, w)\n    if ww == 0:\n        raise ValueError(\"cannot project onto the zero vector\")\n    k = dot(v, w) / ww\n    return [k * x for x in w]\n"
+    },
+    {
+      "id": "split",
+      "title": "Shadow plus leftover",
+      "prompt": "<p>Write <code>split(v, w)</code> that returns a pair <code>(along, leftover)</code>: <code>along</code> is the projection of <code>v</code> onto <code>w</code>, and <code>leftover = v − along</code>.</p><p>The tests check the two facts from the video: the pieces add back up to <code>v</code>, and the leftover is perpendicular to <code>w</code> (its dot product with <code>w</code> is 0).</p>",
+      "starter": "def dot(v, w):\n    return sum(a * b for a, b in zip(v, w))\n\ndef project(v, w):\n    k = dot(v, w) / dot(w, w)\n    return [k * x for x in w]\n\ndef split(v, w):\n    # TODO 1: along = project(v, w)\n    # TODO 2: leftover = v minus along, entry by entry\n    # TODO 3: return along, leftover\n    pass\n",
+      "tests": [
+        {"name": "returns two vectors", "code": "out = split([3, 1], [1, 1])\nassert out is not None and len(out) == 2, f'expected a pair (along, leftover), got {out}'"},
+        {"name": "pieces add back to v", "code": "along, left = split([3, 1], [1, 1])\ns = [a + b for a, b in zip(along, left)]\nassert all(abs(x - y) < 1e-9 for x, y in zip(s, [3, 1])), f'along + leftover should rebuild v = [3, 1], got {s}'"},
+        {"name": "leftover is perpendicular to w", "code": "along, left = split([3, 1], [1, 1])\nd = sum(a * b for a, b in zip(left, [1, 1]))\nassert abs(d) < 1e-9, f'leftover · w should be 0 (a right angle), got {d}. Is leftover = v - along, and not along - v or v - w?'"},
+        {"name": "works in 3D", "code": "along, left = split([1, 2, 3], [0, 0, 2])\nassert all(abs(x - y) < 1e-9 for x, y in zip(along, [0, 0, 3])), f'the shadow of [1,2,3] on the z-axis is [0,0,3], got {along}'\nassert all(abs(x - y) < 1e-9 for x, y in zip(left, [1, 2, 0])), f'the leftover should be [1,2,0], got {left}'"}
+      ],
+      "hints": [
+        "leftover = [a - b for a, b in zip(v, along)]",
+        "return along, leftover returns a tuple of two lists."
+      ],
+      "solution": "def dot(v, w):\n    return sum(a * b for a, b in zip(v, w))\n\ndef project(v, w):\n    k = dot(v, w) / dot(w, w)\n    return [k * x for x in w]\n\ndef split(v, w):\n    along = project(v, w)\n    leftover = [a - b for a, b in zip(v, along)]\n    return along, leftover\n"
+    },
+    {
+      "id": "scores",
+      "title": "Attention scores in one line (NumPy, shape drill)",
+      "prompt": "<p>A query <code>q</code> has shape <code>(d,)</code>. The keys are stacked as the rows of a matrix <code>K</code> with shape <code>(n, d)</code>: one row per token.</p><p>Write <code>scores(q, K)</code> that returns all <code>n</code> dot products <code>K[i] · q</code> as an array of shape <code>(n,)</code>, and <code>best(q, K)</code> that returns the index of the key with the largest score (a plain <code>int</code>).</p><p>Before you write it, predict: what shape does <code>K @ q</code> have when <code>K</code> is <code>(4, 3)</code> and <code>q</code> is <code>(3,)</code>?</p>",
+      "starter": "import numpy as np\n\ndef scores(q, K):\n    # TODO: one dot product per row of K. A loop works; K @ q does it in one go.\n    pass\n\ndef best(q, K):\n    # TODO: index of the largest score (np.argmax), as a Python int\n    pass\n",
+      "tests": [
+        {"name": "one score per key", "code": "import numpy as np\nK = np.array([[0.9, 0.1], [0., 1.], [-1., 0.]]); q = np.array([1., 0.])\nout = scores(q, K)\nassert out is not None, 'scores returned None'\nout = np.asarray(out)\nassert out.shape == (3,), f'3 keys should give 3 scores, shape (3,); got shape {out.shape}. Did you compute q @ K or K.T @ q?'\nassert np.allclose(out, [0.9, 0., -1.]), f'expected [0.9, 0, -1], got {out}'"},
+        {"name": "shape (n, d) @ (d,) is (n,)", "code": "import numpy as np\nK = np.arange(12.).reshape(4, 3); q = np.array([1., 0., -1.])\nout = np.asarray(scores(q, K))\nassert out.shape == (4,), f'K is (4, 3) and q is (3,), so K @ q is (4,); got {out.shape}'\nassert np.allclose(out, [-2., -2., -2., -2.]), f'each row a, b, c gives a - c = -2; got {out}'"},
+        {"name": "best picks the longest shadow", "code": "import numpy as np\nK = np.array([[0., 1.], [2., 0.1], [1., 1.]]); q = np.array([1., 0.])\nout = best(q, K)\nassert out == 1, f'scores are [0, 2, 1], so key 1 wins; got {out}'\nassert isinstance(out, int), f'return a Python int (int(np.argmax(...))), got {type(out).__name__}'"}
+      ],
+      "hints": [
+        "np.array([K[i] @ q for i in range(len(K))]) works. So does K @ q: each row of K is dotted with q.",
+        "best: return int(np.argmax(scores(q, K)))"
+      ],
+      "solution": "import numpy as np\n\ndef scores(q, K):\n    return K @ q\n\ndef best(q, K):\n    return int(np.argmax(scores(q, K)))\n"
+    }
+  ]
+}
