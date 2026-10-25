@@ -1,0 +1,156 @@
+{
+ "id": "12.3-policy-gradients",
+ "module": 12,
+ "title": "Policy gradients",
+ "summary": "Policy gradient methods adjust the policy directly. A network with parameters θ outputs action probabilities (a softmax, like a language model's next-token distribution), and we raise the expected return J(θ). Sampling has no derivative, but the log-derivative trick gives ∇J = E[G ∇ log π(a|s)], which REINFORCE (Williams, 1992) estimates from sampled episodes. For a softmax policy ∇_z log π(a) = onehot(a) − p. Subtracting a baseline gives the advantage and cuts variance without bias; PPO clips the probability ratio so no batch moves the policy far.",
+ "video": "videos/12.3-policy-gradients.mp4",
+ "llm_link": "RLHF is a policy gradient on a very large policy: the language model samples a response, the reward model scores it, and PPO raises the probability of the tokens in better-than-expected responses, with a KL leash to the reference model. InstructGPT used PPO for this stage.",
+ "key_ideas": [
+  "Policy π_θ(a|s): a network with a softmax over actions. Goal: maximise J(θ) = E[G].",
+  "Log-derivative trick: ∇J = E[G · ∇ log π_θ(a|s)], computable from samples (REINFORCE, Williams 1992).",
+  "Softmax policy: ∂ log π(a)/∂z = onehot(a) − p. A good outcome raises the chosen score and lowers the others in proportion to their probability.",
+  "Baseline: use the advantage A = G − b. Unbiased because b does not depend on the action; much lower variance.",
+  "PPO: maximise min(r·A, clip(r, 1 − ε, 1 + ε)·A) with r = π_new / π_old, so no single batch moves the policy far."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: a softmax policy has probabilities p = [0.2, 0.5, 0.3] and action 1 was taken. What is ∂ log π(1) / ∂z?",
+   "options": [
+    "[0.2, 0.5, 0.3]",
+    "[−0.2, 0.5, −0.3]",
+    "[0, 1, 0]",
+    "[0.8, 0.5, 0.7]"
+   ],
+   "answer": 1,
+   "explain": "onehot(1) − p = [0, 1, 0] − [0.2, 0.5, 0.3] = [−0.2, 0.5, −0.3]."
+  },
+  {
+   "q": "Why does subtracting a baseline b from the return not bias the policy gradient?",
+   "options": [
+    "Because b is always zero",
+    "Because b does not depend on the action, so E[b · ∇ log π] = 0",
+    "Because the learning rate cancels it",
+    "It does bias it slightly"
+   ],
+   "answer": 1,
+   "explain": "The probabilities sum to 1, so the expected gradient of log π is zero; any action-independent constant times it averages out."
+  },
+  {
+   "q": "With PPO, ε = 0.2 and a positive advantage, what happens when the ratio π_new/π_old reaches 1.5?",
+   "options": [
+    "The objective keeps growing",
+    "The objective is clipped at 1.2 · A, so there is no incentive to push the ratio further",
+    "The update is reversed",
+    "The advantage is set to zero"
+   ],
+   "answer": 1,
+   "explain": "min(r·A, clip(r, 0.8, 1.2)·A) stops growing beyond r = 1.2 when A > 0."
+  },
+  {
+   "q": "Why can't we simply backpropagate the return through the sampled actions?",
+   "options": [
+    "The return is too large",
+    "Sampling a discrete choice has no derivative",
+    "Policies have no parameters",
+    "Softmax cannot be differentiated"
+   ],
+   "answer": 1,
+   "explain": "The log-derivative trick moves the gradient onto log π, which is differentiable."
+  },
+  {
+   "q": "In RLHF with PPO, what plays the role of the reward?",
+   "options": [
+    "The next-token cross-entropy",
+    "A score from the reward model trained on human preferences",
+    "The length of the response",
+    "The KL divergence alone"
+   ],
+   "answer": 1,
+   "explain": "The policy (the language model) is updated to raise the probability of responses the reward model scores better than expected, with a KL leash to the reference model."
+  }
+ ],
+ "problems": [
+  {
+   "id": "grad-logp",
+   "title": "The softmax policy gradient",
+   "prompt": "<p>Write <code>grad_log_softmax(z, a)</code> for a 1-D NumPy array of action scores <code>z</code> and a chosen action index <code>a</code>. Return the gradient of <code>log softmax(z)[a]</code> with respect to <code>z</code>, which is <code>onehot(a) - softmax(z)</code>. Use a numerically stable softmax.</p>",
+   "starter": "import numpy as np\n\ndef softmax(z):\n    e = np.exp(z - z.max())\n    return e / e.sum()\n\ndef grad_log_softmax(z, a):\n    # TODO: one-hot vector for a, minus softmax(z)\n    return np.zeros_like(z)\n",
+   "tests": [
+    {
+     "name": "the quiz example",
+     "code": "import numpy as np\nz = np.log(np.array([0.2, 0.5, 0.3]))\ng = grad_log_softmax(z, 1)\nassert np.allclose(g, [-0.2, 0.5, -0.3]), f'expected [-0.2, 0.5, -0.3], got {g}'"
+    },
+    {
+     "name": "matches a finite difference",
+     "code": "import numpy as np\nz = np.array([0.3, -1.2, 2.0, 0.5]); a = 2; h = 1e-6\nnum = np.array([(np.log(softmax(z + h * np.eye(4)[i])[a]) - np.log(softmax(z - h * np.eye(4)[i])[a])) / (2 * h) for i in range(4)])\nassert np.allclose(grad_log_softmax(z, a), num, atol=1e-5), f'numeric gradient is {num}'"
+    },
+    {
+     "name": "components sum to zero",
+     "code": "import numpy as np\ng = grad_log_softmax(np.array([1.0, 2.0, 3.0, 4.0, 5.0]), 0)\nassert abs(g.sum()) < 1e-9, f'onehot sums to 1 and p sums to 1, so the gradient sums to 0; got {g.sum()}'"
+    }
+   ],
+   "hints": [
+    "onehot = np.zeros_like(z); onehot[a] = 1.0",
+    "return onehot - softmax(z)",
+    "Raising the chosen score and lowering the others in proportion to p is exactly this vector."
+   ],
+   "solution": "import numpy as np\n\ndef softmax(z):\n    e = np.exp(z - z.max())\n    return e / e.sum()\n\ndef grad_log_softmax(z, a):\n    onehot = np.zeros_like(z, dtype=float)\n    onehot[a] = 1.0\n    return onehot - softmax(z)\n"
+  },
+  {
+   "id": "reinforce",
+   "title": "REINFORCE on a bandit, with a baseline",
+   "prompt": "<p>A three-armed bandit: pulling arm i gives a reward drawn from a normal distribution with mean <code>means[i]</code> and standard deviation 1. The policy is <code>softmax(z)</code> over the arms, starting from <code>z = 0</code>.</p><p>Write <code>reinforce(means, steps=2000, lr=0.05, seed=0, baseline=True)</code>. Each step: sample an arm with <code>rng.choice(3, p=probs)</code>, draw <code>r = rng.normal(means[a], 1)</code>, compute the advantage <code>A = r - b</code> (with <code>b</code> a running average of past rewards, or 0 if <code>baseline</code> is False), update <code>z += lr * A * grad_log_softmax(z, a)</code>, then update <code>b += 0.01 * (r - b)</code>. Return the final probabilities.</p>",
+   "starter": "import numpy as np\n\ndef softmax(z):\n    e = np.exp(z - z.max())\n    return e / e.sum()\n\ndef grad_log_softmax(z, a):\n    g = -softmax(z)\n    g[a] += 1.0\n    return g\n\ndef reinforce(means, steps=2000, lr=0.05, seed=0, baseline=True):\n    rng = np.random.default_rng(seed)\n    z = np.zeros(len(means)); b = 0.0\n    # TODO: the loop described above\n    return softmax(z)\n",
+   "tests": [
+    {
+     "name": "finds the best arm",
+     "code": "import numpy as np\np = reinforce([1.0, 2.0, 1.5])\nassert p.argmax() == 1 and p[1] > 0.8, f'arm 1 has the highest mean reward and should dominate, got {np.round(p, 3)}'"
+    },
+    {
+     "name": "works with negative rewards too",
+     "code": "import numpy as np\np = reinforce([-3.0, -1.0, -2.0], seed=1)\nassert p.argmax() == 1 and p[1] > 0.8, f'with a baseline, the least bad arm should win; got {np.round(p, 3)}'"
+    },
+    {
+     "name": "probabilities",
+     "code": "import numpy as np\np = reinforce([0.0, 0.5, 1.0], steps=500, seed=2)\nassert p.shape == (3,) and np.isclose(p.sum(), 1) and np.all(p > 0), f'should return a probability vector, got {p}'\nassert p[2] > 1 / 3, f'the best arm should already have gained probability, got {np.round(p, 3)}'"
+    }
+   ],
+   "hints": [
+    "for _ in range(steps):\n    probs = softmax(z)\n    a = rng.choice(len(means), p=probs)\n    r = rng.normal(means[a], 1)",
+    "A = r - b if baseline else r\nz += lr * A * grad_log_softmax(z, a)",
+    "b += 0.01 * (r - b)  (after the update)"
+   ],
+   "solution": "import numpy as np\n\ndef softmax(z):\n    e = np.exp(z - z.max())\n    return e / e.sum()\n\ndef grad_log_softmax(z, a):\n    g = -softmax(z)\n    g[a] += 1.0\n    return g\n\ndef reinforce(means, steps=2000, lr=0.05, seed=0, baseline=True):\n    rng = np.random.default_rng(seed)\n    z = np.zeros(len(means)); b = 0.0\n    for _ in range(steps):\n        probs = softmax(z)\n        a = rng.choice(len(means), p=probs)\n        r = rng.normal(means[a], 1)\n        A = r - b if baseline else r\n        z += lr * A * grad_log_softmax(z, a)\n        b += 0.01 * (r - b)\n    return softmax(z)\n"
+  },
+  {
+   "id": "ppo-clip",
+   "title": "The PPO clipped objective",
+   "prompt": "<p>Write <code>ppo_objective(ratio, adv, eps=0.2)</code> for NumPy arrays of probability ratios <code>π_new / π_old</code> and advantages. Return the mean over the batch of</p><pre>min(ratio * adv, clip(ratio, 1 - eps, 1 + eps) * adv)</pre>",
+   "starter": "import numpy as np\n\ndef ppo_objective(ratio, adv, eps=0.2):\n    ratio = np.asarray(ratio, dtype=float); adv = np.asarray(adv, dtype=float)\n    # TODO: unclipped and clipped terms, elementwise min, then mean\n    return float((ratio * adv).mean())\n",
+   "tests": [
+    {
+     "name": "inside the band nothing is clipped",
+     "code": "assert abs(ppo_objective([1.1], [2.0]) - 2.2) < 1e-9, 'ratio 1.1 is inside [0.8, 1.2]: objective = 1.1 × 2 = 2.2'"
+    },
+    {
+     "name": "positive advantage is capped",
+     "code": "r = ppo_objective([1.5], [2.0])\nassert abs(r - 2.4) < 1e-9, f'with A > 0 the gain stops at 1.2 × A = 2.4, got {r}'"
+    },
+    {
+     "name": "negative advantage keeps the pessimistic term",
+     "code": "r = ppo_objective([0.5], [-1.0])\nassert abs(r - (-0.8)) < 1e-9, f'min(0.5 × -1, 0.8 × -1) = -0.8, got {r}'\nr2 = ppo_objective([1.5], [-1.0])\nassert abs(r2 - (-1.5)) < 1e-9, f'min(1.5 × -1, 1.2 × -1) = -1.5: making a bad action more likely is not clipped away; got {r2}'"
+    },
+    {
+     "name": "batch mean",
+     "code": "r = ppo_objective([1.0, 1.5, 0.5], [1.0, 2.0, -1.0])\nassert abs(r - (1.0 + 2.4 - 0.8) / 3) < 1e-9, f'expected the mean of 1.0, 2.4 and -0.8, got {r}'"
+    }
+   ],
+   "hints": [
+    "clipped = np.clip(ratio, 1 - eps, 1 + eps)",
+    "obj = np.minimum(ratio * adv, clipped * adv)",
+    "return float(obj.mean())"
+   ],
+   "solution": "import numpy as np\n\ndef ppo_objective(ratio, adv, eps=0.2):\n    ratio = np.asarray(ratio, dtype=float); adv = np.asarray(adv, dtype=float)\n    clipped = np.clip(ratio, 1 - eps, 1 + eps)\n    return float(np.minimum(ratio * adv, clipped * adv).mean())\n"
+  }
+ ]
+}

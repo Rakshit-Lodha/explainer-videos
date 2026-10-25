@@ -469,7 +469,8 @@
     },
     {
      "num": "12.3",
-     "title": "Policy gradients"
+     "title": "Policy gradients",
+     "id": "12.3-policy-gradients"
     }
    ]
   },
