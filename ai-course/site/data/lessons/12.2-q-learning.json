@@ -1,0 +1,156 @@
+{
+ "id": "12.2-q-learning",
+ "module": 12,
+ "title": "Q-learning",
+ "summary": "Q-learning (Watkins, 1989) learns action values Q(s, a) from experience, with no model of the environment. After each step it nudges Q(s, a) toward the target r + γ·max_a' Q(s', a') by a learning rate α: temporal-difference learning. The max makes it off-policy, so it can explore (for example ε-greedy) while learning about the greedy policy. With a table it provably converges in finite problems; DQN replaced the table with a neural network for Atari.",
+ "video": "videos/12.2-q-learning.mp4",
+ "llm_link": "Language models act in a space of tens of thousands of tokens per step, which is why RLHF uses policy-gradient methods (next lesson) rather than Q-learning; but the idea of bootstrapping a value estimate from the next one reappears in the value model used by PPO.",
+ "key_ideas": [
+  "Q(s, a): expected return after taking a in s and acting optimally afterwards. Greedy action: argmax_a Q(s, a), no model needed.",
+  "Update: Q(s,a) ← Q(s,a) + α·[r + γ·max_a' Q(s',a') − Q(s,a)]; at a terminal s', the target is just r.",
+  "Temporal difference: correct one estimate using the next estimate instead of waiting for the full return.",
+  "Off-policy: the max learns about the greedy policy while the agent explores, e.g. ε-greedy (random action with probability ε).",
+  "Watkins & Dayan (1992): tabular Q-learning converges to Q* if every pair is visited infinitely often and α decays appropriately.",
+  "DQN (Mnih et al., 2015): a neural network Q(s, a; θ) on Atari pixels, stabilised by experience replay and a slowly updated target network."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: Q(s, a) = 0.5, r = 1, γ = 0.9, max_a' Q(s', a') = 2, α = 0.1. What is the new Q(s, a)?",
+   "options": [
+    "0.73",
+    "2.8",
+    "0.78",
+    "0.5"
+   ],
+   "answer": 0,
+   "explain": "Target = 1 + 0.9·2 = 2.8. Error = 2.8 − 0.5 = 2.3. New Q = 0.5 + 0.1·2.3 = 0.73."
+  },
+  {
+   "q": "Why can Q-learning act without a model of the environment's transitions?",
+   "options": [
+    "It memorises every episode",
+    "Q(s, a) already folds in where actions lead, so choosing argmax_a Q needs no lookahead",
+    "It assumes deterministic transitions",
+    "It never uses the next state"
+   ],
+   "answer": 1,
+   "explain": "With state values V you would need P(s'|s,a) to compare actions; with Q the comparison is a table lookup."
+  },
+  {
+   "q": "What makes Q-learning off-policy?",
+   "options": [
+    "It uses a neural network",
+    "Its target uses max over next actions, the greedy choice, regardless of what the agent actually does next",
+    "It ignores rewards",
+    "It uses ε = 0"
+   ],
+   "answer": 1,
+   "explain": "The agent may explore randomly, yet the update always assumes the best action afterwards, so it learns the greedy policy's values."
+  },
+  {
+   "q": "What is the purpose of ε in ε-greedy?",
+   "options": [
+    "Learning rate",
+    "Discount",
+    "The probability of trying a random action, so unexplored actions are still sampled",
+    "The reward scale"
+   ],
+   "answer": 2,
+   "explain": "Without exploration an agent can lock onto a mediocre action whose estimate happened to be high early on."
+  },
+  {
+   "q": "Why is tabular Q-learning a poor fit for choosing the next token in a language model?",
+   "options": [
+    "Tokens have no rewards",
+    "The state (all text so far) and action spaces are astronomically large; a table cannot cover them",
+    "Q-learning cannot handle discount",
+    "Language models are deterministic"
+   ],
+   "answer": 1,
+   "explain": "Even with function approximation, RLHF in practice optimises the policy directly with policy gradients, the subject of 12.3."
+  }
+ ],
+ "problems": [
+  {
+   "id": "update",
+   "title": "One Q-learning update (NumPy)",
+   "prompt": "<p><code>Q</code> is a NumPy array of shape <code>(n_states, n_actions)</code>. Write <code>q_update(Q, s, a, r, s2, done, alpha, gamma)</code> that changes <code>Q[s, a]</code> in place and returns <code>Q</code>:</p><p><code>target = r</code> if <code>done</code> else <code>r + gamma * max(Q[s2])</code><br><code>Q[s, a] += alpha * (target − Q[s, a])</code></p>",
+   "starter": "import numpy as np\n\ndef q_update(Q, s, a, r, s2, done, alpha, gamma):\n    # TODO 1: target (no future after a terminal state)\n    # TODO 2: move Q[s, a] a fraction alpha toward the target\n    return Q\n",
+   "tests": [
+    {
+     "name": "worked example",
+     "code": "import numpy as np\nQ = np.zeros((2, 2)); Q[0, 1] = 0.5; Q[1] = [2.0, 1.0]\nq_update(Q, 0, 1, 1.0, 1, False, 0.1, 0.9)\nassert abs(Q[0, 1] - 0.73) < 1e-12, f'target 1 + 0.9*2 = 2.8, so 0.5 + 0.1*(2.8 - 0.5) = 0.73; got {Q[0,1]}'"
+    },
+    {
+     "name": "terminal: no bootstrap",
+     "code": "import numpy as np\nQ = np.zeros((2, 2)); Q[1] = [5.0, 5.0]\nq_update(Q, 0, 0, 1.0, 1, True, 0.5, 0.9)\nassert abs(Q[0, 0] - 0.5) < 1e-12, f'at a terminal step the target is just r = 1, so Q = 0.5; got {Q[0,0]}. Did you add gamma*max(Q[s2]) even when done?'"
+    },
+    {
+     "name": "uses the max, not the mean",
+     "code": "import numpy as np\nQ = np.zeros((2, 3)); Q[1] = [0.0, 3.0, -1.0]\nq_update(Q, 0, 2, 0.0, 1, False, 1.0, 1.0)\nassert abs(Q[0, 2] - 3.0) < 1e-12, f'with alpha = 1 Q becomes the target 0 + 1*max(Q[1]) = 3; got {Q[0,2]}'"
+    },
+    {
+     "name": "only one entry changes",
+     "code": "import numpy as np\nQ = np.ones((3, 2)); before = Q.copy()\nq_update(Q, 2, 0, 0.0, 1, False, 0.5, 0.9)\nmask = np.ones_like(Q, dtype=bool); mask[2, 0] = False\nassert np.array_equal(Q[mask], before[mask]), 'only Q[s, a] should change'"
+    }
+   ],
+   "hints": [
+    "target = r if done else r + gamma * np.max(Q[s2])",
+    "Q[s, a] += alpha * (target - Q[s, a])"
+   ],
+   "solution": "import numpy as np\n\ndef q_update(Q, s, a, r, s2, done, alpha, gamma):\n    target = r if done else r + gamma * np.max(Q[s2])\n    Q[s, a] += alpha * (target - Q[s, a])\n    return Q\n"
+  },
+  {
+   "id": "egreedy",
+   "title": "ε-greedy action choice",
+   "prompt": "<p>Write <code>choose(q_row, eps, rng)</code>: with probability <code>eps</code> return a uniformly random action <code>rng.integers(len(q_row))</code>, otherwise the greedy action <code>int(np.argmax(q_row))</code> (ties go to the smallest index, as argmax does). Draw <code>u = rng.random()</code> first and explore when <code>u &lt; eps</code>.</p>",
+   "starter": "import numpy as np\n\ndef choose(q_row, eps, rng):\n    u = rng.random()\n    # TODO: explore if u < eps, else exploit\n    pass\n",
+   "tests": [
+    {
+     "name": "eps = 0 is greedy",
+     "code": "import numpy as np\nrng = np.random.default_rng(0)\nfor _ in range(20):\n    a = choose(np.array([0.1, 0.9, 0.3]), 0.0, rng)\n    assert a == 1, f'with eps = 0 always pick argmax = 1, got {a}'"
+    },
+    {
+     "name": "eps = 1 explores every action",
+     "code": "import numpy as np\nrng = np.random.default_rng(1)\nseen = {int(choose(np.array([0.0, 5.0, 0.0, 0.0]), 1.0, rng)) for _ in range(200)}\nassert seen == {0, 1, 2, 3}, f'with eps = 1 every action should appear, saw {seen}'"
+    },
+    {
+     "name": "mostly greedy at eps = 0.1",
+     "code": "import numpy as np\nrng = np.random.default_rng(2)\nn = sum(choose(np.array([1.0, 0.0]), 0.1, rng) == 0 for _ in range(2000))\nassert 1850 < n < 1980, f'expected about 95% greedy choices (90% exploit + half of the 10% random), got {n/20:.1f}%'"
+    }
+   ],
+   "hints": [
+    "if u < eps: return int(rng.integers(len(q_row)))",
+    "return int(np.argmax(q_row))"
+   ],
+   "solution": "import numpy as np\n\ndef choose(q_row, eps, rng):\n    u = rng.random()\n    if u < eps:\n        return int(rng.integers(len(q_row)))\n    return int(np.argmax(q_row))\n"
+  },
+  {
+   "id": "grid",
+   "title": "Q-learning on a gridworld",
+   "prompt": "<p>A 4 × 4 grid, states numbered <code>row*4 + col</code>. The agent starts at 0 (top-left); state 15 (bottom-right) is the goal, worth +1 and ending the episode. Every other step gives −0.01. Actions: 0 up, 1 right, 2 down, 3 left; bumping a wall leaves you in place. <code>step(s, a)</code> is provided.</p><p>Write <code>train(episodes=300, alpha=0.5, gamma=0.9, eps=0.2, seed=0)</code> returning the Q table: for each episode start at 0 and repeat <code>choose</code> → <code>step</code> → <code>q_update</code> until done (at most 100 steps). Your two earlier functions are included. The tests follow the greedy policy from 0 and expect it to reach the goal in the minimum 6 steps.</p>",
+   "starter": "import numpy as np\n\ndef q_update(Q, s, a, r, s2, done, alpha, gamma):\n    target = r if done else r + gamma * np.max(Q[s2])\n    Q[s, a] += alpha * (target - Q[s, a])\n    return Q\n\ndef choose(q_row, eps, rng):\n    u = rng.random()\n    if u < eps:\n        return int(rng.integers(len(q_row)))\n    return int(np.argmax(q_row))\n\ndef step(s, a):\n    r, c = divmod(s, 4)\n    dr, dc = [(-1, 0), (0, 1), (1, 0), (0, -1)][a]\n    r2, c2 = min(max(r + dr, 0), 3), min(max(c + dc, 0), 3)\n    s2 = r2 * 4 + c2\n    if s2 == 15:\n        return s2, 1.0, True\n    return s2, -0.01, False\n\ndef train(episodes=300, alpha=0.5, gamma=0.9, eps=0.2, seed=0):\n    rng = np.random.default_rng(seed)\n    Q = np.zeros((16, 4))\n    for ep in range(episodes):\n        s = 0\n        for t in range(100):\n            # TODO: choose an action, step the environment, update Q, move on; stop when done\n            pass\n    return Q\n",
+   "tests": [
+    {
+     "name": "greedy path reaches the goal fast",
+     "code": "import numpy as np\nQ = train()\ns, steps = 0, 0\nwhile s != 15 and steps < 20:\n    s, r, done = step(s, int(np.argmax(Q[s])))\n    steps += 1\nassert s == 15, 'following argmax Q from the start should reach the goal; Q seems untrained (did you update Q and move s = s2?)'\nassert steps == 6, f'the shortest path takes 6 steps, the greedy policy took {steps}'"
+    },
+    {
+     "name": "values grow along the greedy path",
+     "code": "import numpy as np\nQ = train()\ns, vals = 0, []\nfor _ in range(10):\n    if s == 15: break\n    vals.append(Q[s].max()); s, r, done = step(s, int(np.argmax(Q[s])))\nassert all(b > a for a, b in zip(vals, vals[1:])), f'values should rise step by step toward the goal, got {[round(v,2) for v in vals]}'"
+    },
+    {
+     "name": "the last step is worth about 1",
+     "code": "import numpy as np\nQ = train()\ns, last = 0, None\nfor _ in range(10):\n    if s == 15: break\n    last = (s, int(np.argmax(Q[s]))); s, r, done = step(s, last[1])\nassert last is not None and abs(Q[last] - 1.0) < 0.05, f'the step into the goal pays +1 and ends the episode, so its Q should approach 1; got {Q[last] if last else None}'"
+    }
+   ],
+   "hints": [
+    "a = choose(Q[s], eps, rng); s2, r, done = step(s, a)",
+    "q_update(Q, s, a, r, s2, done, alpha, gamma); s = s2",
+    "if done: break"
+   ],
+   "solution": "import numpy as np\n\ndef q_update(Q, s, a, r, s2, done, alpha, gamma):\n    target = r if done else r + gamma * np.max(Q[s2])\n    Q[s, a] += alpha * (target - Q[s, a])\n    return Q\n\ndef choose(q_row, eps, rng):\n    u = rng.random()\n    if u < eps:\n        return int(rng.integers(len(q_row)))\n    return int(np.argmax(q_row))\n\ndef step(s, a):\n    r, c = divmod(s, 4)\n    dr, dc = [(-1, 0), (0, 1), (1, 0), (0, -1)][a]\n    r2, c2 = min(max(r + dr, 0), 3), min(max(c + dc, 0), 3)\n    s2 = r2 * 4 + c2\n    if s2 == 15:\n        return s2, 1.0, True\n    return s2, -0.01, False\n\ndef train(episodes=300, alpha=0.5, gamma=0.9, eps=0.2, seed=0):\n    rng = np.random.default_rng(seed)\n    Q = np.zeros((16, 4))\n    for ep in range(episodes):\n        s = 0\n        for t in range(100):\n            a = choose(Q[s], eps, rng)\n            s2, r, done = step(s, a)\n            q_update(Q, s, a, r, s2, done, alpha, gamma)\n            s = s2\n            if done:\n                break\n    return Q\n"
+  }
+ ],
+ "poster": "videos/12.2-q-learning.jpg"
+}

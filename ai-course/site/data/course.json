@@ -464,7 +464,8 @@
     },
     {
      "num": "12.2",
-     "title": "Q-learning"
+     "title": "Q-learning",
+     "id": "12.2-q-learning"
     },
     {
      "num": "12.3",
