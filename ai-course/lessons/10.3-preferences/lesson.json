@@ -1,0 +1,106 @@
+{
+  "id": "10.3-preferences",
+  "module": 10,
+  "title": "Learning from human preferences (RLHF, DPO)",
+  "summary": "People judge better than they demonstrate, so preference tuning learns from comparisons. The Bradley-Terry model turns score differences into preference probabilities. RLHF trains a reward model on comparisons and then optimises the policy against it with a KL penalty to the reference model. DPO uses the closed-form optimum of that same objective to skip the reward model and train directly on the comparisons.",
+  "video": "videos/10.3-preferences.mp4",
+  "llm_link": "Most chat models you use were tuned on preference comparisons after supervised fine-tuning. When a model's style shifts toward longer, more hedged or more agreeable answers, that is often the fingerprint of what the reward model (or the preference data behind DPO) rewarded.",
+  "key_ideas": [
+    "Data: (prompt x, chosen y_w, rejected y_l).",
+    "Bradley-Terry: P(y_w ≻ y_l) = σ(r(x, y_w) − r(x, y_l)). Only differences matter; adding a constant to every score changes nothing.",
+    "Reward model loss (InstructGPT): −log σ(r(x, y_w) − r(x, y_l)).",
+    "RLHF objective: maximise E[r(x, y)] − β·KL(π ‖ π_ref). The KL term stops the policy from exploiting reward-model quirks and drifting from fluent text. InstructGPT optimised it with PPO.",
+    "InstructGPT: labellers preferred a 1.3B InstructGPT model over 175B GPT-3.",
+    "Closed-form optimum: π*(y|x) = π_ref(y|x)·exp(r(x, y)/β) / Z(x), so r(x, y) = β·log(π*(y|x)/π_ref(y|x)) + β·log Z(x).",
+    "DPO (Rafailov et al., 2023): substitute into Bradley-Terry; Z(x) cancels. Loss = −log σ(β[log π(y_w)/π_ref(y_w) − log π(y_l)/π_ref(y_l)]). No reward model, no sampling during training."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: a reward model scores response A at 2.0 and response B at 2.0. Under Bradley-Terry, what is P(A preferred over B)?",
+      "options": ["1.0", "0.5", "0.88", "0.0"],
+      "answer": 1,
+      "explain": "σ(2.0 − 2.0) = σ(0) = 0.5. Equal scores mean a coin flip; only the difference between scores matters."
+    },
+    {
+      "q": "If you add 10 to every score the reward model produces, what happens to the Bradley-Terry preference probabilities?",
+      "options": ["They all move toward 1", "Nothing changes", "They all move toward 0", "They become undefined"],
+      "answer": 1,
+      "explain": "Each probability depends on r_a − r_b, and the 10s cancel. This is also why the prompt-only term log Z(x) cancels in DPO."
+    },
+    {
+      "q": "Why does the RLHF objective subtract β·KL(π ‖ π_ref)?",
+      "options": ["To make training faster", "To stop the policy from drifting far from the reference model, where it can exploit flaws in the reward model", "To increase the reward", "Because PPO cannot work without it"],
+      "answer": 1,
+      "explain": "The reward model is only trustworthy near the kind of text it was trained on. The KL penalty keeps the policy close to the reference model so it cannot chase reward-model quirks."
+    },
+    {
+      "q": "In DPO, what replaces the separately trained reward model?",
+      "options": ["A larger human labelling team", "The implicit reward β·log(π(y|x)/π_ref(y|x)) computed from the policy and the frozen reference", "A rule-based scorer", "The pretraining loss"],
+      "answer": 1,
+      "explain": "The closed-form optimum lets the reward be written through the policy's own log-probability ratio, so the comparison data can train the policy directly."
+    },
+    {
+      "q": "What did the InstructGPT paper report about model size and human preference?",
+      "options": ["Only models above 100B parameters benefit from RLHF", "Labellers preferred outputs of a 1.3B InstructGPT model to those of 175B GPT-3", "RLHF made models less preferred but more accurate", "RLHF only works without supervised fine-tuning"],
+      "answer": 1,
+      "explain": "Alignment to what people prefer mattered more for their judgements than a hundredfold difference in parameters."
+    }
+  ],
+  "problems": [
+    {
+      "id": "bt",
+      "title": "Bradley-Terry and the reward-model loss",
+      "prompt": "<p>Write <code>pref_prob(r_a, r_b)</code>, the probability that A is preferred: <code>sigmoid(r_a − r_b)</code> with <code>sigmoid(z) = 1 / (1 + e^(−z))</code>.</p><p>Then write <code>rm_loss(r_chosen, r_rejected)</code> = <code>−log(pref_prob(r_chosen, r_rejected))</code>, the reward model's loss on one comparison.</p><pre>pref_prob(2.0, 2.0)   # 0.5\nrm_loss(2.0, 2.0)     # 0.693... (log 2)</pre>",
+      "starter": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef pref_prob(r_a, r_b):\n    # TODO: sigmoid of the score difference\n    pass\n\ndef rm_loss(r_chosen, r_rejected):\n    # TODO: minus the log of the probability that the chosen one wins\n    pass\n",
+      "tests": [
+        {"name": "equal scores are a coin flip", "code": "out = pref_prob(2.0, 2.0)\nassert out is not None, 'pref_prob returned None'\nassert abs(out - 0.5) < 1e-9, f'expected 0.5, got {out}'"},
+        {"name": "higher score wins more often", "code": "p = pref_prob(3.0, 1.0)\nassert abs(p - 0.8807970779778823) < 1e-9, f'expected sigmoid(2) = 0.8808, got {p}. Did you compute r_a - r_b (not r_b - r_a)?'"},
+        {"name": "only differences matter", "code": "assert abs(pref_prob(13.0, 11.0) - pref_prob(3.0, 1.0)) < 1e-12, 'adding 10 to both scores must not change the probability'"},
+        {"name": "loss at a tie is log 2", "code": "import math\nout = rm_loss(2.0, 2.0)\nassert out is not None, 'rm_loss returned None'\nassert abs(out - math.log(2)) < 1e-9, f'expected log 2 = 0.693, got {out}'"},
+        {"name": "loss falls as the chosen score rises", "code": "assert rm_loss(3.0, 0.0) < rm_loss(1.0, 0.0) < rm_loss(0.0, 1.0), 'the loss should shrink as the chosen response is ranked further above the rejected one'"}
+      ],
+      "hints": [
+        "pref_prob is one line: return sigmoid(r_a - r_b)",
+        "rm_loss: return -math.log(pref_prob(r_chosen, r_rejected))"
+      ],
+      "solution": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef pref_prob(r_a, r_b):\n    return sigmoid(r_a - r_b)\n\ndef rm_loss(r_chosen, r_rejected):\n    return -math.log(pref_prob(r_chosen, r_rejected))\n"
+    },
+    {
+      "id": "dpo",
+      "title": "The DPO loss",
+      "prompt": "<p>For one comparison you are given four log-probabilities (each is the sum of the token log-probs of a whole response):</p><ul><li><code>pc</code>, <code>pr</code>: the policy's log-prob of the chosen and the rejected response</li><li><code>rc</code>, <code>rr</code>: the frozen reference model's log-probs of the same two responses</li></ul><p>Write <code>implicit_reward(logp_policy, logp_ref, beta)</code> = <code>beta * (logp_policy − logp_ref)</code>, and <code>dpo_loss(pc, pr, rc, rr, beta)</code> = <code>−log sigmoid(implicit_reward(pc, rc) − implicit_reward(pr, rr))</code>.</p><pre>dpo_loss(-10, -12, -10, -12, 0.1)   # 0.693...: the policy still equals the reference</pre>",
+      "starter": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef implicit_reward(logp_policy, logp_ref, beta):\n    # TODO\n    pass\n\ndef dpo_loss(pc, pr, rc, rr, beta):\n    # TODO: Bradley-Terry loss on the two implicit rewards\n    pass\n",
+      "tests": [
+        {"name": "policy equal to reference gives log 2", "code": "import math\nout = dpo_loss(-10, -12, -10, -12, 0.1)\nassert out is not None, 'dpo_loss returned None'\nassert abs(out - math.log(2)) < 1e-9, f'when the policy equals the reference both implicit rewards are 0, so the loss is log 2 = 0.693; got {out}'"},
+        {"name": "implicit reward", "code": "out = implicit_reward(-8.0, -10.0, 0.5)\nassert out is not None and abs(out - 1.0) < 1e-9, f'expected 0.5 * (-8 - (-10)) = 1.0, got {out}'"},
+        {"name": "raising the chosen response lowers the loss", "code": "base = dpo_loss(-10, -12, -10, -12, 0.1)\nbetter = dpo_loss(-8, -12, -10, -12, 0.1)\nassert better < base, f'making the chosen response more likely than the reference does should lower the loss ({better} vs {base})'"},
+        {"name": "reference-only differences do not count", "code": "a = dpo_loss(-10, -12, -10, -12, 0.1)\nb = dpo_loss(-10, -12, -11, -13, 0.1)\nc = dpo_loss(-11, -13, -11, -13, 0.1)\nassert abs(a - c) < 1e-12, 'shifting policy and reference by the same amount should not change the loss'\nassert abs(b - dpo_loss(-9, -11, -10, -12, 0.1)) < 1e-12, 'only policy-minus-reference matters'"},
+        {"name": "value check", "code": "import math\nout = dpo_loss(-9.0, -13.0, -10.0, -12.0, 0.5)\nexp = -math.log(1 / (1 + math.exp(-(0.5 * 1 - 0.5 * -1))))\nassert abs(out - exp) < 1e-9, f'expected {exp:.6f}, got {out}. The chosen implicit reward is 0.5, the rejected one is -0.5.'"}
+      ],
+      "hints": [
+        "implicit_reward: return beta * (logp_policy - logp_ref)",
+        "margin = implicit_reward(pc, rc, beta) - implicit_reward(pr, rr, beta)",
+        "return -math.log(sigmoid(margin))"
+      ],
+      "solution": "import math\n\ndef sigmoid(z):\n    return 1 / (1 + math.exp(-z))\n\ndef implicit_reward(logp_policy, logp_ref, beta):\n    return beta * (logp_policy - logp_ref)\n\ndef dpo_loss(pc, pr, rc, rr, beta):\n    margin = implicit_reward(pc, rc, beta) - implicit_reward(pr, rr, beta)\n    return -math.log(sigmoid(margin))\n"
+    },
+    {
+      "id": "optimum",
+      "title": "The KL-regularised optimum (NumPy)",
+      "prompt": "<p>Pretend a prompt has only four possible responses. The reference model gives them probabilities <code>ref</code> and a reward model scores them <code>r</code>. The policy that maximises <code>E[r] − β·KL(π ‖ π_ref)</code> is</p><p><code>π*(y) = ref(y) · exp(r(y) / β) / Z</code>, where <code>Z</code> makes the probabilities sum to 1.</p><p>Write <code>optimal_policy(ref, r, beta)</code> returning π* as a NumPy array. Then see the two extremes: a large β keeps π* near the reference, a small β piles everything on the best-scored response.</p>",
+      "starter": "import numpy as np\n\ndef optimal_policy(ref, r, beta):\n    ref = np.asarray(ref, dtype=float)\n    r = np.asarray(r, dtype=float)\n    # TODO 1: unnormalised weights: ref * exp(r / beta)\n    # TODO 2: divide by their sum (that sum is Z)\n    pass\n",
+      "tests": [
+        {"name": "sums to one", "code": "import numpy as np\np = optimal_policy([0.4, 0.3, 0.2, 0.1], [1.0, 0.0, 2.0, 0.5], 1.0)\nassert p is not None, 'optimal_policy returned None'\nassert abs(np.sum(p) - 1) < 1e-9, f'probabilities must sum to 1, got {np.sum(p)}. Did you divide by Z?'"},
+        {"name": "known values", "code": "import numpy as np\nref = np.array([0.4, 0.3, 0.2, 0.1]); r = np.array([1.0, 0.0, 2.0, 0.5])\nw = ref * np.exp(r); exp = w / w.sum()\np = optimal_policy(ref, r, 1.0)\nassert np.allclose(p, exp), f'expected {np.round(exp,4)}, got {np.round(p,4)}'"},
+        {"name": "large beta stays near the reference", "code": "import numpy as np\np = optimal_policy([0.4, 0.3, 0.2, 0.1], [1.0, 0.0, 2.0, 0.5], 1000.0)\nassert np.allclose(p, [0.4, 0.3, 0.2, 0.1], atol=1e-2), f'with a strong leash (beta large) the policy should barely move from the reference, got {np.round(p,3)}'"},
+        {"name": "small beta picks the best response", "code": "import numpy as np\np = optimal_policy([0.4, 0.3, 0.2, 0.1], [1.0, 0.0, 2.0, 0.5], 0.05)\nassert p[2] > 0.99, f'with almost no leash the policy should put nearly all probability on response 2 (highest reward), got {np.round(p,3)}'"},
+        {"name": "reward is recoverable up to a constant", "code": "import numpy as np\nref = np.array([0.4, 0.3, 0.2, 0.1]); r = np.array([1.0, 0.0, 2.0, 0.5]); b = 0.7\np = optimal_policy(ref, r, b)\nimplied = b * np.log(p / ref)\nd = implied - r\nassert np.allclose(d, d[0]), 'beta*log(pi*/ref) should equal the reward plus the same constant (-beta log Z) for every response; this is the identity DPO is built on'"}
+      ],
+      "hints": [
+        "w = ref * np.exp(r / beta) works on whole arrays at once.",
+        "return w / np.sum(w)"
+      ],
+      "solution": "import numpy as np\n\ndef optimal_policy(ref, r, beta):\n    ref = np.asarray(ref, dtype=float)\n    r = np.asarray(r, dtype=float)\n    w = ref * np.exp(r / beta)\n    return w / np.sum(w)\n"
+    }
+  ]
+}
