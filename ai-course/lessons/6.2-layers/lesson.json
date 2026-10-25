@@ -1,0 +1,166 @@
+{
+  "id": "6.2-layers",
+  "module": 6,
+  "title": "Layers: stacking transformations",
+  "summary": "A layer is many neurons reading the same input. Stack their weight vectors as the rows of a matrix W and the whole layer is a = ReLU(Wx + b): a transformation of space with a crease in it. A network feeds each layer's output into the next.",
+  "video": "videos/6.2-layers.mp4",
+  "llm_link": "Every transformer block contains a two-layer network applied to each token separately. In GPT-2 small it widens each 768-number token vector to 3072 and narrows it back, and those two matrices hold about two thirds of the block's parameters.",
+  "key_ideas": [
+    "A layer: every neuron reads the same input vector with its own weights and bias.",
+    "Stack the weight vectors as rows: W has shape (outputs, inputs), b has one entry per neuron, and a = ReLU(Wx + b).",
+    "Shape check before multiplying: (m × n) times (n) gives (m). The inner sizes must match.",
+    "Geometrically, Wx stretches and shears the plane, + b slides it, and ReLU folds negative coordinates flat onto the axes.",
+    "A network is a composition f3(f2(f1(x))): each layer reshapes the space for the next. A layer with n inputs and m neurons has m·n + m parameters."
+  ],
+  "quiz": [
+    {
+      "q": "A layer reads a 5-entry input and has 8 neurons. What is the shape of its weight matrix W?",
+      "options": [
+        "(5, 8)",
+        "(8, 5)",
+        "(8, 8)",
+        "(5, 5)"
+      ],
+      "answer": 1,
+      "explain": "Read the shape as outputs by inputs: one row per neuron (8), one column per input (5)."
+    },
+    {
+      "q": "How many parameters does that layer (5 inputs, 8 neurons) have?",
+      "options": [
+        "40",
+        "45",
+        "48",
+        "13"
+      ],
+      "answer": 2,
+      "explain": "8 × 5 = 40 weights plus 8 biases, one per neuron: 48."
+    },
+    {
+      "q": "Predict the result: W = [[1, 0], [0, −1]], x = [2, 3], b = [0, 1], with ReLU. What is a?",
+      "options": [
+        "[2, −2]",
+        "[2, 0]",
+        "[2, 4]",
+        "[0, 0]"
+      ],
+      "answer": 1,
+      "explain": "Wx = [2, −3]; adding b gives [2, −2]; ReLU replaces the negative entry with 0, so a = [2, 0]."
+    },
+    {
+      "q": "What does the ReLU add to the layer's geometry that the matrix alone cannot do?",
+      "options": [
+        "It rotates the plane",
+        "It folds regions with negative coordinates flat onto the axes",
+        "It keeps grid lines evenly spaced",
+        "It slides the plane"
+      ],
+      "answer": 1,
+      "explain": "A matrix keeps lines straight and evenly spaced, and the bias slides. ReLU pushes every negative coordinate to zero, which creases the space."
+    },
+    {
+      "q": "In GPT-2 small, what does each block's feed-forward network do to a token's 768-number vector?",
+      "options": [
+        "Averages it with the other tokens",
+        "Widens it to 3072 numbers and narrows it back to 768",
+        "Shrinks it to 64 numbers",
+        "Sorts its entries"
+      ],
+      "answer": 1,
+      "explain": "Two layers of exactly the kind in this lesson: 768 → 3072 (four times wider), then 3072 → 768, applied to each token on its own."
+    }
+  ],
+  "problems": [
+    {
+      "id": "layer",
+      "title": "A layer from neurons",
+      "prompt": "<p>The starter contains <code>neuron(x, w, b)</code> from lesson 6.1. Write <code>layer(x, W, b)</code>: <code>W</code> is a list of weight rows (one per neuron) and <code>b</code> a list of biases. Return the list of every neuron's output.</p><pre>W = [[1, 0], [0, -1]]\nlayer([2, 3], W, [0, 1])    # [2, 0]</pre><p>Then check the shape rule: if <code>W</code> and <code>b</code> have different lengths, raise <code>ValueError</code>.</p>",
+      "starter": "def neuron(x, w, b):\n    \"\"\"Lesson 6.1: weighted sum plus bias, then ReLU.\"\"\"\n    if len(x) != len(w):\n        raise ValueError(\"one weight per input\")\n    return max(0, sum(wi * xi for wi, xi in zip(w, x)) + b)\n\ndef layer(x, W, b):\n    # TODO 1: raise ValueError if len(W) != len(b)  (one bias per neuron)\n\n    # TODO 2: return [neuron(x, row, bias) for each (row, bias) pair]\n    return []\n",
+      "tests": [
+        {
+          "name": "the quiz example",
+          "code": "out = layer([2, 3], [[1, 0], [0, -1]], [0, 1])\nassert out == [2, 0], f'Wx + b = [2, -2], and ReLU gives [2, 0]; you returned {out}'"
+        },
+        {
+          "name": "one output per neuron",
+          "code": "out = layer([1, 1, 1], [[1, 1, 1], [0, 0, 1], [2, 0, 0], [0, 1, 0]], [0, 0, 0, 0])\nassert len(out) == 4, f'4 weight rows means 4 neurons and 4 outputs, got {len(out)}'\nassert out == [3, 1, 2, 1], f'expected [3, 1, 2, 1], got {out}'"
+        },
+        {
+          "name": "biases go to their own neuron",
+          "code": "out = layer([0, 0], [[1, 1], [1, 1]], [5, 2])\nassert out == [5, 2], f'with zero input each neuron outputs its own bias: expected [5, 2], got {out}'"
+        },
+        {
+          "name": "rejects mismatched biases",
+          "code": "try:\n    layer([1, 2], [[1, 1], [1, 1]], [0])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('two neurons but one bias should raise ValueError')"
+        }
+      ],
+      "hints": [
+        "zip(W, b) pairs each weight row with its bias.",
+        "return [neuron(x, row, bi) for row, bi in zip(W, b)]"
+      ],
+      "solution": "def neuron(x, w, b):\n    \"\"\"Lesson 6.1: weighted sum plus bias, then ReLU.\"\"\"\n    if len(x) != len(w):\n        raise ValueError(\"one weight per input\")\n    return max(0, sum(wi * xi for wi, xi in zip(w, x)) + b)\n\ndef layer(x, W, b):\n    if len(W) != len(b):\n        raise ValueError(\"one bias per neuron\")\n    return [neuron(x, row, bi) for row, bi in zip(W, b)]\n"
+    },
+    {
+      "id": "network",
+      "title": "Compose layers into a network",
+      "prompt": "<p>A network is layers composed: the output of one is the input of the next. Write <code>network(x, params)</code> where <code>params</code> is a list of <code>(W, b)</code> pairs. Return the final output.</p><pre>params = [([[1, -1], [1, 1]], [0, 0]),   # layer 1: 2 -> 2\n          ([[1, 1]], [0])]               # layer 2: 2 -> 1\nnetwork([3, 1], params)   # layer 1 gives [2, 4], layer 2 gives [6]</pre>",
+      "starter": "def neuron(x, w, b):\n    \"\"\"Lesson 6.1: weighted sum plus bias, then ReLU.\"\"\"\n    if len(x) != len(w):\n        raise ValueError(\"one weight per input\")\n    return max(0, sum(wi * xi for wi, xi in zip(w, x)) + b)\n\ndef layer(x, W, b):\n    \"\"\"One weight row and one bias per neuron.\"\"\"\n    return [neuron(x, w_row, b_i) for w_row, b_i in zip(W, b)]\n\ndef network(x, params):\n    # TODO: for each (W, b) in params, replace x with layer(x, W, b)\n    return x\n",
+      "tests": [
+        {
+          "name": "two layers",
+          "code": "params = [([[1, -1], [1, 1]], [0, 0]), ([[1, 1]], [0])]\nout = network([3, 1], params)\nassert out == [6], f'layer 1 gives [2, 4] and layer 2 adds them: expected [6], got {out}'"
+        },
+        {
+          "name": "ReLU acts between layers",
+          "code": "params = [([[1, -1], [1, 1]], [0, 0]), ([[1, 1]], [0])]\nout = network([1, 3], params)\nassert out == [4], f'layer 1 gives [max(0, -2), 4] = [0, 4], so the result is [4]; got {out}. Is every layer applying ReLU?'"
+        },
+        {
+          "name": "one layer is just a layer",
+          "code": "params = [([[2, 0], [0, 2]], [1, 1])]\nout = network([1, 2], params)\nassert out == [3, 5], f'expected [3, 5], got {out}'"
+        },
+        {
+          "name": "shapes change along the way",
+          "code": "params = [([[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 1]], [0, 0, 0, 0]), ([[1, 0, 0, 0], [0, 0, 0, 1]], [0, 0])]\nout = network([1, 2, 3], params)\nassert out == [1, 6], f'3 -> 4 -> 2: expected [1, 6], got {out}'"
+        }
+      ],
+      "hints": [
+        "for W, b in params: x = layer(x, W, b)",
+        "Return x after the loop."
+      ],
+      "solution": "def neuron(x, w, b):\n    \"\"\"Lesson 6.1: weighted sum plus bias, then ReLU.\"\"\"\n    if len(x) != len(w):\n        raise ValueError(\"one weight per input\")\n    return max(0, sum(wi * xi for wi, xi in zip(w, x)) + b)\n\ndef layer(x, W, b):\n    \"\"\"One weight row and one bias per neuron.\"\"\"\n    return [neuron(x, w_row, b_i) for w_row, b_i in zip(W, b)]\n\ndef network(x, params):\n    for W, b in params:\n        x = layer(x, W, b)\n    return x\n"
+    },
+    {
+      "id": "numpy-shapes",
+      "title": "NumPy layers and a parameter count",
+      "prompt": "<p>With NumPy a whole layer is one line: <code>np.maximum(0, W @ x + b)</code>.</p><ol><li><code>init_params(sizes, rng)</code>: for layer sizes like <code>[3, 4, 2]</code>, return a list of <code>(W, b)</code> pairs with <code>W</code> of shape <b>(outputs, inputs)</b> drawn from <code>rng.normal(size=...)</code> and <code>b</code> zeros of shape (outputs,).</li><li><code>forward(x, params)</code>: apply every layer with ReLU.</li><li><code>count_params(sizes)</code>: total number of weights and biases, without building the arrays.</li></ol><pre>count_params([3, 4, 2])        # 4*3 + 4 + 2*4 + 2 = 26\ncount_params([768, 3072, 768]) # GPT-2 small's feed-forward block</pre>",
+      "starter": "import numpy as np\n\ndef init_params(sizes, rng):\n    params = []\n    # TODO: for each consecutive pair (n_in, n_out) in sizes,\n    #       W has shape (n_out, n_in), b = np.zeros(n_out)\n    return params\n\ndef forward(x, params):\n    # TODO: x = np.maximum(0, W @ x + b) for every layer\n    return x\n\ndef count_params(sizes):\n    # TODO: sum of n_out * n_in + n_out over consecutive pairs\n    return 0\n",
+      "tests": [
+        {
+          "name": "weight shapes are outputs by inputs",
+          "code": "import numpy as np\nps = init_params([3, 4, 2], np.random.default_rng(0))\nassert len(ps) == 2, f'sizes [3, 4, 2] means 2 layers, got {len(ps)}'\nassert ps[0][0].shape == (4, 3), f'first W should be (4, 3) = (outputs, inputs), got {ps[0][0].shape}'\nassert ps[1][0].shape == (2, 4), f'second W should be (2, 4), got {ps[1][0].shape}'\nassert ps[0][1].shape == (4,), f'first b should have shape (4,), got {ps[0][1].shape}'"
+        },
+        {
+          "name": "forward gives the right shape",
+          "code": "import numpy as np\nps = init_params([3, 4, 2], np.random.default_rng(0))\nout = forward(np.ones(3), ps)\nassert out.shape == (2,), f'3 -> 4 -> 2 should end with shape (2,), got {out.shape}'\nassert (out >= 0).all(), 'every layer ends with ReLU, so no output can be negative'"
+        },
+        {
+          "name": "forward computes ReLU(Wx + b)",
+          "code": "import numpy as np\nps = [(np.array([[1., 0.], [0., -1.]]), np.array([0., 1.]))]\nout = forward(np.array([2., 3.]), ps)\nassert np.allclose(out, [2, 0]), f'expected [2, 0], got {out}'"
+        },
+        {
+          "name": "count small network",
+          "code": "n = count_params([3, 4, 2])\nassert n == 26, f'4*3 + 4 + 2*4 + 2 = 26, got {n}'"
+        },
+        {
+          "name": "count GPT-2 small feed-forward",
+          "code": "n = count_params([768, 3072, 768])\nassert n == 4722432, f'3072*768 + 3072 + 768*3072 + 768 = 4,722,432, got {n}'"
+        }
+      ],
+      "hints": [
+        "zip(sizes[:-1], sizes[1:]) gives the (n_in, n_out) pairs.",
+        "W = rng.normal(size=(n_out, n_in)); b = np.zeros(n_out)",
+        "count_params: sum(n_out * n_in + n_out for n_in, n_out in zip(sizes[:-1], sizes[1:]))"
+      ],
+      "solution": "import numpy as np\n\ndef init_params(sizes, rng):\n    params = []\n    for n_in, n_out in zip(sizes[:-1], sizes[1:]):\n        params.append((rng.normal(size=(n_out, n_in)), np.zeros(n_out)))\n    return params\n\ndef forward(x, params):\n    for W, b in params:\n        x = np.maximum(0, W @ x + b)\n    return x\n\ndef count_params(sizes):\n    return sum(n_out * n_in + n_out for n_in, n_out in zip(sizes[:-1], sizes[1:]))\n"
+    }
+  ]
+}
