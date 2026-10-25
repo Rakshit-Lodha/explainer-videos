@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "A disease affects one person in a hundred, and a test for it is right ninety nine times out of a hundred. Your result comes back positive. Most people feel almost certain that they are ill, yet the real chance is only about one in two. Bayes' rule explains why, and it is the general recipe for changing your mind when evidence arrives."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Picture ten thousand people as a grid of dots. One in a hundred has the disease, so a hundred dots light up, and the test catches nearly all of them. But the healthy crowd is so much larger that its small error rate produces just as many false alarms. A positive result places you among all the positive dots, and only about half of them are actually ill."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Bayes' rule is that counting, written as a formula. The probability of the disease given a positive test equals the probability of a positive test given the disease, multiplied by the probability of the disease before any testing, and divided by the overall probability of testing positive. The first factor is called the likelihood, the second is the prior, and the division simply rescales the result so that the probabilities add up to one again."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Our intuition goes wrong because it swaps the two conditional probabilities. The test is excellent at answering the question, if I am ill, will the result be positive? But you are asking the reverse question, if my result is positive, am I ill? The answer to that depends heavily on how rare the disease was to begin with, and a small prior can outweigh a very accurate test."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The real power of the rule is that it can be applied again and again. Today's posterior, the belief after the evidence, becomes tomorrow's prior, so a second independent positive test lifts the belief from about one half to about ninety nine percent. Beliefs move in steps, and each step is as large as the evidence is strong."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "Language models live inside this idea. The probability of the next token given everything before it is a conditional probability, and each new word in a prompt reshapes the distribution over what comes next, much as evidence reshapes a posterior. Next, in lesson three point four, we meet the Gaussian, the bell-shaped curve that turns up almost everywhere."
+ }
+]
