@@ -459,7 +459,8 @@
    "lessons": [
     {
      "num": "12.1",
-     "title": "Agents, rewards and Markov decision processes"
+     "title": "Agents, rewards and Markov decision processes",
+     "id": "12.1-mdp"
     },
     {
      "num": "12.2",
