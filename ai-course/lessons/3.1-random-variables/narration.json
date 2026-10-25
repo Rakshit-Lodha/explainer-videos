@@ -1,0 +1,38 @@
+[
+ {
+  "id": "s1",
+  "pace": 0.95,
+  "temperature": 0.82,
+  "text": "When a language model finishes your sentence, it does not know the next word for certain. It holds a whole set of candidate words, each with its own share of belief, and then it draws one, rather like drawing a marble from a bag. To understand that draw we need two ideas: a random variable, and its distribution."
+ },
+ {
+  "id": "s2",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "A random variable is a rule that attaches a number to every outcome of an uncertain process. Roll a die, and the variable is simply the number of dots on the face that lands up. The word variable is a little misleading, because it is really a function: hand it an outcome, and it hands you back a number."
+ },
+ {
+  "id": "s3",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "The distribution says how the total probability, which is always exactly one, is shared out among the possible values. Picture one kilogram of sand poured along a number line. A fair die puts an equal pile on each of its six faces, while a loaded die heaps more sand onto the six and leaves less for the others. However the piles are shaped, they always add up to the same single kilogram."
+ },
+ {
+  "id": "s4",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "We rarely see a distribution directly; what we see are samples, the results of actual rolls. If you roll the loaded die again and again and stack each result into a histogram, the bars wobble at first, but as the rolls pile up their shape settles onto the true distribution underneath. This is the law of large numbers, and it is the reason that counting is a sensible way to estimate probabilities."
+ },
+ {
+  "id": "s5",
+  "pace": 1.0,
+  "temperature": 0.74,
+  "text": "Some quantities do not come in separate steps, such as a person's height or the time until the next bus. Then the sand spreads into a smooth curve called a density, and probability is no longer the height at a single point but the area under the curve between two points. The total area under a density is, once again, exactly one."
+ },
+ {
+  "id": "s6",
+  "pace": 0.93,
+  "temperature": 0.84,
+  "text": "A language model's output is a distribution of exactly this kind, spread over a vocabulary of tens of thousands of tokens, each with its own pile of sand. Generating text means sampling from it one token at a time, which is why the same prompt can give different answers. Next, in lesson three point two, we summarise a distribution with two numbers, its expectation and its variance."
+ }
+]
