@@ -1,0 +1,131 @@
+{
+ "id": "5.9-pca",
+ "module": 5,
+ "title": "PCA in practice",
+ "summary": "PCA centres the data, finds the directions of greatest spread (the eigenvectors of the covariance matrix, or the right singular vectors of the centred data), projects each example onto the top k of them, and can reconstruct an approximation. The explained-variance ratio guides how many components to keep. Standardise columns with different units, fit everything on the training set, and remember PCA is linear.",
+ "video": "videos/5.9-pca.mp4",
+ "llm_link": "Pictures of word embeddings (king near queen, Paris near France) usually project hundreds of dimensions down to two, often with PCA, so they show only the two directions of largest spread, not the whole space.",
+ "key_ideas": [
+  "Centre first: subtract each column's mean.",
+  "Covariance C = XᵀX/(n − 1) of the centred data. Its eigenvectors are the principal directions; each eigenvalue is the variance along its direction. Libraries use the SVD of the centred data for accuracy.",
+  "Compress: Z = X W with W holding the top k directions as columns. Reconstruct: X̂ = Z Wᵀ + μ. The reconstruction error is what the dropped directions carried.",
+  "Explained variance ratio λⱼ / Σλ; keep enough components for the running total to reach a target such as 90-95%.",
+  "Standardise columns with different units; fit mean, scale and directions on the training set only; PCA cannot unroll curved structure."
+ ],
+ "quiz": [
+  {
+   "q": "Why must the data be centred before PCA?",
+   "options": [
+    "To make every value positive",
+    "So the directions describe spread around the mean, not the offset of the cloud from the origin",
+    "So the matrix becomes square",
+    "It is optional and changes nothing"
+   ],
+   "answer": 1,
+   "explain": "Without centring, the first 'direction' mostly points from the origin to the cloud's mean, which says nothing about how the data varies."
+  },
+  {
+   "q": "Predict the result: the covariance eigenvalues are 6, 3 and 1. What fraction of the variance does the first component explain?",
+   "options": [
+    "6%",
+    "60%",
+    "90%",
+    "33%"
+   ],
+   "answer": 1,
+   "explain": "6 / (6 + 3 + 1) = 0.6. The first two together explain 90%."
+  },
+  {
+   "q": "A dataset has a salary column in rupees (spread of lakhs) and an age column in years (spread of about 10). Without standardising, what will PC1 mostly be?",
+   "options": [
+    "Age",
+    "Salary, purely because its numbers are bigger",
+    "An even blend of both",
+    "Undefined"
+   ],
+   "answer": 1,
+   "explain": "Variance depends on units. Standardise each column (subtract the mean, divide by the standard deviation) when columns are measured in different units."
+  },
+  {
+   "q": "You keep k components and reconstruct X̂ = Z Wᵀ + μ. What does the reconstruction error measure?",
+   "options": [
+    "How wrong the labels are",
+    "The part of each example lying along the dropped directions",
+    "The learning rate",
+    "Nothing: reconstruction is always exact"
+   ],
+   "answer": 1,
+   "explain": "Projection keeps only the coordinates along the k kept directions; the remaining coordinates are set to zero, and the error is exactly their contribution."
+  },
+  {
+   "q": "A 2D plot of word embeddings made with PCA shows 'cat' and 'car' far apart. What can you safely conclude?",
+   "options": [
+    "They are far apart in the full embedding space too",
+    "They differ along the two directions of largest spread; the plot alone cannot show the other dimensions",
+    "The model is broken",
+    "Their embeddings have different lengths"
+   ],
+   "answer": 1,
+   "explain": "A projection discards everything outside the kept directions. Points can look far apart or close together in the picture for reasons the dropped dimensions would change."
+  }
+ ],
+ "problems": [
+  {
+   "id": "pca",
+   "title": "PCA from the covariance matrix",
+   "prompt": "<p>The starter makes 200 synthetic rows with 4 columns, three of which follow one hidden factor. Write <code>pca(X)</code> that</p><ol><li>centres the columns (<code>X.mean(axis=0)</code>),</li><li>builds the covariance matrix <code>Xc.T @ Xc / (n - 1)</code>, shape <code>(4, 4)</code>,</li><li>takes <code>np.linalg.eigh</code> (for symmetric matrices; it returns eigenvalues in <b>ascending</b> order),</li><li>returns <code>(values, vectors, mean)</code> sorted with the largest eigenvalue first, where <code>vectors[:, j]</code> is the j-th direction.</li></ol><p>Then write <code>explained_ratio(values)</code>.</p>",
+   "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\nn = 200\nt = rng.normal(size=n)\n# 4 columns driven mostly by one hidden factor t, plus a little noise\nX = np.column_stack([t, 2 * t, -t, rng.normal(size=n)]) + rng.normal(0, 0.1, size=(n, 4))\n\ndef pca(X):\n    mean = X.mean(axis=0)\n    Xc = X - mean\n    # TODO: covariance, eigh, then reverse the order so the largest comes first\n    values = None\n    vectors = None\n    return values, vectors, mean\n\ndef explained_ratio(values):\n    # TODO: each eigenvalue divided by their total\n    pass\n",
+   "tests": [
+    {
+     "name": "shapes",
+     "code": "vals, vecs, mu = pca(X)\nassert vals is not None and vecs is not None, 'pca returned None values or vectors'\nassert np.shape(vals) == (4,) and np.shape(vecs) == (4, 4), f'expected 4 eigenvalues and a (4, 4) matrix of directions, got {np.shape(vals)}, {np.shape(vecs)}'"
+    },
+    {
+     "name": "largest first",
+     "code": "vals, vecs, mu = pca(X)\nassert np.all(np.diff(vals) <= 1e-12), f'eigenvalues should be sorted largest first, got {np.round(vals, 3)}. eigh returns them ascending: reverse with [::-1]'"
+    },
+    {
+     "name": "matches the data's variance",
+     "code": "vals, vecs, mu = pca(X)\nassert abs(vals.sum() - X.var(axis=0, ddof=1).sum()) < 1e-8, 'the eigenvalues should add up to the total variance of the columns; did you divide by n - 1 and centre first?'"
+    },
+    {
+     "name": "finds the hidden factor",
+     "code": "vals, vecs, mu = pca(X)\nr = explained_ratio(vals)\nassert r is not None and abs(np.sum(r) - 1) < 1e-9, 'explained ratios should sum to 1'\nassert r[0] > 0.7, f'one hidden factor drives three columns, so PC1 should explain most of the variance, got {r[0]:.2f}. Are the vectors reordered to match the values (vecs[:, ::-1])?'\nv = vecs[:, 0] * np.sign(vecs[1, 0])\nassert np.allclose(v[:3], np.array([1, 2, -1]) / np.sqrt(6), atol=0.05), f'PC1 should point along [1, 2, -1, 0]/sqrt(6), got {np.round(v, 3)}'"
+    }
+   ],
+   "hints": [
+    "C = Xc.T @ Xc / (len(X) - 1)",
+    "values, vectors = np.linalg.eigh(C)",
+    "return values[::-1], vectors[:, ::-1], mean. explained_ratio: return values / values.sum()"
+   ],
+   "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\nn = 200\nt = rng.normal(size=n)\n# 4 columns driven mostly by one hidden factor t, plus a little noise\nX = np.column_stack([t, 2 * t, -t, rng.normal(size=n)]) + rng.normal(0, 0.1, size=(n, 4))\n\ndef pca(X):\n    mean = X.mean(axis=0)\n    Xc = X - mean\n    C = Xc.T @ Xc / (len(X) - 1)\n    values, vectors = np.linalg.eigh(C)\n    return values[::-1], vectors[:, ::-1], mean\n\ndef explained_ratio(values):\n    return values / values.sum()\n"
+  },
+  {
+   "id": "project",
+   "title": "Compress and reconstruct",
+   "prompt": "<p>Using a working <code>pca</code> (provided), write</p><ul><li><code>project(X, vectors, mean, k)</code>: <code>Z = (X − mean) @ W</code> with <code>W = vectors[:, :k]</code>, shape <code>(n, k)</code>;</li><li><code>reconstruct(Z, vectors, mean)</code>: <code>Z @ W.T + mean</code>, where W has as many columns as Z;</li><li><code>recon_error(X, k)</code>: the mean squared difference between X and its reconstruction from k components.</li></ul><p>Check that the error shrinks as k grows and is about 0 for k = 4.</p>",
+   "starter": "import numpy as np\n\nrng = np.random.default_rng(0)\nn = 200\nt = rng.normal(size=n)\n# 4 columns driven mostly by one hidden factor t, plus a little noise\nX = np.column_stack([t, 2 * t, -t, rng.normal(size=n)]) + rng.normal(0, 0.1, size=(n, 4))\n\ndef pca(X):\n    mean = X.mean(axis=0)\n    Xc = X - mean\n    values, vectors = np.linalg.eigh(Xc.T @ Xc / (len(X) - 1))\n    return values[::-1], vectors[:, ::-1], mean\n\ndef project(X, vectors, mean, k):\n    # TODO\n    pass\n\ndef reconstruct(Z, vectors, mean):\n    # TODO: W = vectors[:, :Z.shape[1]]\n    pass\n\ndef recon_error(X, k):\n    vals, vecs, mu = pca(X)\n    # TODO: project, reconstruct, mean of squared differences\n    pass\n",
+   "tests": [
+    {
+     "name": "Z has k columns",
+     "code": "vals, vecs, mu = pca(X)\nZ = project(X, vecs, mu, 2)\nassert Z is not None and Z.shape == (200, 2), f'expected Z of shape (200, 2), got {None if Z is None else Z.shape}. Remember (n, d) @ (d, k) -> (n, k)'"
+    },
+    {
+     "name": "full reconstruction is exact",
+     "code": "vals, vecs, mu = pca(X)\nXh = reconstruct(project(X, vecs, mu, 4), vecs, mu)\nassert Xh is not None and np.allclose(Xh, X), 'with all 4 components the reconstruction should equal X; did you add the mean back?'"
+    },
+    {
+     "name": "error falls with k",
+     "code": "e = [recon_error(X, k) for k in [1, 2, 3, 4]]\nassert all(a >= b - 1e-12 for a, b in zip(e, e[1:])), f'keeping more directions can only lose less: errors {np.round(e, 4)}'\nassert e[3] < 1e-20 + 1e-12 and e[0] < 0.4, f'k=4 should be ~0 and k=1 already small for this data, got {np.round(e, 4)}'"
+    }
+   ],
+   "hints": [
+    "project: return (X - mean) @ vectors[:, :k]",
+    "reconstruct: W = vectors[:, :Z.shape[1]]; return Z @ W.T + mean",
+    "recon_error: Xh = reconstruct(project(X, vecs, mu, k), vecs, mu); return np.mean((X - Xh) ** 2)"
+   ],
+   "solution": "import numpy as np\n\nrng = np.random.default_rng(0)\nn = 200\nt = rng.normal(size=n)\n# 4 columns driven mostly by one hidden factor t, plus a little noise\nX = np.column_stack([t, 2 * t, -t, rng.normal(size=n)]) + rng.normal(0, 0.1, size=(n, 4))\n\ndef pca(X):\n    mean = X.mean(axis=0)\n    Xc = X - mean\n    values, vectors = np.linalg.eigh(Xc.T @ Xc / (len(X) - 1))\n    return values[::-1], vectors[:, ::-1], mean\n\ndef project(X, vectors, mean, k):\n    return (X - mean) @ vectors[:, :k]\n\ndef reconstruct(Z, vectors, mean):\n    W = vectors[:, :Z.shape[1]]\n    return Z @ W.T + mean\n\ndef recon_error(X, k):\n    vals, vecs, mu = pca(X)\n    Xh = reconstruct(project(X, vecs, mu, k), vecs, mu)\n    return np.mean((X - Xh) ** 2)\n"
+  }
+ ],
+ "poster": "videos/5.9-pca.jpg"
+}
