@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="228.46" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="228.46" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 11.1 Autoencoders</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="24.336"></div>
+  <div class="clip scene" id="S2" data-start="24.336" data-duration="27.344"></div>
+  <div class="clip scene" id="S3" data-start="51.68" data-duration="23.761"></div>
+  <div class="clip scene" id="S4" data-start="75.441" data-duration="26.235"></div>
+  <div class="clip scene" id="S5" data-start="101.676" data-duration="41.696"></div>
+  <div class="clip scene" id="S6" data-start="143.372" data-duration="40.86"></div>
+  <div class="clip scene" id="S7" data-start="184.232" data-duration="26.236"></div>
+  <div class="clip scene" id="S8" data-start="210.468" data-duration="17.992"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":24.336,"s3":51.68,"s4":75.441,"s5":101.676,"s6":143.372,"s7":184.232,"s8":210.468},"total":228.46,"cues":{"s1":[["suppose",0.0],["you",0.456],["had",0.684],["to",0.912],["describe",1.083],["a",1.597],["handwritten",1.711],["digit",2.395],["to",2.737],["a",2.908],["friend",3.022],["using",3.421],["only",3.763],["two",4.048],["numbers",4.276],["so",5.268],["that",5.422],["they",5.679],["could",5.937],["redraw",6.246],["it",6.606],["you",7.308],["would",7.538],["be",7.882],["forced",8.054],["to",8.455],["keep",8.627],["what",8.913],["matters",9.2],["most",9.659],["which",10.427],["digit",10.832],["it",11.236],["is",11.439],["and",11.641],["how",11.911],["it",12.181],["is",12.384],["slanted",12.586],["and",13.748],["let",13.971],["the",14.193],["rest",14.416],["go",14.695],["an",15.105],["autoencoder",15.283],["is",15.992],["a",16.169],["network",16.287],["trained",16.76],["to",17.233],["play",17.41],["exactly",17.706],["that",18.179],["game",18.474],["and",19.274],["its",19.501],["variational",19.729],["cousin",20.412],["turns",20.811],["the",21.153],["game",21.38],["into",21.665],["a",21.95],["way",22.064],["of",22.291],["generating",22.462],["new",23.088],["examples",23.316]],"s2":[["an",0.0],["autoencoder",0.12],["has",0.602],["two",0.763],["halves",0.924],["the",1.394],["encoder",1.717],["squeezes",2.364],["the",3.091],["input",3.415],["through",3.9],["a",4.546],["narrow",4.708],["layer",5.273],["called",6.072],["the",6.358],["bottleneck",6.522],["into",7.27],["a",7.63],["short",7.774],["code",8.207],["and",9.023],["the",9.286],["decoder",9.548],["tries",10.072],["to",10.465],["rebuild",10.661],["the",11.186],["original",11.448],["from",12.037],["that",12.365],["code",12.692],["alone",13.02],["the",13.712],["loss",13.958],["is",14.265],["simply",14.45],["how",14.88],["far",15.126],["the",15.372],["rebuilt",15.617],["version",16.109],["is",16.601],["from",16.785],["the",17.092],["input",17.338],["for",17.89],["example",18.112],["the",18.557],["squared",18.779],["error",19.223],["per",19.556],["pixel",19.779],["so",20.645],["no",20.798],["labels",20.952],["are",21.311],["needed",21.516],["the",22.508],["data",22.741],["is",23.033],["its",23.207],["own",23.441],["target",23.674],["just",24.659],["as",24.938],["it",25.106],["is",25.273],["in",25.441],["next-token",25.609],["prediction",26.224]],"s3":[["because",0.0],["the",0.434],["bottleneck",0.651],["is",1.247],["narrow",1.41],["the",2.101],["network",2.35],["has",2.846],["to",3.094],["keep",3.28],["the",3.591],["directions",3.839],["of",4.521],["variation",4.707],["that",5.328],["explain",5.638],["the",6.135],["most",6.383],["in",7.287],["fact",7.478],["a",7.86],["linear",7.987],["autoencoder",8.432],["trained",9.196],["with",9.705],["squared",10.023],["error",10.532],["learns",10.914],["the",11.359],["same",11.614],["subspace",11.932],["as",12.505],["principal",12.695],["component",13.332],["analysis",13.968],["the",14.986],["classical",15.215],["method",15.786],["for",16.186],["finding",16.415],["those",16.872],["directions",17.215],["with",18.142],["nonlinear",18.433],["layers",19.014],["it",19.478],["can",19.652],["follow",19.885],["curved",20.291],["structure",20.698],["that",21.278],["a",21.569],["flat",21.685],["projection",21.975],["would",22.614],["miss",22.962]],"s4":[["can",0.0],["we",0.222],["generate",0.389],["new",0.89],["digits",1.112],["by",1.502],["picking",1.669],["a",2.114],["random",2.225],["code",2.614],["and",2.892],["decoding",3.115],["it",3.615],["usually",4.165],["not",4.879],["well",5.236],["a",5.895],["plain",6.032],["autoencoder",6.445],["only",7.27],["cares",7.614],["that",8.027],["the",8.37],["codes",8.645],["of",9.058],["real",9.264],["examples",9.608],["decode",10.227],["correctly",10.709],["so",11.593],["it",11.747],["places",11.9],["them",12.258],["wherever",12.513],["is",12.973],["convenient",13.127],["leaving",14.002],["gaps",14.481],["between",14.781],["the",15.261],["clusters",15.5],["decode",16.329],["a",16.777],["point",16.905],["from",17.289],["one",17.609],["of",17.865],["those",18.057],["gaps",18.441],["and",18.76],["you",19.016],["get",19.272],["a",19.528],["smudge",19.656],["rather",20.751],["like",21.186],["asking",21.497],["for",21.932],["directions",22.18],["to",22.864],["an",23.05],["address",23.236],["that",23.733],["lies",24.044],["on",24.355],["no",24.541],["street",24.727],["at",25.162],["all",25.349]],"s5":[["the",0.0],["variational",0.251],["autoencoder",1.004],["introduced",2.083],["by",2.805],["kingma",3.002],["and",3.462],["welling",3.725],["changes",4.689],["what",5.222],["the",5.555],["encoder",5.822],["produces",6.354],["instead",7.286],["of",7.678],["a",7.825],["single",7.923],["point",8.266],["it",9.003],["outputs",9.147],["a",9.529],["mean",9.625],["and",9.864],["a",10.055],["standard",10.15],["deviation",10.581],["for",11.059],["each",11.25],["dimension",11.489],["of",11.967],["the",12.11],["code",12.301],["describing",12.71],["a",13.675],["small",13.851],["cloud",14.378],["of",14.905],["plausible",15.168],["codes",16.047],["and",16.797],["the",17.094],["decoder",17.391],["must",17.984],["rebuild",18.355],["the",18.949],["input",19.246],["from",19.691],["a",20.062],["random",20.211],["sample",20.73],["of",21.249],["that",21.472],["cloud",21.843],["to",22.494],["let",22.625],["gradients",22.799],["flow",23.234],["through",23.452],["the",23.8],["sampling",23.974],["the",24.663],["sample",24.937],["is",25.417],["written",25.623],["as",26.172],["the",26.378],["mean",26.652],["plus",26.995],["the",27.338],["standard",27.613],["deviation",28.23],["times",28.916],["noise",29.328],["from",29.74],["a",30.083],["standard",30.22],["normal",30.837],["this",31.672],["is",31.949],["called",32.114],["the",32.501],["reparameterisation",32.722],["trick",33.773],["the",34.488],["randomness",34.707],["sits",35.31],["off",35.585],["to",35.804],["the",35.968],["side",36.188],["and",37.069],["the",37.319],["path",37.568],["from",37.88],["the",38.191],["parameters",38.441],["to",39.126],["the",39.313],["loss",39.563],["stays",39.874],["differentiable",40.248]],"s6":[["the",0.0],["second",0.25],["ingredient",0.687],["is",1.374],["a",1.561],["penalty",1.686],["that",2.186],["pulls",2.498],["every",2.873],["one",3.247],["of",3.497],["these",3.685],["clouds",4.059],["toward",4.497],["a",4.934],["standard",5.059],["normal",5.621],["distribution",6.058],["centred",6.87],["at",7.369],["zero",7.557],["it",8.357],["is",8.585],["the",8.813],["kullback-leibler",9.117],["divergence",10.41],["which",11.738],["for",12.185],["gaussians",12.484],["has",13.229],["a",13.528],["simple",13.677],["closed",14.199],["form",14.721],["reconstruction",15.169],["wants",16.287],["clouds",16.735],["that",17.257],["are",17.63],["small",17.928],["and",18.376],["far",18.674],["apart",18.972],["while",19.494],["the",19.942],["penalty",20.24],["wants",20.837],["them",21.284],["to",21.657],["overlap",21.881],["near",22.477],["the",22.85],["origin",23.149],["and",23.745],["the",24.044],["compromise",24.342],["fills",25.162],["the",25.61],["space",25.908],["without",26.356],["gaps",26.952],["so",27.4],["a",27.623],["code",27.773],["sampled",28.145],["from",28.742],["the",29.115],["standard",29.413],["normal",30.085],["decodes",30.607],["to",31.203],["something",31.427],["sensible",32.173],["together",33.278],["the",33.816],["two",34.031],["terms",34.246],["are",34.569],["the",34.784],["negative",34.999],["of",35.483],["the",35.645],["evidence",35.86],["lower",36.344],["bound",36.666],["the",37.436],["quantity",37.803],["a",38.631],["vae",38.815],["maximises",39.182]],"s7":[["autoencoders",0.0],["live",0.962],["on",1.332],["inside",1.554],["today's",2.072],["image",2.664],["generators",3.108],["latent",3.996],["diffusion",4.514],["models",5.255],["the",6.025],["family",6.235],["behind",6.603],["stable",6.971],["diffusion",7.338],["first",8.272],["compress",8.658],["images",9.237],["with",9.687],["an",10.009],["autoencoder",10.202],["and",10.974],["then",11.231],["run",11.553],["the",11.81],["generative",12.067],["process",12.775],["in",13.289],["that",13.482],["much",13.804],["smaller",14.126],["latent",14.64],["space",15.09],["which",15.721],["makes",16.094],["it",16.468],["far",16.655],["cheaper",16.904],["their",17.782],["autoencoder",18.118],["is",18.791],["trained",18.959],["with",19.407],["a",19.687],["light",19.799],["penalty",20.136],["of",20.584],["this",20.752],["kind",21.032],["or",21.727],["with",21.883],["a",22.144],["discrete",22.248],["codebook",22.717],["to",23.539],["keep",23.701],["the",23.97],["latent",24.186],["space",24.563],["well",24.886],["behaved",25.155]],"s8":[["so",0.0],["an",0.174],["autoencoder",0.349],["learns",1.047],["to",1.454],["compress",1.629],["and",2.682],["a",2.925],["variational",3.047],["autoencoder",3.775],["learns",4.504],["a",4.928],["space",5.05],["you",5.414],["can",5.657],["sample",5.9],["from",6.325],["the",7.205],["next",7.464],["lesson",7.787],["builds",8.239],["a",8.691],["different",8.821],["kind",9.467],["of",9.79],["generator",9.984],["one",10.695],["that",10.953],["starts",11.276],["from",11.729],["pure",12.052],["noise",12.375],["and",12.763],["learns",13.021],["to",13.474],["remove",13.668],["it",14.12],["step",14.314],["by",14.637],["step",14.831],["diffusion",15.633]]}}/*END*/;
+const IDS=['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov){d.setAttribute('data-layout-allow-overlap','');d.querySelectorAll('span').forEach(s=>s.setAttribute('data-layout-allow-overlap',''))}return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+const GL={'2':['01110','10001','00001','00110','01000','10000','11111'],'7':['11111','00001','00010','00100','01000','01000','01000'],'3':['11110','00001','00001','01110','00001','00001','11110'],'0':['01110','10001','10011','10101','11001','10001','01110']};
+function glyph(parent,ch,cx,cy,cell,color,o){o=o||{};const g=GL[ch],els=[];const w=5*cell,h=7*cell;
+  const wrap=el(parent,'abs','',{left:(cx-w/2)+'px',top:(cy-h/2)+'px',width:w+'px',height:h+'px',opacity:0,visibility:'hidden'});
+  for(let r=0;r<7;r++)for(let c=0;c<5;c++){const on=g[r][c]==='1';const v=o.blur?(on?0.55:0.18+0.1*((r*5+c)%3)):(on?1:0.06);
+    el(wrap,'abs','',{left:(c*cell)+'px',top:(r*cell)+'px',width:(cell-3)+'px',height:(cell-3)+'px',borderRadius:'3px',background:color,opacity:v})}
+  return wrap}
+function trap(svg,x0,x1,hL,hR,cy,color){return svgEl('polygon',{points:`${x0},${cy-hL/2} ${x1},${cy-hR/2} ${x1},${cy+hR/2} ${x0},${cy+hL/2}`,fill:color+'22',stroke:color,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg)}
+
+/* ============ S1: two numbers ============ */
+(function(){const S=$('S1');const sid='s1';
+  const g=glyph(S,'2',360,480,52,C.ink);show(g,cue(sid,'digit'),.5);
+  const n1=cellAt(S,860,430,190,80,'0.82',C.yellow,{fs:38}),n2=cellAt(S,1080,430,190,80,'−1.37',C.yellow,{fs:38});
+  show([n1,n2],cue(sid,'numbers'),.4,{stagger:.15});
+  const svg=layerSvg(S);const a1=pxArrow(svg,C.dim,4,520,480,740,440);growPx(a1,cue(sid,'numbers'),.4);
+  const a2=pxArrow(svg,C.dim,4,1200,440,1400,480);growPx(a2,cue(sid,'redraw'),.4);
+  const g2=glyph(S,'2',1600,480,52,C.blue);show(g2,cue(sid,'redraw'),.5);
+  const k=txt(S,'which digit · how slanted',970,560,{fs:34,it:true,color:C.dim});show(k,cue(sid,'matters'),.4);
+  const ae=el(S,'cap','an <em>autoencoder</em> plays this game',{top:'860px',fontSize:'52px',fontStyle:'italic'});show(ae,cue(sid,'autoencoder'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: encoder, bottleneck, decoder ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);const cy=440;
+  const gin=glyph(S,'7',230,cy,40,C.ink);show(gin,cue(sid,'input'),.4);
+  const enc=trap(svg,380,760,300,90,cy,C.blue),dec=trap(svg,1160,1540,90,300,cy,C.pink);
+  fadeIn(enc,cue(sid,'encoder'),.5);
+  const el1=txt(S,'encoder',570,cy+200,{fs:36,color:C.blue});show(el1,cue(sid,'encoder'),.4);
+  const z=[cellAt(S,960,cy-45,150,70,'z₁',C.yellow,{fs:34}),cellAt(S,960,cy+45,150,70,'z₂',C.yellow,{fs:34})];
+  show(z,cue(sid,'bottleneck'),.4);
+  const bl=txt(S,'bottleneck: a short code',960,cy+150,{fs:32,it:true,color:C.yellow});show(bl,cue(sid,'code'),.4);
+  fadeIn(dec,cue(sid,'decoder'),.5);const dl=txt(S,'decoder',1350,cy+200,{fs:36,color:C.pink});show(dl,cue(sid,'decoder'),.4);
+  const gout=glyph(S,'7',1690,cy,40,C.pink,{});show(gout,cue(sid,'rebuild'),.5);
+  const eq=eqn(S,'\\mathcal{L} = \\lVert x - \\hat{x} \\rVert^2',960,820,64,{ov:true});show(eq,cue(sid,'squared'),.5);
+  const xl=eqn(S,'x',230,cy-200,48),xh=eqn(S,'\\hat{x}',1690,cy-200,48,{color:C.pink,ov:true});show(xl,cue(sid,'input'),.4);show(xh,cue(sid,'rebuild'),.4);
+  const nl=txt(S,'no labels: the data is its own target',960,930,{fs:36,it:true,color:C.green});show(nl,cue(sid,'labels'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: linear AE = PCA; nonlinear follows curves ============ */
+(function(){const S=$('S3');const sid='s3';
+  const P=plane(560,520,110);const svg=layerSvg(S);
+  const g=drawGrid(svg,P,-4,4,-3,3);g.setAttribute('style','opacity:0;visibility:hidden');fadeIn(g,at(sid,.01),.5);
+  const rnd=seedRand(21);const pts=[];for(let i=0;i<40;i++){const t=(rnd()*2-1)*3.2,n=(rnd()*2-1)*.45;pts.push([t*.89-n*.45,t*.45+n*.89])}
+  const dots=pts.map(([x,y])=>svgEl('circle',{cx:P(x,y)[0],cy:P(x,y)[1],r:8,fill:C.blue,style:'opacity:0;visibility:hidden'},svg));
+  tl.to(dots,{autoAlpha:1,duration:.2,stagger:.02},at(sid,.02));
+  const dir=pxArrow(svg,C.yellow,6,P(-3.4*.89,-3.4*.45)[0],P(-3.4*.89,-3.4*.45)[1],P(3.4*.89,3.4*.45)[0],P(3.4*.89,3.4*.45)[1]);
+  growPx(dir,cue(sid,'directions'),.8);
+  const drops=pts.map(([x,y])=>{const t=x*.89+y*.45;return ln(svg,P(x,y)[0],P(x,y)[1],P(t*.89,t*.45)[0],P(t*.89,t*.45)[1],C.dim,2)});
+  tl.to(drops,{autoAlpha:.7,duration:.3,stagger:.02},cue(sid,'explain'));
+  const pca=txt(S,'linear autoencoder ≡ PCA subspace',1440,300,{fs:38,color:C.yellow});show(pca,cue(sid,'linear'),.4);
+  const pc2=txt(S,'(principal component analysis)',1440,360,{fs:30,it:true,color:C.dim});show(pc2,cue(sid,'principal'),.4);
+  tl.to([...dots,...drops,dir.g],{autoAlpha:0,duration:.4},cue(sid,'nonlinear')-.3);
+  const cpts=[];for(let i=0;i<40;i++){const t=-2.6+5.2*rnd(),n=(rnd()*2-1)*.25;cpts.push([t,1.6-0.45*t*t+n])}
+  const cd=cpts.map(([x,y])=>svgEl('circle',{cx:P(x,y)[0],cy:P(x,y)[1],r:8,fill:C.green,style:'opacity:0;visibility:hidden'},svg));
+  tl.to(cd,{autoAlpha:1,duration:.2,stagger:.02},cue(sid,'nonlinear'));
+  const cv=pth(svg,polyD(P,pts2d(x=>1.6-0.45*x*x,-2.8,2.8,60)),C.pink,5);drawOn(cv,cue(sid,'curved'),1.0);
+  const fl=pth(svg,polyD(P,[[-3,-.2],[3,-.2]]),C.dim,3,{dash:'10 8'});fadeIn(fl,cue(sid,'flat'),.4);
+  const nl=txt(S,'nonlinear: follows the curve',1440,520,{fs:36,color:C.pink}),fl2=txt(S,'a flat projection misses it',1440,590,{fs:32,it:true,color:C.dim});
+  show(nl,cue(sid,'curved'),.4);show(fl2,cue(sid,'flat'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: gaps in a plain autoencoder's code space ============ */
+(function(){const S=$('S4');const sid='s4';
+  const P=plane(620,540,120);const svg=layerSvg(S);
+  const g=drawGrid(svg,P,-4,4,-3,3);g.setAttribute('style','opacity:0;visibility:hidden');fadeIn(g,at(sid,.01),.5);
+  const rnd=seedRand(4);
+  const cl=[[-2.5,1.6,C.blue,'0'],[2.2,1.9,C.yellow,'7'],[1.4,-1.8,C.pink,'3'],[-2.2,-1.5,C.green,'2']];
+  cl.forEach(([cx,cy,c,ch],k)=>{const ds=[];for(let i=0;i<14;i++)ds.push(svgEl('circle',{cx:P(cx+(rnd()-.5)*.9,0)[0],cy:P(0,cy+(rnd()-.5)*.9)[1],r:8,fill:c,style:'opacity:0;visibility:hidden'},svg));
+    tl.to(ds,{autoAlpha:1,duration:.15,stagger:.02},cue(sid,'codes')+k*.3);
+    const l=txt(S,ch,P(cx,0)[0]+(cx<0?-90:90),P(0,cy)[1],{fs:44,mono:true,color:c});show(l,cue(sid,'codes')+k*.3,.3)});
+  const rp=svgEl('circle',{cx:P(.1,.2)[0],cy:P(.1,.2)[1],r:14,fill:'none',stroke:C.red,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(rp,cue(sid,'random'),.4);
+  const gl=txt(S,'gap',P(.1,.2)[0],P(.1,.2)[1]-44,{fs:32,it:true,color:C.red});show(gl,cue(sid,'gaps'),.4);
+  const a=pxArrow(svg,C.dim,4,P(.3,.2)[0]+10,P(.1,.2)[1],1360,540);growPx(a,cue(sid,'decode',2),.5);
+  const sm=glyph(S,'0',1560,540,46,C.dim,{blur:true});show(sm,cue(sid,'smudge'),.5);
+  const sl=txt(S,'a smudge',1560,760,{fs:36,it:true,color:C.dim});show(sl,cue(sid,'smudge'),.4);
+  const q=el(S,'cap','an address on no street',{top:'930px',fontSize:'42px',fontStyle:'italic',color:C.dim});show(q,cue(sid,'address'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: VAE encoder outputs a cloud; reparameterisation ============ */
+(function(){const S=$('S5');const sid='s5';
+  const head=el(S,'cap','Kingma &amp; Welling, 2013 · variational autoencoder',{top:'110px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(head,cue(sid,'kingma'),.5);
+  const P=plane(500,580,110);const svg=layerSvg(S);
+  const g=drawGrid(svg,P,-3,3,-3,3);g.setAttribute('style','opacity:0;visibility:hidden');fadeIn(g,cue(sid,'variational'),.5);
+  const pt=svgEl('circle',{cx:P(1.2,.8)[0],cy:P(1.2,.8)[1],r:10,fill:C.blue,style:'opacity:0;visibility:hidden'},svg);fadeIn(pt,cue(sid,'single'),.3);
+  const cloud=svgEl('ellipse',{cx:P(1.2,.8)[0],cy:P(1.2,.8)[1],rx:90,ry:55,fill:'#58c4dd33',stroke:C.blue,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg);
+  tl.fromTo(cloud,{autoAlpha:0,attr:{rx:4,ry:4}},{autoAlpha:1,attr:{rx:90,ry:55},duration:.8,immediateRender:false},cue(sid,'cloud'));
+  const mu=txt(S,'μ: mean',1100,320,{fs:38,color:C.blue}),sg=txt(S,'σ: standard deviation',1180,390,{fs:38,color:C.blue});
+  show(mu,cue(sid,'mean'),.4);show(sg,cue(sid,'deviation'),.4);
+  const smp=svgEl('circle',{cx:P(1.75,.55)[0],cy:P(1.75,.55)[1],r:9,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg);fadeIn(smp,cue(sid,'sample'),.3);
+  const sl=txt(S,'sample z',P(1.75,.55)[0]+70,P(1.75,.55)[1]+40,{fs:30,it:true,color:C.yellow});show(sl,cue(sid,'sample'),.3);
+  const eq=eqn(S,'z = \\mu + \\sigma \\odot \\varepsilon, \\qquad \\varepsilon \\sim \\mathcal{N}(0, I)',1360,560,52);show(eq,cue(sid,'written'),.6);
+  const nz=box(S,1640,760,300,100,'ε: noise',C.dim,{fs:36});show(nz,cue(sid,'noise'),.4);
+  const path=box(S,1060,760,420,100,'μ, σ → z → loss',C.green,{fs:36});show(path,cue(sid,'path'),.4);
+  const ar=pxArrow(svg,C.dim,4,1490,760,1280,760);growPx(ar,cue(sid,'side'),.4);
+  const df=txt(S,'differentiable',1060,860,{fs:34,it:true,color:C.green});show(df,cue(sid,'differentiable'),.4);
+  const rt=txt(S,'the reparameterisation trick',1360,660,{fs:34,it:true,color:C.yellow});show(rt,cue(sid,'reparameterisation'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: KL pulls clouds toward N(0, I) ============ */
+(function(){const S=$('S6');const sid='s6';
+  const P=plane(470,560,105);const svg=layerSvg(S);
+  const g=drawGrid(svg,P,-4,4,-3,3);g.setAttribute('style','opacity:0;visibility:hidden');fadeIn(g,at(sid,.01),.5);
+  const std=svgEl('circle',{cx:P(0,0)[0],cy:P(0,0)[1],r:105,fill:'none',stroke:C.ink,'stroke-width':3,'stroke-dasharray':'10 8',style:'opacity:0;visibility:hidden'},svg);
+  fadeIn(std,cue(sid,'standard'),.4);
+  const sl=txt(S,'N(0, I)',P(0,0)[0],P(0,1.35)[1]-10,{fs:32,mono:true,color:C.ink});show(sl,cue(sid,'standard'),.4);
+  const cs=[[-3,2,C.blue],[3,2.1,C.yellow],[2.6,-2,C.pink],[-2.8,-1.9,C.green]];
+  const ell=cs.map(([x,y,c])=>svgEl('ellipse',{cx:P(x,y)[0],cy:P(x,y)[1],rx:30,ry:22,fill:c+'44',stroke:c,'stroke-width':3,style:'opacity:0;visibility:hidden'},svg));
+  fadeIn(ell,cue(sid,'clouds'),.4);
+  cs.forEach(([x,y],i)=>tl.to(ell[i],{attr:{cx:P(x*.32,y*.3)[0],cy:P(x*.32,y*.3)[1],rx:80,ry:66},duration:1.8,ease:'power2.inOut'},cue(sid,'overlap')));
+  const kl=eqn(S,'\\mathrm{KL}\\big(\\mathcal{N}(\\mu,\\sigma^2)\\,\\|\\,\\mathcal{N}(0,1)\\big) = \\tfrac12\\textstyle\\sum (\\mu^2 + \\sigma^2 - \\log\\sigma^2 - 1)',1390,300,32);
+  show(kl,cue(sid,'kullback-leibler'),.6);
+  const r1=txt(S,'reconstruction: small, far apart',1390,420,{fs:34,color:C.blue}),r2=txt(S,'KL: overlap near the origin',1390,480,{fs:34,color:C.yellow});
+  show(r1,cue(sid,'reconstruction'),.4);show(r2,cue(sid,'penalty',2),.4);
+  const fill=txt(S,'no gaps: sample z from N(0, I) and decode',1390,560,{fs:34,it:true,color:C.green});show(fill,cue(sid,'compromise'),.4);
+  const elbo=eqn(S,'\\mathcal{L}_{VAE} = \\underbrace{\\lVert x-\\hat x\\rVert^2}_{\\text{reconstruction}} + \\underbrace{\\mathrm{KL}}_{\\text{penalty}} = -\\,\\mathrm{ELBO}',1390,750,46,{ov:true});
+  show(elbo,cue(sid,'evidence'),.6);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: autoencoders inside latent diffusion ============ */
+(function(){const S=$('S7');const sid='s7';
+  const svg=layerSvg(S);
+  const img=el(S,'abs','',{left:'120px',top:'330px',width:'300px',height:'300px',borderRadius:'8px',background:'linear-gradient(135deg,#2a6f97,#5cd0b3 50%,#f5cf4a)',opacity:0,visibility:'hidden'});
+  show(img,cue(sid,'images'),.5);
+  const il=txt(S,'image',270,670,{fs:30,it:true,color:C.dim});show(il,cue(sid,'images'),.4);
+  const enc=trap(svg,470,700,300,120,480,C.blue);fadeIn(enc,cue(sid,'compress'),.4);
+  const lat=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++)lat.push(el(S,'abs','',{left:(760+c*34)+'px',top:(412+r*34)+'px',width:'30px',height:'30px',background:`rgba(245,207,74,${(0.25+((r*4+c)*37%10)/14).toFixed(2)})`,borderRadius:'3px',opacity:0,visibility:'hidden'}));
+  fadeIn(lat,cue(sid,'autoencoder'),.4);
+  const ll=txt(S,'small latent',828,600,{fs:30,it:true,color:C.yellow});show(ll,cue(sid,'smaller'),.4);
+  const df=box(S,1160,480,300,130,'diffusion<br>in latent space',C.pink,{fs:34});show(df,cue(sid,'generative'),.5);
+  const a1=pxArrow(svg,C.dim,4,920,480,1000,480);growPx(a1,cue(sid,'run'),.4);
+  const dec=trap(svg,1330,1560,120,300,480,C.pink);fadeIn(dec,cue(sid,'cheaper'),.4);
+  const out=el(S,'abs','',{left:'1590px',top:'340px',width:'280px',height:'280px',borderRadius:'8px',background:'linear-gradient(135deg,#fc6255,#e77fb3 50%,#58c4dd)',opacity:0,visibility:'hidden'});
+  show(out,cue(sid,'cheaper'),.5);
+  const sd=el(S,'cap','latent diffusion · the family behind Stable Diffusion',{top:'180px',fontSize:'38px',fontStyle:'italic',color:C.dim});show(sd,cue(sid,'stable'),.4);
+  const reg=txt(S,'light KL penalty, or a discrete codebook (VQ)',960,820,{fs:36,it:true,color:C.ink});show(reg,cue(sid,'penalty'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S8: recap and next ============ */
+(function(){const S=$('S8');const sid='s8';
+  const a=box(S,620,420,620,120,'autoencoder: learns to compress',C.blue,{fs:38}),b=box(S,1320,420,640,120,'VAE: a space you can sample',C.yellow,{fs:38});
+  show(a,cue(sid,'compress'),.5);show(b,cue(sid,'sample'),.5);
+  const n=[];const rnd=seedRand(8);for(let i=0;i<60;i++)n.push(el(S,'abs','',{left:(760+(i%12)*34)+'px',top:(620+Math.floor(i/12)*34)+'px',width:'30px',height:'30px',borderRadius:'3px',background:`rgba(201,211,224,${(0.1+0.7*rnd()).toFixed(2)})`,opacity:0,visibility:'hidden'}));
+  fadeIn(n,cue(sid,'noise'),.5);
+  nextUp(S,sid,'diffusion',1,'11.2 &nbsp;diffusion: learning to remove noise');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="198.09" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="198.09" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 10.6 Tools and agents</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="22.513"></div>
+  <div class="clip scene" id="S2" data-start="22.513" data-duration="32.907"></div>
+  <div class="clip scene" id="S3" data-start="55.42" data-duration="34.271"></div>
+  <div class="clip scene" id="S4" data-start="89.691" data-duration="34.171"></div>
+  <div class="clip scene" id="S5" data-start="123.862" data-duration="30.65"></div>
+  <div class="clip scene" id="S6" data-start="154.512" data-duration="22.736"></div>
+  <div class="clip scene" id="S7" data-start="177.248" data-duration="20.842"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":22.513,"s3":55.42,"s4":89.691,"s5":123.862,"s6":154.512,"s7":177.248},"total":198.09,"cues":{"s1":[["a",0.0],["language",0.132],["model",0.724],["can",1.119],["do",1.382],["only",1.58],["one",1.909],["thing",2.172],["given",2.881],["some",3.209],["text",3.483],["produce",4.318],["the",4.829],["next",5.084],["token",5.403],["yet",6.242],["agents",6.535],["book",7.047],["meetings",7.413],["run",8.518],["code",8.768],["and",9.082],["search",9.333],["the",9.772],["web",10.023],["the",10.649],["trick",10.894],["is",11.261],["not",11.445],["inside",11.69],["the",12.119],["model",12.365],["at",12.732],["all",12.916],["it",13.588],["is",13.765],["a",13.942],["loop",14.06],["around",14.355],["it",14.768],["and",15.501],["once",15.775],["you",16.118],["see",16.393],["that",16.668],["loop",17.011],["clearly",17.354],["both",18.426],["the",18.756],["power",19.021],["and",19.418],["the",19.682],["fragility",19.947],["of",20.608],["agents",20.807],["make",21.27],["sense",21.601]],"s2":[["when",0.0],["a",0.252],["model",0.353],["calls",0.655],["a",0.957],["tool",1.058],["it",1.721],["writes",1.898],["text",2.312],["in",2.608],["an",2.785],["agreed",2.963],["format",3.377],["for",4.367],["example",4.651],["a",5.22],["small",5.362],["block",5.789],["of",6.215],["json",6.429],["naming",6.784],["a",7.282],["function",7.424],["and",8.064],["its",8.348],["arguments",8.633],["and",9.906],["then",10.078],["it",10.293],["stops",10.422],["the",10.855],["program",10.878],["around",10.924],["the",10.965],["model",10.988],["often",11.315],["called",12.03],["the",12.864],["harness",13.341],["parses",14.797],["that",15.04],["text",15.214],["checks",15.577],["it",15.805],["runs",16.286],["the",16.397],["real",16.486],["function",16.597],["and",17.264],["writes",17.456],["the",17.793],["result",17.985],["back",18.322],["into",18.562],["the",18.802],["context",18.995],["as",19.38],["new",19.524],["tokens",19.716],["the",20.283],["model",20.567],["never",20.992],["touches",21.417],["the",21.984],["outside",22.268],["world",22.835],["it",23.331],["only",23.544],["reads",23.898],["and",24.324],["writes",24.607],["like",25.406],["a",25.762],["manager",25.905],["who",26.475],["passes",26.761],["written",27.26],["requests",27.831],["through",28.473],["a",29.043],["hatch",29.186],["and",29.614],["reads",29.899],["the",30.327],["replies",30.612],["that",31.183],["come",31.54],["back",31.896]],"s3":[["models",0.0],["learn",0.475],["this",0.882],["format",1.222],["from",1.697],["training",2.036],["data",2.647],["toolformer",3.552],["from",4.696],["schick",5.021],["and",5.476],["colleagues",5.736],["at",6.452],["meta",6.647],["let",7.037],["a",7.297],["model",7.427],["insert",7.818],["candidate",8.273],["api",8.923],["calls",9.183],["into",9.574],["ordinary",9.899],["text",10.484],["and",10.809],["kept",11.07],["only",11.395],["the",11.72],["calls",11.98],["whose",12.37],["results",12.761],["made",13.281],["the",13.606],["following",13.866],["tokens",14.517],["easier",14.972],["to",15.427],["predict",15.622],["so",16.624],["the",16.782],["model",16.993],["taught",17.31],["itself",17.679],["when",18.048],["a",18.312],["calculator",18.417],["or",18.998],["a",19.156],["search",19.261],["engine",19.631],["would",20.0],["help",20.316],["chat",20.967],["models",21.3],["are",21.766],["generally",22.032],["fine-tuned",22.698],["on",23.43],["many",23.63],["examples",23.962],["of",24.562],["tool",24.761],["calls",25.094],["written",25.494],["in",26.026],["their",26.226],["chat",26.625],["template",26.958],["which",28.349],["is",28.713],["why",28.895],["they",29.137],["can",29.44],["produce",29.683],["well-formed",30.168],["calls",30.895],["when",31.259],["given",31.562],["a",31.926],["list",32.047],["of",32.35],["tool",32.532],["descriptions",32.835]],"s4":[["an",0.0],["agent",0.21],["is",0.63],["that",0.84],["exchange",1.189],["repeated",2.094],["in",3.15],["the",3.274],["pattern",3.44],["described",3.771],["by",4.186],["the",4.31],["react",4.476],["paper",4.724],["from",5.163],["yao",5.641],["and",6.024],["colleagues",6.406],["the",7.853],["model",8.03],["alternates",8.297],["between",8.785],["reasoning",9.141],["in",9.585],["text",9.718],["about",9.94],["what",10.207],["to",10.429],["do",10.562],["next",10.696],["taking",11.368],["an",11.882],["action",12.102],["through",12.616],["a",13.203],["tool",13.35],["and",14.156],["reading",14.454],["the",15.048],["observation",15.346],["that",16.238],["comes",16.609],["back",17.055],["until",17.815],["it",18.162],["decides",18.335],["that",18.798],["it",19.087],["can",19.261],["answer",19.492],["each",20.257],["turn",20.542],["is",20.827],["appended",20.998],["to",21.511],["the",21.682],["context",21.91],["so",22.73],["the",22.885],["agent's",23.091],["working",23.504],["memory",23.916],["is",24.277],["literally",24.432],["the",24.947],["growing",25.153],["transcript",25.566],["and",26.624],["the",26.88],["kv",27.136],["cache",27.328],["from",27.711],["an",28.031],["earlier",28.223],["lesson",28.734],["can",29.182],["let",29.438],["each",29.693],["new",30.013],["step",30.269],["reuse",30.588],["the",30.972],["work",31.228],["already",31.547],["done",32.059],["on",32.379],["the",32.57],["earlier",32.826],["ones",33.338]],"s5":[["the",0.0],["same",0.281],["loop",0.633],["explains",0.985],["why",1.618],["agents",1.9],["fail",2.392],["if",3.22],["each",3.409],["step",3.724],["goes",4.039],["right",4.355],["with",4.733],["some",5.048],["probability",5.363],["the",6.632],["chance",6.882],["that",7.319],["a",7.632],["long",7.757],["chain",8.069],["of",8.444],["steps",8.632],["all",9.006],["go",9.256],["right",9.444],["shrinks",9.819],["multiplicatively",10.319],["a",11.69],["step",11.835],["that",12.197],["succeeds",12.56],["nine",13.212],["times",13.574],["in",14.009],["ten",14.226],["gives",14.516],["a",14.951],["ten-step",15.096],["task",15.748],["only",16.11],["about",16.472],["a",16.907],["one",17.052],["in",17.342],["three",17.559],["chance",17.994],["of",18.501],["finishing",18.719],["cleanly",19.443],["if",20.607],["the",20.769],["errors",20.986],["are",21.364],["independent",21.58],["and",22.61],["errors",22.88],["feed",23.351],["forward",23.687],["because",24.785],["a",25.295],["wrong",25.422],["observation",25.805],["becomes",26.569],["part",27.078],["of",27.397],["the",27.588],["context",27.843],["that",28.352],["every",28.671],["later",29.053],["step",29.435],["reads",29.754]],"s6":[["so",0.0],["a",0.178],["well-built",0.297],["harness",0.951],["adds",1.426],["structure",1.723],["it",2.84],["validates",2.996],["arguments",3.516],["against",4.035],["a",4.451],["schema",4.555],["before",4.919],["running",5.283],["anything",5.698],["returns",6.701],["clear",7.153],["error",7.493],["messages",7.832],["that",8.341],["the",8.624],["model",8.851],["can",9.19],["read",9.416],["and",9.699],["recover",9.926],["from",10.378],["caps",11.251],["the",11.523],["number",11.74],["of",12.121],["steps",12.284],["and",12.852],["asks",13.073],["for",13.35],["confirmation",13.571],["before",14.289],["actions",14.676],["that",15.119],["cannot",15.395],["be",15.782],["undone",15.948],["each",16.774],["of",17.076],["these",17.257],["turns",17.618],["a",17.98],["silent",18.101],["failure",18.523],["into",19.005],["text",19.307],["that",19.609],["the",19.91],["model",20.151],["or",20.703],["a",20.807],["person",20.877],["can",21.488],["act",21.754],["on",22.02]],"s7":[["tools",0.0],["and",0.357],["agents",0.595],["do",1.012],["not",1.191],["change",1.429],["what",1.846],["the",2.143],["model",2.381],["is",2.739],["a",3.519],["predictor",3.639],["of",4.235],["the",4.413],["next",4.652],["token",4.95],["they",5.867],["change",6.164],["what",6.581],["its",6.878],["tokens",7.116],["are",7.532],["connected",7.77],["to",8.364],["that",8.918],["raises",9.211],["a",9.621],["hard",9.738],["question",10.031],["how",10.994],["do",11.245],["you",11.433],["know",11.684],["whether",11.997],["any",12.499],["of",12.75],["it",12.938],["is",13.126],["working",13.315],["the",14.135],["next",14.349],["lesson",14.618],["on",15.316],["evaluating",15.511],["models",16.225],["takes",17.203],["that",17.565],["question",17.867],["seriously",18.41]]}}/*END*/;
+const IDS=['s1', 's2', 's3', 's4', 's5', 's6', 's7'];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+/* ============ S1: one thing, and a loop around it ============ */
+(function(){const S=$('S1');const sid='s1';
+  const svg=layerSvg(S);
+  const inp=box(S,330,460,360,100,'<span class="mono" style="font-size:30px">“the cat sat on”</span>',C.ink,{fs:30});
+  const m=box(S,960,460,380,150,'model',C.blue,{fs:48});
+  const out=box(S,1560,460,200,100,'<span class="mono">the</span>',C.yellow,{fs:34});
+  show(inp,cue(sid,'text'),.4);show(m,cue(sid,'model'),.4);show(out,cue(sid,'token'),.4);
+  const a1=pxArrow(svg,C.dim,4,520,460,760,460),a2=pxArrow(svg,C.dim,4,1160,460,1450,460);growPx(a1,cue(sid,'produce'),.4);growPx(a2,cue(sid,'token'),.4);
+  const acts=[['book a meeting',260,'book'],['run code',960,'run'],['search the web',1660,'search']];
+  const ab=acts.map(([t,x,w])=>{const b=box(S,x,800,380,90,t,C.green,{fs:36});show(b,cue(sid,w),.4);return b});
+  tl.to(ab,{autoAlpha:0,duration:.4},cue(sid,'trick'));
+  const loop=pth(svg,'M960 300 C 1500 300, 1500 700, 960 700 C 420 700, 420 300, 960 300',C.pink,5);
+  drawOn(loop,cue(sid,'loop'),1.4);
+  const ll=txt(S,'a loop around the model',960,780,{fs:44,it:true,color:C.pink});show(ll,cue(sid,'around'),.5);
+  const pf=txt(S,'power &amp; fragility',960,860,{fs:38,it:true,color:C.dim});show(pf,cue(sid,'fragility'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: a tool call is text; the harness runs it ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);
+  const js=box(S,420,330,640,150,'<span class="mono" style="font-size:28px;text-align:left">{"tool": "get_weather",<br>&nbsp;"args": {"city": "Pune"}}</span>',C.yellow,{fs:28});
+  show(js,cue(sid,'json'),.5);
+  const ml=txt(S,'the model writes text… and stops',420,210,{fs:32,it:true,color:C.yellow});show(ml,cue(sid,'writes'),.4);
+  const wall=ln(svg,820,160,820,760,C.axis,6);fadeIn(wall,cue(sid,'program'),.4);
+  const hatch=el(S,'abs','',{left:'806px',top:'300px',width:'28px',height:'70px',background:'#0e1116',border:'2px solid #c9d3e0',opacity:0,visibility:'hidden'});
+  hatch.setAttribute('data-layout-allow-overlap','');
+  fadeIn(hatch,cue(sid,'hatch'),.3);
+  const h=box(S,1240,330,560,150,'harness',C.blue,{fs:44});show(h,cue(sid,'harness'),.5);
+  const steps=[['parse','parses'],['check','checks'],['run','runs']].map(([t,w],i)=>{const c=cellAt(S,1060+i*180,470,150,60,t,C.blue,{fs:28,ink:C.blue});show(c,cue(sid,w),.3);return c});
+  const api=box(S,1700,640,300,110,'weather API',C.green,{fs:34});show(api,cue(sid,'function'),.4);
+  const a=pxArrow(svg,C.green,4,1420,500,1600,600);growPx(a,cue(sid,'real'),.4);
+  const obs=box(S,960,850,1100,90,'<span class="mono" style="font-size:30px">OBSERVATION: 31 °C, clear</span>',C.green,{fs:30});
+  const b=pxArrow(svg,C.green,4,1650,700,1450,820);growPx(b,cue(sid,'result'),.4);show(obs,cue(sid,'back'),.5);
+  const nt=txt(S,'appended to the context as new tokens',960,950,{fs:30,it:true,color:C.dim});show(nt,cue(sid,'tokens'),.4);
+  const nv=txt(S,'the model never touches the world',420,560,{fs:34,it:true,color:C.ink});show(nv,cue(sid,'never'),.4);
+  const mg=txt(S,'requests through a hatch',420,620,{fs:32,it:true,color:C.dim});show(mg,cue(sid,'manager'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: how the format is learned (Toolformer) ============ */
+(function(){const S=$('S3');const sid='s3';
+  const head=el(S,'cap','Schick et al., 2023 · Toolformer',{top:'110px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(head,cue(sid,'toolformer'),.5);
+  const s1=para(S,'Out of 1400 participants, 400 <span style="color:#f5cf4a">[Calculator(400 / 1400) → 0.29]</span> or 29% passed the test.',220,250,1480,{fs:38});
+  show(s1,cue(sid,'insert'),.6);
+  const s2=para(S,'The cat <span style="color:#fc6255">[Calculator(2 + 2) → 4]</span> sat on the mat.',220,420,1480,{fs:38});
+  show(s2,cue(sid,'candidate'),.6);
+  const k1=txt(S,'loss on the next tokens ↓ &nbsp;keep',1500,340,{fs:32,color:C.green}),k2=txt(S,'no help &nbsp;discard',1500,500,{fs:32,color:C.red});
+  show(k1,cue(sid,'easier'),.4);show(k2,cue(sid,'predict'),.4);
+  tl.to(s2,{opacity:.3,duration:.5},cue(sid,'predict')+.4);
+  const t=el(S,'cap','taught itself when a tool helps',{top:'600px',fontSize:'46px',fontStyle:'italic'});show(t,cue(sid,'taught'),.5);
+  tl.to([s1,s2,k1,k2,t],{autoAlpha:0,duration:.4},cue(sid,'chat')-.3);
+  const tpl=para(S,'<span class="mono" style="font-size:28px;color:#7f8b99">&lt;tools&gt; get_weather(city), search(query) &lt;/tools&gt;<br>&lt;user&gt; Is it raining in Pune? &lt;end&gt;<br>&lt;assistant&gt; <span style="color:#f5cf4a">{"tool": "get_weather", "args": {"city": "Pune"}}</span></span>',260,330,1400,{fs:28});
+  show(tpl,cue(sid,'chat'),.6);
+  const ft=txt(S,'fine-tuned on many tool calls in the chat template',960,620,{fs:36,it:true,color:C.blue});show(ft,cue(sid,'fine-tuned'),.4);
+  const wf=txt(S,'→ well-formed calls from tool descriptions',960,700,{fs:36,it:true,color:C.green});show(wf,cue(sid,'well-formed'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: ReAct loop, the transcript is memory ============ */
+(function(){const S=$('S4');const sid='s4';
+  const svg=layerSvg(S);
+  const head=txt(S,'ReAct · Yao et al., 2022',480,170,{fs:34,it:true,color:C.dim});show(head,cue(sid,'react'),.4);
+  const nodes=[['thought',480,300,C.blue,'reasoning'],['action',700,640,C.yellow,'action'],['observation',260,640,C.green,'observation']];
+  const nb=nodes.map(([t,x,y,c,w])=>{const b=box(S,x,y,260,90,t,c,{fs:36});show(b,cue(sid,w),.4);return b});
+  const arcs=[pth(svg,'M590 340 Q700 420 690 590',C.dim,4),pth(svg,'M570 650 L390 650',C.dim,4),pth(svg,'M260 590 Q260 400 360 330',C.dim,4)];
+  arcs.forEach((a,i)=>drawOn(a,[cue(sid,'taking'),cue(sid,'reading'),cue(sid,'until')][i],.5));
+  const lines=[['Thought: I need the forecast.',C.blue],['Action: get_weather(Pune)',C.yellow],['Observation: 31 °C, clear',C.green],['Thought: no rain expected.',C.blue],['Answer: No, it is clear.',C.pink]];
+  const tr=lines.map(([t,c],i)=>txt(S,t,1000,300+i*80,{fs:32,mono:true,color:c}));
+  tr.forEach(t=>{t.style.translate='0 -50%'});
+  const ts=[cue(sid,'reasoning'),cue(sid,'action'),cue(sid,'observation'),cue(sid,'decides'),cue(sid,'answer')];
+  tr.forEach((t,i)=>show(t,ts[i],.4));
+  const tl1=txt(S,'the transcript = working memory',1340,760,{fs:36,it:true,color:C.ink});show(tl1,cue(sid,'transcript'),.4);
+  const cached=el(S,'abs','',{left:'980px',top:'262px',width:'800px',height:'230px',border:'3px dashed #f5cf4a',borderRadius:'10px',opacity:0,visibility:'hidden'});
+  cached.setAttribute('data-layout-allow-overlap','');
+  fadeIn(cached,cue(sid,'kv'),.4);
+  const cl=txt(S,'reused prefix (KV cache)',1380,880,{fs:32,it:true,color:C.yellow});show(cl,cue(sid,'reuse'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: compounding failure ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);
+  const cs=[];for(let i=0;i<10;i++){const c=svgEl('circle',{cx:250+i*150,cy:300,r:40,fill:'#83c16733',stroke:C.green,'stroke-width':4,style:'opacity:0;visibility:hidden'},svg);cs.push(c);if(i)svgEl('line',{x1:290+(i-1)*150,y1:300,x2:210+i*150,y2:300,stroke:C.dim,'stroke-width':3,style:'opacity:0;visibility:hidden',class:'lk'},svg)}
+  const lks=[...svg.querySelectorAll('.lk')];
+  tl.to(cs,{autoAlpha:1,duration:.2,stagger:.12},cue(sid,'chain'));tl.to(lks,{autoAlpha:1,duration:.2,stagger:.12},cue(sid,'chain'));
+  const p=txt(S,'0.9 per step',250,390,{fs:30,mono:true,color:C.green});show(p,cue(sid,'nine'),.4);
+  const P=(n,v)=>[300+n*120,960-v*440];
+  const ax=ln(svg,P(0,0)[0],P(0,0)[1],P(10.5,0)[0],P(0,0)[1],C.axis,3),ay=ln(svg,P(0,0)[0],P(0,0)[1],P(0,1)[0],P(0,1)[1],C.axis,3);
+  fadeIn([ax,ay],cue(sid,'shrinks'),.4);
+  const pts=[];for(let n=0;n<=10;n++)pts.push([n,Math.pow(.9,n)]);
+  const cur=pth(svg,polyD(P,pts),C.yellow,5);drawOn(cur,cue(sid,'multiplicatively'),1.6);
+  const dots=pts.map(([n,v])=>svgEl('circle',{cx:P(n,v)[0],cy:P(n,v)[1],r:7,fill:C.yellow,style:'opacity:0;visibility:hidden'},svg));
+  tl.to(dots,{autoAlpha:1,duration:.1,stagger:.14},cue(sid,'multiplicatively'));
+  const fin=txt(S,'0.9<sup>10</sup> ≈ 0.35',P(10,0)[0]+40,P(0,.35)[1]-50,{fs:40,mono:true,color:C.yellow});show(fin,cue(sid,'three'),.4);
+  const xl=txt(S,'steps',P(5,0)[0],1000,{fs:30,it:true,color:C.dim});show(xl,cue(sid,'shrinks'),.4);
+  const ind=txt(S,'if errors are independent',1500,560,{fs:32,it:true,color:C.dim});show(ind,cue(sid,'independent'),.4);
+  tl.to(cs[3],{fill:'#fc625566',stroke:C.red,duration:.4},cue(sid,'wrong'));
+  cs.slice(4).forEach((c,i)=>tl.to(c,{stroke:'#fc6255',fill:'#fc625522',duration:.3},cue(sid,'every')+i*.1));
+  const ff=txt(S,'a wrong observation feeds every later step',1100,390,{fs:32,it:true,color:C.red});show(ff,cue(sid,'feed'),.4);
+  tl.to(p,{autoAlpha:0,duration:.3},cue(sid,'feed')-.2);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: harness guards ============ */
+(function(){const S=$('S6');const sid='s6';
+  const items=[['validate arguments against a schema','validates',C.blue],['return readable error messages','error',C.yellow],['cap the number of steps','caps',C.pink],['confirm irreversible actions','confirmation',C.red]];
+  items.forEach(([t,w,c],i)=>{const y=280+i*130;const k=box(S,380,y,90,90,'✓',c,{fs:44});const d=txt(S,t,470,y,{fs:44,color:C.ink});d.style.translate='0 -50%';show([k,d],cue(sid,w),.4)});
+  const ex=box(S,1440,410,640,110,'<span class="mono" style="font-size:26px">ERROR: args.city is required (string)</span>',C.yellow,{fs:26});show(ex,cue(sid,'read'),.4);
+  const cf=box(S,1440,670,640,110,'<span style="font-size:32px">Delete 214 files? &nbsp;[yes / no]</span>',C.red,{fs:32});show(cf,cue(sid,'undone'),.4);
+  const s=el(S,'cap','silent failure → text someone can act on',{top:'900px',fontSize:'46px',fontStyle:'italic'});show(s,cue(sid,'silent'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: same predictor, new connections; next ============ */
+(function(){const S=$('S7');const sid='s7';
+  const svg=layerSvg(S);
+  const m=box(S,960,420,440,140,'next-token predictor',C.blue,{fs:42});show(m,cue(sid,'predictor'),.5);
+  const ts=[['search',420,220],['code',420,620],['calendar',1500,220],['files',1500,620]];
+  ts.forEach(([t,x,y])=>{const b=box(S,x,y,260,84,t,C.green,{fs:34});const l=ln(svg,960+(x<960?-220:220),420,x+(x<960?130:-130),y,C.dim,3);show(b,cue(sid,'connected'),.4);fadeIn(l,cue(sid,'connected'),.4)});
+  const q=el(S,'cap','is any of it working?',{top:'760px',fontSize:'54px',fontStyle:'italic',color:C.yellow});show(q,cue(sid,'working'),.5);
+  nextUp(S,sid,'lesson',1,'10.7 &nbsp;evaluating models');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

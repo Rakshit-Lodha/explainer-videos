@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="228.39" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="228.39" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 10.4 KV cache</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="22.359"></div>
+  <div class="clip scene" id="S2" data-start="22.359" data-duration="30.161"></div>
+  <div class="clip scene" id="S3" data-start="52.52" data-duration="21.968"></div>
+  <div class="clip scene" id="S4" data-start="74.488" data-duration="23.846"></div>
+  <div class="clip scene" id="S5" data-start="98.334" data-duration="26.748"></div>
+  <div class="clip scene" id="S6" data-start="125.082" data-duration="34.733"></div>
+  <div class="clip scene" id="S7" data-start="159.815" data-duration="40.927"></div>
+  <div class="clip scene" id="S8" data-start="200.742" data-duration="27.648"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":22.359,"s3":52.52,"s4":74.488,"s5":98.334,"s6":125.082,"s7":159.815,"s8":200.742},"total":228.39,"cues":{"s1":[["when",0.0],["a",0.313],["chat",0.438],["model",0.75],["writes",1.126],["a",1.563],["long",1.689],["answer",2.001],["the",2.836],["first",3.088],["words",3.467],["usually",3.846],["arrive",4.351],["after",4.793],["a",5.171],["short",5.298],["pause",5.676],["and",6.479],["then",6.706],["the",6.989],["rest",7.216],["stream",7.499],["out",7.896],["one",8.123],["token",8.349],["at",8.689],["a",8.859],["time",8.973],["behind",9.572],["that",10.02],["stream",10.341],["sits",10.789],["a",11.11],["structure",11.238],["called",11.879],["the",12.327],["kv",12.584],["cache",12.776],["which",13.676],["trades",14.015],["memory",14.411],["for",14.806],["speed",15.032],["and",15.827],["the",16.076],["size",16.324],["of",16.635],["that",16.822],["memory",17.133],["is",17.568],["one",17.755],["of",18.004],["the",18.19],["main",18.439],["reasons",18.75],["why",19.247],["context",19.496],["windows",19.993],["have",20.491],["limits",20.802],["at",21.237],["all",21.424]],"s2":[["generation",0.0],["is",0.474],["a",0.604],["loop",0.69],["the",1.338],["model",1.556],["reads",1.882],["the",2.208],["text",2.426],["so",2.697],["far",2.86],["predicts",3.721],["one",4.179],["token",4.382],["appends",5.017],["it",5.416],["and",5.853],["runs",6.048],["again",6.292],["inside",6.993],["every",7.382],["attention",7.715],["layer",8.27],["each",9.071],["position",9.367],["produces",9.901],["a",10.434],["query",10.553],["a",11.291],["key",11.337],["and",11.428],["a",11.52],["value",11.565],["the",11.933],["query",12.206],["says",12.616],["what",12.958],["this",13.299],["position",13.641],["is",14.255],["looking",14.46],["for",15.006],["a",15.895],["key",16.02],["advertises",16.27],["what",16.958],["a",17.271],["position",17.396],["contains",17.959],["and",18.929],["a",19.161],["value",19.277],["is",19.625],["what",19.799],["gets",20.089],["passed",20.379],["along",20.785],["when",21.134],["a",21.424],["query",21.54],["matches",21.888],["a",22.352],["key",22.468],["rather",23.23],["like",23.606],["the",23.875],["index",24.09],["card",24.412],["in",24.681],["a",24.842],["library",24.95],["catalogue",25.379],["which",26.355],["describes",26.626],["a",27.078],["book",27.169],["sitting",27.867],["next",28.314],["to",28.593],["the",28.761],["book",28.984],["itself",29.264]],"s3":[["because",0.0],["of",0.87],["the",1.196],["causal",1.631],["mask",2.392],["the",3.186],["key",3.377],["and",3.568],["value",3.76],["at",4.047],["a",4.19],["position",4.286],["depend",4.716],["only",5.051],["on",5.29],["the",5.433],["tokens",5.624],["up",5.959],["to",6.103],["that",6.246],["position",6.485],["so",7.541],["once",7.713],["they",8.0],["are",8.286],["computed",8.516],["they",9.032],["never",9.318],["change",9.662],["a",10.361],["naive",10.487],["loop",10.863],["recomputes",11.176],["them",11.865],["for",12.179],["the",12.429],["entire",12.68],["sequence",13.118],["at",13.682],["every",13.87],["step",14.246],["which",14.862],["is",15.256],["like",15.453],["rereading",15.781],["a",16.436],["novel",16.568],["from",16.961],["the",17.289],["first",17.551],["page",17.945],["every",18.273],["time",18.666],["you",18.994],["want",19.257],["to",19.585],["read",19.781],["one",20.109],["more",20.372],["sentence",20.7]],"s4":[["the",0.0],["kv",0.246],["cache",0.431],["simply",0.8],["keeps",1.231],["them",1.6],["at",2.525],["each",2.706],["step",3.009],["the",3.311],["model",3.553],["computes",3.916],["the",4.461],["query",4.703],["key",5.573],["and",5.799],["value",6.025],["for",6.364],["the",6.59],["single",6.816],["new",7.212],["token",7.438],["appends",8.283],["the",8.684],["new",8.885],["key",9.085],["and",9.286],["value",9.487],["to",9.788],["the",9.938],["cache",10.139],["in",10.44],["every",10.59],["layer",10.891],["and",11.664],["lets",11.889],["the",12.171],["new",12.396],["query",12.621],["attend",12.96],["over",13.354],["everything",13.636],["stored",14.256],["the",14.971],["work",15.182],["per",15.446],["step",15.657],["shrinks",15.921],["from",16.344],["processing",16.608],["the",17.188],["whole",17.399],["sequence",17.716],["to",18.191],["processing",18.35],["one",18.93],["token",19.141],["plus",19.739],["one",20.078],["row",20.35],["of",20.621],["attention",20.824],["scores",21.502],["against",21.977],["the",22.519],["cache",22.79]],"s5":[["this",0.0],["splits",0.327],["generation",0.784],["into",1.502],["two",1.829],["phases",2.09],["in",3.05],["the",3.214],["prefill",3.433],["the",4.307],["whole",4.525],["prompt",4.852],["is",5.234],["processed",5.397],["in",5.943],["parallel",6.106],["and",6.597],["the",6.815],["cache",7.033],["is",7.361],["filled",7.524],["which",8.337],["is",8.644],["why",8.797],["the",9.002],["first",9.206],["token",9.513],["takes",9.82],["the",10.127],["longest",10.332],["in",11.048],["the",11.191],["decode",11.382],["phase",11.717],["tokens",12.358],["come",12.737],["one",13.008],["at",13.224],["a",13.387],["time",13.495],["and",14.272],["each",14.511],["step",14.808],["must",15.106],["read",15.403],["the",15.701],["entire",15.939],["cache",16.356],["along",17.14],["with",17.421],["all",17.656],["of",17.843],["the",17.984],["model's",18.171],["weights",18.546],["from",19.436],["memory",19.694],["that",20.388],["is",20.703],["why",20.892],["decoding",21.144],["speed",21.711],["is",22.089],["often",22.278],["limited",22.656],["by",23.16],["memory",23.349],["bandwidth",23.79],["rather",24.42],["than",24.861],["by",25.176],["arithmetic",25.365]],"s6":[["how",0.0],["big",0.31],["is",0.619],["the",0.851],["cache",1.161],["for",1.969],["every",2.208],["token",2.567],["it",2.926],["stores",3.105],["one",3.524],["key",3.763],["and",4.002],["one",4.241],["value",4.481],["in",5.37],["every",5.544],["layer",5.892],["and",6.24],["for",6.472],["every",6.704],["key-value",7.052],["head",7.632],["so",8.275],["its",8.51],["size",8.824],["is",9.216],["two",9.451],["times",10.277],["the",10.599],["layers",10.813],["times",11.753],["the",12.103],["key-value",12.337],["heads",12.92],["times",13.671],["the",14.003],["head",14.224],["dimension",14.501],["times",15.5],["the",15.821],["bytes",16.035],["per",16.357],["number",16.571],["times",17.471],["the",17.887],["tokens",18.165],["for",19.034],["a",19.282],["model",19.407],["shaped",19.78],["like",20.215],["llama",20.526],["2",20.899],["with",21.024],["seven",21.335],["billion",21.708],["parameters",22.206],["in",23.337],["sixteen-bit",23.438],["precision",23.842],["that",24.355],["comes",24.778],["to",25.286],["half",25.54],["a",25.964],["megabyte",26.133],["for",26.895],["every",27.234],["token",27.742],["so",28.543],["a",28.722],["conversation",28.842],["of",29.62],["four",29.8],["thousand",30.1],["tokens",30.638],["holds",31.058],["about",31.417],["two",31.776],["gigabytes",32.016],["for",33.106],["a",33.354],["single",33.478],["user",33.911]],"s7":[["since",0.0],["the",0.313],["cache",0.522],["grows",0.835],["with",1.148],["the",1.409],["context",1.618],["length",2.035],["and",2.4],["with",2.609],["the",2.87],["number",3.078],["of",3.444],["users",3.6],["served",3.913],["at",4.279],["once",4.435],["a",5.099],["great",5.253],["deal",5.713],["of",6.097],["engineering",6.328],["goes",7.249],["into",7.633],["shrinking",8.017],["it",8.785],["multi-query",9.093],["attention",10.014],["proposed",11.32],["by",11.965],["noam",12.18],["shazeer",12.538],["in",13.111],["twenty",13.326],["nineteen",13.828],["lets",14.76],["all",15.04],["the",15.265],["query",15.489],["heads",15.825],["share",16.162],["a",16.498],["single",16.61],["key",17.003],["and",17.227],["value",17.451],["head",17.787],["grouped-query",18.545],["attention",19.505],["from",20.488],["ainslie",20.571],["and",20.705],["colleagues",20.772],["shares",21.162],["each",21.555],["key",21.836],["and",22.061],["value",22.285],["head",22.623],["among",22.904],["a",23.241],["group",23.353],["of",23.69],["query",23.859],["heads",24.196],["and",24.817],["the",25.124],["largest",25.431],["llama",26.046],["2",26.507],["model",26.66],["uses",27.121],["it",27.505],["with",27.736],["eight",28.12],["key-value",28.58],["heads",29.349],["serving",30.102],["systems",30.65],["such",31.197],["as",31.54],["vllm",31.745],["store",32.087],["the",32.498],["cache",32.771],["in",33.182],["small",33.387],["fixed-size",33.798],["blocks",34.551],["like",35.333],["the",35.607],["pages",35.826],["of",36.155],["memory",36.319],["in",36.703],["an",36.867],["operating",37.031],["system",37.579],["so",38.358],["that",38.514],["very",38.774],["little",39.034],["of",39.398],["it",39.554],["is",39.71],["wasted",39.866]],"s8":[["so",0.0],["a",0.21],["context",0.35],["window",0.911],["is",1.402],["limited",1.612],["by",2.173],["more",2.383],["than",2.734],["the",3.084],["length",3.364],["a",3.855],["model",3.995],["was",4.416],["trained",4.696],["on",5.257],["the",5.869],["cache",6.098],["grows",6.441],["with",6.784],["every",7.07],["token",7.412],["and",8.18],["each",8.427],["new",8.736],["token",8.983],["must",9.353],["attend",9.662],["over",10.094],["all",10.403],["of",10.65],["it",10.835],["with",11.321],["that",11.584],["picture",11.846],["in",12.267],["mind",12.424],["the",13.127],["next",13.376],["lesson",13.686],["revisits",14.12],["a",14.679],["technique",14.803],["you",15.423],["have",15.671],["already",15.981],["used",16.478],["retrieval-augmented",17.322],["generation",18.737],["and",20.025],["asks",20.285],["what",20.61],["really",20.935],["happens",21.39],["inside",21.91],["the",22.365],["model",22.625],["when",23.015],["retrieved",23.34],["text",23.99],["is",24.315],["placed",24.51],["in",24.965],["its",25.16],["context",25.42]]}}/*END*/;
+const IDS=['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'];
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+/* ============ S1: streaming, and a cache that trades memory for speed ============ */
+(function(){const S=$('S1');const sid='s1';
+  const bub=el(S,'abs','',{left:'200px',top:'220px',width:'1000px',height:'360px',border:'3px solid #58c4dd',borderRadius:'28px',background:'#141a22',opacity:0,visibility:'hidden'});
+  show(bub,cue(sid,'writes'),.5);
+  const dots=txt(S,'• • •',300,300,{fs:44,color:C.dim});show(dots,cue(sid,'pause')-.6,.3);fadeOut(dots,cue(sid,'then'),.2);
+  const words='The cache keeps the keys and values of every earlier token, so each new token only has to compute its own, instead of repeating the work for the whole text.'.split(' ');
+  const p=el(S,'abs',words.map(w=>`<span class="w" style="opacity:0;visibility:hidden">${w} </span>`).join(''),{left:'250px',top:'260px',width:'900px',fontSize:'40px',lineHeight:'1.45'});
+  tl.to(p.querySelectorAll('.w'),{autoAlpha:1,duration:.05,stagger:.16},cue(sid,'then'));
+  const kv=box(S,1520,300,420,110,'KV cache',C.yellow,{fs:48});show(kv,cue(sid,'kv'),.5);
+  const tr=txt(S,'memory ⇄ speed',1520,420,{fs:40,it:true,color:C.dim});show(tr,cue(sid,'trades'),.4);
+  const barBg=el(S,'abs','',{left:'200px',top:'760px',width:'1520px',height:'60px',border:'2px solid #2a6f97',borderRadius:'6px',opacity:0,visibility:'hidden'});
+  const bar=el(S,'abs','',{left:'200px',top:'760px',width:'1520px',height:'60px',background:'#f5cf4a88',borderRadius:'6px',transformOrigin:'0% 50%',opacity:0,visibility:'hidden'});
+  bar.setAttribute('data-layout-allow-overlap','');
+  fadeIn(barBg,cue(sid,'size'),.4);
+  tl.fromTo(bar,{autoAlpha:1,scaleX:0},{autoAlpha:1,scaleX:.92,duration:2.4,ease:'power1.in',immediateRender:false},cue(sid,'size'));
+  const bl=txt(S,'cache memory, growing with every token',960,860,{fs:34,it:true,color:C.yellow});show(bl,cue(sid,'size'),.4);
+  const lim=svgEl('line',{x1:1600,y1:730,x2:1600,y2:850,stroke:C.red,'stroke-width':5,style:'opacity:0;visibility:hidden'},layerSvg(S));
+  fadeIn(lim,cue(sid,'limits'),.3);
+  const ll=txt(S,'context limit',1600,700,{fs:32,it:true,color:C.red});show(ll,cue(sid,'limits'),.3);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: the generation loop; queries, keys and values ============ */
+(function(){const S=$('S2');const sid='s2';
+  const toks=['The','cat','sat','on','the'];
+  const chips=toks.map((t,i)=>cellAt(S,240+i*150,230,130,70,t,C.grid,{fs:32}));
+  show(chips.slice(0,3),cue(sid,'reads'),.4,{stagger:.1});
+  const m=box(S,1260,230,300,100,'model',C.blue,{fs:40});show(m,cue(sid,'model'),.4);
+  const svg=layerSvg(S);
+  const a=pxArrow(svg,C.dim,4,920,230,1100,230);growPx(a,cue(sid,'predicts'),.4);
+  const back=pth(svg,'M1260 285 Q1260 360 900 360 Q690 360 690 270',C.yellow,4,{dash:'10 8'});
+  drawOn(back,cue(sid,'appends'),.6);show(chips[3],cue(sid,'appends')+.5,.4);
+  tl.to(back,{autoAlpha:0,duration:.01},cue(sid,'runs')+.2);tl.to(back,{autoAlpha:1,duration:.01},cue(sid,'runs')+.3);
+  show(chips[4],cue(sid,'again'),.4);
+  // q, k, v for one position
+  const pos=cellAt(S,300,560,150,80,'sat',C.ink,{fs:36});show(pos,cue(sid,'position'),.4);
+  const vecs=[['q',C.yellow,'what am I looking for?'],['k',C.blue,'what do I contain?'],['v',C.green,'what I pass along']];
+  vecs.forEach(([n,c,d],i)=>{const y=470+i*95;
+    const ar=pxArrow(svg,c,4,390,560,520,y);
+    const bx=cellAt(S,600,y,140,70,n,c,{fs:40,ink:c});
+    const ds=txt(S,d,860,y,{fs:32,it:true,color:c});
+    const t=[cue(sid,'query'),cue(sid,'key'),cue(sid,'value')][i];
+    growPx(ar,t,.4);show(bx,t,.4);show(ds,[cue(sid,'says'),cue(sid,'advertises'),cue(sid,'passed')][i],.4)});
+  // library card analogy
+  const card=box(S,1400,560,380,170,'<span style="font-size:30px"><span class="mono" style="color:#58c4dd">key</span><br>“whales, ocean, migration”</span>',C.blue,{fs:30});
+  const book=box(S,1720,560,220,250,'<span style="font-size:30px"><span class="mono" style="color:#83c167">value</span><br>the book</span>',C.green,{fs:30});
+  show(card,cue(sid,'card'),.5);show(book,cue(sid,'book',2),.5);
+  const ql=txt(S,'query: “something about the sea”',1520,800,{fs:32,it:true,color:C.yellow});show(ql,cue(sid,'library'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: causal mask; the naive loop repeats work ============ */
+(function(){const S=$('S3');const sid='s3';
+  const n=8,cs=70,x0=300,y0=230;const cells=[];
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){const c=el(S,'abs','',{left:(x0+j*cs)+'px',top:(y0+i*cs)+'px',width:(cs-6)+'px',height:(cs-6)+'px',borderRadius:'6px',background:j<=i?'#58c4dd55':'#2a2f38',border:'2px solid '+(j<=i?C.blue:'#3a404a'),opacity:0,visibility:'hidden'});cells.push({c,i,j})}
+  fadeIn(cells.map(o=>o.c),cue(sid,'causal'),.6);
+  const ml=txt(S,'each row sees only the past',x0+n*cs/2,y0+n*cs+50,{fs:34,it:true,color:C.dim});show(ml,cue(sid,'mask'),.4);
+  const kl=txt(S,'keys and values: fixed once computed',1340,300,{fs:38,color:C.blue});show(kl,cue(sid,'computed'),.4);
+  // naive: every step recomputes everything up to t
+  const steps=[3,4,5,6,7];
+  steps.forEach((t,s)=>{const tt=cue(sid,'recomputes')+s*1.3;const sel=cells.filter(o=>o.i<=t&&o.j<=o.i).map(o=>o.c);
+    tl.to(sel,{background:'#fc625577',borderColor:C.red,duration:.25},tt);tl.to(sel,{background:'#58c4dd55',borderColor:C.blue,duration:.4},tt+.6)});
+  const nv=txt(S,'naive loop: redo every row, every step',1340,420,{fs:36,color:C.red});show(nv,cue(sid,'naive'),.4);
+  // novel analogy
+  const pages=[];for(let k=0;k<5;k++)pages.push(el(S,'abs','',{left:(1180+k*16)+'px',top:(520+k*10)+'px',width:'300px',height:'360px',background:'#e8edf3',border:'2px solid #7f8b99',borderRadius:'4px',opacity:0,visibility:'hidden'}));
+  pages.forEach(p=>p.setAttribute('data-layout-allow-overlap',''));
+  fadeIn(pages,cue(sid,'novel'),.4);
+  const pt=txt(S,'page 1… again',1380,1000,{fs:34,it:true,color:C.dim});show(pt,cue(sid,'first'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: the cache keeps them ============ */
+(function(){const S=$('S4');const sid='s4';
+  const KX=760,VX=1180,y0=260,rh=62;
+  const hk=txt(S,'K cache',KX,200,{fs:40,color:C.blue}),hv=txt(S,'V cache',VX,200,{fs:40,color:C.green});show([hk,hv],cue(sid,'cache'),.4);
+  const rows=[];
+  for(let i=0;i<9;i++){const k=cellAt(S,KX,y0+i*rh,300,50,'k'+(i+1),C.blue,{fs:26,ink:C.blue}),v=cellAt(S,VX,y0+i*rh,300,50,'v'+(i+1),C.green,{fs:26,ink:C.green});rows.push([k,v])}
+  show(rows.slice(0,5).flat(),cue(sid,'keeps'),.4,{stagger:.04});
+  const tokx=280;const tok=cellAt(S,tokx,y0+5*rh,200,60,'new token',C.yellow,{fs:28});
+  const svg=layerSvg(S);
+  const q=cellAt(S,1640,y0+5*rh,160,56,'q',C.yellow,{fs:32,ink:C.yellow});
+  // step 1
+  const st=cue(sid,'computes');
+  show(tok,st,.4);
+  tl.fromTo(rows[5],{autoAlpha:0,x:-300},{autoAlpha:1,x:0,duration:.8,ease:'power2.out',immediateRender:false},cue(sid,'appends'));
+  show(q,cue(sid,'query',2),.4);
+  const lines=[];for(let i=0;i<6;i++){const l=ln(svg,1560,y0+5*rh,KX+150,y0+i*rh,C.yellow,2);lines.push(l)}
+  tl.to(lines,{autoAlpha:.8,duration:.4,stagger:.05},cue(sid,'attend'));
+  // next steps, briefly
+  [6,7].forEach((r,s)=>{const t=cue(sid,'everything')+1.2+s*1.4;
+    tl.to(lines,{autoAlpha:0,duration:.2},t-.2);
+    tl.fromTo(rows[r],{autoAlpha:0,x:-300},{autoAlpha:1,x:0,duration:.6,ease:'power2.out',immediateRender:false},t);
+    tl.to([tok,q],{y:'+='+rh,duration:.6},t)});
+  const wk=para(S,'work per step: <span style="color:#f5cf4a">one token</span> + <span style="color:#f5cf4a">one row</span> of attention scores',1340,820,560,{fs:36});
+  show(wk,cue(sid,'shrinks'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: prefill and decode ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);
+  const ax=ln(svg,160,520,1760,520,C.axis,3);fadeIn(ax,cue(sid,'phases'),.4);
+  const tl0=txt(S,'time →',1760,560,{fs:30,it:true,color:C.dim});show(tl0,cue(sid,'phases'),.4);
+  const pre=el(S,'abs','',{left:'160px',top:'300px',width:'520px',height:'200px',background:'#58c4dd33',border:'3px solid #58c4dd',borderRadius:'6px',transformOrigin:'0% 50%',opacity:0,visibility:'hidden'});
+  const pl=txt(S,'prefill: whole prompt in parallel',420,260,{fs:34,color:C.blue});
+  tl.fromTo(pre,{autoAlpha:0,scaleX:0},{autoAlpha:1,scaleX:1,duration:1.2,immediateRender:false},cue(sid,'prefill'));show(pl,cue(sid,'prefill'),.4);
+  const ttf=txt(S,'first token',700,570,{fs:30,it:true,color:C.yellow});
+  const t1=el(S,'abs','',{left:'690px',top:'400px',width:'22px',height:'100px',background:C.yellow,borderRadius:'4px',opacity:0,visibility:'hidden'});
+  show([t1,ttf],cue(sid,'longest'),.4);
+  const ticks=[];for(let i=1;i<20;i++)ticks.push(el(S,'abs','',{left:(690+i*52)+'px',top:'400px',width:'22px',height:'100px',background:C.yellow,borderRadius:'4px',opacity:0,visibility:'hidden'}));
+  tl.to(ticks,{autoAlpha:1,duration:.1,stagger:.22},cue(sid,'decode'));
+  const dl=txt(S,'decode: one token per step',1220,350,{fs:34,color:C.yellow});show(dl,cue(sid,'decode'),.4);
+  // memory read each step
+  const wts=box(S,520,800,420,120,'all weights',C.blue,{fs:38}),cch=box(S,1000,800,320,120,'whole cache',C.yellow,{fs:38});
+  const chip=box(S,1500,800,280,140,'compute',C.pink,{fs:38});
+  show(wts,cue(sid,'weights'),.4);show(cch,cue(sid,'cache',2),.4);show(chip,cue(sid,'memory'),.4);
+  const a1=pxArrow(svg,C.dim,6,1170,800,1350,800);growPx(a1,cue(sid,'memory'),.5);
+  const bw=txt(S,'memory bandwidth is the bottleneck',1000,960,{fs:38,it:true,color:C.ink});show(bw,cue(sid,'bandwidth'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: how big is the cache? ============ */
+(function(){const S=$('S6');const sid='s6';
+  const parts=[['2','K and V',C.pink],['n_{layers}','layers',C.blue],['n_{kv\\,heads}','KV heads',C.blue],['d_{head}','head dim',C.blue],['b','bytes',C.dim],['T','tokens',C.yellow]];
+  const xs=[240,500,820,1140,1380,1610];
+  const cues6=[cue(sid,'two'),cue(sid,'layers'),cue(sid,'heads'),cue(sid,'dimension'),cue(sid,'bytes'),cue(sid,'tokens',2)];
+  parts.forEach(([t,l,c],i)=>{const e=eqn(S,t,xs[i],300,58,{color:c});const lb=txt(S,l,xs[i],390,{fs:30,it:true,color:C.dim});show([e,lb],cues6[i],.4);
+    if(i<5){const x=eqn(S,'\\times',(xs[i]+xs[i+1])/2,300,52);show(x,cues6[i]+.2,.3)}});
+  const vals=['2','32','32','128','2','×'];
+  const nums=vals.slice(0,5).map((v,i)=>txt(S,v,xs[i],470,{fs:44,mono:true,color:C.ink}));
+  show(nums,cue(sid,'llama'),.4,{stagger:.1});
+  const ll=txt(S,'Llama-2-7B shape, 16-bit',1600,470,{fs:32,it:true,color:C.dim});show(ll,cue(sid,'llama'),.4);
+  const per=txt(S,'= 524,288 bytes ≈ 0.5 MB per token',960,600,{fs:46,mono:true,color:C.yellow});show(per,cue(sid,'half'),.5);
+  const bg=el(S,'abs','',{left:'260px',top:'760px',width:'1400px',height:'70px',border:'2px solid #2a6f97',borderRadius:'6px',opacity:0,visibility:'hidden'});
+  const fill=el(S,'abs','',{left:'260px',top:'760px',width:'1400px',height:'70px',background:'#f5cf4a88',borderRadius:'6px',transformOrigin:'0% 50%',opacity:0,visibility:'hidden'});
+  fill.setAttribute('data-layout-allow-overlap','');
+  fadeIn(bg,cue(sid,'conversation'),.3);
+  tl.fromTo(fill,{autoAlpha:1,scaleX:0},{autoAlpha:1,scaleX:1,duration:2,ease:'none',immediateRender:false},cue(sid,'conversation'));
+  const cnt=txt(S,'0 tokens',960,880,{fs:38,mono:true,color:C.ink});show(cnt,cue(sid,'conversation'),.3);
+  countTo(cnt,cue(sid,'conversation'),2,0,4096,v=>`${Math.round(v)} tokens · ${(v*524288/2**30).toFixed(2)} GB`);
+  const one=txt(S,'for a single user',960,960,{fs:36,it:true,color:C.dim});show(one,cue(sid,'single'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: MQA, GQA and paging ============ */
+(function(){const S=$('S7');const sid='s7';
+  const svg=layerSvg(S);
+  const panels=[['multi-head',8,320,null],['multi-query',1,960,cue(sid,'multi-query')],['grouped-query',2,1600,cue(sid,'grouped-query')]];
+  panels.forEach(([name,nkv,cx,t],pi)=>{const T=t||cue(sid,'shrinking');const els=[];
+    const qs=[];for(let i=0;i<8;i++){const x=cx-245+i*70;qs.push(x);els.push(cellAt(S,x,280,56,56,'q',C.yellow,{fs:24,ink:C.yellow}))}
+    const kvs=[];const nk=pi===0?8:nkv;for(let i=0;i<nk;i++){const x=nk===1?cx:(nk===8?qs[i]:cx-150+i*300);kvs.push(x);els.push(cellAt(S,x,470,nk===8?56:120,56,'kv',C.blue,{fs:24,ink:C.blue}))}
+    qs.forEach((x,i)=>{const k=nk===8?i:(nk===1?0:Math.floor(i/4));const l=ln(svg,x,308,kvs[k],442,C.dim,2);els.push(l)});
+    const lb=txt(S,name,cx,560,{fs:34,it:true,color:C.ink});els.push(lb);
+    tl.to(els,{autoAlpha:1,duration:.4},T)});
+  const r1=txt(S,'Shazeer, 2019',960,610,{fs:28,it:true,color:C.dim}),r2=txt(S,'Ainslie et al., 2023',1600,610,{fs:28,it:true,color:C.dim});
+  show(r1,cue(sid,'shazeer'),.4);show(r2,cue(sid,'ainslie'),.4);
+  const g8=txt(S,'Llama 2 70B: 8 KV heads',1600,665,{fs:30,color:C.blue});show(g8,cue(sid,'eight'),.4);
+  // paged blocks
+  const cols=[C.yellow,C.pink,C.green,C.blue];const seq=[0,1,0,2,3,1,1,0,2,2,3,0,1,3,2,0,1,2,3,3,0,1,2,0];
+  const blocks=seq.map((u,i)=>{const b=el(S,'abs','',{left:(420+(i%12)*90)+'px',top:(760+Math.floor(i/12)*90)+'px',width:'76px',height:'76px',borderRadius:'6px',background:cols[u]+'66',border:'2px solid '+cols[u],opacity:0,visibility:'hidden'});return b});
+  tl.to(blocks,{autoAlpha:1,duration:.15,stagger:.08},cue(sid,'blocks'));
+  const pl=txt(S,'vLLM: the cache in fixed-size pages, any order',1500,720,{fs:30,it:true,color:C.dim});show(pl,cue(sid,'vllm'),.4);
+  const lg=txt(S,'colours = different users',1680,860,{fs:28,it:true,color:C.dim});show(lg,cue(sid,'pages'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S8: the window's real limits; next ============ */
+(function(){const S=$('S8');const sid='s8';
+  const svg=layerSvg(S);
+  const P=(x,y)=>[260+x*1300,780-y*480];
+  const ax=ln(svg,P(0,0)[0],P(0,0)[1],P(1,0)[0],P(1,0)[1],C.axis,3),ay=ln(svg,P(0,0)[0],P(0,0)[1],P(0,1)[0],P(0,1)[1],C.axis,3);
+  fadeIn([ax,ay],at(sid,.01),.4);
+  const xl=txt(S,'tokens in context',910,830,{fs:32,it:true,color:C.dim});show(xl,at(sid,.01),.4);
+  const mem=pth(svg,polyD(P,[[0,0],[1,.9]]),C.yellow,5);drawOn(mem,cue(sid,'cache'),1.2);
+  const ml=txt(S,'cache memory: grows linearly',1300,330,{fs:32,color:C.yellow});show(ml,cue(sid,'grows'),.4);
+  const tr=ln(svg,P(.62,0)[0],P(0,0)[1],P(.62,1)[0],P(0,1)[1],C.red,4,{dash:'12 10'});fadeIn(tr,cue(sid,'trained'),.4);
+  const trl=txt(S,'trained length',P(.62,0)[0],250,{fs:30,it:true,color:C.red});show(trl,cue(sid,'trained'),.4);
+  const at1=txt(S,'each new token attends over all of it',910,900,{fs:34,it:true,color:C.ink});show(at1,cue(sid,'attend'),.4);
+  nextUp(S,sid,'lesson',1,'10.5 &nbsp;retrieval-augmented generation');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

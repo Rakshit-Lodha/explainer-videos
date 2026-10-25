@@ -1,0 +1,103 @@
+{
+  "id": "10.6-tools-agents",
+  "module": 10,
+  "title": "Tool use and agents",
+  "summary": "A model only produces tokens. A tool call is text in an agreed format; the harness parses it, validates it, runs the real function and appends the result to the context. An agent repeats this reason-act-observe loop (ReAct), with the growing transcript as its memory. Because steps compound, reliability falls quickly with task length, so good harnesses validate, report errors as text, cap steps and confirm irreversible actions.",
+  "video": "videos/10.6-tools-agents.mp4",
+  "llm_link": "Function calling in every LLM API is this mechanism: you send tool schemas, the model returns a structured call, your code runs it and sends back the result as a new message. The model never executes anything itself.",
+  "key_ideas": [
+    "The model emits text; the harness turns text that matches a tool-call format into a real function call, then writes the result back as tokens.",
+    "Toolformer (Schick et al., 2023): self-supervised; keep an inserted API call only if its result lowers the loss on the following tokens.",
+    "Chat models are fine-tuned on tool-call examples in their chat template, so tool descriptions in the prompt steer well-formed calls.",
+    "ReAct (Yao et al., 2022): interleave reasoning, action and observation until an answer. The context is the agent's working memory; a KV cache can reuse the shared prefix.",
+    "Compounding: with independent per-step success p, an n-step task succeeds with probability pⁿ (0.9¹⁰ ≈ 0.35).",
+    "Harness guards: schema validation, readable error messages, step caps, confirmation before irreversible actions."
+  ],
+  "quiz": [
+    {
+      "q": "Predict the result: each step of an agent succeeds independently with probability 0.9. What is the chance that a 10-step task has no failed step?",
+      "options": ["About 0.90", "About 0.35", "About 0.09", "About 0.65"],
+      "answer": 1,
+      "explain": "0.9¹⁰ ≈ 0.349. Independent probabilities multiply, so long chains of individually reliable steps are often unreliable."
+    },
+    {
+      "q": "When a model 'calls' a weather API, who actually sends the HTTP request?",
+      "options": ["The model's weights", "The harness: it parses the model's tool-call text and runs the function", "The tokenizer", "The KV cache"],
+      "answer": 1,
+      "explain": "The model only writes the call as text. Your code (or the provider's) executes it and appends the result to the context."
+    },
+    {
+      "q": "How did Toolformer decide which inserted API calls to keep for training?",
+      "options": ["Human annotators marked useful calls", "It kept calls whose results reduced the loss on the following tokens", "It kept every call that returned without error", "It kept the shortest calls"],
+      "answer": 1,
+      "explain": "A call was useful if having its result made the rest of the text easier to predict: a self-supervised signal, no labels needed."
+    },
+    {
+      "q": "A tool receives an argument of the wrong type. What should a well-built harness do?",
+      "options": ["Crash the agent", "Silently use a default value", "Return a clear error message as text so the model can read it and retry", "Delete the tool from the list"],
+      "answer": 2,
+      "explain": "The model can only react to text in its context. A readable error turns a silent failure into something it can correct."
+    },
+    {
+      "q": "In a ReAct-style agent, where is the agent's memory of what it has done so far?",
+      "options": ["In updated weights", "In the growing transcript in its context window", "In the tool's database", "Nowhere; each step is independent"],
+      "answer": 1,
+      "explain": "Every thought, action and observation is appended to the context, which the model reads at each step. That is also why long agent runs fill the context window."
+    }
+  ],
+  "problems": [
+    {
+      "id": "parse",
+      "title": "Parse a tool call",
+      "prompt": "<p>The model writes tool calls as JSON: <code>{\"tool\": \"add\", \"args\": {\"a\": 2, \"b\": 3}}</code>. Write <code>parse_call(text)</code> that returns <code>(tool_name, args_dict)</code>.</p><p>If the text is not valid JSON, or has no <code>\"tool\"</code> key, or <code>\"args\"</code> is not a dictionary, raise <code>ValueError</code> with a message the model could read. (<code>json.loads</code> raises <code>json.JSONDecodeError</code>, which is itself a kind of ValueError.)</p>",
+      "starter": "import json\n\ndef parse_call(text):\n    # TODO 1: data = json.loads(text)  (bad JSON already raises a ValueError)\n    # TODO 2: check data is a dict with a 'tool' key, else raise ValueError(\"missing 'tool'\")\n    # TODO 3: args = data.get('args', {}); must be a dict, else raise ValueError(\"'args' must be an object\")\n    pass\n",
+      "tests": [
+        {"name": "valid call", "code": "out = parse_call('{\"tool\": \"add\", \"args\": {\"a\": 2, \"b\": 3}}')\nassert out == ('add', {'a': 2, 'b': 3}), f\"expected ('add', {{'a': 2, 'b': 3}}), got {out}\""},
+        {"name": "missing args means no arguments", "code": "out = parse_call('{\"tool\": \"now\"}')\nassert out == ('now', {}), f\"a call without 'args' should give an empty dict, got {out}\""},
+        {"name": "bad JSON raises ValueError", "code": "try:\n    parse_call('{tool: add}')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('invalid JSON must raise ValueError so the harness can report it to the model')"},
+        {"name": "missing tool raises", "code": "try:\n    parse_call('{\"args\": {}}')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"a call with no 'tool' key must raise ValueError\")"},
+        {"name": "args must be an object", "code": "try:\n    parse_call('{\"tool\": \"add\", \"args\": [1, 2]}')\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError(\"'args' given as a list must raise ValueError\")"}
+      ],
+      "hints": [
+        "isinstance(data, dict) and 'tool' in data checks the shape.",
+        "raise ValueError(\"missing 'tool'\") (ValueError is a class you call with a message)."
+      ],
+      "solution": "import json\n\ndef parse_call(text):\n    data = json.loads(text)\n    if not isinstance(data, dict) or 'tool' not in data:\n        raise ValueError(\"missing 'tool'\")\n    args = data.get('args', {})\n    if not isinstance(args, dict):\n        raise ValueError(\"'args' must be an object\")\n    return data['tool'], args\n"
+    },
+    {
+      "id": "loop",
+      "title": "A minimal agent loop",
+      "prompt": "<p>Write <code>run_agent(model, tools, task, max_steps=5)</code>. <code>model(transcript)</code> takes the list of lines so far and returns one string: either <code>FINAL: &lt;answer&gt;</code> or a JSON tool call. <code>tools</code> maps names to Python functions.</p><p>Loop: start the transcript as <code>[\"TASK: \" + task]</code>. Each step, call the model and append its output. If it starts with <code>FINAL:</code>, return the answer text after it (stripped). Otherwise parse the call (<code>parse_call</code> is provided), run <code>tools[name](**args)</code> and append <code>\"OBSERVATION: \" + str(result)</code>. If parsing or the tool raises, or the tool name is unknown, append <code>\"ERROR: \" + message</code> instead, so the model can recover. After <code>max_steps</code> model calls without an answer, return <code>None</code>.</p><p>The tests use scripted fake models, so everything is deterministic.</p>",
+      "starter": "import json\n\ndef parse_call(text):\n    data = json.loads(text)\n    if not isinstance(data, dict) or 'tool' not in data:\n        raise ValueError(\"missing 'tool'\")\n    args = data.get('args', {})\n    if not isinstance(args, dict):\n        raise ValueError(\"'args' must be an object\")\n    return data['tool'], args\n\ndef run_agent(model, tools, task, max_steps=5):\n    transcript = [\"TASK: \" + task]\n    for step in range(max_steps):\n        out = model(transcript)\n        transcript.append(out)\n        # TODO 1: if out starts with 'FINAL:', return the rest, stripped\n        # TODO 2: try: parse, look up the tool (unknown -> error), call it, append OBSERVATION\n        #         except Exception as e: append 'ERROR: ' + str(e)\n    return None\n",
+      "tests": [
+        {"name": "uses a tool then answers", "code": "def model(tr):\n    if not any(l.startswith('OBSERVATION') for l in tr):\n        return '{\"tool\": \"add\", \"args\": {\"a\": 2, \"b\": 3}}'\n    return 'FINAL: ' + tr[-1].split(': ')[1]\nout = run_agent(model, {'add': lambda a, b: a + b}, 'add 2 and 3')\nassert out == '5', f\"expected '5', got {out!r}. Did you append 'OBSERVATION: 5' after running the tool?\""},
+        {"name": "recovers from an error", "code": "calls = []\ndef model(tr):\n    calls.append(list(tr))\n    if len(tr) == 1:\n        return '{\"tool\": \"add\", \"args\": {\"a\": 2}}'\n    if tr[-1].startswith('ERROR'):\n        return '{\"tool\": \"add\", \"args\": {\"a\": 2, \"b\": 2}}'\n    return 'FINAL: ' + tr[-1].split(': ')[1]\nout = run_agent(model, {'add': lambda a, b: a + b}, 'x')\nassert out == '4', f\"expected the agent to read the ERROR line, retry, and answer '4'; got {out!r}\"\nassert any(l.startswith('ERROR: ') for l in calls[-1]), 'a failing tool call should leave an ERROR: line in the transcript'"},
+        {"name": "unknown tool is an error, not a crash", "code": "def model(tr):\n    if len(tr) == 1:\n        return '{\"tool\": \"fly\"}'\n    return 'FINAL: ' + ('saw error' if tr[-1].startswith('ERROR') else 'no error')\nout = run_agent(model, {}, 'x')\nassert out == 'saw error', f\"an unknown tool should produce an ERROR line the model can see; got {out!r}\""},
+        {"name": "step cap", "code": "n = [0]\ndef model(tr):\n    n[0] += 1\n    return '{\"tool\": \"noop\"}'\nout = run_agent(model, {'noop': lambda: 'ok'}, 'loop forever', max_steps=4)\nassert out is None, f'an agent that never answers should return None after max_steps, got {out!r}'\nassert n[0] == 4, f'the model should be called exactly max_steps=4 times, was called {n[0]} times'"}
+      ],
+      "hints": [
+        "if out.startswith('FINAL:'): return out[len('FINAL:'):].strip()",
+        "Inside try: name, args = parse_call(out); if name not in tools: raise ValueError('unknown tool ' + name)",
+        "result = tools[name](**args); transcript.append('OBSERVATION: ' + str(result))"
+      ],
+      "solution": "import json\n\ndef parse_call(text):\n    data = json.loads(text)\n    if not isinstance(data, dict) or 'tool' not in data:\n        raise ValueError(\"missing 'tool'\")\n    args = data.get('args', {})\n    if not isinstance(args, dict):\n        raise ValueError(\"'args' must be an object\")\n    return data['tool'], args\n\ndef run_agent(model, tools, task, max_steps=5):\n    transcript = [\"TASK: \" + task]\n    for step in range(max_steps):\n        out = model(transcript)\n        transcript.append(out)\n        if out.startswith('FINAL:'):\n            return out[len('FINAL:'):].strip()\n        try:\n            name, args = parse_call(out)\n            if name not in tools:\n                raise ValueError('unknown tool ' + name)\n            result = tools[name](**args)\n            transcript.append('OBSERVATION: ' + str(result))\n        except Exception as e:\n            transcript.append('ERROR: ' + str(e))\n    return None\n"
+    },
+    {
+      "id": "compound",
+      "title": "How long can a task be?",
+      "prompt": "<p>Write <code>chain_success(p, n)</code>: the probability that <code>n</code> independent steps, each succeeding with probability <code>p</code>, all succeed.</p><p>Then write <code>max_steps(p, target)</code>: the largest <code>n</code> for which <code>chain_success(p, n) &gt;= target</code>. Use a simple loop that counts up.</p><pre>chain_success(0.9, 10)   # 0.3486...\nmax_steps(0.9, 0.5)      # 6   (0.9**6 = 0.53, 0.9**7 = 0.48)</pre>",
+      "starter": "def chain_success(p, n):\n    # TODO\n    pass\n\ndef max_steps(p, target):\n    n = 0\n    # TODO: keep increasing n while one more step would still meet the target\n    return n\n",
+      "tests": [
+        {"name": "ten steps at 0.9", "code": "out = chain_success(0.9, 10)\nassert out is not None and abs(out - 0.3486784401) < 1e-9, f'expected 0.9**10 = 0.3487, got {out}'"},
+        {"name": "zero steps always succeed", "code": "assert chain_success(0.5, 0) == 1, 'an empty chain has nothing to fail, so its success probability is 1'"},
+        {"name": "max steps at 0.9 for 50%", "code": "out = max_steps(0.9, 0.5)\nassert out == 6, f'0.9**6 = 0.531 >= 0.5 but 0.9**7 = 0.478 < 0.5, so 6; got {out}'"},
+        {"name": "more reliable steps allow longer tasks", "code": "a, b = max_steps(0.99, 0.5), max_steps(0.9, 0.5)\nassert a == 68 and a > b, f'at 0.99 per step, 68 steps still succeed half the time (0.99**68 = 0.505); got {a}'"}
+      ],
+      "hints": [
+        "chain_success is p ** n.",
+        "while chain_success(p, n + 1) >= target: n += 1"
+      ],
+      "solution": "def chain_success(p, n):\n    return p ** n\n\ndef max_steps(p, target):\n    n = 0\n    while chain_success(p, n + 1) >= target:\n        n += 1\n    return n\n"
+    }
+  ]
+}
