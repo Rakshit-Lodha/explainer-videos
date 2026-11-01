@@ -1,0 +1,181 @@
+{
+ "id": "13.4-agents",
+ "module": 13,
+ "title": "Agents: tools, the loop and when to stop",
+ "summary": "A dependable agent is the reason-act-observe loop plus careful handling of everything that goes wrong. Tools are described by a name, a description and a JSON schema (best generated from the function signature). Arguments are validated before running, and errors come back as readable observations rather than crashes. Long outputs are truncated or stored behind a handle. Budgets on steps, tokens and time, plus repetition detection, stop runaway loops. Use a fixed workflow when the steps are known, an agent when they are not, and confirm irreversible actions with a person.",
+ "video": null,
+ "llm_link": "Tool calling is next-token prediction in a format the model was fine-tuned on (lesson 10.6). Everything in this lesson lives in the harness, and it is what turns that ability into an agent you can leave running.",
+ "key_ideas": [
+  "A tool = name + description + argument schema. The description is part of the prompt: it is how the model decides when and how to call the tool.",
+  "Validate arguments against the schema before running; return errors (validation or the tool's own) as plain-language observations so the model can correct itself.",
+  "Cap observation size: keep the start (and often the end) with a note, or store the full output and return a handle the agent can page through.",
+  "Stop on an answer, and also on budgets (steps, tokens, time) and on repetition (the same call with the same arguments twice).",
+  "Workflow (code decides the steps) when the path is known; agent (model decides) when it is not. Require human confirmation for irreversible actions."
+ ],
+ "quiz": [
+  {
+   "q": "A tool raises an exception because a date argument is in the wrong format. What should the agent loop do?",
+   "options": [
+    "Crash so a developer notices",
+    "Return the error message to the model as an observation and let it try again",
+    "Silently skip the step",
+    "Restart the whole task"
+   ],
+   "answer": 1,
+   "explain": "Errors are information. Written back as text ('date must be YYYY-MM-DD'), they usually let the model fix the call on the next step."
+  },
+  {
+   "q": "Why truncate a tool's output before appending it to the context?",
+   "options": [
+    "Models cannot read numbers",
+    "A huge output can crowd everything else out of the context window and makes every later step slower and costlier",
+    "Truncation improves accuracy of the tool",
+    "Tool outputs are not allowed in the context"
+   ],
+   "answer": 1,
+   "explain": "Every later step rereads the whole transcript. Keep a bounded excerpt with a note, or a handle to fetch more on demand."
+  },
+  {
+   "q": "Predict what a good loop does: the model requests search(query='refund') with the same arguments twice in a row.",
+   "options": [
+    "Run it again; results may differ",
+    "Treat it as a sign the agent is stuck and stop (or intervene)",
+    "Ignore the second call and continue",
+    "Switch to a different model"
+   ],
+   "answer": 1,
+   "explain": "An identical repeated call usually means the agent is circling. Detecting it, alongside step and token budgets, prevents runaway loops."
+  },
+  {
+   "q": "Monthly invoices are always processed in the same four steps. What should you build?",
+   "options": [
+    "An autonomous agent with many tools",
+    "A workflow: ordinary code that calls the model at fixed points",
+    "A subagent per invoice",
+    "Nothing; models cannot do this"
+   ],
+   "answer": 1,
+   "explain": "When the path is known in advance, a workflow is cheaper, faster and far easier to test. Agents earn their place when the next step depends on what was just observed."
+  },
+  {
+   "q": "In an LLM agent, how does the model 'know' a tool exists and what arguments it takes?",
+   "options": [
+    "It reads the tool's source code at runtime",
+    "From the tool's name, description and schema placed in its context, in the format it was fine-tuned on",
+    "Tools are compiled into the weights",
+    "The harness guesses on its behalf"
+   ],
+   "answer": 1,
+   "explain": "The model only sees tokens. The tool definition in the prompt, written well, is what steers it to call the right tool with valid arguments."
+  }
+ ],
+ "problems": [
+  {
+   "id": "schema",
+   "title": "A tool schema from a Python function",
+   "prompt": "<p>Write <code>tool_schema(fn)</code>, which describes a function the way a tool-calling API expects. Use <code>inspect.signature</code> for the parameters and their type annotations, and the first line of the docstring as the description.</p><pre>def get_weather(city: str, days: int = 1):\n    \"\"\"Forecast for a city, for 1-7 days.\"\"\"\n\ntool_schema(get_weather) ==\n{'name': 'get_weather', 'description': 'Forecast for a city, for 1-7 days.',\n 'parameters': {'type': 'object',\n                'properties': {'city': {'type': 'string'}, 'days': {'type': 'integer'}},\n                'required': ['city']}}</pre><p>Parameters without a default are required. Map <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code> to <code>integer</code>, <code>number</code>, <code>string</code>, <code>boolean</code>.</p>",
+   "starter": "import inspect\n\nTYPES = {int: \"integer\", float: \"number\", str: \"string\", bool: \"boolean\"}\n\ndef tool_schema(fn):\n    sig = inspect.signature(fn)\n    props, required = {}, []\n    for name, p in sig.parameters.items():\n        # TODO 1: props[name] = {'type': ...} from p.annotation\n        # TODO 2: required if p.default is inspect.Parameter.empty\n        pass\n    # TODO 3: description = first line of the docstring (inspect.getdoc)\n    return {}\n",
+   "tests": [
+    {
+     "name": "describes get_weather",
+     "code": "def get_weather(city: str, days: int = 1):\n    \"\"\"Forecast for a city, for 1-7 days.\n\n    More detail here.\"\"\"\ns=tool_schema(get_weather)\nexp={'name':'get_weather','description':'Forecast for a city, for 1-7 days.','parameters':{'type':'object','properties':{'city':{'type':'string'},'days':{'type':'integer'}},'required':['city']}}\nassert s==exp, f'expected {exp}, got {s}'"
+    },
+    {
+     "name": "maps every type",
+     "code": "def f(a: float, b: bool, c: str, d: int):\n    \"\"\"x\"\"\"\np=tool_schema(f)['parameters']['properties']\nassert [p[k]['type'] for k in 'abcd']==['number','boolean','string','integer'], f'got {p}'"
+    },
+    {
+     "name": "defaults are optional",
+     "code": "def f(a: int, b: int = 2, c: str = 'x'):\n    \"\"\"x\"\"\"\nr=tool_schema(f)['parameters']['required']\nassert r==['a'], f'only a has no default, got required={r}'"
+    }
+   ],
+   "hints": [
+    "props[name] = {'type': TYPES[p.annotation]}",
+    "if p.default is inspect.Parameter.empty: required.append(name)",
+    "doc = (inspect.getdoc(fn) or '').split('\\n')[0]"
+   ],
+   "solution": "import inspect\n\nTYPES = {int: \"integer\", float: \"number\", str: \"string\", bool: \"boolean\"}\n\ndef tool_schema(fn):\n    sig = inspect.signature(fn)\n    props, required = {}, []\n    for name, p in sig.parameters.items():\n        props[name] = {\"type\": TYPES[p.annotation]}\n        if p.default is inspect.Parameter.empty:\n            required.append(name)\n    doc = (inspect.getdoc(fn) or \"\").split(\"\\n\")[0]\n    return {\"name\": fn.__name__, \"description\": doc,\n            \"parameters\": {\"type\": \"object\", \"properties\": props, \"required\": required}}\n"
+  },
+  {
+   "id": "validate",
+   "title": "Validate arguments before running",
+   "prompt": "<p>Write <code>validate_args(schema, args)</code>, returning a list of readable error strings (empty when the arguments are fine). Report a missing required argument, an argument the tool does not have, and a value of the wrong type.</p><p>One Python trap: <code>isinstance(True, int)</code> is <code>True</code>, because <code>bool</code> is a subclass of <code>int</code>. A boolean must not pass as an <code>integer</code> or <code>number</code>.</p><p>The messages are for the model to read, so make them specific, e.g. <code>\"missing argument 'city'\"</code>.</p>",
+   "starter": "import inspect\n\nTYPES = {int: \"integer\", float: \"number\", str: \"string\", bool: \"boolean\"}\n\ndef tool_schema(fn):\n    sig = inspect.signature(fn)\n    props, required = {}, []\n    for name, p in sig.parameters.items():\n        props[name] = {\"type\": TYPES[p.annotation]}\n        if p.default is inspect.Parameter.empty:\n            required.append(name)\n    doc = (inspect.getdoc(fn) or \"\").split(\"\\n\")[0]\n    return {\"name\": fn.__name__, \"description\": doc,\n            \"parameters\": {\"type\": \"object\", \"properties\": props, \"required\": required}}\n\nPY = {\"integer\": int, \"number\": (int, float), \"string\": str, \"boolean\": bool}\n\ndef validate_args(schema, args):\n    params = schema[\"parameters\"]\n    errors = []\n    # TODO 1: every name in params['required'] must be in args\n    # TODO 2: every name in args must be in params['properties']\n    # TODO 3: each value must have the right type (and a bool is not an integer)\n    return errors\n",
+   "tests": [
+    {
+     "name": "valid arguments pass",
+     "code": "def w(city: str, days: int = 1):\n    \"\"\"x\"\"\"\nassert validate_args(tool_schema(w), {'city':'Pune','days':3})==[], 'valid args should give no errors'"
+    },
+    {
+     "name": "missing argument is named",
+     "code": "def w(city: str, days: int = 1):\n    \"\"\"x\"\"\"\ne=validate_args(tool_schema(w), {'days':3})\nassert len(e)==1 and 'city' in e[0], f'expected one error naming city, got {e}'"
+    },
+    {
+     "name": "unknown argument is reported",
+     "code": "def w(city: str):\n    \"\"\"x\"\"\"\ne=validate_args(tool_schema(w), {'city':'Pune','country':'IN'})\nassert len(e)==1 and 'country' in e[0], f'expected one error naming country, got {e}'"
+    },
+    {
+     "name": "wrong type is reported",
+     "code": "def w(city: str, days: int = 1):\n    \"\"\"x\"\"\"\ne=validate_args(tool_schema(w), {'city':'Pune','days':'three'})\nassert len(e)==1 and 'days' in e[0], f'expected one error naming days, got {e}'"
+    },
+    {
+     "name": "a bool is not an integer",
+     "code": "def w(days: int):\n    \"\"\"x\"\"\"\ne=validate_args(tool_schema(w), {'days':True})\nassert len(e)==1, f'True must not pass as an integer (bool subclasses int), got {e}'"
+    },
+    {
+     "name": "an int is a valid number",
+     "code": "def w(x: float):\n    \"\"\"x\"\"\"\nassert validate_args(tool_schema(w), {'x':2})==[], 'an int should be accepted where a number is expected'"
+    }
+   ],
+   "hints": [
+    "errors.append(f\"missing argument '{name}'\")",
+    "want = params['properties'][name]['type']; ok = isinstance(value, PY[want])",
+    "and not (want != 'boolean' and isinstance(value, bool))"
+   ],
+   "solution": "import inspect\n\nTYPES = {int: \"integer\", float: \"number\", str: \"string\", bool: \"boolean\"}\n\ndef tool_schema(fn):\n    sig = inspect.signature(fn)\n    props, required = {}, []\n    for name, p in sig.parameters.items():\n        props[name] = {\"type\": TYPES[p.annotation]}\n        if p.default is inspect.Parameter.empty:\n            required.append(name)\n    doc = (inspect.getdoc(fn) or \"\").split(\"\\n\")[0]\n    return {\"name\": fn.__name__, \"description\": doc,\n            \"parameters\": {\"type\": \"object\", \"properties\": props, \"required\": required}}\n\nPY = {\"integer\": int, \"number\": (int, float), \"string\": str, \"boolean\": bool}\n\ndef validate_args(schema, args):\n    params = schema[\"parameters\"]\n    errors = []\n    for name in params[\"required\"]:\n        if name not in args:\n            errors.append(f\"missing argument '{name}'\")\n    for name, value in args.items():\n        if name not in params[\"properties\"]:\n            errors.append(f\"unknown argument '{name}'\")\n            continue\n        want = params[\"properties\"][name][\"type\"]\n        ok = isinstance(value, PY[want]) and not (want != \"boolean\" and isinstance(value, bool))\n        if not ok:\n            errors.append(f\"'{name}' should be {want}, got {type(value).__name__}\")\n    return errors\n"
+  },
+  {
+   "id": "loop",
+   "title": "A dependable agent loop",
+   "prompt": "<p>Write <code>run_agent(model, tools, task, max_steps=6, max_obs=200)</code>. <code>model(messages)</code> returns either <code>{\"answer\": ...}</code> or <code>{\"tool\": name, \"args\": {...}}</code>. <code>tool_schema</code> and <code>validate_args</code> are provided.</p><p>Each step:</p><ul><li>An answer ends the run with status <code>\"answered\"</code>.</li><li>The same tool with the same arguments as the previous step ends it with status <code>\"stuck\"</code>.</li><li>Otherwise produce an observation: an error for an unknown tool or invalid arguments, the tool's result, or the exception the tool raised, all as text starting with <code>\"error:\"</code> when something went wrong. Never let an exception escape.</li><li>Truncate observations longer than <code>max_obs</code> to their first <code>max_obs</code> characters plus a note, then append <code>{\"role\": \"tool\", \"content\": obs}</code>.</li></ul><p>After <code>max_steps</code> steps without an answer, stop with status <code>\"max_steps\"</code>. Return a dict with <code>status</code>, <code>answer</code>, <code>steps</code> and <code>messages</code>.</p>",
+   "starter": "import inspect\n\nTYPES = {int: \"integer\", float: \"number\", str: \"string\", bool: \"boolean\"}\n\ndef tool_schema(fn):\n    sig = inspect.signature(fn)\n    props, required = {}, []\n    for name, p in sig.parameters.items():\n        props[name] = {\"type\": TYPES[p.annotation]}\n        if p.default is inspect.Parameter.empty:\n            required.append(name)\n    doc = (inspect.getdoc(fn) or \"\").split(\"\\n\")[0]\n    return {\"name\": fn.__name__, \"description\": doc,\n            \"parameters\": {\"type\": \"object\", \"properties\": props, \"required\": required}}\n\nPY = {\"integer\": int, \"number\": (int, float), \"string\": str, \"boolean\": bool}\n\ndef validate_args(schema, args):\n    params = schema[\"parameters\"]\n    errors = []\n    for name in params[\"required\"]:\n        if name not in args:\n            errors.append(f\"missing argument '{name}'\")\n    for name, value in args.items():\n        if name not in params[\"properties\"]:\n            errors.append(f\"unknown argument '{name}'\")\n            continue\n        want = params[\"properties\"][name][\"type\"]\n        ok = isinstance(value, PY[want]) and not (want != \"boolean\" and isinstance(value, bool))\n        if not ok:\n            errors.append(f\"'{name}' should be {want}, got {type(value).__name__}\")\n    return errors\n\ndef get_weather(city: str, days: int = 1):\n    \"\"\"Forecast for a city, for 1-7 days.\"\"\"\n    if not 1 <= days <= 7:\n        raise ValueError(\"days must be between 1 and 7\")\n    return f\"{city}: 31 C, clear for {days} day(s)\"\n\ndef read_log(path: str):\n    \"\"\"Return the contents of a log file.\"\"\"\n    return \"INFO ok\\n\" * 500\n\nTOOLS = {\"get_weather\": get_weather, \"read_log\": read_log}\n\ndef scripted(actions):\n    \"\"\"A fake model that replies from a list of actions and records what it saw.\"\"\"\n    seen = []\n    it = iter(actions)\n    def model(messages):\n        seen.append([m[\"content\"] for m in messages])\n        return next(it)\n    model.seen = seen\n    return model\n\n\ndef run_agent(model, tools, task, max_steps=6, max_obs=200):\n    schemas = {name: tool_schema(fn) for name, fn in tools.items()}\n    messages = [{\"role\": \"user\", \"content\": task}]\n    last_call = None\n    for step in range(1, max_steps + 1):\n        action = model(messages)\n        # TODO 1: if 'answer' in action, return status 'answered'\n        # TODO 2: stop with 'stuck' if (tool, sorted args) equals last_call\n        # TODO 3: build obs: unknown tool / validation errors / result / exception, never raise\n        # TODO 4: truncate obs to max_obs characters plus a note; append it as a tool message\n        pass\n    return {\"status\": \"max_steps\", \"answer\": None, \"steps\": max_steps, \"messages\": messages}\n",
+   "tests": [
+    {
+     "name": "uses a tool, then answers",
+     "code": "m=scripted([{'tool':'get_weather','args':{'city':'Pune'}},{'answer':'31 C'}])\nr=run_agent(m,TOOLS,'weather?')\nassert r['status']=='answered' and r['answer']=='31 C' and r['steps']==2, f'got {r[\"status\"]}, {r[\"answer\"]}, steps={r[\"steps\"]}'\nassert 'Pune' in m.seen[1][-1], f'the second call should see the tool result, saw {m.seen[1]}'"
+    },
+    {
+     "name": "invalid arguments become an observation",
+     "code": "m=scripted([{'tool':'get_weather','args':{'days':2}},{'answer':'done'}])\nr=run_agent(m,TOOLS,'t')\nobs=m.seen[1][-1]\nassert r['status']=='answered' and obs.startswith('error:') and 'city' in obs, f'expected an error observation naming city, got {obs!r}'"
+    },
+    {
+     "name": "tool exceptions do not crash the loop",
+     "code": "m=scripted([{'tool':'get_weather','args':{'city':'Pune','days':30}},{'answer':'ok'}])\nr=run_agent(m,TOOLS,'t')\nobs=m.seen[1][-1]\nassert r['status']=='answered' and obs.startswith('error:') and '7' in obs, f'the ValueError should come back as an error observation, got {obs!r}'"
+    },
+    {
+     "name": "unknown tools are reported",
+     "code": "m=scripted([{'tool':'send_email','args':{}},{'answer':'ok'}])\nrun_agent(m,TOOLS,'t')\nobs=m.seen[1][-1]\nassert obs.startswith('error:') and 'send_email' in obs, f'expected an unknown-tool error, got {obs!r}'"
+    },
+    {
+     "name": "long observations are truncated",
+     "code": "m=scripted([{'tool':'read_log','args':{'path':'app.log'}},{'answer':'ok'}])\nrun_agent(m,TOOLS,'t',max_obs=200)\nobs=m.seen[1][-1]\nassert 200<=len(obs)<300 and obs.startswith('INFO ok'), f'expected about 200 chars plus a note, got {len(obs)} chars'"
+    },
+    {
+     "name": "repetition is detected",
+     "code": "a={'tool':'get_weather','args':{'city':'Pune'}}\nr=run_agent(scripted([a,a,a]),TOOLS,'t')\nassert r['status']=='stuck' and r['steps']==2, f'the second identical call should stop the run as stuck, got {r[\"status\"]} at step {r[\"steps\"]}'"
+    },
+    {
+     "name": "the step budget is enforced",
+     "code": "acts=[{'tool':'get_weather','args':{'city':c}} for c in 'ABCDEFGH']\nr=run_agent(scripted(acts),TOOLS,'t',max_steps=4)\nassert r['status']=='max_steps' and r['steps']==4, f'expected max_steps after 4 steps, got {r[\"status\"]}, {r[\"steps\"]}'"
+    }
+   ],
+   "hints": [
+    "call = (action['tool'], sorted(action.get('args', {}).items())); compare with last_call, then set last_call = call",
+    "try: obs = str(tools[name](**args)) except Exception as e: obs = f'error: {type(e).__name__}: {e}'",
+    "if len(obs) > max_obs: obs = obs[:max_obs] + f' ...[{len(obs) - max_obs} chars truncated]'"
+   ],
+   "solution": "import inspect\n\nTYPES = {int: \"integer\", float: \"number\", str: \"string\", bool: \"boolean\"}\n\ndef tool_schema(fn):\n    sig = inspect.signature(fn)\n    props, required = {}, []\n    for name, p in sig.parameters.items():\n        props[name] = {\"type\": TYPES[p.annotation]}\n        if p.default is inspect.Parameter.empty:\n            required.append(name)\n    doc = (inspect.getdoc(fn) or \"\").split(\"\\n\")[0]\n    return {\"name\": fn.__name__, \"description\": doc,\n            \"parameters\": {\"type\": \"object\", \"properties\": props, \"required\": required}}\n\nPY = {\"integer\": int, \"number\": (int, float), \"string\": str, \"boolean\": bool}\n\ndef validate_args(schema, args):\n    params = schema[\"parameters\"]\n    errors = []\n    for name in params[\"required\"]:\n        if name not in args:\n            errors.append(f\"missing argument '{name}'\")\n    for name, value in args.items():\n        if name not in params[\"properties\"]:\n            errors.append(f\"unknown argument '{name}'\")\n            continue\n        want = params[\"properties\"][name][\"type\"]\n        ok = isinstance(value, PY[want]) and not (want != \"boolean\" and isinstance(value, bool))\n        if not ok:\n            errors.append(f\"'{name}' should be {want}, got {type(value).__name__}\")\n    return errors\n\ndef get_weather(city: str, days: int = 1):\n    \"\"\"Forecast for a city, for 1-7 days.\"\"\"\n    if not 1 <= days <= 7:\n        raise ValueError(\"days must be between 1 and 7\")\n    return f\"{city}: 31 C, clear for {days} day(s)\"\n\ndef read_log(path: str):\n    \"\"\"Return the contents of a log file.\"\"\"\n    return \"INFO ok\\n\" * 500\n\nTOOLS = {\"get_weather\": get_weather, \"read_log\": read_log}\n\ndef scripted(actions):\n    \"\"\"A fake model that replies from a list of actions and records what it saw.\"\"\"\n    seen = []\n    it = iter(actions)\n    def model(messages):\n        seen.append([m[\"content\"] for m in messages])\n        return next(it)\n    model.seen = seen\n    return model\n\n\ndef run_agent(model, tools, task, max_steps=6, max_obs=200):\n    schemas = {name: tool_schema(fn) for name, fn in tools.items()}\n    messages = [{\"role\": \"user\", \"content\": task}]\n    last_call = None\n    for step in range(1, max_steps + 1):\n        action = model(messages)\n        if \"answer\" in action:\n            return {\"status\": \"answered\", \"answer\": action[\"answer\"], \"steps\": step, \"messages\": messages}\n        call = (action[\"tool\"], sorted(action.get(\"args\", {}).items()))\n        if call == last_call:\n            return {\"status\": \"stuck\", \"answer\": None, \"steps\": step, \"messages\": messages}\n        last_call = call\n        name, args = action[\"tool\"], action.get(\"args\", {})\n        if name not in tools:\n            obs = f\"error: unknown tool '{name}'\"\n        else:\n            errors = validate_args(schemas[name], args)\n            if errors:\n                obs = \"error: \" + \"; \".join(errors)\n            else:\n                try:\n                    obs = str(tools[name](**args))\n                except Exception as e:\n                    obs = f\"error: {type(e).__name__}: {e}\"\n        if len(obs) > max_obs:\n            obs = obs[:max_obs] + f\" ...[{len(obs) - max_obs} chars truncated]\"\n        messages.append({\"role\": \"tool\", \"content\": obs})\n    return {\"status\": \"max_steps\", \"answer\": None, \"steps\": max_steps, \"messages\": messages}\n"
+  }
+ ],
+ "poster": null
+}

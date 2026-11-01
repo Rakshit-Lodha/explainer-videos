@@ -1,0 +1,165 @@
+{
+ "id": "13.7-agent-evals",
+ "module": 13,
+ "title": "Evaluating agents and RAG systems",
+ "summary": "Multi-stage systems need stage-by-stage evaluation. For RAG, score retrieval (recall, nDCG on labelled passages) separately from the answer's faithfulness and correctness, and use the pair to locate a failure. For agents, grade the outcome by checking the final state in code, check the trajectory for appropriate tools, valid arguments, forbidden actions and step count, and run each task several times: pass@k (at least one success in k) suits generate-and-test, while pass^k (all k succeed, roughly pᵏ) measures the reliability users experience. Offline suites run on every change; graded production traces feed new failures back into them.",
+ "video": null,
+ "llm_link": "Agent and RAG behaviour is sampled from a next-token distribution, so the same task can succeed and fail on different runs. Reliability is a property you measure across runs, not one you observe once.",
+ "key_ideas": [
+  "RAG: evaluate retrieval (recall@k, nDCG) and generation (faithfulness to the retrieved text, correctness) separately. Right passage retrieved + wrong answer → fix generation; never retrieved → fix retrieval.",
+  "Agent outcomes: check the state of the world in code (tests pass, the row exists, the calendar entry is on the right day), not the agent's claim of success.",
+  "Trajectory checks: allowed tools, valid arguments, no forbidden or premature actions, sensible step count. They catch dangerous routes to a correct outcome.",
+  "pass@k = 1 − C(n − c, k)/C(n, k): at least one of k attempts succeeds. pass^k = C(c, k)/C(n, k): all k succeed, ≈ pᵏ for independent attempts (used in τ-bench, Yao et al., 2024).",
+  "The eval cycle: an offline regression suite on every change, continuous grading of sampled production traces, and new failures added back to the suite."
+ ],
+ "quiz": [
+  {
+   "q": "A RAG answer is wrong, but the passage containing the right answer was among the retrieved results. Where should you look first?",
+   "options": [
+    "Retrieval: tune BM25",
+    "Generation: the prompt, the context packing or the model's use of the passage",
+    "The embedding model",
+    "The test case is mislabelled"
+   ],
+   "answer": 1,
+   "explain": "Retrieval did its job. The failure happened when the answer was written: the passage may have been buried mid-context, truncated, or ignored."
+  },
+  {
+   "q": "An agent reports 'All tests pass, bug fixed.' How should an eval grade the outcome?",
+   "options": [
+    "Trust the agent's report",
+    "Run the test suite itself and check the result",
+    "Ask the agent again",
+    "Count the number of steps"
+   ],
+   "answer": 1,
+   "explain": "Outcome checks should inspect the actual final state with code. Agents can be wrong about, or misreport, their own success."
+  },
+  {
+   "q": "Predict the result: an agent succeeds on a task 90% of the time, independently per attempt. What is pass^5, the chance that five attempts all succeed?",
+   "options": [
+    "About 0.99",
+    "About 0.90",
+    "About 0.59",
+    "About 0.10"
+   ],
+   "answer": 2,
+   "explain": "0.9⁵ ≈ 0.59. pass@5 (at least one success) would be 1 − 0.1⁵ ≈ 0.99999; the two measures answer very different questions."
+  },
+  {
+   "q": "An agent reached the right final state but issued a refund before checking the order. Which kind of check catches this?",
+   "options": [
+    "An outcome check",
+    "A trajectory check",
+    "pass@k",
+    "A latency metric"
+   ],
+   "answer": 1,
+   "explain": "The outcome looked fine; the path was unsafe. Trajectory checks examine which tools were called, in what order and with what arguments."
+  },
+  {
+   "q": "For an assistant that customers rely on every day, which reliability metric matters more?",
+   "options": [
+    "pass@k: at least one of k attempts works",
+    "pass^k: all k attempts work",
+    "Neither; only average latency matters",
+    "The number of tools available"
+   ],
+   "answer": 1,
+   "explain": "A user does not get to keep the best of k tries. Consistency across repeated runs, pass^k, is the experience they have."
+  }
+ ],
+ "problems": [
+  {
+   "id": "diagnose",
+   "title": "Find where a RAG answer broke",
+   "prompt": "<p>Each eval case records the ids that retrieval returned, the ids labelled relevant, and whether the final answer was graded correct. Write <code>diagnose(case)</code>:</p><ul><li><code>\"ok\"</code> if the answer was correct;</li><li><code>\"retrieval\"</code> if it was wrong and no relevant passage was retrieved;</li><li><code>\"generation\"</code> if it was wrong although a relevant passage was retrieved.</li></ul><p>Then write <code>tally(cases)</code> returning a dict with counts for all three labels (including zeros), and run it on <code>CASES</code>. Which stage should you fix first?</p>",
+   "starter": "CASES = [\n    {\"retrieved\": [\"p1\", \"p2\"], \"relevant\": [\"p1\"], \"correct\": True},\n    {\"retrieved\": [\"p3\", \"p4\"], \"relevant\": [\"p9\"], \"correct\": False},\n    {\"retrieved\": [\"p5\", \"p6\"], \"relevant\": [\"p6\"], \"correct\": False},\n    {\"retrieved\": [\"p7\"],       \"relevant\": [\"p8\"], \"correct\": False},\n    {\"retrieved\": [\"p2\", \"p1\"], \"relevant\": [\"p2\"], \"correct\": True},\n]\n\ndef diagnose(case):\n    # TODO: 'ok', 'retrieval' or 'generation'\n    pass\n\n\ndef tally(cases):\n    counts = {\"ok\": 0, \"retrieval\": 0, \"generation\": 0}\n    # TODO: count diagnose(c) for every case\n    return counts\n",
+   "tests": [
+    {
+     "name": "correct answers are ok",
+     "code": "assert diagnose(CASES[0])=='ok', f'got {diagnose(CASES[0])}'"
+    },
+    {
+     "name": "missing passage means retrieval",
+     "code": "assert diagnose(CASES[1])=='retrieval', f'no relevant id was retrieved, got {diagnose(CASES[1])}'"
+    },
+    {
+     "name": "retrieved but wrong means generation",
+     "code": "assert diagnose(CASES[2])=='generation', f'p6 was retrieved yet the answer is wrong, got {diagnose(CASES[2])}'"
+    },
+    {
+     "name": "tally counts every label",
+     "code": "r=tally(CASES)\nassert r=={'ok':2,'retrieval':2,'generation':1}, f'expected ok 2, retrieval 2, generation 1, got {r}'"
+    }
+   ],
+   "hints": [
+    "if case['correct']: return 'ok'",
+    "if not set(case['retrieved']) & set(case['relevant']): return 'retrieval'",
+    "In tally: counts[diagnose(c)] += 1"
+   ],
+   "solution": "CASES = [\n    {\"retrieved\": [\"p1\", \"p2\"], \"relevant\": [\"p1\"], \"correct\": True},\n    {\"retrieved\": [\"p3\", \"p4\"], \"relevant\": [\"p9\"], \"correct\": False},\n    {\"retrieved\": [\"p5\", \"p6\"], \"relevant\": [\"p6\"], \"correct\": False},\n    {\"retrieved\": [\"p7\"],       \"relevant\": [\"p8\"], \"correct\": False},\n    {\"retrieved\": [\"p2\", \"p1\"], \"relevant\": [\"p2\"], \"correct\": True},\n]\n\ndef diagnose(case):\n    if case[\"correct\"]:\n        return \"ok\"\n    if not set(case[\"retrieved\"]) & set(case[\"relevant\"]):\n        return \"retrieval\"\n    return \"generation\"\n\ndef tally(cases):\n    counts = {\"ok\": 0, \"retrieval\": 0, \"generation\": 0}\n    for c in cases:\n        counts[diagnose(c)] += 1\n    return counts\n"
+  },
+  {
+   "id": "passk",
+   "title": "pass@k versus pass^k",
+   "prompt": "<p>You ran a task <code>n</code> times and <code>c</code> runs succeeded. Write the two unbiased estimators:</p><pre>pass_at_k(n, c, k)  = 1 - C(n - c, k) / C(n, k)   # at least one of k succeeds\npass_hat_k(n, c, k) = C(c, k) / C(n, k)           # all k succeed</pre><p>where <code>C</code> is <code>math.comb</code> (it returns 0 when asked to choose more items than there are). Then compare them for <code>n = 10, c = 8</code> as <code>k</code> grows from 1 to 5: one rises, the other falls.</p>",
+   "starter": "from math import comb\n\ndef pass_at_k(n, c, k):\n    # TODO: chance that at least one of k attempts succeeds\n    pass\n\n\ndef pass_hat_k(n, c, k):\n    # TODO: chance that all k attempts succeed\n    pass\n",
+   "tests": [
+    {
+     "name": "k = 1 is the success rate",
+     "code": "assert abs(pass_at_k(10,8,1)-0.8)<1e-9 and abs(pass_hat_k(10,8,1)-0.8)<1e-9, f'with k=1 both equal c/n = 0.8, got {pass_at_k(10,8,1)}, {pass_hat_k(10,8,1)}'"
+    },
+    {
+     "name": "pass^k matches a hand calculation",
+     "code": "r=pass_hat_k(10,8,3)\nexp=(8*7*6)/(10*9*8)\nassert abs(r-exp)<1e-9, f'C(8,3)/C(10,3) = {exp:.4f}, got {r}'"
+    },
+    {
+     "name": "the two diverge as k grows",
+     "code": "a=[pass_at_k(10,8,k) for k in range(1,6)]; h=[pass_hat_k(10,8,k) for k in range(1,6)]\nassert all(x<=y for x,y in zip(a,a[1:])) and all(x>=y for x,y in zip(h,h[1:])) and h[-1]<0.25, f'pass@k should rise and pass^k fall (to about 0.22 at k=5); got {a} and {h}'"
+    },
+    {
+     "name": "too few successes",
+     "code": "assert pass_hat_k(10,2,3)==0, 'with only 2 successes, 3 attempts cannot all succeed'\nassert pass_at_k(10,10,3)==1, 'with every run successful, pass@k is 1'"
+    }
+   ],
+   "hints": [
+    "math.comb(n, k) counts the ways to choose k of n.",
+    "pass_at_k: 1 - comb(n - c, k) / comb(n, k)",
+    "pass_hat_k: comb(c, k) / comb(n, k)"
+   ],
+   "solution": "from math import comb\n\ndef pass_at_k(n, c, k):\n    \"\"\"Chance that at least one of k attempts (drawn from n with c successes) succeeds.\"\"\"\n    return 1 - comb(n - c, k) / comb(n, k)\n\ndef pass_hat_k(n, c, k):\n    \"\"\"Chance that all k attempts succeed.\"\"\"\n    return comb(c, k) / comb(n, k)\n"
+  },
+  {
+   "id": "trajectory",
+   "title": "Check an agent's trajectory",
+   "prompt": "<p>Write <code>check_trajectory(calls, allowed, forbidden, max_steps, needs_before)</code>. <code>calls</code> is a list of <code>{\"tool\": ..., \"args\": ...}</code> in order. Return a list of problem strings (empty if the path is fine):</p><ul><li>more calls than <code>max_steps</code>;</li><li>a call to a tool in <code>forbidden</code>, or to one not in <code>allowed</code>;</li><li>a call to a tool <code>t</code> listed in <code>needs_before</code> before the tool <code>needs_before[t]</code> has been called, e.g. <code>{\"issue_refund\": \"lookup_order\"}</code>.</li></ul><p>Mention the step number (starting at 1) in each problem so a reviewer can find it.</p>",
+   "starter": "def check_trajectory(calls, allowed, forbidden, max_steps, needs_before):\n    problems = []\n    # TODO 1: too many steps\n    # TODO 2: for each step: forbidden tools, tools not in allowed\n    # TODO 3: a tool used before the tool it needs_before\n    return problems\n",
+   "tests": [
+    {
+     "name": "a clean path",
+     "code": "C=[{'tool':'lookup_order','args':{}},{'tool':'issue_refund','args':{}}]\nr=check_trajectory(C,{'lookup_order','issue_refund'},set(),5,{'issue_refund':'lookup_order'})\nassert r==[], f'expected no problems, got {r}'"
+    },
+    {
+     "name": "refund before lookup",
+     "code": "C=[{'tool':'issue_refund','args':{}},{'tool':'lookup_order','args':{}}]\nr=check_trajectory(C,{'lookup_order','issue_refund'},set(),5,{'issue_refund':'lookup_order'})\nassert len(r)==1 and '1' in r[0] and 'lookup_order' in r[0], f'expected one problem at step 1 naming lookup_order, got {r}'"
+    },
+    {
+     "name": "forbidden and unknown tools",
+     "code": "C=[{'tool':'delete_account','args':{}},{'tool':'browse','args':{}}]\nr=check_trajectory(C,{'lookup_order'},{'delete_account'},5,{})\nassert len(r)==2 and 'delete_account' in r[0] and 'browse' in r[1], f'expected a forbidden-tool and a not-allowed problem, got {r}'"
+    },
+    {
+     "name": "too many steps",
+     "code": "C=[{'tool':'lookup_order','args':{}}]*4\nr=check_trajectory(C,{'lookup_order'},set(),3,{})\nassert len(r)==1 and '4' in r[0], f'4 steps exceed the limit of 3, got {r}'"
+    }
+   ],
+   "hints": [
+    "if len(calls) > max_steps: problems.append(f'too many steps: {len(calls)} > {max_steps}')",
+    "Keep a set `seen` of tools already called; check needs_before before adding the current tool to it.",
+    "Use elif so a forbidden tool is not also reported as not allowed."
+   ],
+   "solution": "def check_trajectory(calls, allowed, forbidden, max_steps, needs_before):\n    problems = []\n    if len(calls) > max_steps:\n        problems.append(f\"too many steps: {len(calls)} > {max_steps}\")\n    seen = set()\n    for i, call in enumerate(calls):\n        tool = call[\"tool\"]\n        if tool in forbidden:\n            problems.append(f\"step {i + 1}: forbidden tool '{tool}'\")\n        elif tool not in allowed:\n            problems.append(f\"step {i + 1}: tool '{tool}' is not allowed\")\n        if tool in needs_before and needs_before[tool] not in seen:\n            problems.append(f\"step {i + 1}: '{tool}' before '{needs_before[tool]}'\")\n        seen.add(tool)\n    return problems\n"
+  }
+ ],
+ "poster": null
+}

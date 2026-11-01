@@ -1,0 +1,160 @@
+{
+ "id": "13.5-agent-memory",
+ "module": 13,
+ "title": "Long-running agents: context, memory and compaction",
+ "summary": "Every agent step resends the whole transcript, so cost grows roughly with the square of the number of steps and the transcript eventually outgrows the context window, while long contexts are also used less reliably. Compaction replaces older turns with a model-written summary, keeping instructions, task and recent turns verbatim, and saves raw outputs elsewhere first. External notes and retrieval memory persist beyond the window, and subagents explore in a fresh context and return only a short result.",
+ "video": null,
+ "llm_link": "The context window is the model's only working memory (lesson 10.4), and prompt caching makes rereading a stable prefix cheaper but not larger. Memory techniques decide which tokens the model sees at each step.",
+ "key_ideas": [
+  "If each step adds about the same text, step i rereads all i − 1 earlier steps, so total tokens sent grow quadratically with the number of steps.",
+  "Compaction: past a token threshold, summarise the middle of the transcript; keep the system prompt, the task and the last few turns word for word.",
+  "Keep decisions, open questions, file names and errors seen; drop digested raw output. Save full outputs to disk before compacting, since summaries lose detail for good.",
+  "External memory: a notes file the agent writes and reads with tools survives compaction and sessions; large note sets can be searched with retrieval.",
+  "Subagents run a self-contained subtask in a fresh context and return a short result, keeping the main context focused."
+ ],
+ "quiz": [
+  {
+   "q": "Predict the result: each step adds 1,000 tokens to the transcript and the model rereads everything at every step. Roughly how does the total number of tokens sent over a task scale with the number of steps n?",
+   "options": [
+    "Linearly (∝ n)",
+    "Quadratically (∝ n²)",
+    "Logarithmically",
+    "It stays constant thanks to caching"
+   ],
+   "answer": 1,
+   "explain": "Step i resends about i thousand tokens, and 1 + 2 + … + n = n(n + 1)/2. Caching lowers the price of a repeated prefix but not the window it must fit in."
+  },
+  {
+   "q": "During compaction, which parts are kept word for word?",
+   "options": [
+    "Only the summary",
+    "The system instructions, the task and the most recent turns",
+    "Every tool output",
+    "The oldest turns"
+   ],
+   "answer": 1,
+   "explain": "The rules and the goal must survive intact, and recent turns hold the current state of work; the middle is what gets summarised."
+  },
+  {
+   "q": "Why write full tool outputs to disk before compacting?",
+   "options": [
+    "Disks are faster than models",
+    "A summary loses detail permanently; saved outputs let the agent fetch an exact detail later",
+    "Compaction deletes the disk",
+    "It reduces latency"
+   ],
+   "answer": 1,
+   "explain": "Compaction is lossy. A file path or an exact error string dropped from the summary can still be recovered if the raw output was saved."
+  },
+  {
+   "q": "What does delegating to a subagent buy the main agent?",
+   "options": [
+    "A larger context window",
+    "Exploration happens in a separate fresh context, and only a short result comes back, keeping the main context focused",
+    "Faster tokens",
+    "Guaranteed correctness"
+   ],
+   "answer": 1,
+   "explain": "The subagent can read dozens of files; the main agent receives a one-page brief instead of the whole archive."
+  },
+  {
+   "q": "An agent's notes file has grown to thousands of entries. How should it find the relevant ones for the current step?",
+   "options": [
+    "Reread the whole file every step",
+    "Retrieve them: search the notes (keyword or embeddings) for the current question",
+    "Delete old notes",
+    "Ask the user"
+   ],
+   "answer": 1,
+   "explain": "Memory at scale is a retrieval problem, the same machinery as hybrid search earlier in this module."
+  }
+ ],
+ "problems": [
+  {
+   "id": "cost",
+   "title": "How fast does the transcript cost grow?",
+   "prompt": "<p>An agent's first step sends <code>base</code> tokens (instructions plus task). Every step then adds <code>per_step</code> tokens to the transcript, and every step resends the whole transcript.</p><p>Write <code>tokens_sent(steps, base, per_step)</code>: the total number of tokens sent over <code>steps</code> steps. Step 1 sends <code>base</code>, step 2 sends <code>base + per_step</code>, and so on.</p><p>Then compare 10 steps with 100 steps: is the cost ten times larger, or much more?</p>",
+   "starter": "def tokens_sent(steps, base, per_step):\n    total = 0\n    # TODO: step i (1, 2, ..., steps) sends base + per_step * (i - 1) tokens\n    return total\n",
+   "tests": [
+    {
+     "name": "one step",
+     "code": "r=tokens_sent(1,2000,1000)\nassert r==2000, f'the first step sends just the base, expected 2000, got {r}'"
+    },
+    {
+     "name": "three steps",
+     "code": "r=tokens_sent(3,2000,1000)\nassert r==2000+3000+4000, f'expected 9000, got {r}'"
+    },
+    {
+     "name": "grows quadratically",
+     "code": "a=tokens_sent(10,0,1000); b=tokens_sent(100,0,1000)\nassert b > 50*a, f'10x more steps should cost far more than 10x (about 100x), got ratio {b/a:.1f}'"
+    }
+   ],
+   "hints": [
+    "for i in range(1, steps + 1): total += base + per_step * (i - 1)",
+    "Or in one line: sum(base + per_step * (i - 1) for i in range(1, steps + 1))"
+   ],
+   "solution": "def tokens_sent(steps, base, per_step):\n    return sum(base + per_step * (i - 1) for i in range(1, steps + 1))\n"
+  },
+  {
+   "id": "compact",
+   "title": "Compact a transcript",
+   "prompt": "<p>Write <code>compact(messages, count_tokens, limit, keep_last, summarize)</code>. <code>messages[0]</code> is the system prompt and <code>messages[1]</code> the task.</p><ul><li>If the total of <code>count_tokens(m)</code> over all messages is within <code>limit</code>, return the messages unchanged.</li><li>Otherwise keep the first two and the last <code>keep_last</code> messages, and replace everything in between with one message: <code>{\"role\": \"user\", \"content\": \"SUMMARY OF EARLIER STEPS: \" + summarize(middle)}</code>.</li><li>If there is nothing in between, return the messages unchanged.</li></ul><p><code>summarize</code> would call the model; the tests pass in a simple fake.</p>",
+   "starter": "def compact(messages, count_tokens, limit, keep_last, summarize):\n    # TODO 1: return messages unchanged if they fit within limit\n    # TODO 2: split into head (first 2), middle, tail (last keep_last)\n    # TODO 3: if middle is empty, return unchanged; else head + [summary message] + tail\n    return messages\n",
+   "tests": [
+    {
+     "name": "under the limit: unchanged",
+     "code": "M=[{'role':'system','content':'s'},{'role':'user','content':'t'},{'role':'tool','content':'x'}]\nassert compact(M, lambda m: 10, 100, 2, lambda mid: 'S')==M, 'messages within the limit must be returned unchanged'"
+    },
+    {
+     "name": "over the limit: head, summary, tail",
+     "code": "M=[{'role':'system','content':'sys'},{'role':'user','content':'task'}]+[{'role':'tool','content':f'out{i}'} for i in range(6)]\nr=compact(M, lambda m: 100, 300, 2, lambda mid: f'{len(mid)} steps')\nassert [m['content'] for m in r]==['sys','task','SUMMARY OF EARLIER STEPS: 4 steps','out4','out5'], f'got {[m[\"content\"] for m in r]}'"
+    },
+    {
+     "name": "summarize sees exactly the middle",
+     "code": "M=[{'role':'system','content':'sys'},{'role':'user','content':'task'}]+[{'role':'tool','content':f'out{i}'} for i in range(5)]\nseen=[]\ncompact(M, lambda m: 100, 100, 1, lambda mid: seen.extend(m['content'] for m in mid) or 'S')\nassert seen==['out0','out1','out2','out3'], f'summarize should receive the messages between the head and the last keep_last, got {seen}'"
+    },
+    {
+     "name": "nothing to summarise",
+     "code": "M=[{'role':'system','content':'s'},{'role':'user','content':'t'},{'role':'tool','content':'x'}]\nr=compact(M, lambda m: 1000, 10, 5, lambda mid: 'S')\nassert r==M, f'with no middle there is nothing to compact, got {r}'"
+    }
+   ],
+   "hints": [
+    "total = sum(count_tokens(m) for m in messages)",
+    "head, middle, tail = messages[:2], messages[2:len(messages) - keep_last], messages[len(messages) - keep_last:]",
+    "Watch out: messages[-0:] is the whole list, which is why the slices use len(messages) - keep_last."
+   ],
+   "solution": "def compact(messages, count_tokens, limit, keep_last, summarize):\n    if sum(count_tokens(m) for m in messages) <= limit:\n        return messages\n    head, middle, tail = messages[:2], messages[2:len(messages) - keep_last], messages[len(messages) - keep_last:]\n    if not middle:\n        return messages\n    summary = {\"role\": \"user\", \"content\": \"SUMMARY OF EARLIER STEPS: \" + summarize(middle)}\n    return head + [summary] + tail\n"
+  },
+  {
+   "id": "recall",
+   "title": "Recall the relevant notes",
+   "prompt": "<p>An agent keeps notes as short strings. Write <code>recall(notes, query, k=2)</code> that returns up to <code>k</code> notes most related to the query, best first, using <b>Jaccard similarity</b> of their word sets:</p><pre>similarity = |words(note) ∩ words(query)| / |words(note) ∪ words(query)|</pre><p>Break ties by the notes' original order and leave out notes with similarity 0. A <code>words</code> helper is provided; it keeps dots inside words and underscores, so file names such as <code>dates.py</code> survive, but drops a sentence's final full stop.</p>",
+   "starter": "import re\n\ndef words(text):\n    return {w.strip(\".\") for w in re.findall(r\"[a-z0-9_.]+\", text.lower())} - {\"\"}\n\nNOTES = [\n    \"Decided: the bug is in parse_date in utils/dates.py, not in the API layer.\",\n    \"Tests live in tests/test_dates.py; run them with pytest -q.\",\n    \"The user prefers ISO dates (YYYY-MM-DD) in all output.\",\n    \"Tried bumping the timezone library; it did not fix the failing test.\",\n]\n\ndef recall(notes, query, k=2):\n    q = words(query)\n    # TODO 1: score each note by Jaccard similarity with q\n    # TODO 2: sort by (-score, index); keep the top k with score > 0\n    return []\n",
+   "tests": [
+    {
+     "name": "finds the decision about the bug",
+     "code": "r=recall(NOTES,'where is the bug in parse_date?',1)\nassert r==[NOTES[0]], f'the note about parse_date should come back first, got {r}'"
+    },
+    {
+     "name": "finds how to run the tests",
+     "code": "r=recall(NOTES,'how do I run the tests with pytest',1)\nassert r==[NOTES[1]], f'expected the pytest note, got {r}'"
+    },
+    {
+     "name": "returns at most k, best first",
+     "code": "r=recall(NOTES,'dates timezone test',3)\nassert 1<=len(r)<=3 and r[0]==NOTES[3], f'the timezone note shares the most words, expected it first, got {r}'"
+    },
+    {
+     "name": "no overlap, no result",
+     "code": "r=recall(NOTES,'banana smoothie',2)\nassert r==[], f'nothing is related, expected [], got {r}'"
+    }
+   ],
+   "hints": [
+    "def score(note): w = words(note); return len(q & w) / len(q | w)",
+    "ranked = sorted(range(len(notes)), key=lambda i: (-score(notes[i]), i))",
+    "return [notes[i] for i in ranked[:k] if score(notes[i]) > 0]"
+   ],
+   "solution": "import re\n\ndef words(text):\n    return {w.strip(\".\") for w in re.findall(r\"[a-z0-9_.]+\", text.lower())} - {\"\"}\n\ndef recall(notes, query, k=2):\n    q = words(query)\n    def score(note):\n        w = words(note)\n        return len(q & w) / len(q | w) if q | w else 0.0\n    ranked = sorted(range(len(notes)), key=lambda i: (-score(notes[i]), i))\n    return [notes[i] for i in ranked[:k] if score(notes[i]) > 0]\n\nNOTES = [\n    \"Decided: the bug is in parse_date in utils/dates.py, not in the API layer.\",\n    \"Tests live in tests/test_dates.py; run them with pytest -q.\",\n    \"The user prefers ISO dates (YYYY-MM-DD) in all output.\",\n    \"Tried bumping the timezone library; it did not fix the failing test.\",\n]\n"
+  }
+ ],
+ "poster": null
+}
