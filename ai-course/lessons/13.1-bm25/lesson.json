@@ -1,0 +1,172 @@
+{
+ "id": "13.1-bm25",
+ "module": 13,
+ "title": "Keyword search: the inverted index and BM25",
+ "summary": "Embeddings blur rare exact strings such as error codes and product names, which keyword search matches directly. An inverted index maps each word to the documents that contain it, so a query touches only its own words' postings. BM25 scores a document as a sum over query words of an IDF rarity weight times a saturating, length-normalised term count, with k1 setting saturation and b setting length normalisation.",
+ "video": null,
+ "llm_link": "Most production RAG systems run BM25 next to dense retrieval, because user questions often hinge on exact identifiers (error codes, SKUs, function names) that an embedding model has rarely seen. The next lesson fuses the two.",
+ "key_ideas": [
+  "An inverted index stores, for every word, a postings list: the documents containing it and how often. A query only reads the postings of its own words.",
+  "Term frequency saturates: f·(k1+1)/(f + k1·norm) rises quickly and flattens, so the tenth mention adds far less than the first. k1 (often 1.2-2.0) sets how soon.",
+  "IDF weights rare words up: idf = ln(1 + (N − n + 0.5)/(n + 0.5)) for a word in n of N documents (the form Lucene uses). A word in every document weighs almost nothing.",
+  "Length normalisation: norm = 1 − b + b·|D|/avgdl. b = 0 ignores length, b = 1 normalises fully; 0.75 is a common default.",
+  "BM25 matches surface forms only: 'money back' will not find 'refund'. That is exactly where embeddings help, hence hybrid search."
+ ],
+ "quiz": [
+  {
+   "q": "A user asks about error code E1047. Why might dense (embedding) retrieval miss the right page?",
+   "options": [
+    "Embeddings cannot represent numbers at all",
+    "A rare code carries little meaning for the embedding model, so it barely moves the vector, even though it is the exact string that must match",
+    "The code is too long to embed",
+    "Cosine similarity ignores the first word"
+   ],
+   "answer": 1,
+   "explain": "An embedding compresses a passage into a direction of meaning. A code the model has rarely seen contributes little to that direction, while keyword search treats it as a highly informative exact token."
+  },
+  {
+   "q": "Predict the result: with k1 = 1.2 and length normalisation switched off (norm = 1), how does a word appearing 10 times in a document compare with one appearing once?",
+   "options": [
+    "It contributes exactly 10× as much",
+    "It contributes about 2× as much",
+    "It contributes the same",
+    "It contributes less"
+   ],
+   "answer": 1,
+   "explain": "f·(k1+1)/(f+k1): for f = 1 that is 2.2/2.2 = 1.0, and for f = 10 it is 22/11.2 ≈ 1.96, so about twice as much, nowhere near ten times. Saturation caps a word's contribution at k1 + 1 = 2.2 however often it repeats."
+  },
+  {
+   "q": "A word appears in every one of N documents. Using idf = ln(1 + (N − n + 0.5)/(n + 0.5)), what is its weight, roughly?",
+   "options": [
+    "About ln 2",
+    "Close to zero",
+    "Exactly 1",
+    "Negative"
+   ],
+   "answer": 1,
+   "explain": "With n = N the fraction is 0.5/(N + 0.5), tiny for large N, so the idf is ln(1 + tiny) ≈ 0. Finding a word that is everywhere is no evidence. (The +1 inside the log keeps it from going negative, which the original formula could.)"
+  },
+  {
+   "q": "What does setting b = 0 do?",
+   "options": [
+    "Disables term-frequency saturation",
+    "Ignores document length entirely",
+    "Makes all words equally rare",
+    "Returns no results"
+   ],
+   "answer": 1,
+   "explain": "norm = 1 − b + b·|D|/avgdl. With b = 0 it is always 1, so a long document's counts are not scaled down. With b = 1 they are scaled fully by |D|/avgdl."
+  },
+  {
+   "q": "Your RAG assistant answers 'how do I get my money back?' poorly, though a page titled 'Refund policy' exists. Which retriever is most likely missing it, and why?",
+   "options": [
+    "Dense retrieval, because 'refund' is a rare word",
+    "BM25, because it matches surface words and 'money back' shares none with 'refund'",
+    "Both, because the question is too short",
+    "Neither; this is a generation problem"
+   ],
+   "answer": 1,
+   "explain": "BM25 needs the same tokens. Paraphrases are exactly what embeddings capture, which is why production systems combine the two retrievers."
+  }
+ ],
+ "problems": [
+  {
+   "id": "index",
+   "title": "Build an inverted index",
+   "prompt": "<p>Write <code>build_index(docs)</code>. <code>docs</code> maps a document id to its text. Return a dict that maps each word to its <b>postings</b>: a dict from document id to how many times the word occurs there.</p><p>Use the <code>tokenize</code> function provided, so that <code>\"Refund!\"</code> and <code>\"refund\"</code> count as the same word.</p><pre>build_index({\"a\": \"the cat\", \"b\": \"the the dog\"})\n# {'the': {'a': 1, 'b': 2}, 'cat': {'a': 1}, 'dog': {'b': 1}}</pre>",
+   "starter": "import re\n\ndef tokenize(text):\n    \"\"\"Lower-case words and numbers; punctuation is dropped.\"\"\"\n    return re.findall(r\"[a-z0-9]+\", text.lower())\n\ndef build_index(docs):\n    index = {}\n    # TODO: for each (doc_id, text), tokenize the text and count every word\n    #       index[word][doc_id] = number of times word appears in that doc\n    #       (dict.setdefault and dict.get are handy here)\n    return index\n",
+   "tests": [
+    {
+     "name": "counts repeated words",
+     "code": "ix = build_index({'a': 'the cat', 'b': 'the the dog'})\nassert ix.get('the') == {'a': 1, 'b': 2}, f\"'the' should map to {{'a': 1, 'b': 2}}, got {ix.get('the')}\""
+    },
+    {
+     "name": "words only in one document",
+     "code": "ix = build_index({'a': 'the cat', 'b': 'the the dog'})\nassert ix.get('cat') == {'a': 1} and ix.get('dog') == {'b': 1}, f'cat/dog postings are wrong: {ix}'"
+    },
+    {
+     "name": "case and punctuation are normalised",
+     "code": "ix = build_index({'x': 'Refund! refund, REFUND.'})\nassert ix == {'refund': {'x': 3}}, f'expected {{\"refund\": {{\"x\": 3}}}} (use tokenize), got {ix}'"
+    },
+    {
+     "name": "a word absent from a document is not listed for it",
+     "code": "ix = build_index({'a': 'alpha', 'b': 'beta'})\nassert 'b' not in ix['alpha'], 'postings must only list documents that contain the word'"
+    }
+   ],
+   "hints": [
+    "Loop: for doc_id, text in docs.items(): for word in tokenize(text): ...",
+    "postings = index.setdefault(word, {}) gives you the inner dict, creating it if needed.",
+    "postings[doc_id] = postings.get(doc_id, 0) + 1"
+   ],
+   "solution": "import re\n\ndef tokenize(text):\n    \"\"\"Lower-case words and numbers; punctuation is dropped.\"\"\"\n    return re.findall(r\"[a-z0-9]+\", text.lower())\n\ndef build_index(docs):\n    index = {}\n    for doc_id, text in docs.items():\n        for word in tokenize(text):\n            postings = index.setdefault(word, {})\n            postings[doc_id] = postings.get(doc_id, 0) + 1\n    return index\n"
+  },
+  {
+   "id": "bm25",
+   "title": "Score documents with BM25",
+   "prompt": "<p>Write <code>bm25_scores(query, index, doc_lens, k1=1.2, b=0.75)</code>. It returns a dict from document id to score, for every document that contains at least one query word.</p><p>For each query word with postings in <code>n</code> of the <code>N</code> documents, and each document containing it <code>f</code> times:</p><pre>idf  = ln(1 + (N - n + 0.5) / (n + 0.5))\nnorm = k1 * (1 - b + b * doc_len / avgdl)\nscore += idf * f * (k1 + 1) / (f + norm)</pre><p><code>doc_lens</code> maps each document id to its number of tokens; <code>N</code> is its length and <code>avgdl</code> the mean length. Words missing from the index contribute nothing.</p>",
+   "starter": "import re\n\ndef tokenize(text):\n    \"\"\"Lower-case words and numbers; punctuation is dropped.\"\"\"\n    return re.findall(r\"[a-z0-9]+\", text.lower())\nimport math\n\ndef bm25_scores(query, index, doc_lens, k1=1.2, b=0.75):\n    N = len(doc_lens)\n    avgdl = sum(doc_lens.values()) / N\n    scores = {}\n    for word in tokenize(query):\n        postings = index.get(word, {})\n        # TODO 1: n = number of documents containing the word; skip the word if n == 0\n        # TODO 2: idf from the formula above\n        # TODO 3: for each (doc, f) in postings, add idf * saturated, length-normalised f\n        pass\n    return scores\n",
+   "tests": [
+    {
+     "name": "matches a hand calculation",
+     "code": "import math\nix={'refund':{'a':1}}; lens={'a':10,'b':10}\ns=bm25_scores('refund', ix, lens)\nidf=math.log(1+(2-1+0.5)/(1+0.5))\nexp=idf*1*2.2/(1+1.2)\nassert 'a' in s and abs(s['a']-exp)<1e-9, f'expected score {exp:.4f} for doc a, got {s}'"
+    },
+    {
+     "name": "rare words outweigh common ones",
+     "code": "ix={'the':{'a':1,'b':1,'c':1,'d':1},'e1047':{'b':1}}; lens={'a':5,'b':5,'c':5,'d':5}\ns=bm25_scores('the e1047', ix, lens)\nassert max(s, key=s.get)=='b', f'the document with the rare code should win, got {s}'"
+    },
+    {
+     "name": "term frequency saturates",
+     "code": "lens={'a':10,'b':10}\ns1=bm25_scores('x', {'x':{'a':1}}, lens, b=0)['a']\ns10=bm25_scores('x', {'x':{'a':10}}, lens, b=0)['a']\nassert s10 < 3*s1, f'10 mentions should score far less than 10x one mention (got ratio {s10/s1:.2f}); did you forget the saturation term?'"
+    },
+    {
+     "name": "longer documents are penalised",
+     "code": "ix={'x':{'short':1,'long':1}}; lens={'short':5,'long':50}\ns=bm25_scores('x', ix, lens)\nassert s['short']>s['long'], f'same count, shorter doc should score higher: {s}'"
+    },
+    {
+     "name": "b = 0 ignores length",
+     "code": "ix={'x':{'short':1,'long':1}}; lens={'short':5,'long':50}\ns=bm25_scores('x', ix, lens, b=0)\nassert abs(s['short']-s['long'])<1e-12, f'with b=0 length must not matter: {s}'"
+    },
+    {
+     "name": "unknown words are skipped",
+     "code": "s=bm25_scores('zzz', {'x':{'a':1}}, {'a':3})\nassert s=={}, f'no document contains zzz, expected {{}}, got {s}'"
+    }
+   ],
+   "hints": [
+    "n = len(postings) is the number of documents that contain the word.",
+    "for doc, f in postings.items(): norm = k1 * (1 - b + b * doc_lens[doc] / avgdl)",
+    "scores[doc] = scores.get(doc, 0.0) + idf * f * (k1 + 1) / (f + norm)"
+   ],
+   "solution": "import re\n\ndef tokenize(text):\n    \"\"\"Lower-case words and numbers; punctuation is dropped.\"\"\"\n    return re.findall(r\"[a-z0-9]+\", text.lower())\n\nimport math\n\ndef bm25_scores(query, index, doc_lens, k1=1.2, b=0.75):\n    N = len(doc_lens)\n    avgdl = sum(doc_lens.values()) / N\n    scores = {}\n    for word in tokenize(query):\n        postings = index.get(word, {})\n        n = len(postings)\n        if n == 0:\n            continue\n        idf = math.log(1 + (N - n + 0.5) / (n + 0.5))\n        for doc, f in postings.items():\n            norm = k1 * (1 - b + b * doc_lens[doc] / avgdl)\n            scores[doc] = scores.get(doc, 0.0) + idf * f * (k1 + 1) / (f + norm)\n    return scores\n"
+  },
+  {
+   "id": "search",
+   "title": "Search a small help centre",
+   "prompt": "<p>Put the two pieces together. Write <code>search(query, docs, k=2)</code> that builds an index of <code>docs</code>, scores them with BM25, and returns the ids of the top <code>k</code> documents, best first. Break ties by document id so the order is deterministic.</p><p><code>build_index</code> and <code>bm25_scores</code> are provided in working form. Try the query <code>\"refund E1047\"</code> on <code>DOCS</code>: which document should win?</p>",
+   "starter": "import re\n\ndef tokenize(text):\n    \"\"\"Lower-case words and numbers; punctuation is dropped.\"\"\"\n    return re.findall(r\"[a-z0-9]+\", text.lower())\nimport math\n\ndef build_index(docs):\n    index = {}\n    for doc_id, text in docs.items():\n        for word in tokenize(text):\n            postings = index.setdefault(word, {})\n            postings[doc_id] = postings.get(doc_id, 0) + 1\n    return index\n\nimport math\n\ndef bm25_scores(query, index, doc_lens, k1=1.2, b=0.75):\n    N = len(doc_lens)\n    avgdl = sum(doc_lens.values()) / N\n    scores = {}\n    for word in tokenize(query):\n        postings = index.get(word, {})\n        n = len(postings)\n        if n == 0:\n            continue\n        idf = math.log(1 + (N - n + 0.5) / (n + 0.5))\n        for doc, f in postings.items():\n            norm = k1 * (1 - b + b * doc_lens[doc] / avgdl)\n            scores[doc] = scores.get(doc, 0.0) + idf * f * (k1 + 1) / (f + norm)\n    return scores\n\nDOCS = {\n    \"d1\": \"How to request a refund for an order.\",\n    \"d2\": \"Error E1047 means the refund could not be processed. Retry the refund later.\",\n    \"d3\": \"Shipping times for international orders.\",\n    \"d4\": \"Refund policy: refunds are issued within seven days. Refund requests need an order number.\",\n}\n\ndef search(query, docs, k=2):\n    index = build_index(docs)\n    doc_lens = {d: len(tokenize(t)) for d, t in docs.items()}\n    # TODO: score with bm25_scores, then return the k best ids\n    #       sort by (-score, doc_id) so ties are broken by id\n    return []\n",
+   "tests": [
+    {
+     "name": "the exact error code wins",
+     "code": "r=search('refund E1047', DOCS)\nassert r and r[0]=='d2', f'd2 is the only page with E1047 and should rank first, got {r}'"
+    },
+    {
+     "name": "returns k results",
+     "code": "r=search('refund', DOCS, k=3)\nassert len(r)==3, f'expected 3 ids, got {r}'"
+    },
+    {
+     "name": "only matching documents are returned",
+     "code": "r=search('shipping', DOCS, k=5)\nassert r==['d3'], f'only d3 mentions shipping, got {r}'"
+    },
+    {
+     "name": "paraphrase is invisible to BM25",
+     "code": "r=search('money back', DOCS)\nassert r==[], f'no page contains money or back, so BM25 finds nothing (that is the point), got {r}'"
+    }
+   ],
+   "hints": [
+    "scores = bm25_scores(query, index, doc_lens)",
+    "ranked = sorted(scores, key=lambda d: (-scores[d], d))",
+    "return ranked[:k]"
+   ],
+   "solution": "import re\n\ndef tokenize(text):\n    \"\"\"Lower-case words and numbers; punctuation is dropped.\"\"\"\n    return re.findall(r\"[a-z0-9]+\", text.lower())\nimport math\n\ndef build_index(docs):\n    index = {}\n    for doc_id, text in docs.items():\n        for word in tokenize(text):\n            postings = index.setdefault(word, {})\n            postings[doc_id] = postings.get(doc_id, 0) + 1\n    return index\n\nimport math\n\ndef bm25_scores(query, index, doc_lens, k1=1.2, b=0.75):\n    N = len(doc_lens)\n    avgdl = sum(doc_lens.values()) / N\n    scores = {}\n    for word in tokenize(query):\n        postings = index.get(word, {})\n        n = len(postings)\n        if n == 0:\n            continue\n        idf = math.log(1 + (N - n + 0.5) / (n + 0.5))\n        for doc, f in postings.items():\n            norm = k1 * (1 - b + b * doc_lens[doc] / avgdl)\n            scores[doc] = scores.get(doc, 0.0) + idf * f * (k1 + 1) / (f + norm)\n    return scores\n\nDOCS = {\n    \"d1\": \"How to request a refund for an order.\",\n    \"d2\": \"Error E1047 means the refund could not be processed. Retry the refund later.\",\n    \"d3\": \"Shipping times for international orders.\",\n    \"d4\": \"Refund policy: refunds are issued within seven days. Refund requests need an order number.\",\n}\n\ndef search(query, docs, k=2):\n    index = build_index(docs)\n    doc_lens = {d: len(tokenize(t)) for d, t in docs.items()}\n    scores = bm25_scores(query, index, doc_lens)\n    return sorted(scores, key=lambda d: (-scores[d], d))[:k]\n"
+  }
+ ]
+}

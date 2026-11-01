@@ -38,7 +38,7 @@ Teach Rakshit AI from first principles, math included, until he can explain and 
 The user pre-approved all lesson scripts (2026-10-24): write and build each lesson without waiting for sign-off. Still report what was built, and flag any domain claim that has not been checked against a primary source.
 
 ## Curriculum
-The full list is in `SYLLABUS.md`, and `course.json` is the machine-readable outline: 81 lessons in 14 modules, from Orientation (0.1-0.3) through Reinforcement learning (12.x) and two capstones. Lesson 0.3, "Reading math notation", was added for his Σ gap. Build in order. Modules 1-3 should move faster through what he already knows, and lessons on matrices as transformations (1.3, 1.4) deserve extra care because that is where he stalled before.
+The full list is in `SYLLABUS.md`, and `course.json` is the machine-readable outline: 88 lessons in 15 modules, from Orientation (0.1-0.3) through Reinforcement learning (12.x), the applied layer (13.x: hybrid search, harnesses, agents, evals; added 2026-11-01 at the user's request) and two capstones (module 14). Lesson 0.3, "Reading math notation", was added for his Σ gap. Build in order. Modules 1-3 should move faster through what he already knows, and lessons on matrices as transformations (1.3, 1.4) deserve extra care because that is where he stalled before.
 
 ## Build pipeline (per lesson)
 Folder `lessons/<num>-<slug>/`, following the layout of `lessons/1.1-vectors/`, which is the reference lesson. Run from `ai-course/`:

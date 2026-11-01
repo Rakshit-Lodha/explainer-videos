@@ -397,6 +397,40 @@
   },
   {
    "n": 13,
+   "title": "The applied layer",
+   "lessons": [
+    {
+     "num": "13.1",
+     "title": "Keyword search: the inverted index and BM25"
+    },
+    {
+     "num": "13.2",
+     "title": "Hybrid search: fusing, tuning and reranking"
+    },
+    {
+     "num": "13.3",
+     "title": "The harness: everything around the model call"
+    },
+    {
+     "num": "13.4",
+     "title": "Agents: tools, the loop and when to stop"
+    },
+    {
+     "num": "13.5",
+     "title": "Long-running agents: context, memory and compaction"
+    },
+    {
+     "num": "13.6",
+     "title": "Evals: a test set you can trust"
+    },
+    {
+     "num": "13.7",
+     "title": "Evaluating agents and RAG systems"
+    }
+   ]
+  },
+  {
+   "n": 14,
    "title": "Capstones",
    "lessons": [
     {

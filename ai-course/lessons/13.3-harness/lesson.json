@@ -1,0 +1,168 @@
+{
+ "id": "13.3-harness",
+ "module": 13,
+ "title": "The harness: everything around the model call",
+ "summary": "The harness is the code around a model call. It packs the context into a fixed token budget by priority, orders it so stable parts form a cacheable prefix and important passages sit at the edges, asks for structured output and validates it (feeding errors back for a bounded number of retries), retries transient failures with exponential backoff and jitter, and logs every call as a trace that later feeds evaluation.",
+ "video": null,
+ "llm_link": "The same model behaves very differently under different harnesses. Prompt caching rewards a stable prefix (the KV cache from lesson 10.4), and 'lost in the middle' (10.5) is why passage order matters.",
+ "key_ideas": [
+  "Context assembly is packing under a token budget: required parts (instructions, the user's message) always go in, optional parts by priority until the budget is used.",
+  "Order matters: stable parts (instructions, tool descriptions) first so providers can cache the prefix; strongest passages near the start or end of a long context.",
+  "Structured output: request JSON matching a schema, validate it, and on failure send the errors back and retry a bounded number of times. Some APIs can also constrain decoding to the format.",
+  "Transient failures (timeouts, rate limits) are retried with exponential backoff (1, 2, 4, … s, capped) times random jitter, so clients do not retry in lockstep. Only retry requests that are safe to repeat.",
+  "Every call is logged as a trace (input, output, tokens, latency, cost); traces are for debugging and the source of real test cases."
+ ],
+ "quiz": [
+  {
+   "q": "The context is over budget. Which part should the harness never drop?",
+   "options": [
+    "The oldest conversation turns",
+    "The lowest-ranked retrieved passage",
+    "The system instructions",
+    "A tool's verbose output from five steps ago"
+   ],
+   "answer": 2,
+   "explain": "Instructions define the task and the rules. History and passages are dropped by value, oldest or weakest first."
+  },
+  {
+   "q": "Why put the system instructions and tool descriptions before the retrieved passages and the user's message?",
+   "options": [
+    "Models ignore the end of the prompt",
+    "An unchanging prefix can be cached by the provider, so repeated requests reuse that work",
+    "JSON must come last",
+    "It reduces the number of tokens"
+   ],
+   "answer": 1,
+   "explain": "Prefix caching reuses the computation (the KV cache) for an identical prefix. Anything that changes per request should come after the stable part."
+  },
+  {
+   "q": "Predict the result: exponential backoff with base 1 s and no jitter. What are the waits before the 2nd, 3rd and 4th attempts?",
+   "options": [
+    "1, 1, 1 s",
+    "1, 2, 3 s",
+    "1, 2, 4 s",
+    "2, 4, 8 s"
+   ],
+   "answer": 2,
+   "explain": "The wait doubles each time: base × 2⁰, 2¹, 2² = 1, 2, 4 seconds (usually capped, and multiplied by random jitter in practice)."
+  },
+  {
+   "q": "What is jitter for?",
+   "options": [
+    "Making retries faster",
+    "Spreading retries out in time, so many clients hit by the same outage do not all retry at the same instant",
+    "Hiding errors from users",
+    "Choosing a different model"
+   ],
+   "answer": 1,
+   "explain": "Without jitter, every client that failed together retries together, recreating the overload. Randomising the wait staggers them."
+  },
+  {
+   "q": "A JSON reply fails schema validation. What does a good harness do?",
+   "options": [
+    "Crash and show the user a stack trace",
+    "Silently drop the request",
+    "Send the validation errors back to the model and ask again, a bounded number of times",
+    "Retry forever until it works"
+   ],
+   "answer": 2,
+   "explain": "The error message tells the model exactly what to fix, which usually succeeds on the next try; the bound stops a bad request from looping forever."
+  }
+ ],
+ "problems": [
+  {
+   "id": "pack",
+   "title": "Pack the context window",
+   "prompt": "<p>Write <code>pack_context(parts, budget)</code>. Each part is a dict with <code>name</code>, <code>tokens</code>, <code>priority</code> (higher is more valuable) and <code>required</code>.</p><ul><li>All required parts go in. If they alone exceed the budget, raise <code>ValueError</code>.</li><li>Then consider optional parts from highest to lowest priority, adding each one that still fits (a big part that does not fit is skipped, but smaller ones after it may still fit).</li><li>Return the chosen names <b>in their original order</b>, because order in the prompt is a separate decision.</li></ul>",
+   "starter": "def pack_context(parts, budget):\n    # TODO 1: add up the required parts; raise ValueError(...) if they exceed the budget\n    # TODO 2: go through optional parts by descending priority, adding those that fit\n    # TODO 3: return the chosen names in the order they appear in parts\n    return []\n",
+   "tests": [
+    {
+     "name": "everything fits",
+     "code": "P=[{'name':'sys','tokens':100,'priority':0,'required':True},{'name':'doc','tokens':50,'priority':5,'required':False}]\nassert pack_context(P,200)==['sys','doc'], f'got {pack_context(P,200)}'"
+    },
+    {
+     "name": "highest priority wins the space",
+     "code": "P=[{'name':'sys','tokens':100,'priority':0,'required':True},{'name':'old','tokens':80,'priority':1,'required':False},{'name':'best','tokens':80,'priority':9,'required':False}]\nr=pack_context(P,200)\nassert r==['sys','best'], f'only one optional part fits; the priority-9 one should win, got {r}'"
+    },
+    {
+     "name": "skips a big part, keeps trying smaller ones",
+     "code": "P=[{'name':'sys','tokens':100,'priority':0,'required':True},{'name':'huge','tokens':500,'priority':9,'required':False},{'name':'small','tokens':20,'priority':1,'required':False}]\nr=pack_context(P,150)\nassert r==['sys','small'], f'huge does not fit but small does, got {r}'"
+    },
+    {
+     "name": "original order is kept",
+     "code": "P=[{'name':'a','tokens':10,'priority':1,'required':False},{'name':'b','tokens':10,'priority':9,'required':False},{'name':'c','tokens':10,'priority':5,'required':True}]\nr=pack_context(P,100)\nassert r==['a','b','c'], f'return names in their original order, got {r}'"
+    },
+    {
+     "name": "required parts over budget raise",
+     "code": "P=[{'name':'sys','tokens':300,'priority':0,'required':True}]\ntry:\n    pack_context(P,200)\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('required parts alone exceed the budget: raise ValueError')"
+    }
+   ],
+   "hints": [
+    "used = sum(p['tokens'] for p in parts if p['required'])",
+    "for p in sorted(optional, key=lambda p: -p['priority']): if used + p['tokens'] <= budget: ...",
+    "Keep a set of chosen names, then return [p['name'] for p in parts if p['name'] in chosen]"
+   ],
+   "solution": "def pack_context(parts, budget):\n    required = [p for p in parts if p[\"required\"]]\n    used = sum(p[\"tokens\"] for p in required)\n    if used > budget:\n        raise ValueError(\"required parts alone exceed the budget\")\n    chosen = {p[\"name\"] for p in required}\n    for p in sorted((p for p in parts if not p[\"required\"]), key=lambda p: -p[\"priority\"]):\n        if used + p[\"tokens\"] <= budget:\n            chosen.add(p[\"name\"])\n            used += p[\"tokens\"]\n    return [p[\"name\"] for p in parts if p[\"name\"] in chosen]\n"
+  },
+  {
+   "id": "structured",
+   "title": "Validate and retry structured output",
+   "prompt": "<p>Write <code>get_structured(call_model, validate, prompt, max_tries=3)</code>. <code>call_model(messages)</code> returns the model's reply as a string; <code>validate(obj)</code> returns a list of error strings (empty if the object is fine).</p><ol><li>Start the conversation with one user message holding the prompt.</li><li>Each try: call the model, append its reply as an assistant message, parse it with <code>json.loads</code>, and validate.</li><li>If parsing or validation fails, append a user message containing the errors and try again.</li><li>Return the first valid object, or raise <code>RuntimeError</code> after <code>max_tries</code> failures.</li></ol><p>The tests use a fake model that replies from a script, so no real model is called.</p>",
+   "starter": "import json\n\ndef get_structured(call_model, validate, prompt, max_tries=3):\n    messages = [{\"role\": \"user\", \"content\": prompt}]\n    for _ in range(max_tries):\n        reply = call_model(messages)\n        messages.append({\"role\": \"assistant\", \"content\": reply})\n        # TODO 1: parse with json.loads; a json.JSONDecodeError is an error too\n        # TODO 2: errors = validate(obj); return obj if there are none\n        # TODO 3: otherwise append a user message that includes the errors\n    # TODO 4: raise RuntimeError when every try failed\n",
+   "tests": [
+    {
+     "name": "valid on the first try",
+     "code": "calls=[]\ndef model(m):\n    calls.append(1); return '{\"city\": \"Pune\"}'\nr=get_structured(model, lambda o: [], 'q')\nassert r=={'city':'Pune'} and len(calls)==1, f'expected one call returning the object, got {r} after {len(calls)} calls'"
+    },
+    {
+     "name": "recovers from broken JSON",
+     "code": "replies=iter(['{city: Pune', '{\"city\": \"Pune\"}'])\nr=get_structured(lambda m: next(replies), lambda o: [], 'q')\nassert r=={'city':'Pune'}, f'the second reply is valid, got {r}'"
+    },
+    {
+     "name": "feeds validation errors back",
+     "code": "seen=[]\nreplies=iter(['{\"city\": 3}', '{\"city\": \"Pune\"}'])\ndef model(m):\n    seen.append(m[-1]['content']); return next(replies)\nval=lambda o: [] if isinstance(o.get('city'), str) else ['city must be a string']\nget_structured(model, val, 'q')\nassert 'city must be a string' in seen[1], f'the second call should see the validation error in the last message, saw {seen[1]!r}'"
+    },
+    {
+     "name": "gives up after max_tries",
+     "code": "n=[0]\ndef model(m):\n    n[0]+=1; return 'not json'\ntry:\n    get_structured(model, lambda o: [], 'q', max_tries=3)\nexcept RuntimeError:\n    pass\nelse:\n    raise AssertionError('raise RuntimeError after max_tries failures')\nassert n[0]==3, f'expected exactly 3 model calls, got {n[0]}'"
+    }
+   ],
+   "hints": [
+    "try:\n    obj = json.loads(reply)\nexcept json.JSONDecodeError as e:\n    errors = [f'invalid JSON: {e.msg}']\nelse:\n    errors = validate(obj)",
+    "if not errors: return obj",
+    "messages.append({'role': 'user', 'content': 'Fix these problems: ' + '; '.join(errors)})"
+   ],
+   "solution": "import json\n\ndef get_structured(call_model, validate, prompt, max_tries=3):\n    messages = [{\"role\": \"user\", \"content\": prompt}]\n    for _ in range(max_tries):\n        reply = call_model(messages)\n        messages.append({\"role\": \"assistant\", \"content\": reply})\n        try:\n            obj = json.loads(reply)\n        except json.JSONDecodeError as e:\n            errors = [f\"invalid JSON: {e.msg}\"]\n        else:\n            errors = validate(obj)\n            if not errors:\n                return obj\n        messages.append({\"role\": \"user\", \"content\": \"Fix these problems and reply with JSON only: \" + \"; \".join(errors)})\n    raise RuntimeError(f\"no valid reply after {max_tries} tries\")\n"
+  },
+  {
+   "id": "retry",
+   "title": "Retry with backoff and jitter",
+   "prompt": "<p>Write <code>retry_call(fn, max_attempts, sleep, rand, base=1.0, cap=30.0)</code>. Call <code>fn()</code> and return its result. If it raises an exception whose <code>retryable</code> attribute is true, wait and try again:</p><pre>wait before retry number i (i = 0, 1, 2, ...) = min(cap, base * 2**i) * rand()</pre><p>Re-raise immediately for errors that are not retryable, and re-raise the last error once <code>max_attempts</code> calls have failed. <code>sleep</code> and <code>rand</code> are passed in so the tests can check the waits without actually waiting.</p>",
+   "starter": "class Transient(Exception):\n    retryable = True      # e.g. a timeout or a rate limit\n\nclass Fatal(Exception):\n    retryable = False     # e.g. an invalid request: retrying cannot help\n\n\ndef retry_call(fn, max_attempts, sleep, rand, base=1.0, cap=30.0):\n    for attempt in range(max_attempts):\n        try:\n            return fn()\n        except Exception as e:\n            # TODO 1: re-raise if the error is not retryable (getattr(e, 'retryable', False))\n            # TODO 2: re-raise if this was the last attempt\n            # TODO 3: sleep for min(cap, base * 2 ** attempt) * rand()\n            pass\n",
+   "tests": [
+    {
+     "name": "succeeds after transient failures",
+     "code": "waits=[]; n=[0]\ndef fn():\n    n[0]+=1\n    if n[0]<3: raise Transient()\n    return 'ok'\nr=retry_call(fn, 5, waits.append, lambda: 1.0)\nassert r=='ok' and waits==[1.0,2.0], f'expected result ok after waits [1, 2], got {r!r} with waits {waits}'"
+    },
+    {
+     "name": "fatal errors are not retried",
+     "code": "waits=[]; n=[0]\ndef fn():\n    n[0]+=1; raise Fatal()\ntry:\n    retry_call(fn, 5, waits.append, lambda: 1.0)\nexcept Fatal:\n    pass\nelse:\n    raise AssertionError('a Fatal error must be re-raised')\nassert n[0]==1 and waits==[], f'retrying a fatal error cannot help; expected 1 call and no waits, got {n[0]} calls, waits {waits}'"
+    },
+    {
+     "name": "gives up after max_attempts",
+     "code": "waits=[]; n=[0]\ndef fn():\n    n[0]+=1; raise Transient()\ntry:\n    retry_call(fn, 4, waits.append, lambda: 1.0)\nexcept Transient:\n    pass\nelse:\n    raise AssertionError('re-raise the last error after max_attempts')\nassert n[0]==4 and waits==[1.0,2.0,4.0], f'4 calls with 3 waits [1,2,4] expected, got {n[0]} calls, waits {waits}'"
+    },
+    {
+     "name": "jitter and cap are applied",
+     "code": "waits=[]\ndef fn():\n    raise Transient()\ntry:\n    retry_call(fn, 7, waits.append, lambda: 0.5, base=1.0, cap=10.0)\nexcept Transient:\n    pass\nassert waits==[0.5,1.0,2.0,4.0,5.0,5.0], f'expected waits capped at 10 then halved by jitter: [0.5,1,2,4,5,5], got {waits}'"
+    }
+   ],
+   "hints": [
+    "if not getattr(e, 'retryable', False) or attempt == max_attempts - 1: raise",
+    "A bare `raise` inside except re-raises the current error.",
+    "sleep(min(cap, base * 2 ** attempt) * rand())"
+   ],
+   "solution": "class Transient(Exception):\n    retryable = True      # e.g. a timeout or a rate limit\n\nclass Fatal(Exception):\n    retryable = False     # e.g. an invalid request: retrying cannot help\n\n\ndef retry_call(fn, max_attempts, sleep, rand, base=1.0, cap=30.0):\n    for attempt in range(max_attempts):\n        try:\n            return fn()\n        except Exception as e:\n            if not getattr(e, \"retryable\", False) or attempt == max_attempts - 1:\n                raise\n            sleep(min(cap, base * 2 ** attempt) * rand())\n"
+  }
+ ]
+}

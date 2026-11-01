@@ -1,0 +1,165 @@
+{
+ "id": "13.6-evals",
+ "module": 13,
+ "title": "Evals: a test set you can trust",
+ "summary": "An eval is a fixed set of test cases, a grader and an honest statistic. Build cases from real traces, held apart from tuning. Grade with code where possible; validate an LLM judge against hand labels with Cohen's kappa, which corrects for chance agreement. Put an error bar on every score with the bootstrap, compare versions with a paired bootstrap on the same cases, and turn every bug into a regression case through error analysis.",
+ "video": null,
+ "llm_link": "Model outputs vary run to run, so a change that 'looks better' on five examples is noise until a measured eval says otherwise. Lesson 10.7 covered benchmark scores; this lesson is about evaluating your own application.",
+ "key_ideas": [
+  "Eval = test cases + grader + statistic. Draw cases from real traces, cover hard and embarrassing ones, record what a good answer must contain, and keep them out of tuning.",
+  "Grade with code first (exact match, valid JSON, required citation, passing tests). Use an LLM judge with a rubric only after measuring its agreement with hand labels.",
+  "Cohen's kappa (1960): κ = (pₒ − pₑ)/(1 − pₑ), observed agreement corrected by the agreement expected by chance from each grader's label frequencies.",
+  "Bootstrap (Efron, 1979): resample the cases with replacement thousands of times; the middle 95% of the recomputed scores is a confidence interval.",
+  "Paired comparison: grade both versions on the same cases and bootstrap the per-case differences; an interval that includes zero means no demonstrated improvement.",
+  "Error analysis: read failures, group them, fix the biggest group, and add each new bug as a regression case."
+ ],
+ "quiz": [
+  {
+   "q": "Two graders label 100 answers pass/fail and agree on 90. Is that strong agreement?",
+   "options": [
+    "Yes, 90% is always excellent",
+    "Not necessarily: if both mark almost everything 'pass', they would agree often by chance alone, which kappa corrects for",
+    "No, agreement must be 100%",
+    "Agreement cannot be measured"
+   ],
+   "answer": 1,
+   "explain": "If each grader says 'pass' 95% of the time, chance agreement is 0.95² + 0.05² ≈ 0.905, so 90% observed agreement gives a kappa near zero."
+  },
+  {
+   "q": "Predict the result: two graders agree on 80% of cases, and chance agreement is 50%. What is Cohen's kappa?",
+   "options": [
+    "0.3",
+    "0.6",
+    "0.8",
+    "1.6"
+   ],
+   "answer": 1,
+   "explain": "κ = (0.8 − 0.5)/(1 − 0.5) = 0.6: the graders achieved 60% of the agreement that was possible beyond chance."
+  },
+  {
+   "q": "What does one bootstrap resample consist of?",
+   "options": [
+    "A new set of test cases written by hand",
+    "The same number of cases drawn from the test set with replacement, so some repeat and some are left out",
+    "The test set sorted by difficulty",
+    "Half the test set"
+   ],
+   "answer": 1,
+   "explain": "Recomputing the score on thousands of such resamples shows how much it could move by luck, which is what a confidence interval summarises."
+  },
+  {
+   "q": "Version B beats A by 2 points; the paired bootstrap interval for B − A is (−1.5, +5.5). What can you conclude?",
+   "options": [
+    "B is better",
+    "A is better",
+    "Not yet shown: the interval includes zero, so the difference could be luck",
+    "The test is broken"
+   ],
+   "answer": 2,
+   "explain": "A 95% interval that includes zero means the data are consistent with no improvement. Add cases, or treat the change as neutral."
+  },
+  {
+   "q": "Why should eval cases come from your own production traces rather than a public benchmark?",
+   "options": [
+    "Benchmarks are always wrong",
+    "They reflect what your users actually ask, including your product's specific hard cases, which a general benchmark does not cover",
+    "Traces are smaller",
+    "Benchmarks cannot be graded"
+   ],
+   "answer": 1,
+   "explain": "A benchmark measures general ability; your eval must measure your application, on your users' distribution of requests."
+  }
+ ],
+ "problems": [
+  {
+   "id": "bootstrap",
+   "title": "Bootstrap a confidence interval",
+   "prompt": "<p>Write <code>bootstrap_ci(scores, n_boot=2000, seed=0, level=0.95)</code>. <code>scores</code> is a list of per-case scores (e.g. 1 for pass, 0 for fail).</p><ol><li>Make <code>rng = random.Random(seed)</code> so the result is reproducible.</li><li><code>n_boot</code> times: draw <code>len(scores)</code> scores with replacement (<code>rng.choices</code>) and record their mean.</li><li>Sort the means and return the pair at positions <code>int(tail * n_boot)</code> and <code>int((1 - tail) * n_boot) - 1</code>, where <code>tail = (1 - level) / 2</code>.</li></ol>",
+   "starter": "import random\n\ndef bootstrap_ci(scores, n_boot=2000, seed=0, level=0.95):\n    rng = random.Random(seed)\n    n = len(scores)\n    means = []\n    # TODO 1: n_boot times, append the mean of rng.choices(scores, k=n)\n    # TODO 2: sort means; return the two percentile values\n    return (0.0, 0.0)\n",
+   "tests": [
+    {
+     "name": "the interval contains the observed mean",
+     "code": "s=[1]*140+[0]*60\nlo,hi=bootstrap_ci(s)\nassert lo<0.70<hi, f'the observed 0.70 should lie inside the interval, got ({lo:.3f}, {hi:.3f})'"
+    },
+    {
+     "name": "a sensible width for 200 cases",
+     "code": "s=[1]*140+[0]*60\nlo,hi=bootstrap_ci(s)\nassert 0.08<hi-lo<0.18, f'with 200 cases at 70%, a 95% interval is about 0.13 wide, got {hi-lo:.3f}'"
+    },
+    {
+     "name": "more cases, narrower interval",
+     "code": "lo1,hi1=bootstrap_ci([1]*35+[0]*15)\nlo2,hi2=bootstrap_ci([1]*700+[0]*300)\nassert (hi2-lo2)<(hi1-lo1)/2, f'20x more cases should shrink the width a lot: {hi1-lo1:.3f} vs {hi2-lo2:.3f}'"
+    },
+    {
+     "name": "no variation, no width",
+     "code": "assert bootstrap_ci([1]*50)==(1.0,1.0), 'if every case passes, every resample mean is 1.0'"
+    }
+   ],
+   "hints": [
+    "means = [sum(rng.choices(scores, k=n)) / n for _ in range(n_boot)]",
+    "means.sort(); tail = (1 - level) / 2",
+    "return means[int(tail * n_boot)], means[int((1 - tail) * n_boot) - 1]"
+   ],
+   "solution": "import random\n\ndef bootstrap_ci(scores, n_boot=2000, seed=0, level=0.95):\n    rng = random.Random(seed)\n    n = len(scores)\n    means = sorted(sum(rng.choices(scores, k=n)) / n for _ in range(n_boot))\n    tail = (1 - level) / 2\n    return means[int(tail * n_boot)], means[int((1 - tail) * n_boot) - 1]\n"
+  },
+  {
+   "id": "kappa",
+   "title": "Does the judge agree with you?",
+   "prompt": "<p>Write <code>cohens_kappa(a, b)</code> for two equal-length lists of labels (from you and from an LLM judge, say).</p><pre>po = fraction of cases where a and b agree\npe = sum over labels c of  P(a says c) * P(b says c)\nkappa = (po - pe) / (1 - pe)</pre><p>Raise <code>ValueError</code> for lists of different lengths or empty lists, and return 1.0 when <code>pe</code> is 1 (both graders always use the same single label).</p>",
+   "starter": "def cohens_kappa(a, b):\n    # TODO 1: validate the inputs\n    # TODO 2: po = observed agreement\n    # TODO 3: pe = chance agreement from each grader's label frequencies\n    # TODO 4: kappa\n    return 0.0\n",
+   "tests": [
+    {
+     "name": "perfect agreement",
+     "code": "r=cohens_kappa(['p','f','p','f'],['p','f','p','f'])\nassert abs(r-1.0)<1e-9, f'identical labels give kappa 1, got {r}'"
+    },
+    {
+     "name": "matches a hand calculation",
+     "code": "a=['p']*40+['f']*10+['p']*5+['f']*45; b=['p']*40+['f']*10+['f']*5+['f']*45\npo=(40+10+45)/100; pa=45/100; pb=40/100; pe=pa*pb+(1-pa)*(1-pb)\nexp=(po-pe)/(1-pe); r=cohens_kappa(a,b)\nassert abs(r-exp)<1e-9, f'expected {exp:.4f}, got {r}'"
+    },
+    {
+     "name": "high agreement can still be chance",
+     "code": "a=['p']*95+['f']*5; b=['p']*90+['f']*5+['p']*5\nr=cohens_kappa(a,b)\nassert r<0.1, f'they agree on 90% but both say pass almost always; kappa should be near 0, got {r:.3f}'"
+    },
+    {
+     "name": "bad input raises",
+     "code": "try:\n    cohens_kappa(['p'],['p','f'])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('different lengths should raise ValueError')"
+    }
+   ],
+   "hints": [
+    "po = sum(x == y for x, y in zip(a, b)) / n",
+    "pe = sum((a.count(c) / n) * (b.count(c) / n) for c in set(a) | set(b))",
+    "if pe == 1: return 1.0"
+   ],
+   "solution": "def cohens_kappa(a, b):\n    if len(a) != len(b) or not a:\n        raise ValueError(\"need two equal-length, non-empty label lists\")\n    n = len(a)\n    po = sum(x == y for x, y in zip(a, b)) / n\n    labels = set(a) | set(b)\n    pe = sum((a.count(c) / n) * (b.count(c) / n) for c in labels)\n    if pe == 1:\n        return 1.0\n    return (po - pe) / (1 - pe)\n"
+  },
+  {
+   "id": "paired",
+   "title": "Did the new prompt really help?",
+   "prompt": "<p>Write <code>paired_diff_ci(old, new, n_boot=2000, seed=0, level=0.95)</code>. <code>old</code> and <code>new</code> are per-case scores of two versions <b>on the same cases</b>, in the same order.</p><p>Compute the per-case differences <code>new[i] - old[i]</code>, then bootstrap their mean exactly as in the first problem. Return <code>(mean_difference, lo, hi)</code>. Raise <code>ValueError</code> if the lists differ in length, because then the cases are not paired.</p>",
+   "starter": "import random\n\ndef paired_diff_ci(old, new, n_boot=2000, seed=0, level=0.95):\n    # TODO 1: raise ValueError if the lengths differ\n    # TODO 2: diffs = [b - a for a, b in zip(old, new)]\n    # TODO 3: bootstrap the mean of diffs; return (mean, lo, hi)\n    return (0.0, 0.0, 0.0)\n",
+   "tests": [
+    {
+     "name": "a real improvement",
+     "code": "old=[0]*30+[1]*70; new=[1]*30+[1]*70\nm,lo,hi=paired_diff_ci(old,new)\nassert abs(m-0.30)<1e-9 and lo>0, f'new fixes 30 cases and breaks none: mean 0.30, interval above 0; got ({m:.2f}, {lo:.2f}, {hi:.2f})'"
+    },
+    {
+     "name": "fixes one, breaks another: no proof",
+     "code": "old=[1,0]*50; new=[0,1]*50\nm,lo,hi=paired_diff_ci(old,new)\nassert abs(m)<1e-9 and lo<0<hi, f'equal wins and losses: mean 0 and an interval around 0, got ({m:.2f}, {lo:.2f}, {hi:.2f})'"
+    },
+    {
+     "name": "a small edge on few cases is not shown",
+     "code": "old=[1,1,0,1,0,1,1,0,1,1]; new=[1,1,1,1,0,1,0,1,1,1]\nm,lo,hi=paired_diff_ci(old,new)\nassert m>0 and lo<=0, f'10 cases with a 1-case edge cannot prove an improvement, got ({m:.2f}, {lo:.2f}, {hi:.2f})'"
+    },
+    {
+     "name": "unpaired input raises",
+     "code": "try:\n    paired_diff_ci([1,0],[1])\nexcept ValueError:\n    pass\nelse:\n    raise AssertionError('different lengths cannot be paired; raise ValueError')"
+    }
+   ],
+   "hints": [
+    "if len(old) != len(new): raise ValueError('not paired')",
+    "rng = random.Random(seed); means = sorted(sum(rng.choices(diffs, k=n)) / n for _ in range(n_boot))",
+    "return sum(diffs) / n, means[int(tail * n_boot)], means[int((1 - tail) * n_boot) - 1]"
+   ],
+   "solution": "import random\n\ndef paired_diff_ci(old, new, n_boot=2000, seed=0, level=0.95):\n    if len(old) != len(new):\n        raise ValueError(\"both versions must be graded on the same cases\")\n    diffs = [b - a for a, b in zip(old, new)]\n    n = len(diffs)\n    rng = random.Random(seed)\n    means = sorted(sum(rng.choices(diffs, k=n)) / n for _ in range(n_boot))\n    tail = (1 - level) / 2\n    return sum(diffs) / n, means[int(tail * n_boot)], means[int((1 - tail) * n_boot) - 1]\n"
+  }
+ ]
+}

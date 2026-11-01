@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-variant-ligatures:none;font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="198.08" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="198.08" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 13.6 Evals</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="33.228"></div>
+  <div class="clip scene" id="S2" data-start="33.228" data-duration="26.833"></div>
+  <div class="clip scene" id="S3" data-start="60.061" data-duration="31.782"></div>
+  <div class="clip scene" id="S4" data-start="91.843" data-duration="29.734"></div>
+  <div class="clip scene" id="S5" data-start="121.577" data-duration="26.406"></div>
+  <div class="clip scene" id="S6" data-start="147.983" data-duration="26.833"></div>
+  <div class="clip scene" id="S7" data-start="174.816" data-duration="23.264"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":33.228,"s3":60.061,"s4":91.843,"s5":121.577,"s6":147.983,"s7":174.816},"total":198.08,"cues":{"s1":[["suppose",0.0],["you",0.434],["change",0.651],["the",1.031],["system",1.248],["prompt",1.627],["swap",2.061],["in",2.332],["a",2.495],["newer",2.604],["model",2.929],["or",3.603],["retune",3.872],["the",4.502],["weight",4.862],["of",5.491],["your",5.761],["hybrid",6.21],["search",6.84],["did",7.78],["the",7.961],["product",8.143],["get",8.505],["better",8.686],["reading",9.048],["five",9.41],["outputs",9.637],["and",9.999],["feeling",10.18],["encouraged",10.542],["is",11.04],["not",11.176],["evidence",11.357],["because",12.259],["language",12.825],["models",13.461],["vary",13.956],["from",14.31],["one",14.663],["run",14.946],["to",15.229],["the",15.441],["next",15.724],["and",16.078],["five",16.361],["examples",16.714],["cover",17.351],["almost",17.775],["nothing",18.27],["an",19.059],["evaluation",19.307],["or",20.3],["eval",20.549],["replaces",21.306],["that",21.808],["impression",22.086],["with",22.7],["a",22.979],["measurement",23.09],["built",24.103],["from",24.451],["a",24.741],["fixed",24.857],["set",25.205],["of",25.437],["test",25.611],["cases",25.901],["a",26.695],["grader",26.83],["that",27.303],["scores",27.641],["each",28.114],["answer",28.451],["and",29.352],["a",29.611],["statistic",29.74],["that",30.386],["summarises",30.71],["the",31.421],["scores",31.679],["honestly",32.132]],"s2":[["the",0.0],["test",0.259],["cases",0.584],["matter",0.973],["most",1.427],["the",2.304],["best",2.57],["ones",2.902],["come",3.234],["from",3.566],["your",3.898],["own",4.231],["traces",4.496],["real",5.469],["requests",5.807],["that",6.415],["real",6.754],["users",7.092],["sent",7.497],["chosen",8.339],["to",8.714],["cover",8.875],["the",9.197],["situations",9.411],["you",10.001],["care",10.216],["about",10.484],["including",11.356],["the",11.598],["hard",11.694],["and",11.815],["the",11.912],["embarrassing",12.008],["ones",12.322],["each",12.634],["case",13.073],["records",13.512],["what",14.214],["a",14.653],["good",14.829],["answer",15.267],["must",15.882],["contain",16.321],["or",17.023],["do",17.286],["keep",17.871],["the",18.166],["set",18.402],["fixed",18.638],["while",18.991],["you",19.345],["compare",19.581],["versions",20.052],["and",20.778],["keep",21.015],["it",21.311],["separate",21.489],["from",22.023],["any",22.32],["examples",22.557],["you",23.091],["used",23.328],["while",23.624],["tuning",23.98],["or",24.66],["the",24.827],["score",25.049],["will",25.382],["flatter",25.66],["you",26.105]],"s3":[["grade",0.0],["with",0.317],["code",0.58],["whenever",0.844],["you",1.319],["can",1.53],["exact",2.264],["matches",2.676],["valid",3.53],["json",4.014],["a",4.792],["required",4.849],["citation",5.11],["a",5.399],["test",5.457],["suite",5.601],["that",5.775],["passes",5.92],["for",6.394],["qualities",6.817],["that",7.874],["code",8.403],["cannot",8.932],["check",9.672],["a",10.706],["second",10.807],["model",11.162],["can",11.466],["act",11.668],["as",11.871],["a",12.023],["judge",12.124],["with",12.428],["a",12.681],["written",12.783],["rubric",13.188],["but",13.942],["the",14.139],["judge",14.335],["must",14.63],["be",14.875],["validated",15.023],["first",15.514],["label",16.152],["a",16.528],["sample",16.653],["of",17.092],["answers",17.28],["by",17.782],["hand",17.97],["and",18.283],["measure",18.534],["how",19.036],["well",19.286],["the",19.6],["judge",19.851],["agrees",20.227],["with",20.665],["you",20.979],["using",21.23],["cohen's",21.606],["kappa",22.107],["which",22.688],["discounts",23.065],["the",23.693],["agreement",23.945],["two",24.573],["graders",24.824],["would",25.327],["reach",25.704],["by",26.081],["chance",26.27],["alone",26.71],["the",27.544],["way",27.77],["two",27.997],["people",28.223],["flipping",28.618],["coins",29.127],["would",29.466],["still",29.806],["agree",30.145],["half",30.484],["the",30.767],["time",30.993]],"s4":[["a",0.0],["score",0.11],["from",0.439],["two",0.714],["hundred",0.933],["cases",1.373],["is",1.702],["an",1.867],["estimate",2.031],["so",2.78],["it",2.96],["needs",3.14],["an",3.499],["error",3.679],["bar",4.039],["the",4.668],["bootstrap",4.928],["provides",5.579],["one",6.165],["without",6.425],["any",6.946],["formulas",7.206],["draw",8.29],["two",8.536],["hundred",8.734],["cases",9.129],["from",9.425],["your",9.672],["test",9.918],["set",10.165],["with",10.363],["replacement",10.609],["so",11.935],["that",12.111],["some",12.404],["appear",12.697],["twice",13.107],["and",13.458],["some",13.693],["not",13.986],["at",14.22],["all",14.396],["recompute",15.255],["the",15.802],["score",16.02],["and",16.855],["repeat",17.081],["this",17.477],["a",17.759],["few",17.872],["thousand",18.098],["times",18.607],["the",19.254],["spread",19.543],["of",20.048],["those",20.265],["scores",20.698],["shows",21.204],["how",21.637],["much",21.926],["the",22.287],["result",22.576],["could",23.081],["move",23.515],["by",23.876],["luck",24.093],["and",24.973],["the",25.212],["middle",25.452],["ninety",25.871],["five",26.29],["percent",26.59],["of",27.069],["them",27.248],["gives",27.548],["a",27.907],["confidence",28.027],["interval",28.685]],"s5":[["to",0.0],["compare",0.218],["two",0.8],["versions",1.091],["grade",2.138],["both",2.55],["on",2.893],["exactly",3.099],["the",3.648],["same",3.923],["cases",4.266],["and",4.678],["look",4.953],["at",5.296],["the",5.502],["differences",5.777],["case",6.601],["by",6.944],["case",7.15],["a",7.89],["paired",7.982],["comparison",8.305],["like",8.811],["this",9.041],["cancels",9.272],["out",9.64],["the",9.824],["variation",10.008],["between",10.468],["easy",10.837],["and",11.067],["hard",11.251],["questions",11.481],["so",12.366],["it",12.597],["detects",12.827],["real",13.443],["improvements",13.828],["with",14.828],["far",15.212],["fewer",15.52],["cases",15.982],["bootstrap",16.52],["the",17.29],["difference",17.598],["in",18.444],["the",18.675],["same",18.982],["way",19.367],["and",20.151],["if",20.37],["the",20.535],["interval",20.754],["comfortably",21.247],["includes",21.905],["zero",22.398],["you",23.161],["have",23.354],["not",23.596],["yet",23.789],["shown",23.983],["that",24.273],["the",24.515],["new",24.708],["version",24.902],["is",25.289],["better",25.434]],"s6":[["numbers",0.0],["tell",0.404],["you",0.656],["whether",0.858],["something",1.262],["changed",1.766],["while",2.495],["reading",2.831],["failures",3.279],["tells",3.784],["you",4.12],["why",4.344],["error",5.087],["analysis",5.44],["means",5.968],["reading",6.32],["the",6.79],["failed",7.024],["cases",7.435],["sorting",7.998],["them",8.683],["into",9.111],["categories",9.539],["and",10.567],["fixing",10.91],["the",11.509],["largest",11.852],["category",12.537],["first",13.308],["every",14.178],["bug",14.408],["you",14.562],["find",14.715],["becomes",14.908],["a",15.215],["new",15.292],["test",15.445],["case",15.638],["so",16.279],["the",16.477],["suite",16.742],["slowly",17.139],["turns",17.603],["into",18.0],["a",18.331],["regression",18.463],["test",19.191],["that",19.522],["guards",19.853],["against",20.317],["old",20.846],["mistakes",21.111],["coming",21.707],["back",22.17],["much",22.988],["like",23.31],["the",23.632],["unit",23.89],["tests",24.212],["in",24.599],["ordinary",24.792],["software",25.372]],"s7":[["these",0.0],["ideas",0.37],["apply",0.74],["to",1.11],["any",1.295],["system",1.541],["built",1.973],["on",2.343],["a",2.528],["model",2.651],["but",3.083],["agents",3.329],["and",3.761],["retrieval",4.007],["pipelines",4.624],["raise",5.24],["particular",5.61],["difficulties",6.289],["an",7.61],["agent's",7.806],["answer",8.329],["arrives",8.787],["at",9.31],["the",9.506],["end",9.768],["of",10.029],["a",10.226],["long",10.356],["chain",10.683],["of",11.076],["actions",11.272],["and",12.027],["a",12.306],["retrieval",12.446],["pipeline",13.144],["can",13.773],["fail",14.052],["in",14.402],["its",14.611],["search",14.89],["or",15.379],["in",15.589],["its",15.798],["writing",16.078],["the",17.013],["final",17.315],["lesson",17.767],["of",18.295],["this",18.522],["module",18.899],["looks",19.427],["at",19.88],["how",20.106],["to",20.408],["evaluate",20.634],["them",21.313]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+function dot(parent,x,y,r,color){return el(parent,'abs hid','',{left:(x-r)+'px',top:(y-r)+'px',width:(2*r)+'px',height:(2*r)+'px',borderRadius:r+'px',background:color})}
+
+/* ============ S1: did it get better? ============ */
+(function(){const S=$('S1');const sid='s1';
+  const ch=[['new system prompt','prompt'],['newer model','model'],['retuned α','weight']];
+  ch.forEach(([t,w],i)=>{const c=box(S,400+i*560,220,460,90,t,C.yellow,{fs:34});show(c,i?cue(sid,w):at(sid,.02),.4)});
+  const q=el(S,'cap','better?',{top:'330px',fontSize:'60px',fontStyle:'italic',color:C.ink});show(q,cue(sid,'better'),.4);
+  const five=[0,1,2,3,4].map(i=>{const b=box(S,560+i*200,520,160,90,'👍',C.dim,{fs:40});show(b,cue(sid,'five')+.1*i,.3);return b});
+  const ne=txt(S,'five examples: not evidence',960,620,{fs:30,it:true,color:C.red});show(ne,cue(sid,'evidence'),.4);
+  tl.to(five,{opacity:.25,duration:.5},cue(sid,'evaluation'));
+  const parts=[['fixed test cases','cases',C.blue],['a grader','grader',C.green],['an honest statistic','statistic',C.pink]];
+  parts.forEach(([t,w,c],i)=>{const b=box(S,440+i*520,800,420,100,t,c,{fs:34});show(b,cue(sid,w),.5);if(i){const p=txt(S,'+',440+i*520-260,800,{fs:50,color:C.dim});show(p,cue(sid,w),.3)}});
+  const ev=txt(S,'an eval =',960,700,{fs:36,color:C.ink});show(ev,cue(sid,'evaluation'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: test cases from real traces ============ */
+(function(){const S=$('S2');const sid='s2';
+  const svg=layerSvg(S);
+  const tr=[0,1,2,3,4,5].map(i=>{const c=box(S,260,240+i*100,320,74,'<span class="mono" style="font-size:22px">trace #'+(1041+i*37)+'</span>',C.dim,{fs:22});show(c,at(sid,.02)+.08*i,.3);return c});
+  const tl0=txt(S,'real requests from real users',260,180,{fs:28,it:true,color:C.dim});show(tl0,cue(sid,'traces'),.4);
+  const a=pxArrow(svg,C.ink,4,440,520,620,520);growPx(a,cue(sid,'chosen'),.4);
+  const tab=el(S,'abs hid','',{left:'660px',top:'250px',width:'820px',height:'560px',border:'3px solid #58c4dd',borderRadius:'14px',background:'#141a22'});show(tab,cue(sid,'chosen'),.5);
+  const H=txt(S,'<span style="color:#58c4dd">input</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#83c167">a good answer must…</span>',1070,290,{fs:28});show(H,cue(sid,'records'),.4);
+  const R=[['refund for order 4471?','cite the refund policy','common'],['error E1047 after retry','mention retrying later','hard'],['cancel and refund twice?','refuse the second refund','embarrassing']];
+  R.forEach(([i,g,tag],k)=>{const y=380+k*130;const a1=txt(S,i,900,y,{fs:26,mono:true,color:C.ink}),b1=txt(S,g,1290,y,{fs:26,it:true,color:C.green});
+    const tg=cellAt(S,1380,y+44,190,40,tag,tag==='common'?C.dim:C.red,{fs:20,ink:tag==='common'?C.dim:C.red});
+    show([a1,tg],cue(sid,k===0?'chosen':k===1?'hard':'embarrassing'),.4);show(b1,cue(sid,'records'),.4)});
+  const wall=ln(svg,1560,200,1560,880,C.yellow,5);fadeIn(wall,cue(sid,'separate'),.4);
+  const tu=box(S,1730,540,280,140,'<span>tuning<br>examples</span>',C.yellow,{fs:32});show(tu,cue(sid,'tuning'),.4);
+  const fl=txt(S,'or the score will flatter you',1730,660,{fs:24,it:true,color:C.dim});show(fl,cue(sid,'flatter'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: graders, and checking the judge ============ */
+(function(){const S=$('S3');const sid='s3';
+  const ch=['exact match','valid JSON','required citation','tests pass'];
+  const hd=txt(S,'grade with code',420,200,{fs:36,color:C.green});show(hd,at(sid,.02),.4);
+  ch.forEach((t,i)=>{const c=box(S,420,300+i*95,440,76,'<span>✓&nbsp; '+t+'</span>',C.green,{fs:30});show(c,cue(sid,['exact','json','citation','suite'][i]),.3)});
+  const j=box(S,1340,250,560,100,'<span>LLM judge + written rubric</span>',C.blue,{fs:32});show(j,cue(sid,'judge'),.5);
+  const hum=txt(S,'you',1000,470,{fs:28,color:C.ink}),jud=txt(S,'judge',1000,560,{fs:28,color:C.blue});show([hum,jud],cue(sid,'label'),.4);
+  const A=[1,1,0,1,1,0,1,1,1,0],B=[1,1,0,1,0,0,1,1,1,1];
+  A.forEach((v,i)=>{const a=cellAt(S,1110+i*70,470,56,56,v?'✓':'✗',v?C.green:C.red,{fs:28,ink:v?C.green:C.red}),b=cellAt(S,1110+i*70,560,56,56,B[i]?'✓':'✗',B[i]?C.green:C.red,{fs:28,ink:B[i]?C.green:C.red});
+    show(a,cue(sid,'label')+.05*i,.25);show(b,cue(sid,'agrees')+.05*i,.25);
+    if(v!==B[i]){const h=el(S,'hl','',{left:(1110+i*70-34)+'px',top:'432px',width:'68px',height:'166px',borderColor:C.red});fadeIn(h,cue(sid,'agrees')+.8,.3)}});
+  const eq=eqn(S,'\\kappa=\\dfrac{p_o-p_e}{1-p_e}',1420,720,54);show(eq,cue(sid,'kappa'),.5);
+  const po=txt(S,'p_o: observed agreement   p_e: agreement by chance',1420,830,{fs:26,it:true,color:C.dim});po.innerHTML='p<sub>o</sub>: how often you agree &nbsp;·&nbsp; p<sub>e</sub>: how often chance would';show(po,cue(sid,'discounts'),.4);
+  const coin=txt(S,'two coin-flippers still agree half the time',1420,900,{fs:28,it:true,color:C.yellow});show(coin,cue(sid,'coins'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: the bootstrap ============ */
+(function(){const S=$('S4');const sid='s4';
+  const rnd=seedRand(21);const pass=[];for(let i=0;i<200;i++)pass.push(rnd()<.7);
+  const G=pass.map((p,i)=>{const d=dot(S,180+(i%20)*28,260+Math.floor(i/20)*28,10,p?C.green:C.red);return d});
+  fadeIn(G,at(sid,.02),.5,.004);
+  const sl=txt(S,'200 test cases: 70% pass',450,560,{fs:30,color:C.ink});show(sl,cue(sid,'estimate'),.4);
+  const rs=txt(S,'draw 200 with replacement',450,640,{fs:30,it:true,color:C.yellow});show(rs,cue(sid,'replacement'),.4);
+  /* highlight a few repeats */
+  const picks=[3,3,57,120,120,120,199];picks.forEach((k,i)=>{const r=el(S,'abs hid','',{left:(180+(k%20)*28-14)+'px',top:(260+Math.floor(k/20)*28-14)+'px',width:'28px',height:'28px',border:'2px solid #f5cf4a',borderRadius:'14px'});fadeIn(r,cue(sid,'twice')+.1*i,.2)});
+  const tw=txt(S,'some twice, some not at all',450,700,{fs:26,it:true,color:C.dim});show(tw,cue(sid,'twice'),.4);
+  /* histogram of resampled means */
+  const svg=layerSvg(S);const X=v=>1000+(v-.6)*3600,Y0=760;
+  const ax=ln(svg,X(.6),Y0,X(.8),Y0,C.axis,3);fadeIn(ax,cue(sid,'recompute'),.4);
+  ['0.60','0.65','0.70','0.75','0.80'].forEach((s,i)=>{const t=txt(S,s,X(.6+i*.05),Y0+34,{fs:24,mono:true,color:C.dim});fadeIn(t,cue(sid,'recompute'),.4)});
+  const bins=[];for(let b=0;b<20;b++){const c=.6+b*.01+.005;const h=430*Math.exp(-Math.pow((c-.7)/.0324,2)/2);
+    const r=el(S,'abs hid','',{left:(X(.6+b*.01)+2)+'px',top:(Y0-h)+'px',width:'32px',height:h+'px',background:Math.abs(c-.7)<.064?C.blue:'#2c5868',borderRadius:'3px 3px 0 0',transformOrigin:'50% 100%'});bins.push(r)}
+  bins.forEach((r,i)=>{tl.set(r,{scaleY:0},cue(sid,'thousand'));tl.to(r,{autoAlpha:1,duration:.1},cue(sid,'thousand')+.05*i);tl.to(r,{scaleY:1,duration:1.4,ease:'power1.out'},cue(sid,'thousand')+.05*i)});
+  const lo=ln(svg,X(.636),Y0+6,X(.636),300,C.yellow,3,{dash:'8 8'}),hi=ln(svg,X(.764),Y0+6,X(.764),300,C.yellow,3,{dash:'8 8'});fadeIn([lo,hi],cue(sid,'middle'),.4);
+  const ci=txt(S,'95% interval ≈ 0.64 – 0.76',X(.7),270,{fs:32,color:C.yellow});show(ci,cue(sid,'confidence'),.4);
+  const sp=txt(S,'how much the score could move by luck',X(.7),900,{fs:28,it:true,color:C.ink});show(sp,cue(sid,'luck'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: paired comparison ============ */
+(function(){const S=$('S5');const sid='s5';
+  const A=[1,1,0,1,0,1,1,0,1,1],B=[1,1,1,1,0,1,0,1,1,1];
+  const ha=txt(S,'old',360,200,{fs:32,color:C.dim}),hb=txt(S,'new',470,200,{fs:32,color:C.blue}),hd=txt(S,'new − old',640,200,{fs:32,color:C.pink});
+  show([ha,hb],at(sid,.02),.4);
+  A.forEach((v,i)=>{const y=270+i*62;const c=txt(S,'case '+(i+1),180,y,{fs:24,color:C.dim,mono:true});
+    const a=cellAt(S,360,y,56,50,v?'✓':'✗',v?C.green:C.red,{fs:26,ink:v?C.green:C.red}),b=cellAt(S,470,y,56,50,B[i]?'✓':'✗',B[i]?C.green:C.red,{fs:26,ink:B[i]?C.green:C.red});
+    const d=B[i]-v;const dd=txt(S,d>0?'+1':d<0?'−1':'0',640,y,{fs:28,mono:true,color:d>0?C.green:d<0?C.red:C.dim});
+    show([c,a,b],at(sid,.02)+.05*i,.25);show(dd,cue(sid,'differences')+.08*i,.25)});
+  show(hd,cue(sid,'differences'),.4);
+  const ea=txt(S,'easy and hard questions cancel out',640,920,{fs:26,it:true,color:C.dim});show(ea,cue(sid,'cancels'),.4);
+  const svg=layerSvg(S);const X=v=>1280+v*900,Y=[480,760];
+  const zl=ln(svg,X(0),330,X(0),860,C.axis,3);fadeIn(zl,cue(sid,'bootstrap'),.4);const zt=txt(S,'0',X(0),300,{fs:30,mono:true,color:C.axis});show(zt,cue(sid,'bootstrap'),.4);
+  const bar=(lo,hi,y,c,t,lab)=>{const r=el(S,'abs hid','',{left:X(lo)+'px',top:(y-14)+'px',width:(X(hi)-X(lo))+'px',height:'28px',background:c,borderRadius:'14px'});const l=txt(S,lab,X(0)+24,y+50,{fs:26,it:true,color:c});l.style.translate='0 -50%';show([r,l],t,.5);return r};
+  bar(.12,.38,Y[0],C.green,cue(sid,'improvements'),'interval clear of 0: a real improvement');
+  bar(-.2,.4,Y[1],C.yellow,cue(sid,'zero'),'includes 0: not yet shown');
+  sceneInOut(sid);
+})();
+
+/* ============ S6: error analysis and regression ============ */
+(function(){const S=$('S6');const sid='s6';
+  const fails=[];const rnd=seedRand(9);for(let i=0;i<24;i++){fails.push(cellAt(S,200+(i%6)*80,300+Math.floor(i/6)*80,64,64,'✗',C.red,{fs:28,ink:C.red}))}
+  fadeIn(fails,at(sid,.02),.4,.02);const fl=txt(S,'failed cases',400,240,{fs:30,color:C.red});show(fl,at(sid,.02),.4);
+  const cats=[['missed citation',11],['wrong date format',6],['refused when it should answer',4],['other',3]];
+  cats.forEach(([t,n],i)=>{const y=330+i*110;const l=txt(S,t,1000,y,{fs:28,color:C.ink});l.style.translate='-100% -50%';
+    const b=el(S,'abs hid','',{left:'1030px',top:(y-24)+'px',width:(n*55)+'px',height:'48px',background:i?C.blue:C.yellow,borderRadius:'6px',transformOrigin:'0% 50%'});
+    const c=txt(S,String(n),1030+n*55+30,y,{fs:28,mono:true,color:C.ink});
+    show(l,cue(sid,'categories')+.15*i,.3);tl.set(b,{scaleX:0},cue(sid,'categories'));tl.to(b,{autoAlpha:1,duration:.2},cue(sid,'categories')+.15*i);tl.to(b,{scaleX:1,duration:.6},cue(sid,'categories')+.15*i);show(c,cue(sid,'categories')+.15*i+.4,.3)});
+  tl.to(fails,{x:700,opacity:0,duration:.8,stagger:.01},cue(sid,'sorting'));fadeOut(fl,cue(sid,'sorting')+.4,.4);
+  const fx=el(S,'hl','',{left:'560px',top:'296px',width:'1190px',height:'68px',borderColor:C.yellow});fadeIn(fx,cue(sid,'largest'),.4);
+  const fxl=txt(S,'fix the largest first',1500,250,{fs:30,it:true,color:C.yellow});show(fxl,cue(sid,'largest'),.4);
+  const reg=box(S,960,820,760,100,'<span>every bug becomes a new test case &nbsp;→&nbsp; <span style="color:#83c167">regression suite</span></span>',C.green,{fs:32});show(reg,cue(sid,'regression'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: agents and retrieval pipelines ============ */
+(function(){const S=$('S7');const sid='s7';
+  const svg=layerSvg(S);
+  const t1=txt(S,'general: test cases + grader + statistic',960,220,{fs:32,color:C.ink});show(t1,at(sid,.02),.4);
+  const steps=['tool','tool','tool','tool','answer'];steps.forEach((t,i)=>{const b=box(S,380+i*230,460,190,80,t,i===4?C.green:C.blue,{fs:30});show(b,cue(sid,'chain')+.15*i,.3);if(i)growPx(pxArrow(svg,C.dim,3,380+(i-1)*230+98,460,380+i*230-98,460),cue(sid,'chain')+.15*i,.3)});
+  const al=txt(S,'an agent: a long chain of actions',960,370,{fs:28,it:true,color:C.blue});show(al,cue(sid,'agents'),.4);
+  const r1=box(S,720,700,280,80,'search',C.yellow,{fs:32}),r2=box(S,1200,700,280,80,'writing',C.yellow,{fs:32});
+  show([r1,r2],cue(sid,'retrieval'),.4);growPx(pxArrow(svg,C.dim,3,865,700,1055,700),cue(sid,'retrieval'),.4);
+  const rl=txt(S,'a pipeline can fail in either stage',960,790,{fs:28,it:true,color:C.yellow});show(rl,cue(sid,'search'),.4);
+  nextUp(S,sid,'module',1,'13.7 &nbsp;evaluating agents and RAG systems');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+/* KaTeX draws stacked glyphs that the layout checker reads as overlapping text */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','');e.setAttribute('data-layout-allow-occlusion','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

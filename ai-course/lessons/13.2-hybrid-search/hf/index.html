@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-variant-ligatures:none;font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="221.29" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="221.29" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 13.2 Hybrid search</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="39.876"></div>
+  <div class="clip scene" id="S2" data-start="39.876" data-duration="31.355"></div>
+  <div class="clip scene" id="S3" data-start="71.231" data-duration="31.27"></div>
+  <div class="clip scene" id="S4" data-start="102.501" data-duration="31.27"></div>
+  <div class="clip scene" id="S5" data-start="133.771" data-duration="29.152"></div>
+  <div class="clip scene" id="S6" data-start="162.923" data-duration="32.635"></div>
+  <div class="clip scene" id="S7" data-start="195.558" data-duration="25.732"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":39.876,"s3":71.231,"s4":102.501,"s5":133.771,"s6":162.923,"s7":195.558},"total":221.29,"cues":{"s1":[["we",0.0],["now",0.202],["have",0.472],["two",0.809],["retrievers",1.079],["with",1.82],["opposite",2.157],["blind",2.764],["spots",3.169],["keyword",4.19],["search",4.798],["finds",5.33],["exact",5.787],["codes",6.243],["and",6.699],["names",7.003],["but",7.46],["misses",7.764],["paraphrases",8.296],["while",9.865],["dense",10.3],["search",10.735],["finds",11.243],["paraphrases",11.678],["but",12.549],["blurs",12.839],["exact",13.275],["codes",13.71],["hybrid",14.729],["search",15.184],["runs",15.638],["both",15.963],["on",16.288],["every",16.482],["query",16.872],["and",17.262],["merges",17.521],["their",17.976],["results",18.365],["the",19.17],["merging",19.486],["is",20.117],["harder",20.354],["than",20.906],["it",21.301],["sounds",21.538],["because",22.58],["the",23.025],["two",23.248],["scores",23.471],["live",23.86],["on",24.139],["different",24.306],["scales",24.862],["a",25.773],["bm25",25.948],["score",26.386],["can",26.91],["be",27.26],["anywhere",27.522],["from",28.309],["zero",28.746],["to",29.183],["twenty",29.446],["or",30.058],["more",30.32],["while",31.333],["a",31.733],["cosine",31.866],["similarity",32.332],["sits",33.065],["between",33.398],["minus",33.931],["one",34.33],["and",34.597],["one",34.863],["adding",35.583],["them",36.047],["directly",36.378],["is",36.974],["like",37.173],["adding",37.504],["rupees",37.968],["to",38.432],["kilometres",38.631]],"s2":[["the",0.0],["first",0.268],["remedy",0.669],["is",1.138],["to",1.339],["put",1.54],["both",1.808],["scores",2.142],["on",2.611],["a",2.812],["common",2.946],["scale",3.414],["before",3.816],["combining",4.285],["them",4.954],["min",5.497],["max",5.769],["normalisation",6.04],["does",6.99],["this",7.329],["per",7.668],["query",7.939],["within",8.538],["each",8.835],["result",9.046],["list",9.343],["the",9.788],["best",9.999],["score",10.262],["becomes",10.578],["one",11.0],["the",11.655],["worst",11.873],["becomes",12.199],["zero",12.634],["and",13.381],["everything",13.611],["else",14.244],["lands",14.532],["proportionally",14.877],["in",15.74],["between",15.913],["then",16.674],["the",16.939],["fused",17.151],["score",17.469],["is",17.788],["a",17.947],["weighted",18.053],["blend",18.531],["alpha",19.437],["times",19.858],["the",20.28],["dense",20.56],["score",20.981],["plus",21.403],["one",21.754],["minus",22.034],["alpha",22.456],["times",22.877],["the",23.298],["keyword",23.579],["score",24.14],["so",24.799],["alpha",25.002],["becomes",25.41],["a",25.952],["dial",26.088],["that",26.427],["slides",26.767],["between",27.241],["pure",27.784],["keyword",28.124],["search",28.666],["and",29.141],["pure",29.413],["semantic",29.752],["search",30.363]],"s3":[["the",0.0],["second",0.243],["remedy",0.669],["ignores",1.094],["the",1.58],["scores",1.823],["entirely",2.249],["and",2.796],["uses",3.039],["only",3.343],["the",3.647],["ranks",3.89],["reciprocal",4.616],["rank",5.317],["fusion",5.635],["gives",6.081],["each",6.463],["document",6.782],["one",7.355],["over",7.61],["sixty",7.928],["plus",8.311],["its",8.629],["rank",8.884],["in",9.202],["each",9.393],["list",9.712],["and",10.438],["adds",10.665],["those",10.949],["up",11.291],["a",11.787],["document",11.893],["ranked",12.368],["near",12.738],["the",13.002],["top",13.213],["by",13.424],["either",13.583],["retriever",13.952],["scores",14.48],["well",14.85],["and",15.557],["one",15.794],["ranked",16.032],["well",16.448],["by",16.745],["both",16.923],["scores",17.22],["best",17.636],["it",18.208],["needs",18.445],["no",18.918],["normalisation",19.155],["and",20.259],["no",20.574],["tuning",20.811],["which",21.771],["makes",22.089],["it",22.406],["a",22.565],["robust",22.671],["default",23.042],["but",24.017],["it",24.291],["discards",24.496],["how",25.113],["confident",25.387],["each",26.072],["retriever",26.414],["was",27.1],["and",27.938],["that",28.16],["information",28.438],["is",29.106],["sometimes",29.273],["worth",29.829],["keeping",30.163]],"s4":[["to",0.0],["choose",0.149],["alpha",0.496],["or",0.843],["to",0.992],["choose",1.14],["between",1.487],["the",1.884],["two",2.082],["methods",2.281],["you",3.061],["need",3.374],["evidence",3.766],["rather",4.471],["than",5.02],["intuition",5.412],["which",6.608],["means",6.888],["a",7.169],["set",7.262],["of",7.449],["real",7.589],["queries",7.823],["each",8.591],["labelled",8.836],["with",9.276],["the",9.521],["passages",9.717],["that",10.158],["answer",10.403],["it",10.746],["the",11.254],["usual",11.523],["measure",11.928],["is",12.467],["normalised",12.67],["discounted",13.411],["cumulative",14.153],["gain",14.895],["or",15.458],["ndcg",15.765],["think",16.701],["of",17.023],["a",17.185],["theatre",17.292],["where",17.723],["the",18.046],["front",18.261],["rows",18.583],["matter",18.852],["most",19.229],["a",20.078],["relevant",20.193],["passage",20.711],["earns",21.171],["credit",21.516],["that",21.919],["shrinks",22.207],["with",22.667],["the",22.954],["logarithm",23.185],["of",23.76],["its",23.932],["position",24.162],["and",25.091],["dividing",25.361],["by",25.97],["the",26.173],["best",26.444],["possible",26.783],["ordering",27.392],["puts",28.001],["a",28.339],["perfect",28.474],["ranking",29.016],["at",29.557],["exactly",29.76],["one",30.302]],"s5":[["now",0.0],["sweep",0.245],["alpha",0.612],["from",0.979],["zero",1.285],["to",1.591],["one",1.774],["compute",2.542],["the",2.939],["average",3.137],["ndcg",3.534],["at",3.781],["each",3.93],["setting",4.178],["and",4.624],["plot",4.822],["the",5.07],["curve",5.269],["it",5.991],["usually",6.213],["rises",6.805],["to",7.25],["a",7.472],["peak",7.62],["somewhere",7.99],["in",8.73],["the",8.952],["middle",9.248],["and",10.309],["where",10.535],["that",10.874],["peak",11.157],["sits",11.44],["depends",11.723],["on",12.176],["your",12.345],["queries",12.628],["support",13.484],["tickets",13.952],["full",14.42],["of",14.712],["error",14.888],["codes",15.239],["lean",15.59],["towards",15.882],["keywords",16.35],["while",17.351],["conversational",17.685],["questions",18.52],["lean",19.077],["towards",19.356],["meaning",19.801],["with",20.529],["only",20.829],["a",21.13],["few",21.25],["dozen",21.49],["labelled",21.851],["queries",22.392],["the",22.872],["peak",23.113],["is",23.413],["noisy",23.593],["so",24.303],["confirm",24.479],["the",24.948],["chosen",25.182],["value",25.593],["on",25.945],["a",26.121],["separate",26.238],["held",26.766],["out",27.059],["set",27.294],["before",27.528],["trusting",27.939],["it",28.467]],"s6":[["production",0.0],["systems",0.647],["usually",1.118],["add",1.589],["one",1.824],["more",2.06],["stage",2.354],["arranged",3.071],["like",3.511],["a",3.755],["funnel",3.853],["the",4.505],["cheap",4.733],["retrievers",5.074],["cast",5.7],["a",5.985],["wide",6.099],["net",6.383],["fetching",6.995],["perhaps",7.637],["a",8.208],["hundred",8.351],["candidates",8.922],["so",9.707],["that",9.921],["the",10.277],["right",10.563],["passage",10.991],["is",11.562],["very",11.776],["likely",12.132],["somewhere",12.632],["among",13.345],["them",13.773],["a",14.465],["cross",14.62],["encoder",15.085],["which",15.94],["reads",16.097],["the",16.255],["query",16.36],["and",16.518],["each",16.623],["candidate",16.754],["together",17.017],["then",17.734],["reranks",18.084],["that",18.644],["short",18.994],["list",19.414],["carefully",19.764],["and",20.464],["keeps",20.744],["the",21.163],["best",21.443],["few",21.793],["filters",22.415],["on",22.952],["metadata",23.154],["such",24.146],["as",24.467],["product",24.66],["or",25.173],["date",25.366],["are",25.919],["applied",26.166],["before",26.661],["scoring",27.093],["so",27.885],["that",28.074],["no",28.389],["effort",28.578],["is",29.02],["wasted",29.209],["on",29.65],["passages",29.839],["that",30.407],["could",30.722],["never",31.1],["qualify",31.478]],"s7":[["retrieval",0.0],["has",0.55],["become",0.77],["a",1.155],["component",1.265],["you",1.816],["can",2.036],["measure",2.256],["and",2.696],["tune",2.916],["rather",3.64],["than",4.033],["a",4.313],["black",4.425],["box",4.761],["you",4.985],["hope",5.21],["works",5.49],["but",6.15],["it",6.377],["is",6.546],["only",6.716],["one",6.999],["part",7.226],["of",7.509],["the",7.678],["machinery",7.905],["that",8.471],["surrounds",8.754],["a",9.32],["model",9.433],["in",9.773],["a",9.943],["real",10.056],["application",10.339],["the",11.599],["prompt",11.972],["has",12.624],["to",12.997],["be",13.276],["assembled",13.555],["the",15.014],["reply",15.242],["has",15.585],["to",15.814],["be",15.985],["checked",16.157],["and",16.671],["failures",16.9],["have",17.414],["to",17.7],["be",17.871],["handled",18.043],["gracefully",18.5],["all",19.427],["of",19.564],["that",19.667],["together",19.839],["is",20.148],["called",20.251],["the",20.491],["harness",20.628],["and",21.247],["it",21.516],["is",21.718],["the",21.92],["subject",22.189],["of",22.727],["the",22.929],["next",23.198],["lesson",23.535]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+function hbar(parent,x,y,w,h,color){return el(parent,'abs hid','',{left:x+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',background:color,borderRadius:'6px',transformOrigin:'0% 50%'})}
+function growBar(b,time,d){tl.set(b,{scaleX:0},time);tl.to(b,{autoAlpha:1,duration:.2},time);tl.to(b,{scaleX:1,duration:d||.8,ease:'power2.out'},time)}
+
+/* ============ S1: two retrievers, two scales ============ */
+(function(){const S=$('S1');const sid='s1';
+  const k=box(S,520,230,460,100,'keyword search',C.yellow,{fs:40}),d=box(S,1400,230,460,100,'dense search',C.blue,{fs:40});
+  show(k,at(sid,.02),.5);show(d,at(sid,.02)+.2,.5);
+  const kf=txt(S,'finds codes, misses paraphrases',520,330,{fs:28,it:true,color:C.dim}),df=txt(S,'finds paraphrases, blurs codes',1400,330,{fs:28,it:true,color:C.dim});
+  show(kf,cue(sid,'misses'),.4);show(df,cue(sid,'blurs'),.4);
+  const m=box(S,960,450,300,90,'merge  ?',C.pink,{fs:40});const svg=layerSvg(S);
+  const a1=pxArrow(svg,C.yellow,4,620,360,830,430),a2=pxArrow(svg,C.blue,4,1300,360,1090,430);
+  growPx(a1,cue(sid,'merges'),.5);growPx(a2,cue(sid,'merges'),.5);show(m,cue(sid,'merges'),.5);
+  /* two rulers of the same length, very different ranges */
+  const r1=ln(svg,360,640,1560,640,C.yellow,4),r2=ln(svg,360,800,1560,800,C.blue,4);
+  const t1=['0','5','10','15','20+'].map((s,i)=>txt(S,s,360+i*300,680,{fs:28,mono:true,color:C.yellow}));
+  const t2=['−1','0','1'].map((s,i)=>txt(S,s,360+i*600,840,{fs:28,mono:true,color:C.blue}));
+  const l1=txt(S,'BM25 score',220,640,{fs:30,color:C.yellow}),l2=txt(S,'cosine',220,800,{fs:30,color:C.blue});
+  fadeIn(r1,cue(sid,'bm25'),.4);show([l1,...t1],cue(sid,'bm25'),.4,{stagger:.05});
+  fadeIn(r2,cue(sid,'cosine'),.4);show([l2,...t2],cue(sid,'cosine'),.4,{stagger:.05});
+  const ru=el(S,'cap','adding them directly: rupees + kilometres',{top:'920px',fontSize:'40px',fontStyle:'italic',color:C.dim});show(ru,cue(sid,'rupees'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: min-max normalisation and the alpha dial ============ */
+(function(){const S=$('S2');const sid='s2';
+  const K=[['p3',14],['p4',6],['p9',2]],D=[['p1',.82],['p3',.78],['p2',.40]];
+  const head1=txt(S,'keyword (BM25)',480,190,{fs:32,color:C.yellow}),head2=txt(S,'dense (cosine)',1440,190,{fs:32,color:C.blue});
+  show([head1,head2],cue(sid,'common'),.4);
+  const rows=(L,x,color,max)=>L.map(([id,v],i)=>{const y=280+i*90;const c=cellAt(S,x-260,y,100,64,id,C.dim,{fs:28});
+    const b=hbar(S,x-180,y,v/max*420,44,color);const t=txt(S,String(v),x+330,y,{fs:28,mono:true,color:C.ink});
+    show(c,cue(sid,'common'),.4);growBar(b,cue(sid,'common'),.6);show(t,cue(sid,'common')+.3,.3);return {b,t,v}});
+  const kr=rows(K,480,C.yellow,14),dr=rows(D,1440,C.blue,.82);
+  const norm=(L)=>{const lo=Math.min(...L.map(r=>r.v)),hi=Math.max(...L.map(r=>r.v));return L.map(r=>(r.v-lo)/(hi-lo))};
+  const go=(R,max,t)=>norm(R).forEach((n,i)=>{const r=R[i];tl.to(r.b,{scaleX:Math.max(.02,n)/(r.v/max),duration:.9,ease:'power2.inOut'},t);
+    tl.to(r.t,{autoAlpha:0,duration:.2},t);const nt=txt(S,n.toFixed(2),0,0,{fs:28,mono:true,color:C.ink});place(nt,parseFloat(r.t.style.left),parseFloat(r.t.style.top));show(nt,t+.6,.3)});
+  go(kr,14,cue(sid,'best'));go(dr,.82,cue(sid,'best'));
+  const mm=txt(S,'best → 1, worst → 0, per query',960,580,{fs:32,it:true,color:C.ink});show(mm,cue(sid,'worst'),.5);
+  const eq=eqn(S,'\\text{fused} = \\alpha\\cdot\\text{dense} + (1-\\alpha)\\cdot\\text{keyword}',960,700,50);show(eq,cue(sid,'blend'),.6);
+  const svg=layerSvg(S);const tr=ln(svg,560,860,1360,860,C.axis,4);fadeIn(tr,cue(sid,'dial'),.4);
+  const knob=el(S,'abs hid','',{left:'938px',top:'838px',width:'44px',height:'44px',borderRadius:'22px',background:C.pink});
+  fadeIn(knob,cue(sid,'dial'),.3);
+  tl.to(knob,{x:-400,duration:1,ease:'power2.inOut'},cue(sid,'keyword',2));tl.to(knob,{x:400,duration:1.4,ease:'power2.inOut'},cue(sid,'semantic'));
+  const e0=txt(S,'α = 0: pure keyword',560,930,{fs:28,color:C.yellow}),e1=txt(S,'α = 1: pure semantic',1360,930,{fs:28,color:C.blue});
+  show(e0,cue(sid,'keyword',2),.4);show(e1,cue(sid,'semantic'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: reciprocal rank fusion ============ */
+(function(){const S=$('S3');const sid='s3';
+  const KL=['p3','p4','p9'],DL=['p1','p3','p2'];
+  const h1=txt(S,'keyword ranks',360,200,{fs:32,color:C.yellow}),h2=txt(S,'dense ranks',760,200,{fs:32,color:C.blue});
+  show([h1,h2],at(sid,.02),.4);
+  KL.forEach((id,i)=>{const c=cellAt(S,360,290+i*90,180,64,(i+1)+'. '+id,C.yellow,{fs:28,ink:C.ink});show(c,at(sid,.02)+.1*i,.3)});
+  DL.forEach((id,i)=>{const c=cellAt(S,760,290+i*90,180,64,(i+1)+'. '+id,C.blue,{fs:28,ink:C.ink});show(c,at(sid,.02)+.1*i,.3)});
+  const eq=eqn(S,'\\text{RRF}(p)=\\sum_{\\text{lists}} \\frac{1}{60+\\text{rank}(p)}',1400,260,50);show(eq,cue(sid,'sixty'),.6);
+  const ids=['p1','p2','p3','p4','p9'];const rr=id=>[KL,DL].reduce((s,L)=>s+(L.includes(id)?1/(60+L.indexOf(id)+1):0),0);
+  const order=ids.slice().sort((a,b)=>rr(b)-rr(a));
+  order.forEach((id,i)=>{const y=430+i*80;const c=cellAt(S,1180,y,120,60,id,C.pink,{fs:28});const v=rr(id);
+    const b=hbar(S,1260,y,v/rr(order[0])*360,40,C.pink);const t=txt(S,v.toFixed(4),1720,y,{fs:26,mono:true,color:C.ink});
+    show(c,cue(sid,'adds')+.15*i,.3);growBar(b,cue(sid,'adds')+.15*i,.5);show(t,cue(sid,'adds')+.15*i+.3,.3)});
+  const hl=el(S,'hl','',{left:'1110px',top:'385px',width:'720px',height:'90px',borderColor:C.pink});fadeIn(hl,cue(sid,'both'),.4);
+  const bl=txt(S,'p3: ranked well by both, so it wins',1460,880,{fs:30,it:true,color:C.pink});show(bl,cue(sid,'both'),.4);
+  const ad=txt(S,'no normalisation, no tuning',560,640,{fs:32,it:true,color:C.ink});show(ad,cue(sid,'tuning'),.4);
+  const dc=txt(S,'but it discards how confident each list was',560,710,{fs:30,it:true,color:C.dim});show(dc,cue(sid,'discards'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: labelled queries and nDCG ============ */
+(function(){const S=$('S4');const sid='s4';
+  const q=box(S,480,250,620,100,'“my refund failed with E1047”',C.ink,{fs:34});show(q,at(sid,.02),.5);
+  ['p3 ✓ relevant','p4','p9'].forEach((t,i)=>{const c=cellAt(S,480,370+i*76,300,60,t,i===0?C.green:C.dim,{fs:26,ink:i===0?C.green:C.dim});show(c,cue(sid,'labelled')+.15*i,.3)});
+  const nd=txt(S,'nDCG: normalised discounted cumulative gain',1340,200,{fs:32,color:C.ink});show(nd,cue(sid,'ndcg'),.5);
+  const svg=layerSvg(S);
+  const seats=[1,2,3,4,5].map(i=>{const x=1000+(i-1)*150,h=260/Math.log2(i+1);
+    const s=cellAt(S,x,820,110,56,'seat '+i,C.dim,{fs:24});const b=el(S,'abs hid','',{left:(x-36)+'px',top:(780-h)+'px',width:'72px',height:h+'px',background:C.teal,borderRadius:'6px 6px 0 0',transformOrigin:'50% 100%'});
+    show(s,cue(sid,'theatre')+.1*i,.3);tl.set(b,{scaleY:0},cue(sid,'credit'));tl.to(b,{autoAlpha:1,duration:.2},cue(sid,'credit')+.1*i);tl.to(b,{scaleY:1,duration:.6,ease:'power2.out'},cue(sid,'credit')+.1*i);
+    const t=txt(S,'1/log₂('+(i+1)+')',x,880,{fs:22,mono:true,color:C.teal});show(t,cue(sid,'logarithm')+.1*i,.3);return s});
+  const tl1=txt(S,'front rows matter most',1300,950,{fs:30,it:true,color:C.ink});show(tl1,cue(sid,'front'),.5);
+  const eq=eqn(S,'\\text{nDCG}=\\dfrac{\\text{DCG}}{\\text{DCG of the best ordering}}',520,700,38);show(eq,cue(sid,'dividing'),.6);
+  const one=txt(S,'a perfect ranking scores exactly 1',520,830,{fs:30,it:true,color:C.green});show(one,cue(sid,'perfect'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: sweep alpha ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);const P=(x,y)=>[300+1000*x,880-900*(y-.4)];
+  const ax=ln(svg,...P(0,.4),...P(1.04,.4),C.axis,3),ay=ln(svg,...P(0,.4),...P(0,1.02),C.axis,3);fadeIn([ax,ay],cue(sid,'sweep'),.4);
+  ['0','0.25','0.5','0.75','1'].forEach((s,i)=>{const t=txt(S,s,...P(i/4,.36),{fs:24,mono:true,color:C.dim});fadeIn(t,cue(sid,'sweep'),.4)});
+  const xl=txt(S,'α',P(.5,.31)[0],P(.5,.31)[1],{fs:34,color:C.pink}),yl=txt(S,'mean nDCG',P(0,1.06)[0]+40,P(0,1.06)[1],{fs:28,it:true,color:C.dim});fadeIn([xl,yl],cue(sid,'sweep'),.4);
+  const f=a=>.62+.32*Math.exp(-Math.pow((a-.48)/.3,2));
+  const c=pth(svg,polyD(P,pts2d(f,0,1,60)),C.pink,6);drawOn(c,cue(sid,'plot'),1.4);
+  const pk=el(S,'abs hid','',{left:(P(.48,f(.48))[0]-14)+'px',top:(P(.48,f(.48))[1]-14)+'px',width:'28px',height:'28px',borderRadius:'14px',background:C.pink,boxShadow:'0 0 24px #e77fb3'});fadeIn(pk,cue(sid,'peak'),.4);
+  const pl=txt(S,'peak',P(.48,f(.48))[0],P(.48,f(.48))[1]-50,{fs:30,color:C.pink});show(pl,cue(sid,'peak'),.4);
+  const le=txt(S,'error codes lean keyword',P(.12,.5)[0]+60,P(.12,.5)[1],{fs:28,it:true,color:C.yellow}),ri=txt(S,'conversation leans meaning',P(.86,.5)[0]-40,P(.86,.5)[1],{fs:28,it:true,color:C.blue});
+  show(le,cue(sid,'tickets'),.4);show(ri,cue(sid,'conversational'),.4);
+  const ho=box(S,1600,300,420,120,'<span>confirm on a<br>held-out set</span>',C.green,{fs:32});show(ho,cue(sid,'held'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: the reranking funnel ============ */
+(function(){const S=$('S6');const sid='s6';
+  const svg=layerSvg(S);
+  const fil=box(S,300,500,320,120,'<span>filters<br><span style="font-size:26px;color:#7f8b99">product, date</span></span>',C.teal,{fs:34});
+  const f1=pth(svg,'M 600 260 L 1500 260 L 1300 520 L 800 520 Z',C.blue,4,{fill:'rgba(88,196,221,0.08)'});
+  const f2=pth(svg,'M 800 560 L 1300 560 L 1150 760 L 950 760 Z',C.pink,4,{fill:'rgba(231,127,179,0.10)'});
+  fadeIn(f1,at(sid,.02),.5);
+  const t1=txt(S,'BM25 + dense: ~100 candidates',1050,390,{fs:34,color:C.ink});show(t1,cue(sid,'hundred'),.5);
+  const rc=txt(S,'recall: the right passage is in here somewhere',1050,450,{fs:26,it:true,color:C.dim});show(rc,cue(sid,'likely'),.4);
+  fadeIn(f2,cue(sid,'cross'),.5);
+  const t2=txt(S,'cross-encoder rerank',1050,610,{fs:32,color:C.ink});show(t2,cue(sid,'cross'),.5);
+  const t2b=txt(S,'reads query + passage together',1050,665,{fs:24,it:true,color:C.dim});show(t2b,cue(sid,'together'),.4);
+  const top=box(S,1050,860,280,80,'best 5',C.green,{fs:34});show(top,cue(sid,'keeps'),.5);
+  show(fil,cue(sid,'filters'),.5);const fa=pxArrow(svg,C.teal,4,460,500,600,400);growPx(fa,cue(sid,'before'),.5);
+  const fn=txt(S,'applied before scoring',300,600,{fs:26,it:true,color:C.dim});show(fn,cue(sid,'before'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: retrieval is one part; the harness ============ */
+(function(){const S=$('S7');const sid='s7';
+  const svg=layerSvg(S);
+  const r=box(S,960,250,560,100,'retrieval: measured, tuned',C.green,{fs:38});show(r,cue(sid,'measure'),.5);
+  const m=box(S,960,560,300,130,'model',C.blue,{fs:44});show(m,cue(sid,'machinery'),.5);
+  const parts=[['assemble the prompt',560,460,'assembled'],['check the reply',1360,460,'checked'],['handle failures',960,780,'gracefully']];
+  parts.forEach(([t,x,y,w])=>{const b=box(S,x,y,360,90,t,C.yellow,{fs:32});show(b,cue(sid,w),.5);
+    const l=ln(svg,x,y,960,560,C.dim,3,{dash:'8 8'});fadeIn(l,cue(sid,w),.4)});
+  const ring=el(S,'abs hid','',{left:'330px',top:'360px',width:'1260px',height:'520px',border:'3px dashed #f5cf4a',borderRadius:'40px'});
+  ring.setAttribute('data-layout-allow-overlap','');fadeIn(ring,cue(sid,'harness'),.5);
+  const hl=txt(S,'the harness',1480,322,{fs:36,it:true,color:C.yellow});show(hl,cue(sid,'harness'),.5);
+  nextUp(S,sid,'lesson',1,'13.3 &nbsp;the harness: everything around the model call');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+/* KaTeX draws stacked glyphs that the layout checker reads as overlapping text */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','');e.setAttribute('data-layout-allow-occlusion','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

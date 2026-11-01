@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="assets/lib/gsap.min.js"></script>
+<script src="assets/lib/katex/katex.min.js"></script>
+<link rel="stylesheet" href="assets/lib/katex/katex.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* AI from Scratch house look: 3Blue1Brown-inspired number plane on near-black */
+:root{--bg:#0e1116;--grid:#2a6f97;--axis:#c9d3e0;--ink:#e8edf3;--dim:#7f8b99;
+  --blue:#58c4dd;--yellow:#f5cf4a;--green:#83c167;--red:#fc6255;--pink:#e77fb3;--teal:#5cd0b3}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Newsreader',Georgia,serif;color:var(--ink);
+  background:radial-gradient(ellipse 80% 75% at 45% 50%,#141a22 0%,#0e1116 60%,#0a0c10 100%)}
+.scene{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0}
+.layer{position:absolute;left:0;top:0;width:1920px;height:1080px;opacity:0;visibility:hidden}
+.abs{position:absolute}
+.hid{opacity:0;visibility:hidden}
+.mono{font-variant-ligatures:none;font-family:'JetBrains Mono',ui-monospace,monospace}
+svg.full{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:visible}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:52px;opacity:0;visibility:hidden}
+.colv{position:absolute}
+.colv .br{position:absolute;top:0;width:18px;border:4px solid currentColor}
+.colv .br.l{left:0;border-right:none;border-radius:6px 0 0 6px}
+.colv .br.r{right:0;border-left:none;border-radius:0 6px 6px 0}
+.colv .cell{position:absolute;left:0;text-align:center;font-family:'JetBrains Mono',ui-monospace,monospace}
+.hl{position:absolute;border-radius:12px;border:3px solid;opacity:0;visibility:hidden}
+.sym{position:absolute;font-size:60px;color:var(--ink);opacity:0;visibility:hidden;width:60px;text-align:center}
+.word{position:absolute;left:0;top:0;font-size:64px;white-space:nowrap}
+.tag{position:absolute;left:56px;top:40px;font-size:24px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.cap{position:absolute;width:1920px;left:0;text-align:center;font-size:56px;opacity:0;visibility:hidden}
+.cap em{color:var(--blue)}
+.chip{position:absolute;padding:14px 34px;border-radius:40px;border:2px solid;font-size:44px;opacity:0;visibility:hidden;white-space:nowrap}
+.node{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;border:3px solid;border-radius:18px;background:#141a22;opacity:0;visibility:hidden;line-height:1.2;padding:0 14px}
+.txt{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;visibility:hidden}
+.para{position:absolute;opacity:0;visibility:hidden;line-height:1.3}
+.cell2{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',ui-monospace,monospace;border:2px solid;border-radius:8px;opacity:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="197.01" data-width="1920" data-height="1080">
+  <audio id="voice" src="assets/voice.wav" data-start="0" data-duration="197.01" data-volume="1"></audio>
+  <div class="tag">AI from scratch &nbsp;·&nbsp; 13.7 Evaluating agents and RAG</div>
+  <div class="clip scene" id="S1" data-start="0.0" data-duration="24.605"></div>
+  <div class="clip scene" id="S2" data-start="24.605" data-duration="30.246"></div>
+  <div class="clip scene" id="S3" data-start="54.851" data-duration="23.505"></div>
+  <div class="clip scene" id="S4" data-start="78.356" data-duration="24.443"></div>
+  <div class="clip scene" id="S5" data-start="102.799" data-duration="39.633"></div>
+  <div class="clip scene" id="S6" data-start="142.432" data-duration="28.027"></div>
+  <div class="clip scene" id="S7" data-start="170.459" data-duration="26.551"></div>
+</div>
+
+<script>
+/* Timing is written by tools/voice.py from timing.json. Beats sit on spoken words via cue(); at() places a beat at a fraction of a scene. */
+const TIMING=/*TIMING*/{"starts":{"s1":0.0,"s2":24.605,"s3":54.851,"s4":78.356,"s5":102.799,"s6":142.432,"s7":170.459},"total":197.01,"cues":{"s1":[["a",0.0],["single",0.133],["pass",0.599],["or",0.932],["fail",1.132],["at",1.465],["the",1.665],["end",1.931],["hides",2.198],["where",2.597],["things",2.997],["went",3.463],["wrong",3.796],["a",4.585],["retrieval",4.713],["augmented",5.354],["answer",5.994],["depends",6.443],["on",6.955],["a",7.147],["search",7.275],["and",7.724],["then",7.98],["on",8.3],["the",8.492],["writing",8.749],["that",9.261],["uses",9.581],["its",9.901],["results",10.158],["and",11.169],["an",11.409],["agent's",11.589],["answer",12.069],["sits",12.49],["at",12.79],["the",12.97],["end",13.21],["of",13.45],["a",13.63],["chain",13.75],["of",14.11],["tool",14.291],["calls",14.591],["to",15.321],["improve",15.514],["such",16.026],["systems",16.347],["you",16.86],["need",17.116],["to",17.437],["measure",17.629],["each",18.142],["stage",18.462],["so",19.541],["that",19.723],["a",20.026],["failure",20.147],["points",20.632],["at",21.056],["its",21.238],["cause",21.481],["rather",21.845],["than",22.269],["merely",22.572],["at",22.997],["the",23.178],["output",23.421]],"s2":[["for",0.0],["retrieval",0.225],["pipelines",0.788],["split",1.765],["the",2.068],["evaluation",2.27],["in",2.825],["two",2.976],["score",3.621],["the",3.988],["retrieval",4.233],["stage",4.846],["with",5.213],["recall",5.519],["and",5.948],["ndcg",6.193],["against",6.499],["labelled",6.989],["passages",7.54],["exactly",8.501],["as",8.927],["in",9.087],["the",9.247],["hybrid",9.46],["search",9.833],["lesson",10.205],["then",10.945],["score",11.185],["the",11.473],["answer",11.665],["for",12.002],["faithfulness",12.194],["meaning",13.192],["every",13.603],["claim",13.911],["is",14.219],["supported",14.374],["by",14.887],["the",15.042],["retrieved",15.247],["text",15.761],["and",16.351],["for",16.549],["correctness",16.746],["read",17.628],["together",17.922],["they",18.449],["diagnose",18.742],["the",19.27],["failure",19.505],["if",20.522],["the",20.68],["right",20.89],["passage",21.205],["was",21.626],["retrieved",21.836],["but",22.361],["the",22.572],["answer",22.782],["is",23.15],["wrong",23.307],["fix",24.11],["the",24.337],["generation",24.564],["and",25.801],["if",26.008],["it",26.163],["was",26.318],["never",26.525],["retrieved",26.836],["no",27.756],["prompt",27.925],["will",28.318],["rescue",28.6],["the",28.994],["answer",29.219]],"s3":[["for",0.0],["agents",0.246],["judge",0.988],["the",1.292],["outcome",1.496],["by",1.902],["checking",2.054],["the",2.511],["state",2.714],["of",3.019],["the",3.171],["world",3.374],["rather",3.679],["than",4.034],["the",4.288],["agent's",4.491],["own",4.898],["report",5.101],["an",6.117],["agent",6.299],["that",6.665],["says",6.969],["it",7.273],["fixed",7.456],["the",7.821],["bug",8.065],["may",8.308],["not",8.552],["have",8.795],["so",9.595],["run",9.756],["the",9.972],["test",10.188],["suite",10.457],["an",11.228],["agent",11.38],["that",11.685],["says",11.938],["it",12.192],["booked",12.344],["the",12.698],["meeting",12.901],["may",13.307],["have",13.51],["booked",13.763],["the",14.118],["wrong",14.321],["day",14.625],["so",15.22],["query",15.376],["the",15.689],["calendar",15.898],["checks",16.784],["written",17.21],["in",17.697],["code",17.88],["against",18.184],["the",18.671],["final",18.915],["state",19.28],["are",19.645],["the",19.889],["most",20.132],["trustworthy",20.437],["grader",21.167],["an",21.594],["agent",21.776],["eval",22.141],["can",22.446],["have",22.689]],"s4":[["the",0.0],["path",0.236],["matters",0.53],["too",1.002],["a",1.528],["trajectory",1.645],["check",2.289],["reads",2.641],["the",2.992],["sequence",3.226],["of",3.753],["tool",3.929],["calls",4.221],["and",4.573],["asks",4.807],["whether",5.1],["the",5.568],["agent",5.802],["used",6.154],["appropriate",6.447],["tools",7.149],["passed",7.95],["valid",8.328],["arguments",8.653],["avoided",9.515],["forbidden",10.027],["actions",10.668],["and",11.576],["finished",11.805],["within",12.319],["a",12.719],["sensible",12.833],["number",13.347],["of",13.747],["steps",13.918],["an",14.555],["agent",14.74],["can",15.109],["reach",15.356],["the",15.725],["right",15.971],["outcome",16.341],["by",16.833],["a",17.018],["dangerous",17.141],["or",17.757],["wasteful",17.942],["route",18.496],["and",19.465],["trajectory",19.7],["checks",20.348],["catch",20.76],["that",21.113],["even",21.407],["when",21.702],["the",21.996],["final",22.231],["state",22.584],["looks",22.938],["perfect",23.291]],"s5":[["agents",0.0],["are",0.567],["also",0.891],["stochastic",1.296],["so",2.405],["run",2.556],["every",2.759],["task",3.062],["several",3.315],["times",3.72],["the",4.455],["measure",4.664],["pass",5.082],["at",5.343],["k",5.5],["from",6.108],["the",6.417],["lesson",6.664],["on",7.096],["evaluating",7.281],["models",7.96],["asks",8.869],["whether",9.193],["at",9.712],["least",9.906],["one",10.295],["of",10.554],["k",10.748],["attempts",10.878],["succeeds",11.461],["which",12.518],["suits",12.886],["settings",13.254],["where",13.807],["you",14.175],["can",14.42],["try",14.666],["repeatedly",14.911],["and",15.586],["keep",15.832],["a",16.139],["success",16.261],["a",17.194],["user",17.316],["relying",17.623],["on",18.113],["an",18.297],["assistant",18.481],["needs",19.094],["the",19.462],["opposite",19.707],["success",20.522],["every",21.206],["time",21.719],["the",22.385],["tau",22.664],["bench",22.942],["study",23.361],["measured",23.779],["this",24.406],["as",24.755],["pass",24.964],["hat",25.312],["k",25.591],["the",26.221],["chance",26.498],["that",26.981],["all",27.327],["k",27.603],["attempts",27.741],["succeed",28.363],["which",29.383],["for",29.765],["independent",30.019],["attempts",30.783],["is",31.356],["roughly",31.547],["p",32.056],["to",32.184],["the",32.375],["power",32.629],["k",33.011],["so",33.584],["even",33.791],["ninety",34.137],["percent",34.621],["per",35.174],["attempt",35.45],["falls",36.003],["below",36.418],["sixty",36.833],["percent",37.247],["over",37.8],["five",38.146],["attempts",38.491]],"s6":[["in",0.0],["practice",0.192],["the",0.767],["pieces",1.023],["form",1.47],["a",1.79],["cycle",1.917],["an",2.862],["offline",3.052],["suite",3.561],["of",3.943],["tasks",4.134],["runs",4.516],["on",4.834],["every",5.025],["change",5.407],["to",5.852],["the",6.043],["prompt",6.297],["the",7.112],["tools",7.352],["or",7.712],["the",7.892],["model",8.132],["just",8.885],["as",9.212],["unit",9.408],["tests",9.736],["run",10.128],["on",10.39],["every",10.587],["change",10.979],["to",11.437],["code",11.634],["in",12.236],["production",12.375],["a",13.106],["sample",13.236],["of",13.692],["real",13.887],["traces",14.212],["is",14.668],["graded",14.863],["continuously",15.319],["by",16.165],["a",16.36],["validated",16.49],["judge",17.141],["failures",18.077],["are",18.519],["read",18.715],["and",18.96],["categorised",19.157],["and",20.213],["the",20.423],["worst",20.632],["of",20.947],["them",21.104],["are",21.366],["added",21.575],["to",21.89],["the",22.047],["offline",22.256],["suite",22.675],["so",23.435],["each",23.643],["mistake",23.989],["is",24.543],["caught",24.751],["at",25.236],["most",25.444],["once",25.79],["in",26.136],["front",26.344],["of",26.76],["users",26.967]],"s7":[["that",0.0],["completes",0.251],["the",0.754],["applied",0.956],["layer",1.358],["retrieval",2.205],["you",2.71],["can",2.912],["measure",3.114],["and",3.517],["tune",3.719],["a",4.557],["harness",4.676],["that",5.149],["makes",5.444],["each",5.799],["call",6.095],["dependable",6.39],["agents",7.568],["with",8.024],["budgets",8.35],["and",8.872],["memory",9.133],["and",10.08],["evaluations",10.309],["that",10.995],["tell",11.281],["you",11.567],["whether",11.796],["a",12.254],["change",12.368],["truly",12.769],["helped",13.112],["underneath",13.692],["all",14.367],["of",14.612],["it",14.796],["is",14.98],["the",15.164],["next",15.41],["token",15.716],["predictor",16.084],["you",16.698],["have",16.943],["spent",17.25],["this",17.618],["course",17.924],["building",18.354],["next",19.263],["come",19.587],["the",19.91],["capstones",20.169],["beginning",21.032],["with",21.63],["a",21.929],["digit",22.049],["recogniser",22.408],["built",23.066],["from",23.425],["scratch",23.724],["in",24.203],["numpy",24.383]]}}/*END*/;
+const IDS=Object.keys(TIMING.starts);
+const START={},SPAN={};
+IDS.forEach((k,i)=>{START[k]=TIMING.starts[k];SPAN[k]=(i+1<IDS.length?TIMING.starts[IDS[i+1]]:TIMING.total)-TIMING.starts[k]});
+const at=(sid,f)=>START[sid]+f*SPAN[sid];
+/* cue(sid,'word',n): when the n-th 'word' in that scene starts (approximate, from tools/align.py) */
+const cue=(sid,word,n)=>{let k=0;for(const [x,t] of TIMING.cues[sid])if(x===word&&++k===(n||1))return START[sid]+t;throw new Error(`no cue ${sid}:${word}:${n||1}`)};
+const tl=gsap.timeline({paused:true});
+const NS='http://www.w3.org/2000/svg';
+const C={blue:'#58c4dd',yellow:'#f5cf4a',green:'#83c167',red:'#fc6255',pink:'#e77fb3',teal:'#5cd0b3',ink:'#e8edf3',dim:'#7f8b99',grid:'#2a6f97',axis:'#c9d3e0'};
+const $=id=>document.getElementById(id);
+function el(parent,cls,html,css){const d=document.createElement('div');d.className=cls;if(html!=null)d.innerHTML=html;if(css)Object.assign(d.style,css);parent.appendChild(d);return d}
+function svgEl(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function layerSvg(parent){return svgEl('svg',{class:'full',viewBox:'0 0 1920 1080'},parent)}
+const tex=(s,size)=>`<span style="font-size:${size||56}px">${katex.renderToString(s,{throwOnError:false,output:'html'})}</span>`;
+function show(t,time,d,vars){tl.fromTo(t,{autoAlpha:0,y:(vars&&vars.y!=null)?vars.y:14},{autoAlpha:1,y:0,duration:d||.6,ease:'power2.out',stagger:(vars&&vars.stagger)||0,immediateRender:false},time)}
+function fadeIn(t,time,d,stagger){tl.to(t,{autoAlpha:1,duration:d||.6,ease:'power1.out',stagger:stagger||0},time)}
+function fadeOut(t,time,d){tl.to(t,{autoAlpha:0,duration:d||.5,ease:'power1.in'},time)}
+function sceneInOut(sid){const s=$(sid.toUpperCase());tl.to(s,{opacity:1,duration:.5,ease:'none'},START[sid]);tl.to(s,{opacity:0,duration:.5,ease:'none'},START[sid]+SPAN[sid]-.5)}
+function place(e,x,y){e.style.left=x+'px';e.style.top=y+'px';e.style.translate='-50% -50%';return e}
+function seedRand(s){return()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+const fmt=(v,dp)=>{const a=Math.abs(v).toFixed(dp==null?1:dp);return (v<0&&Number(a)!==0?'−':'')+a};
+
+/* number plane: grid units -> pixels */
+function plane(ox,oy,u){return (x,y)=>[ox+u*x,oy-u*y]}
+function drawGrid(svg,P,x0,x1,y0,y1){
+  const g=svgEl('g',{},svg);
+  for(let x=x0;x<=x1;x++){const a=P(x,y0),b=P(x,y1);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:x===0?C.axis:C.grid,'stroke-width':x===0?3:1.6,opacity:x===0?.9:.55},g)}
+  for(let y=y0;y<=y1;y++){const a=P(x0,y),b=P(x1,y);svgEl('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:y===0?C.axis:C.grid,'stroke-width':y===0?3:1.6,opacity:y===0?.9:.55},g)}
+  return g}
+
+/* arrows: geometry is recomputed from a proxy so seeks in any order land on the same frame */
+function mkArrow(svg,P,color,w,label,lx,ly,parent){
+  const g=svgEl('g',{style:'opacity:0;visibility:hidden'},svg);
+  const line=svgEl('line',{stroke:color,'stroke-width':w||7,'stroke-linecap':'round'},g);
+  const head=svgEl('polygon',{fill:color},g);
+  const a={g,line,head,P,st:{x0:0,y0:0,x1:0,y1:0},lx:lx||0,ly:ly||-50};
+  if(label){a.label=el(parent,'lbl',label,{color});a.label.setAttribute('data-layout-allow-overlap','')}
+  return a}
+function geom(a,x0,y0,x1,y1){
+  const [p0x,p0y]=a.P(x0,y0),[p1x,p1y]=a.P(x1,y1);const dx=p1x-p0x,dy=p1y-p0y,L=Math.hypot(dx,dy);
+  if(L<2){a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',p0x);a.line.setAttribute('y2',p0y);a.head.setAttribute('points','');}
+  else{const hl=Math.min(30,L*.45),hw=hl*.55,ux=dx/L,uy=dy/L,bx=p1x-ux*hl,by=p1y-uy*hl;
+    a.line.setAttribute('x1',p0x);a.line.setAttribute('y1',p0y);a.line.setAttribute('x2',bx);a.line.setAttribute('y2',by);
+    a.head.setAttribute('points',`${p1x},${p1y} ${bx-uy*hw},${by+ux*hw} ${bx+uy*hw},${by-ux*hw}`)}
+  if(a.label)gsap.set(a.label,{x:p1x+a.lx,y:p1y+a.ly,xPercent:-50,yPercent:-50})}
+function setArrow(a,s){Object.assign(a.st,s);geom(a,a.st.x0,a.st.y0,a.st.x1,a.st.y1)}
+function arrowTo(a,time,d,to,ease){const from={...a.st},o={...from};const tgt={...from,...to};
+  tl.to(o,{...tgt,duration:d,ease:ease||'power2.inOut',immediateRender:false,onUpdate:()=>geom(a,o.x0,o.y0,o.x1,o.y1)},time);a.st=tgt}
+function showArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:1,duration:d||.4},time)}
+function hideArrow(a,time,d){const tg=[a.g];if(a.label)tg.push(a.label);tl.to(tg,{autoAlpha:0,duration:d||.4},time)}
+function grow(a,time,d,x1,y1){setArrow(a,{x1:a.st.x0,y1:a.st.y0});showArrow(a,time,.25);arrowTo(a,time,d,{x1,y1},'power2.out')}
+
+/* column vector with brackets; returns cells so entries can be highlighted or rewritten */
+function colvec(parent,cx,cy,vals,o){o=o||{};const fs=o.fs||64,w=o.w||140,rowH=fs*1.3,pad=fs*.25,H=vals.length*rowH+pad*2;
+  const box=el(parent,'colv'+(o.hidden===false?'':' hid'),'',{left:(cx-w/2)+'px',top:(cy-H/2)+'px',width:w+'px',height:H+'px',color:o.color||C.ink});
+  el(box,'br l','',{height:H+'px'});el(box,'br r','',{height:H+'px'});
+  const cells=vals.map((v,i)=>el(box,'cell',v,{top:(pad+i*rowH)+'px',width:w+'px',height:rowH+'px',lineHeight:rowH+'px',fontSize:fs+'px',color:o.ink||C.ink}));
+  return {box,cells,cx,cy,w,H,rowH,pad}}
+function cellHL(parent,cv,i,color){const pad=6;return el(parent,'hl','',{left:(cv.cx-cv.w/2+10)+'px',top:(cv.cy-cv.H/2+cv.pad+i*cv.rowH-2)+'px',width:(cv.w-20)+'px',height:(cv.rowH+4)+'px',borderColor:color,boxShadow:`0 0 24px ${color}66`})}
+function sym(parent,ch,x,y,size){return el(parent,'sym',ch,{left:(x-30)+'px',top:(y-size*.62)+'px',fontSize:size+'px',width:'60px'})}
+
+
+/* ---- extra helpers (modules 10-12) ---- */
+function box(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'node',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color||C.blue,color:o.ink||C.ink,fontSize:(o.fs||40)+'px'});if(o.bg)d.style.background=o.bg;if(o.mono)d.classList.add('mono');if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function txt(parent,html,x,y,o){o=o||{};const d=el(parent,'txt'+(o.mono?' mono':''),html,{fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal'});place(d,x,y);if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function para(parent,html,x,y,w,o){o=o||{};const d=el(parent,'para',html,{left:x+'px',top:y+'px',width:w+'px',fontSize:(o.fs||40)+'px',color:o.color||C.ink,fontStyle:o.it?'italic':'normal',textAlign:o.align||'left'});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function ln(svg,x1,y1,x2,y2,color,w,o){o=o||{};const a={x1,y1,x2,y2,stroke:color,'stroke-width':w||4,'stroke-linecap':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('line',a,svg)}
+function pth(svg,d,color,w,o){o=o||{};const a={d,stroke:color,'stroke-width':w||5,fill:o.fill||'none','stroke-linecap':'round','stroke-linejoin':'round',style:'opacity:0;visibility:hidden'};if(o.dash)a['stroke-dasharray']=o.dash;return svgEl('path',a,svg)}
+function drawOn(e,time,d){e.setAttribute('pathLength','1');e.setAttribute('stroke-dasharray','1 1');e.setAttribute('stroke-dashoffset','1');tl.to(e,{autoAlpha:1,duration:.15},time);tl.fromTo(e,{attr:{'stroke-dashoffset':1}},{attr:{'stroke-dashoffset':0},duration:d||1,ease:'power1.inOut',immediateRender:false},time)}
+function pxArrow(svg,color,w,x0,y0,x1,y1,label,lx,ly,parent){const a=mkArrow(svg,(x,y)=>[x,y],color,w,label,lx,ly,parent);setArrow(a,{x0,y0,x1,y1});return a}
+function growPx(a,time,d){const t={...a.st};setArrow(a,{x1:t.x0,y1:t.y0});showArrow(a,time,.2);arrowTo(a,time,d||.7,{x1:t.x1,y1:t.y1},'power2.out')}
+function pts2d(f,a,b,n){const p=[];for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;p.push([x,f(x)])}return p}
+function polyD(P,pts){return pts.map((q,i)=>{const [x,y]=P(q[0],q[1]);return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ')}
+function countTo(e,time,d,a,b,f){const o={v:a};tl.to(o,{v:b,duration:d,ease:'power1.inOut',immediateRender:false,onUpdate:()=>{e.innerHTML=f(o.v)}},time)}
+function cellAt(parent,x,y,w,h,html,color,o){o=o||{};const d=el(parent,'cell2',html,{left:(x-w/2)+'px',top:(y-h/2)+'px',width:w+'px',height:h+'px',borderColor:color,color:o.ink||C.ink,fontSize:(o.fs||30)+'px'});if(o.bg)d.style.background=o.bg;if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function eqn(parent,t,x,y,size,o){o=o||{};const d=el(parent,'abs',tex(t,size||56),{left:x+'px',top:y+'px',translate:'-50% -50%',whiteSpace:'nowrap',opacity:0,visibility:'hidden',color:o.color||C.ink});if(o.ov)d.setAttribute('data-layout-allow-overlap','');return d}
+function nextUp(S,sid,word,n,html){const d=el(S,'cap','next &nbsp;·&nbsp; '+html,{top:'960px',fontSize:'38px',color:C.dim,fontStyle:'italic'});show(d,cue(sid,word,n),.7);return d}
+
+/* ============ S1: one pass/fail hides the cause ============ */
+(function(){const S=$('S1');const sid='s1';
+  const svg=layerSvg(S);
+  const pf=box(S,1500,250,300,100,'<span>✗ fail</span>',C.red,{fs:40});show(pf,at(sid,.02),.4);
+  const hid=txt(S,'…but where?',1500,350,{fs:30,it:true,color:C.dim});show(hid,cue(sid,'hides'),.4);
+  const r=[['search',C.yellow],['write',C.yellow]].map(([t,c],i)=>{const b=box(S,300+i*360,520,260,90,t,c,{fs:34});show(b,cue(sid,'search')+.2*i,.4);return b});
+  growPx(pxArrow(svg,C.dim,3,435,520,525,520),cue(sid,'writing'),.3);
+  const rl=txt(S,'retrieval-augmented answer',480,430,{fs:28,it:true,color:C.yellow});show(rl,cue(sid,'retrieval'),.4);
+  const ag=['tool','tool','tool','answer'].map((t,i)=>{const b=box(S,1040+i*210,720,170,80,t,i===3?C.green:C.blue,{fs:30});show(b,cue(sid,'chain')+.12*i,.3);if(i)growPx(pxArrow(svg,C.dim,3,1040+(i-1)*210+90,720,1040+i*210-90,720),cue(sid,'chain')+.12*i,.3);return b});
+  const al=txt(S,'an agent',1355,630,{fs:28,it:true,color:C.blue});show(al,cue(sid,'chain'),.4);
+  const ms=el(S,'cap','measure each stage, so a failure points at its cause',{top:'900px',fontSize:'36px',fontStyle:'italic',color:C.ink});show(ms,cue(sid,'measure'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S2: RAG: score the two stages separately ============ */
+(function(){const S=$('S2');const sid='s2';
+  const h1=box(S,560,230,520,100,'<span>retrieval<br><span style="font-size:24px;color:#7f8b99">recall, nDCG on labelled passages</span></span>',C.yellow,{fs:34});
+  const h2=box(S,1360,230,520,100,'<span>answer<br><span style="font-size:24px;color:#7f8b99">faithful to the text? correct?</span></span>',C.blue,{fs:34});
+  show(h1,at(sid,.02),.4);show(h2,cue(sid,'faithfulness'),.5);
+  const tab=[['right passage retrieved','answer wrong','→ fix generation',C.blue,'generation'],['never retrieved','answer wrong','→ fix retrieval',C.yellow,'rescue']];
+  const hd=txt(S,'read together, they diagnose the failure',960,410,{fs:30,it:true,color:C.ink});show(hd,cue(sid,'diagnose'),.4);
+  tab.forEach(([a,b,c,col,w],i)=>{const y=540+i*160;
+    const A=box(S,420,y,440,100,a,i?C.red:C.green,{fs:30}),B=box(S,960,y,360,100,b,C.red,{fs:30}),Cc=box(S,1480,y,440,100,c,col,{fs:32});
+    show([A,B],cue(sid,i?'never':'retrieved',i?1:2),.4);show(Cc,cue(sid,w),.4)});
+  const np=txt(S,'no prompt rescues a passage that was never retrieved',960,900,{fs:28,it:true,color:C.dim});show(np,cue(sid,'prompt'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S3: check the world, not the report ============ */
+(function(){const S=$('S3');const sid='s3';
+  const svg=layerSvg(S);
+  const say=box(S,480,300,620,110,'<span>agent: “bug fixed, all tests pass”</span>',C.blue,{fs:32});show(say,at(sid,.02),.4);
+  const no=txt(S,'its own report',480,410,{fs:28,it:true,color:C.dim});show(no,cue(sid,'report'),.4);
+  const run=box(S,1400,300,560,110,'<span class="mono" style="font-size:28px">$ pytest -q &nbsp;→&nbsp; 2 failed</span>',C.red,{fs:28});show(run,cue(sid,'suite'),.5);
+  growPx(pxArrow(svg,C.dim,4,800,300,1110,300),cue(sid,'run'),.4);
+  const cal=box(S,480,600,620,110,'<span>agent: “meeting booked”</span>',C.blue,{fs:32});show(cal,cue(sid,'booked'),.4);
+  const q=box(S,1400,600,560,110,'<span class="mono" style="font-size:28px">calendar: Thu, not Wed ✗</span>',C.red,{fs:28});show(q,cue(sid,'calendar'),.5);
+  growPx(pxArrow(svg,C.dim,4,800,600,1110,600),cue(sid,'query'),.4);
+  const tr=el(S,'cap','code that checks the final state: the most trustworthy grader',{top:'830px',fontSize:'36px',fontStyle:'italic',color:C.green});show(tr,cue(sid,'trustworthy'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S4: the trajectory ============ */
+(function(){const S=$('S4');const sid='s4';
+  const svg=layerSvg(S);
+  const calls=[['lookup_order',C.blue],['issue_refund',C.red],['send_email',C.blue],['send_email',C.blue],['send_email',C.blue],['done',C.green]];
+  calls.forEach(([t,c],i)=>{const b=box(S,240+i*290,330,250,84,'<span class="mono" style="font-size:24px">'+t+'</span>',c,{fs:24});show(b,at(sid,.02)+.12*i,.3);
+    if(i)growPx(pxArrow(svg,C.dim,3,240+(i-1)*290+128,330,240+i*290-128,330),at(sid,.02)+.12*i,.3)});
+  const tl0=txt(S,'the sequence of tool calls',960,240,{fs:30,it:true,color:C.dim});show(tl0,cue(sid,'sequence'),.4);
+  const Q=[['appropriate tools?','✓',C.green,'appropriate'],['valid arguments?','✓',C.green,'valid'],['forbidden or premature actions?','✗ refund before checking eligibility',C.red,'forbidden'],['sensible number of steps?','✗ three identical emails',C.red,'steps']];
+  Q.forEach(([q,a,c,w],i)=>{const y=520+i*90;const l=txt(S,q,700,y,{fs:30,color:C.ink});l.style.translate='-100% -50%';const r=txt(S,a,760,y,{fs:30,color:c});r.style.translate='0 -50%';show([l,r],cue(sid,w),.4)});
+  const ok=el(S,'cap','the outcome looked perfect; the route was not',{top:'920px',fontSize:'34px',fontStyle:'italic',color:C.yellow});show(ok,cue(sid,'perfect'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S5: pass@k versus pass^k ============ */
+(function(){const S=$('S5');const sid='s5';
+  const svg=layerSvg(S);const P=(k,y)=>[240+k*190,860-y*560];
+  const ax=ln(svg,...P(.6,0),...P(5.4,0),C.axis,3),ay=ln(svg,...P(.6,0),...P(.6,1.05),C.axis,3);fadeIn([ax,ay],at(sid,.02),.4);
+  [1,2,3,4,5].forEach(k=>{const t=txt(S,String(k),...P(k,-.07),{fs:26,mono:true,color:C.dim});fadeIn(t,at(sid,.02),.4)});
+  ['0','0.5','1'].forEach((s,i)=>{const t=txt(S,s,P(.6,i/2)[0]-40,P(.6,i/2)[1],{fs:24,mono:true,color:C.dim});fadeIn(t,at(sid,.02),.4)});
+  const xl=txt(S,'attempts k',P(3,-.16)[0],P(3,-.16)[1],{fs:28,it:true,color:C.dim});fadeIn(xl,at(sid,.02),.4);
+  const att=[];for(let k=1;k<=5;k++)att.push([k,1-Math.pow(.1,k)]);const hat=[];for(let k=1;k<=5;k++)hat.push([k,Math.pow(.9,k)]);
+  const pa=pth(svg,polyD(P,att),C.green,6),ph=pth(svg,polyD(P,hat),C.red,6);
+  drawOn(pa,cue(sid,'least'),1);const la=txt(S,'pass@k: at least one succeeds',P(3.5,1.0)[0],P(3.5,1.0)[1]-34,{fs:30,color:C.green});show(la,cue(sid,'least'),.4);
+  drawOn(ph,cue(sid,'hat'),1.2);const lh=txt(S,'pass^k: all k succeed',P(3.4,.62)[0]+60,P(3.4,.62)[1]+60,{fs:30,color:C.red});show(lh,cue(sid,'hat'),.4);
+  const dots=hat.map(([k,y])=>{const [x,yy]=P(k,y);const d=el(S,'abs hid','',{left:(x-9)+'px',top:(yy-9)+'px',width:'18px',height:'18px',borderRadius:'9px',background:C.red});show(d,cue(sid,'power'),.3,{y:0});return d});
+  const eq=eqn(S,'\\text{pass}^k \\approx p^{\\,k}\\qquad 0.9^5 \\approx 0.59',1520,330,48);show(eq,cue(sid,'power'),.5);
+  const ln5=ln(svg,...P(5,0),...P(5,.59),C.red,2,{dash:'6 8'});fadeIn(ln5,cue(sid,'sixty'),.4);
+  const t5=txt(S,'0.59',P(5,.59)[0]+60,P(5,.59)[1],{fs:30,mono:true,color:C.red});show(t5,cue(sid,'sixty'),.4);
+  const us=txt(S,'pass^k: what a user relying on it experiences',1560,430,{fs:28,it:true,color:C.dim});show(us,cue(sid,'relying'),.4);
+  sceneInOut(sid);
+})();
+
+/* ============ S6: the evaluation cycle ============ */
+(function(){const S=$('S6');const sid='s6';
+  const svg=layerSvg(S);
+  const off=box(S,560,330,520,120,'<span>offline suite<br><span style="font-size:24px;color:#7f8b99">runs on every change</span></span>',C.blue,{fs:36});show(off,at(sid,.02),.4);
+  const ch=txt(S,'prompt · tools · model',940,450,{fs:26,it:true,color:C.dim});show(ch,cue(sid,'change'),.4);
+  const prod=box(S,1360,330,520,120,'<span>production<br><span style="font-size:24px;color:#7f8b99">sample of real traces</span></span>',C.green,{fs:36});show(prod,cue(sid,'production'),.5);
+  const jd=box(S,1360,640,520,110,'<span>graded by a validated judge</span>',C.green,{fs:32});show(jd,cue(sid,'judge'),.4);
+  const fl=box(S,560,640,520,110,'<span>failures read and categorised</span>',C.red,{fs:32});show(fl,cue(sid,'categorised'),.4);
+  const a1=pxArrow(svg,C.dim,4,1360,400,1360,575),a2=pxArrow(svg,C.dim,4,1090,640,830,640),a3=pxArrow(svg,C.yellow,5,560,575,560,400);
+  growPx(a1,cue(sid,'continuously'),.4);growPx(a2,cue(sid,'categorised'),.4);growPx(a3,cue(sid,'added'),.5);
+  const ad=txt(S,'the worst become new test cases',300,490,{fs:26,it:true,color:C.yellow});show(ad,cue(sid,'added'),.4);
+  const once=el(S,'cap','each mistake caught at most once in front of users',{top:'870px',fontSize:'36px',fontStyle:'italic',color:C.ink});show(once,cue(sid,'once'),.5);
+  sceneInOut(sid);
+})();
+
+/* ============ S7: the applied layer, and next ============ */
+(function(){const S=$('S7');const sid='s7';
+  const L=[['retrieval you can measure and tune','retrieval',C.yellow],['a harness that makes each call dependable','harness',C.blue],['agents with budgets and memory','agents',C.green],['evaluations that tell you if it helped','evaluations',C.pink]];
+  L.forEach(([t,w,c],i)=>{const b=box(S,960,200+i*120,980,90,t,c,{fs:34});show(b,i?cue(sid,w):at(sid,.02),.4)});
+  const nt=box(S,960,720,500,110,'next-token predictor',C.ink,{fs:40});show(nt,cue(sid,'underneath'),.5);
+  const yb=txt(S,'the model you built in this course',960,800,{fs:28,it:true,color:C.dim});show(yb,cue(sid,'building'),.4);
+  nextUp(S,sid,'capstones',1,'C1 &nbsp;digit recogniser: a NumPy MLP');
+  tl.to(S,{opacity:1,duration:.5,ease:'none'},START[sid]);
+})();
+
+/* KaTeX draws stacked glyphs that the layout checker reads as overlapping text */
+document.querySelectorAll('.katex, .katex *').forEach(e=>{e.setAttribute('data-layout-allow-overlap','');e.setAttribute('data-layout-allow-occlusion','')});
+tl.to({},{duration:.01},TIMING.total-.01);
+window.__timelines=window.__timelines||{};
+window.__timelines["main"]=tl;
+</script>
+</body>
+</html>

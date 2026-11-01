@@ -6,7 +6,7 @@ Every lesson has three parts:
 2. **Quiz** (3-5 questions): multiple choice, numeric answers and "predict what happens next" questions. Each answer shows an explanation.
 3. **Code problem** (1-2 per lesson): you fill in a Python function in the browser and it runs against hidden tests (Pyodide + NumPy, so nothing to install). The problems build on each other until you've written a neural network and a small GPT using only NumPy.
 
-Pacing: about 80 lessons in 13 modules, roughly 15-25 minutes per lesson including the quiz and code.
+Pacing: 88 lessons in 15 modules (0-14), roughly 15-25 minutes per lesson including the quiz and code.
 
 ## Module 0: Orientation (3)
 0.1 What it means for a machine to "learn": fitting a function to data
@@ -125,7 +125,17 @@ Code: forward noising process, a 1D denoiser
 12.3 Policy gradients
 Code: Q-learning on a gridworld
 
-## Capstones
+## Module 13: The applied layer (7)
+13.1 Keyword search: the inverted index and BM25
+13.2 Hybrid search: fusing, tuning and reranking
+13.3 The harness: everything around the model call
+13.4 Agents: tools, the loop and when to stop
+13.5 Long-running agents: context, memory and compaction
+13.6 Evals: a test set you can trust
+13.7 Evaluating agents and RAG systems
+Code: inverted index and BM25, score fusion and nDCG tuning, context packing, validate-and-retry, backoff, tool schemas from signatures, a robust agent loop, compaction and note recall, bootstrap intervals, Cohen's kappa, paired comparison, pass^k, trajectory checks
+
+## Capstones (module 14)
 - C1 Digit recognizer: NumPy MLP on MNIST, above 97% accuracy
 - C2 Tiny GPT: train a character-level transformer on a small text corpus (Colab notebook, PyTorch)
 

@@ -1,6 +1,6 @@
 # AI from Scratch
 
-A course of about 80 lessons, each with a 60-90 s 16:9 explainer video, a quiz and code problems. The plan is in `SYLLABUS.md`; `course.json` is the machine-readable outline.
+A course of 88 lessons, each with a 16:9 explainer video (as long as the idea needs, up to about 5 minutes), a quiz and code problems. The plan is in `SYLLABUS.md`; `course.json` is the machine-readable outline.
 
 ## Standing approval
 See `course.md` for the full brief. The user pre-approved lesson scripts for this course (2026-10-24): write each lesson's script and build it without waiting for sign-off. The rest of the pipeline in the root `CLAUDE.md` still applies (Sarvam voice, no music, Hyperframes).
