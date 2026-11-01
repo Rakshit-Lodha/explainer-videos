@@ -3,7 +3,7 @@
  "module": 13,
  "title": "Evals: a test set you can trust",
  "summary": "An eval is a fixed set of test cases, a grader and an honest statistic. Build cases from real traces, held apart from tuning. Grade with code where possible; validate an LLM judge against hand labels with Cohen's kappa, which corrects for chance agreement. Put an error bar on every score with the bootstrap, compare versions with a paired bootstrap on the same cases, and turn every bug into a regression case through error analysis.",
- "video": null,
+ "video": "videos/13.6-evals.mp4",
  "llm_link": "Model outputs vary run to run, so a change that 'looks better' on five examples is noise until a measured eval says otherwise. Lesson 10.7 covered benchmark scores; this lesson is about evaluating your own application.",
  "key_ideas": [
   "Eval = test cases + grader + statistic. Draw cases from real traces, cover hard and embarrassing ones, record what a good answer must contain, and keep them out of tuning.",
@@ -162,5 +162,5 @@
    "solution": "import random\n\ndef paired_diff_ci(old, new, n_boot=2000, seed=0, level=0.95):\n    if len(old) != len(new):\n        raise ValueError(\"both versions must be graded on the same cases\")\n    diffs = [b - a for a, b in zip(old, new)]\n    n = len(diffs)\n    rng = random.Random(seed)\n    means = sorted(sum(rng.choices(diffs, k=n)) / n for _ in range(n_boot))\n    tail = (1 - level) / 2\n    return sum(diffs) / n, means[int(tail * n_boot)], means[int((1 - tail) * n_boot) - 1]\n"
   }
  ],
- "poster": null
+ "poster": "videos/13.6-evals.jpg"
 }

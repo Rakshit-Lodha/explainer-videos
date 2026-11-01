@@ -3,7 +3,7 @@
  "module": 13,
  "title": "The harness: everything around the model call",
  "summary": "The harness is the code around a model call. It packs the context into a fixed token budget by priority, orders it so stable parts form a cacheable prefix and important passages sit at the edges, asks for structured output and validates it (feeding errors back for a bounded number of retries), retries transient failures with exponential backoff and jitter, and logs every call as a trace that later feeds evaluation.",
- "video": null,
+ "video": "videos/13.3-harness.mp4",
  "llm_link": "The same model behaves very differently under different harnesses. Prompt caching rewards a stable prefix (the KV cache from lesson 10.4), and 'lost in the middle' (10.5) is why passage order matters.",
  "key_ideas": [
   "Context assembly is packing under a token budget: required parts (instructions, the user's message) always go in, optional parts by priority until the budget is used.",
@@ -165,5 +165,5 @@
    "solution": "class Transient(Exception):\n    retryable = True      # e.g. a timeout or a rate limit\n\nclass Fatal(Exception):\n    retryable = False     # e.g. an invalid request: retrying cannot help\n\n\ndef retry_call(fn, max_attempts, sleep, rand, base=1.0, cap=30.0):\n    for attempt in range(max_attempts):\n        try:\n            return fn()\n        except Exception as e:\n            if not getattr(e, \"retryable\", False) or attempt == max_attempts - 1:\n                raise\n            sleep(min(cap, base * 2 ** attempt) * rand())\n"
   }
  ],
- "poster": null
+ "poster": "videos/13.3-harness.jpg"
 }

@@ -3,7 +3,7 @@
  "module": 13,
  "title": "Evaluating agents and RAG systems",
  "summary": "Multi-stage systems need stage-by-stage evaluation. For RAG, score retrieval (recall, nDCG on labelled passages) separately from the answer's faithfulness and correctness, and use the pair to locate a failure. For agents, grade the outcome by checking the final state in code, check the trajectory for appropriate tools, valid arguments, forbidden actions and step count, and run each task several times: pass@k (at least one success in k) suits generate-and-test, while pass^k (all k succeed, roughly pᵏ) measures the reliability users experience. Offline suites run on every change; graded production traces feed new failures back into them.",
- "video": null,
+ "video": "videos/13.7-agent-evals.mp4",
  "llm_link": "Agent and RAG behaviour is sampled from a next-token distribution, so the same task can succeed and fail on different runs. Reliability is a property you measure across runs, not one you observe once.",
  "key_ideas": [
   "RAG: evaluate retrieval (recall@k, nDCG) and generation (faithfulness to the retrieved text, correctness) separately. Right passage retrieved + wrong answer → fix generation; never retrieved → fix retrieval.",
@@ -161,5 +161,5 @@
    "solution": "def check_trajectory(calls, allowed, forbidden, max_steps, needs_before):\n    problems = []\n    if len(calls) > max_steps:\n        problems.append(f\"too many steps: {len(calls)} > {max_steps}\")\n    seen = set()\n    for i, call in enumerate(calls):\n        tool = call[\"tool\"]\n        if tool in forbidden:\n            problems.append(f\"step {i + 1}: forbidden tool '{tool}'\")\n        elif tool not in allowed:\n            problems.append(f\"step {i + 1}: tool '{tool}' is not allowed\")\n        if tool in needs_before and needs_before[tool] not in seen:\n            problems.append(f\"step {i + 1}: '{tool}' before '{needs_before[tool]}'\")\n        seen.add(tool)\n    return problems\n"
   }
  ],
- "poster": null
+ "poster": "videos/13.7-agent-evals.jpg"
 }

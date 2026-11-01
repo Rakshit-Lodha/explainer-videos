@@ -3,7 +3,7 @@
  "module": 13,
  "title": "Long-running agents: context, memory and compaction",
  "summary": "Every agent step resends the whole transcript, so cost grows roughly with the square of the number of steps and the transcript eventually outgrows the context window, while long contexts are also used less reliably. Compaction replaces older turns with a model-written summary, keeping instructions, task and recent turns verbatim, and saves raw outputs elsewhere first. External notes and retrieval memory persist beyond the window, and subagents explore in a fresh context and return only a short result.",
- "video": null,
+ "video": "videos/13.5-agent-memory.mp4",
  "llm_link": "The context window is the model's only working memory (lesson 10.4), and prompt caching makes rereading a stable prefix cheaper but not larger. Memory techniques decide which tokens the model sees at each step.",
  "key_ideas": [
   "If each step adds about the same text, step i rereads all i − 1 earlier steps, so total tokens sent grow quadratically with the number of steps.",
@@ -156,5 +156,5 @@
    "solution": "import re\n\ndef words(text):\n    return {w.strip(\".\") for w in re.findall(r\"[a-z0-9_.]+\", text.lower())} - {\"\"}\n\ndef recall(notes, query, k=2):\n    q = words(query)\n    def score(note):\n        w = words(note)\n        return len(q & w) / len(q | w) if q | w else 0.0\n    ranked = sorted(range(len(notes)), key=lambda i: (-score(notes[i]), i))\n    return [notes[i] for i in ranked[:k] if score(notes[i]) > 0]\n\nNOTES = [\n    \"Decided: the bug is in parse_date in utils/dates.py, not in the API layer.\",\n    \"Tests live in tests/test_dates.py; run them with pytest -q.\",\n    \"The user prefers ISO dates (YYYY-MM-DD) in all output.\",\n    \"Tried bumping the timezone library; it did not fix the failing test.\",\n]\n"
   }
  ],
- "poster": null
+ "poster": "videos/13.5-agent-memory.jpg"
 }
