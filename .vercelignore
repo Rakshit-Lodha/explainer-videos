@@ -1,0 +1,5 @@
+# Keep Vercel deployments small: videos are served from GitHub Pages
+ai-course/site/videos
+ai-course/lessons
+*.mp4
+*.wav

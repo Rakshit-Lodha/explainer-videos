@@ -28,10 +28,11 @@ main.append(
   h('p', { class: 'lede' }, L.summary),
 );
 
-/* video */
+/* video: the mp4s are served from GitHub Pages (free) so Vercel deployments stay a few MB */
+const MEDIA = /github\.io$|^localhost$|^127\./.test(location.hostname) ? '' : 'https://rakshit-lodha.github.io/explainer-videos/';
 const vbox = h('div', { class: 'video' });
 if (L.video) {
-  const v = h('video', { controls: '', preload: 'metadata', playsinline: '', src: L.video, poster: L.poster });
+  const v = h('video', { controls: '', preload: 'metadata', playsinline: '', src: MEDIA + L.video, poster: L.poster && MEDIA + L.poster });
   v.addEventListener('ended', () => { st.watched = true; save(); });
   vbox.append(v);
 } else vbox.append(h('div', { class: 'none' }, 'The video for this lesson is still being rendered.'));

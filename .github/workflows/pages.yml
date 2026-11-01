@@ -1,0 +1,25 @@
+# Publishes the course site (including the lesson videos) to GitHub Pages:
+# https://rakshit-lodha.github.io/explainer-videos/
+# Vercel serves the same site without the videos and loads them from here.
+name: Course site to GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths: ['ai-course/site/**', '.github/workflows/pages.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: '${{ steps.d.outputs.page_url }}' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: ai-course/site }
+      - id: d
+        uses: actions/deploy-pages@v4

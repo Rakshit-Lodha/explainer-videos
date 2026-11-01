@@ -2,6 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "",
-  "buildCommand": "",
-  "outputDirectory": "ai-course/site"
+  "buildCommand": "rm -rf ai-course/site/videos",
+  "outputDirectory": "ai-course/site",
+  "git": {
+    "deploymentEnabled": {
+      "claude/**": false
+    }
+  }
 }
